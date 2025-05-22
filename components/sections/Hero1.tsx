@@ -32,25 +32,6 @@ export default function Hero1() {
 									</svg>
 									Contact Us
 								</Link>
-								<div className="row mt-8 mb-3">
-									<h6 className="text-500 fs-5" data-aos="fade-zoom-in" data-aos-delay={100}>Trusted by great companies</h6>
-								</div>
-								<div className="d-flex align-items-center">
-									<div className="me-2" data-aos="fade-zoom-in" data-aos-delay={200}>
-										<div className="d-flex">
-											<img src="/assets/imgs/hero-1/avatar-1.png" alt="infinia" />
-											<img className="avt-hero" src="/assets/imgs/hero-1/avatar-2.png" alt="infinia" />
-											<img className="avt-hero" src=" assets/imgs/hero-1/avatar-3.png" alt="infinia" />
-										</div>
-										<span className="fs-6 fw-bold">4.8/5 <span className="text-secondary fw-medium">(26k Reviews)</span></span>
-									</div>
-									<div className="ms-3" data-aos="fade-zoom-in" data-aos-delay={300}>
-										<img src="/assets/imgs/hero-1/brand-1.svg" alt="infinia" />
-									</div>
-									<div className="ms-3" data-aos="fade-zoom-in" data-aos-delay={300}>
-										<img src="/assets/imgs/hero-1/brand-2.svg" alt="infinia" />
-									</div>
-								</div>
 							</div>
 						</div>
 						<div className="col-lg-6 position-relative justify-content-center">

@@ -39,24 +39,7 @@ export default function Hero3() {
 										<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 									</svg>
 								</Link>
-								<div className="mt-6 pt-4 max-w-300px">
-									<p className="text-uppercase mb-2">Trusted by the best</p>
-									<div className="carouselTicker carouselTicker-right">
-										<ul className="carouselTicker__list">
-											<Marquee direction="right">
-												<li className="carouselTicker__item mx-2">
-													<img className="filter-invert rounded-4" src="/assets/imgs/hero-3/logo-1.png" alt="infinia" />
-												</li>
-												<li className="carouselTicker__item mx-2">
-													<img className="rounded-4" src="/assets/imgs/hero-3/logo-2.png" alt="infinia" />
-												</li>
-												<li className="carouselTicker__item mx-2">
-													<img className="rounded-4" src="/assets/imgs/hero-3/logo-3.png" alt="infinia" />
-												</li>
-											</Marquee>
-										</ul>
-									</div>
-								</div>
+
 							</div>
 						</div>
 						<div className="col-lg-7 position-xl-absolute mb-lg-10 top-50 end-0 translate-middle-lg-y z-0">
