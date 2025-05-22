@@ -1,0 +1,71 @@
+{
+  "hero1": {
+    "badge": {
+      "label": "New",
+      "text": "Free Lifetime Update"
+    },
+    "title": "Boost your project's speed and.",
+    "description": "Access top-tier group mentoring plans and exclusive professional benefits for your team.",
+    "primaryButton": {
+      "text": "Explore Now",
+      "link": "/page-services-1"
+    },
+    "secondaryButton": {
+      "text": "Contact Us",
+      "link": "/page-contact-1"
+    },
+    "images": {
+      "background": "/assets/imgs/hero-1/background.png",
+      "shape1": "/assets/imgs/hero-1/shape-1.png",
+      "shape2": "/assets/imgs/hero-1/shape-2.png",
+      "shape3": "/assets/imgs/hero-1/shape-3.png"
+    },
+    "card": {
+      "image": "/assets/imgs/hero-1/shape-4.png",
+      "title": "Book A Call",
+      "description": "Customer activity can be easily tracked with one click",
+      "button": {
+        "label": "Get",
+        "text": "Free Update",
+        "link": "#"
+      }
+    }
+  },
+  "hero3": {
+    "badge": {
+      "text": "🚀 Free Lifetime Update"
+    },
+    "title": {
+      "part1": "Elevate your",
+      "part2": "brand with Infinia."
+    },
+    "description": "Access top-tier group mentoring plans and exclusive professional benefits for your team.",
+    "button": {
+      "text": "Get Free Quote",
+      "link": "#"
+    },
+    "avatars": [
+      {
+        "image": "/assets/imgs/hero-3/avatar-1.png",
+        "alt": "User avatar 1"
+      },
+      {
+        "image": "/assets/imgs/hero-3/avatar-2.png",
+        "alt": "User avatar 2"
+      },
+      {
+        "image": "/assets/imgs/hero-3/icon.svg",
+        "alt": "Icon avatar"
+      }
+    ],
+    "images": {
+      "image1": "/assets/imgs/hero-3/img-1.png",
+      "image2": "/assets/imgs/hero-3/img-2.png",
+      "image3": "/assets/imgs/hero-3/img-3.png",
+      "image4": "/assets/imgs/hero-3/img-4.png",
+      "star": "/assets/imgs/hero-3/star-rotate.png"
+    },
+    "active": true
+  },
+  "activeHero": "hero1"
+}

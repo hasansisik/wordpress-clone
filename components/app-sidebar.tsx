@@ -47,27 +47,27 @@ const data = {
         },
         {
           title: "Hero",
-          url: "#",
+          url: "/dashboard/editor/hero",
         },
         {
           title: "Call to Action",
-          url: "#",
+          url: "/dashboard/editor/call",
         },
         {
           title: "Services",
-          url: "#",
+          url: "/dashboard/editor/services",
         },
         {
           title: "Faq",
-          url: "#",
+          url: "/dashboard/editor/faq",
         },
         {
           title: "Blog",
-          url: "#",
+          url: "/dashboard/editor/blog",
         },
         {
           title: "Footer",
-          url: "#",
+          url: "/dashboard/editor/footer",
         },
       ],
     },
