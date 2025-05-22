@@ -18,40 +18,23 @@ export default function Header2({ scroll, isMobileMenu, handleMobileMenu, isSear
 		return <header>Loading...</header>
 	}
 
-	// Helper function to identify social media types by name
-	const identifySocialType = (itemName: string) => {
-		const lowerName = itemName.toLowerCase();
-		
-		const socialPlatforms = {
-			'facebook': 'Facebook',
-			'twitter': 'Twitter',
-			'x': 'Twitter', // For Twitter's rebranding as X
-			'linkedin': 'LinkedIn',
-			'behance': 'Behance',
-			'instagram': 'Instagram',
-			'fb': 'Facebook',
-			'tw': 'Twitter',
-			'li': 'LinkedIn',
-			'ig': 'Instagram',
-			'be': 'Behance'
-		};
-
-		for (const [keyword, platform] of Object.entries(socialPlatforms)) {
-			if (lowerName.includes(keyword)) {
-				return platform;
-			}
-		}
-
-		return null;
-	};
-
 	return (
 		<>
 			<header>
 				<nav className={`navbar navbar-expand-lg navbar-light w-100 z-999 ${scroll ? 'navbar-stick' : ''}`} style={{ position: `${scroll? "fixed" : "relative"}`, top: `${scroll? "0" : "auto"}`, bottom: `${scroll? "auto" : "0"}` }}>
 					<div className="container-fluid px-md-8 px-2">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
-							<img src={data.logo.src} alt={data.logo.alt} />
+							<img 
+								src={data.logo.src} 
+								alt={data.logo.alt} 
+								style={{ 
+									maxWidth: '40px', 
+									maxHeight: '40px', 
+									width: 'auto', 
+									height: 'auto', 
+									objectFit: 'contain' 
+								}} 
+							/>
 							<span>{data.logo.text}</span>
 						</Link>
 						<Menu menuItems={data.mainMenu} />
@@ -82,20 +65,7 @@ export default function Header2({ scroll, isMobileMenu, handleMobileMenu, isSear
 					handleMobileMenu={handleMobileMenu} 
 					isMobileMenu={isMobileMenu} 
 					menuItems={data.mainMenu}
-					socialLinks={data.socialLinks?.map(item => {
-						// Add support for identifying social media from alternative names
-						if (!item.name) return item;
-						
-						const identifiedPlatform = identifySocialType(item.name);
-						if (identifiedPlatform && identifiedPlatform !== item.name) {
-							return {
-								...item,
-								originalName: item.name, // Keep original name
-								name: identifiedPlatform // Replace with standard name for icon rendering
-							};
-						}
-						return item;
-					})} 
+					socialLinks={data.socialLinks} 
 				/>
 			</header>
 

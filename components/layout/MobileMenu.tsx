@@ -217,12 +217,14 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, menuItems, 
 
 		return socialData.map((social: SocialLink) => {
 			const platformName = social.name;
-			const icon = renderSocialIcon(platformName) || renderSocialIcon(identifySocialType(platformName));
+			const identifiedType = identifySocialType(platformName);
+			const icon = platformName ? renderSocialIcon(platformName) : null;
+			const fallbackIcon = identifiedType ? renderSocialIcon(identifiedType) : null;
 			
-			if (icon) {
+			if (icon || fallbackIcon) {
 				return (
 					<Link key={social._id} className="icon-socials" href={social.link}>
-						{icon}
+						{icon || fallbackIcon}
 					</Link>
 				);
 			}
@@ -242,7 +244,18 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, menuItems, 
 				<div className="mobile-header-content-area">
 					<div className="mobile-logo">
 						<Link className="d-flex" href="/">
-							<img className="logo-size" src={headerData.logo?.src || "/assets/imgs/template/favicon.svg"} alt={headerData.logo?.alt || "infinia"} />
+							<img 
+								className="logo-size" 
+								src={headerData.logo?.src || "/assets/imgs/template/favicon.svg"} 
+								alt={headerData.logo?.alt || "infinia"}
+								style={{ 
+									maxWidth: '40px', 
+									maxHeight: '40px', 
+									width: 'auto', 
+									height: 'auto', 
+									objectFit: 'contain' 
+								}}
+							/>
 							<span>{headerData.logo?.text || "Infinia"}</span>
 						</Link>
 						<div className="burger-icon burger-close" onClick={handleMobileMenu}><span className="burger-icon-top"></span><span className="burger-icon-mid"></span><span className="burger-icon-bottom"></span></div>

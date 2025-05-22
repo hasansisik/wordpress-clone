@@ -24,7 +24,17 @@ export default function Header4({ scroll, isMobileMenu, handleMobileMenu, isSear
 				<nav className={`navbar navbar-expand-lg navbar-light w-100 z-999 header-4 ${scroll ? 'navbar-stick' : ''}`} style={{ position: `${scroll? "fixed" : "relative"}`, top: `${scroll? "0" : "auto"}`, bottom: `${scroll? "auto" : "0"}` }}>
 					<div className="container">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
-							<img src={data.logo.src} alt={data.logo.alt} />
+							<img 
+								src={data.logo.src} 
+								alt={data.logo.alt} 
+								style={{ 
+									maxWidth: '40px', 
+									maxHeight: '40px', 
+									width: 'auto', 
+									height: 'auto', 
+									objectFit: 'contain' 
+								}} 
+							/>
 							<span>{data.logo.text}</span>
 						</Link>
 						<Menu menuItems={data.mainMenu} />

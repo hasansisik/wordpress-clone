@@ -18,54 +18,6 @@ export default function Header5({ scroll, isMobileMenu, handleMobileMenu, isSear
 		return <header>Loading...</header>
 	}
 
-	// Helper function to identify topbar item types by name
-	const identifyItemType = (itemName: string) => {
-		const phoneKeywords = ['phone', 'tel', 'call', 'mobile', 'cell', 'contact'];
-		const emailKeywords = ['email', 'mail', 'e-mail', 'contact email'];
-		const addressKeywords = ['address', 'location', 'office', 'place', 'headquarters', 'hq'];
-
-		const lowerName = itemName.toLowerCase();
-
-		if (phoneKeywords.some(keyword => lowerName.includes(keyword))) {
-			return 'phone';
-		}
-		if (emailKeywords.some(keyword => lowerName.includes(keyword))) {
-			return 'email';
-		}
-		if (addressKeywords.some(keyword => lowerName.includes(keyword))) {
-			return 'address';
-		}
-
-		return null;
-	};
-
-	// Helper function to identify social media types by name
-	const identifySocialType = (itemName: string) => {
-		const lowerName = itemName.toLowerCase();
-		
-		const socialPlatforms = {
-			'facebook': 'Facebook',
-			'twitter': 'Twitter',
-			'x': 'Twitter', // For Twitter's rebranding as X
-			'linkedin': 'LinkedIn',
-			'behance': 'Behance',
-			'instagram': 'Instagram',
-			'fb': 'Facebook',
-			'tw': 'Twitter',
-			'li': 'LinkedIn',
-			'ig': 'Instagram',
-			'be': 'Behance'
-		};
-
-		for (const [keyword, platform] of Object.entries(socialPlatforms)) {
-			if (lowerName.includes(keyword)) {
-				return platform;
-			}
-		}
-
-		return null;
-	};
-
 	return (
 		<>
 			<div className="top-bar position-relative z-4">
@@ -74,10 +26,7 @@ export default function Header5({ scroll, isMobileMenu, handleMobileMenu, isSear
 						<div className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
 							<div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 								{data.topBarItems && data.topBarItems.map((item: any, index: number) => {
-									// Identify the item type by its name
-									const itemType = identifyItemType(item.name);
-									
-									if ((item.name === "Email" || itemType === 'email') && item.content) {
+									if (item.name === "Email" && item.content) {
 										return (
 											<a href={`mailto:${item.content}`} className="pe-4 d-none d-md-flex" key={index}>
 												<svg xmlns="http://www.w3.org/2000/svg" width={20} height={21} viewBox="0 0 20 21" fill="none">
@@ -88,7 +37,7 @@ export default function Header5({ scroll, isMobileMenu, handleMobileMenu, isSear
 											</a>
 										)
 									}
-									if ((item.name === "Address" || itemType === 'address') && item.content) {
+									if (item.name === "Address" && item.content) {
 										return (
 											<div className="location d-flex align-items-center" key={index}>
 												<svg xmlns="http://www.w3.org/2000/svg" width={20} height={21} viewBox="0 0 20 21" fill="none">
@@ -139,15 +88,10 @@ export default function Header5({ scroll, isMobileMenu, handleMobileMenu, isSear
 										)
 									};
 
-									// Get the social media platform from name or try to identify it
-									const platformName = item.name || '';
-									const identifiedPlatform = identifySocialType(platformName);
-									const icon = socialIcons[platformName] || (identifiedPlatform ? socialIcons[identifiedPlatform] : null);
-
-									if (icon) {
+									if (socialIcons[item.name]) {
 										return (
 											<a href={item.link} className="text-white icon-shape icon-md" key={index}>
-												{icon}
+												{socialIcons[item.name]}
 											</a>
 										)
 									}
@@ -163,17 +107,24 @@ export default function Header5({ scroll, isMobileMenu, handleMobileMenu, isSear
 				<nav className={`navbar navbar-expand-lg navbar-light w-100 border-bottom z-999 ${scroll ? 'navbar-stick' : ''}`} style={{ position: `${scroll? "fixed" : "relative"}`, top: `${scroll? "0" : "auto"}`, bottom: `${scroll? "auto" : "0"}` }}>
 					<div className="container-fluid px-lg-8">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
-							<img src={data.logo.src} alt={data.logo.alt} />
+							<img 
+								src={data.logo.src} 
+								alt={data.logo.alt} 
+								style={{ 
+									maxWidth: '40px', 
+									maxHeight: '40px', 
+									width: 'auto', 
+									height: 'auto', 
+									objectFit: 'contain' 
+								}} 
+							/>
 							<span>{data.logo.text}</span>
 						</Link>
 						<Menu menuItems={data.mainMenu} />
 						<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
 							<div className="d-lg-flex align-items-center pe-8 d-none">
 								{data.topBarItems && data.topBarItems.map((item: any, index: number) => {
-									// Identify the item type by its name
-									const itemType = identifyItemType(item.name);
-									
-									if ((item.name === "Phone" || itemType === 'phone') && item.content) {
+									if (item.name === "Phone" && item.content) {
 										return (
 											<div key={index}>
 												<a href={`tel:${item.content.replace(/\s+/g, '')}`} className="icon-shape icon-lg bg-linear-2 rounded-circle mx-3">

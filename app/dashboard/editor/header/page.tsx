@@ -49,6 +49,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
+import { uploadImageToCloudinary } from "@/utils/cloudinary";
 
 // Define types for menu items
 interface MenuItem {
@@ -77,6 +78,25 @@ interface HeaderData {
   actionButtonLink: string;
   headerComponent: string;
 }
+
+// Topbar item tipleri ve iconları için sabit listeler
+const topBarItemTypes = [
+  { name: "Phone", icon: "phone" },
+  { name: "Email", icon: "email" },
+  { name: "Address", icon: "location" },
+  { name: "Hours", icon: "clock" }
+];
+
+// Social media tipleri ve iconları
+const socialMediaTypes = [
+  { name: "Facebook", icon: "facebook" },
+  { name: "Twitter", icon: "twitter" },
+  { name: "LinkedIn", icon: "linkedin" },
+  { name: "Instagram", icon: "instagram" },
+  { name: "Behance", icon: "behance" },
+  { name: "YouTube", icon: "youtube" },
+  { name: "Pinterest", icon: "pinterest" }
+];
 
 export default function HeaderEditor() {
   const router = useRouter();
@@ -251,10 +271,8 @@ export default function HeaderEditor() {
 
     try {
       setLogoUploading(true);
-      // Simulate upload delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // Simulating cloudinary upload
-      const uploadedUrl = URL.createObjectURL(file);
+      // Cloudinary'e yükle
+      const uploadedUrl = await uploadImageToCloudinary(file);
 
       setHeaderData({
         ...headerData,
@@ -1025,7 +1043,7 @@ export default function HeaderEditor() {
                               <Label htmlFor="name" className="text-sm">
                                 Platform
                               </Label>
-                              <Input
+                              <select
                                 id="name"
                                 value={newItem.name}
                                 onChange={(e) =>
@@ -1035,9 +1053,15 @@ export default function HeaderEditor() {
                                     type: "socialLinks",
                                   })
                                 }
-                                placeholder="e.g., Twitter"
-                                className="h-9 text-sm"
-                              />
+                                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+                              >
+                                <option value="">Select a platform</option>
+                                {socialMediaTypes.map((type) => (
+                                  <option key={type.name} value={type.name}>
+                                    {type.name}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                             <div className="space-y-2">
                               <Label htmlFor="link" className="text-sm">
@@ -1060,6 +1084,7 @@ export default function HeaderEditor() {
                             <Button
                               type="submit"
                               className="w-full mt-2 text-sm"
+                              disabled={!newItem.name || !newItem.link}
                             >
                               Add Social Link
                             </Button>
@@ -1141,9 +1166,9 @@ export default function HeaderEditor() {
                           <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
                             <div className="space-y-2">
                               <Label htmlFor="name" className="text-sm">
-                                Label
+                                Type
                               </Label>
-                              <Input
+                              <select
                                 id="name"
                                 value={newItem.name}
                                 onChange={(e) =>
@@ -1153,9 +1178,15 @@ export default function HeaderEditor() {
                                     type: "topBarItems",
                                   })
                                 }
-                                placeholder="e.g., Phone, Email, Address"
-                                className="h-9 text-sm"
-                              />
+                                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+                              >
+                                <option value="">Select a type</option>
+                                {topBarItemTypes.map((type) => (
+                                  <option key={type.name} value={type.name}>
+                                    {type.name}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                             <div className="space-y-2">
                               <Label htmlFor="content" className="text-sm">
@@ -1171,13 +1202,17 @@ export default function HeaderEditor() {
                                     type: "topBarItems",
                                   })
                                 }
-                                placeholder="e.g., +1 (555) 123-4567"
+                                placeholder={newItem.name === "Phone" ? "+1 (555) 123-4567" : 
+                                            newItem.name === "Email" ? "contact@example.com" :
+                                            newItem.name === "Address" ? "123 Main St, City" : 
+                                            newItem.name === "Hours" ? "Mon-Fri: 9am-5pm" : ""}
                                 className="h-9 text-sm"
                               />
                             </div>
                             <Button
                               type="submit"
                               className="w-full mt-2 text-sm"
+                              disabled={!newItem.name || !newItem.content}
                             >
                               Add Top Bar Item
                             </Button>
@@ -1418,20 +1453,68 @@ export default function HeaderEditor() {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleUpdateItem} className="space-y-4 mt-3">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-name" className="text-sm">
-                    Name
-                  </Label>
-                  <Input
-                    id="edit-name"
-                    value={editedItem.name}
-                    onChange={(e) =>
-                      setEditedItem({ ...editedItem, name: e.target.value })
-                    }
-                    placeholder="Item name"
-                    className="h-9 text-sm"
-                  />
-                </div>
+                {editedItem.type === "socialLinks" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name" className="text-sm">
+                      Platform
+                    </Label>
+                    <select
+                      id="edit-name"
+                      value={editedItem.name}
+                      onChange={(e) =>
+                        setEditedItem({ ...editedItem, name: e.target.value })
+                      }
+                      className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+                    >
+                      <option value="">Select a platform</option>
+                      {socialMediaTypes.map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {editedItem.type === "topBarItems" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name" className="text-sm">
+                      Type
+                    </Label>
+                    <select
+                      id="edit-name"
+                      value={editedItem.name}
+                      onChange={(e) =>
+                        setEditedItem({ ...editedItem, name: e.target.value })
+                      }
+                      className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+                    >
+                      <option value="">Select a type</option>
+                      {topBarItemTypes.map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {editedItem.type === "mainMenu" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name" className="text-sm">
+                      Name
+                    </Label>
+                    <Input
+                      id="edit-name"
+                      value={editedItem.name}
+                      onChange={(e) =>
+                        setEditedItem({ ...editedItem, name: e.target.value })
+                      }
+                      placeholder="Item name"
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                )}
 
                 {(editedItem.type === "mainMenu" ||
                   editedItem.type === "socialLinks") && (
@@ -1465,7 +1548,10 @@ export default function HeaderEditor() {
                           content: e.target.value,
                         })
                       }
-                      placeholder="Content text"
+                      placeholder={editedItem.name === "Phone" ? "+1 (555) 123-4567" : 
+                                   editedItem.name === "Email" ? "contact@example.com" :
+                                   editedItem.name === "Address" ? "123 Main St, City" : 
+                                   editedItem.name === "Hours" ? "Mon-Fri: 9am-5pm" : ""}
                       className="h-9 text-sm"
                     />
                   </div>
@@ -1474,6 +1560,11 @@ export default function HeaderEditor() {
                 <Button
                   type="submit"
                   className="w-full mt-2 text-sm"
+                  disabled={
+                    (editedItem.type === "mainMenu" && (!editedItem.name || !editedItem.link)) ||
+                    (editedItem.type === "socialLinks" && (!editedItem.name || !editedItem.link)) ||
+                    (editedItem.type === "topBarItems" && (!editedItem.name || !editedItem.content))
+                  }
                 >
                   Update
                 </Button>

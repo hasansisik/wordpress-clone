@@ -18,27 +18,6 @@ export default function Header3({ scroll, isMobileMenu, handleMobileMenu, isSear
 		return <header>Loading...</header>
 	}
 
-	// Helper function to identify topbar item types by name
-	const identifyItemType = (itemName: string) => {
-		const phoneKeywords = ['phone', 'tel', 'call', 'mobile', 'cell', 'contact'];
-		const emailKeywords = ['email', 'mail', 'e-mail', 'contact email'];
-		const addressKeywords = ['address', 'location', 'office', 'place', 'headquarters', 'hq'];
-
-		const lowerName = itemName.toLowerCase();
-
-		if (phoneKeywords.some(keyword => lowerName.includes(keyword))) {
-			return 'phone';
-		}
-		if (emailKeywords.some(keyword => lowerName.includes(keyword))) {
-			return 'email';
-		}
-		if (addressKeywords.some(keyword => lowerName.includes(keyword))) {
-			return 'address';
-		}
-
-		return null;
-	};
-
 	return (
 		<>
 			<div>
@@ -48,10 +27,7 @@ export default function Header3({ scroll, isMobileMenu, handleMobileMenu, isSear
 							<div className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
 								<div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 									{data.topBarItems && data.topBarItems.length > 0 && data.topBarItems.map((item: any, index: number) => {
-										// Identify the item type by its name
-										const itemType = identifyItemType(item.name);
-										
-										if ((item.name === "Phone" || itemType === 'phone') && item.content) {
+										if (item.name === "Phone" && item.content) {
 											return (
 												<a href={`tel:${item.content.replace(/\s+/g, '')}`} className="pe-4" key={index}>
 													<svg xmlns="http://www.w3.org/2000/svg" width={20} height={21} viewBox="0 0 20 21" fill="none">
@@ -61,7 +37,7 @@ export default function Header3({ scroll, isMobileMenu, handleMobileMenu, isSear
 												</a>
 											)
 										}
-										if ((item.name === "Address" || itemType === 'address') && item.content) {
+										if (item.name === "Address" && item.content) {
 											return (
 												<div className="location d-flex align-items-center" key={index}>
 													<svg xmlns="http://www.w3.org/2000/svg" width={20} height={21} viewBox="0 0 20 21" fill="none">
@@ -82,10 +58,7 @@ export default function Header3({ scroll, isMobileMenu, handleMobileMenu, isSear
 									</svg>
 									<span className="text-900 pe-3 ps-1 fs-7">Mon-Fri: 10:00am - 09:00pm</span>
 									{data.topBarItems && data.topBarItems.map((item: any, index: number) => {
-										// Identify the item type by its name
-										const itemType = identifyItemType(item.name);
-										
-										if ((item.name === "Email" || itemType === 'email') && item.content) {
+										if (item.name === "Email" && item.content) {
 											return (
 												<a href={`mailto:${item.content}`} className="ps-4" key={index}>
 													<svg xmlns="http://www.w3.org/2000/svg" width={20} height={21} viewBox="0 0 20 21" fill="none">
@@ -108,7 +81,17 @@ export default function Header3({ scroll, isMobileMenu, handleMobileMenu, isSear
 					<nav className={`navbar navbar-expand-lg navbar-light w-100 z-999 ${scroll ? 'navbar-stick' : ''}`} style={{ position: `${scroll? "fixed" : "relative"}`, top: `${scroll? "0" : "auto"}`, bottom: `${scroll? "auto" : "0"}` }}>
 						<div className="container">
 							<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
-								<img src={data.logo.src} alt={data.logo.alt} />
+								<img 
+									src={data.logo.src} 
+									alt={data.logo.alt} 
+									style={{ 
+										maxWidth: '40px', 
+										maxHeight: '40px', 
+										width: 'auto', 
+										height: 'auto', 
+										objectFit: 'contain' 
+									}} 
+								/>
 								<span>{data.logo.text}</span>
 							</Link>
 							<Menu menuItems={data.mainMenu} />
