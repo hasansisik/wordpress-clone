@@ -12724,7 +12724,7 @@ strong {
   bottom: 0;
   width: 24px;
   height: 2px;
-  background-color: var();
+  background-color: #000;
 }
 .icon-flip .icon {
   transition: all 0.3s ease-in-out;
