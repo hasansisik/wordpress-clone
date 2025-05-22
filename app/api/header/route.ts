@@ -41,7 +41,8 @@ export async function POST(req: NextRequest) {
         order: typeof item.order === 'number' ? item.order : index
       })) : [],
       showDarkModeToggle: typeof data.showDarkModeToggle === 'boolean' ? data.showDarkModeToggle : true,
-      showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : true
+      showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : true,
+      headerComponent: data.headerComponent || "Header1"
     };
     
     // Convert data to a JSON string
@@ -96,7 +97,8 @@ export async function GET() {
         socialLinks: [],
         topBarItems: [],
         showDarkModeToggle: true,
-        showActionButton: true
+        showActionButton: true,
+        headerComponent: "Header1"
       };
       
       await fs.writeFile(filePath, JSON.stringify(defaultData, null, 2), 'utf8');

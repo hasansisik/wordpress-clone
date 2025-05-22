@@ -19,7 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash, Edit } from "lucide-react";
+import { GripVertical, Trash2, Pencil } from "lucide-react";
 import { Button } from "./button";
 
 // Drag Handle Component
@@ -54,9 +54,9 @@ export const SortableItem = React.memo(
       <div
         ref={setNodeRef}
         style={style}
-        className={`flex items-center justify-between p-2 mb-2 bg-white rounded-sm border ${
-          isDragging ? "border-blue-200 shadow-sm" : "border-gray-200"
-        }`}
+        className={`flex items-center justify-between p-2.5 mb-2 bg-white rounded-md border ${
+          isDragging ? "border-blue-200 shadow-sm" : "border-gray-100"
+        } hover:border-gray-200 transition-colors`}
       >
         <div className="flex items-center flex-1">
           <div {...attributes} {...listeners}>
@@ -73,30 +73,26 @@ export const SortableItem = React.memo(
             )}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {onEdit && (
-            <div className="flex items-center justify-center bg-gray-200 p-1 rounded-sm">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onEdit(id)}
-                className="h-6 w-6 text-black"
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onEdit(id)}
+              className="h-7 w-7 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
           )}
           {onDelete && (
-            <div className="flex items-center justify-center bg-red-600 p-1 rounded-sm">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(id)}
-                className="h-6 w-6 text-white"
-              >
-                <Trash className="h-3 w-3" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onDelete(id)}
+              className="h-7 w-7 rounded-md text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
           )}
         </div>
       </div>
@@ -109,7 +105,7 @@ SortableItem.displayName = "SortableItem";
 // Sortable Item Component that doesn't rely on useSortable (for the overlay)
 export const Item = React.memo(({ item, renderItem }) => {
   return (
-    <div className="flex items-center justify-between p-2 mb-1 bg-white rounded border border-blue-200 shadow-sm">
+    <div className="flex items-center justify-between p-2.5 mb-2 bg-white rounded-md border border-blue-200 shadow-sm">
       <div className="flex items-center flex-1">
         <DragHandle />
         <div className="flex-1">

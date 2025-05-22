@@ -18,6 +18,33 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 		return <header>Loading...</header>
 	}
 
+	// Helper function to identify social media types by name
+	const identifySocialType = (itemName: string) => {
+		const lowerName = itemName.toLowerCase();
+		
+		const socialPlatforms = {
+			'facebook': 'Facebook',
+			'twitter': 'Twitter',
+			'x': 'Twitter', // For Twitter's rebranding as X
+			'linkedin': 'LinkedIn',
+			'behance': 'Behance',
+			'instagram': 'Instagram',
+			'fb': 'Facebook',
+			'tw': 'Twitter',
+			'li': 'LinkedIn',
+			'ig': 'Instagram',
+			'be': 'Behance'
+		};
+
+		for (const [keyword, platform] of Object.entries(socialPlatforms)) {
+			if (lowerName.includes(keyword)) {
+				return platform;
+			}
+		}
+
+		return null;
+	};
+
 	return (
 		<>
 			<header>
@@ -54,7 +81,20 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 					handleMobileMenu={handleMobileMenu} 
 					isMobileMenu={isMobileMenu} 
 					menuItems={data.mainMenu}
-					socialLinks={data.socialLinks} 
+					socialLinks={data.socialLinks?.map(item => {
+						// Add support for identifying social media from alternative names
+						if (!item.name) return item;
+						
+						const identifiedPlatform = identifySocialType(item.name);
+						if (identifiedPlatform && identifiedPlatform !== item.name) {
+							return {
+								...item,
+								originalName: item.name, // Keep original name
+								name: identifiedPlatform // Replace with standard name for icon rendering
+							};
+						}
+						return item;
+					})} 
 				/>
 			</header>
 		</>

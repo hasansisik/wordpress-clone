@@ -42,8 +42,59 @@
       "order": 4
     }
   ],
-  "socialLinks": [],
-  "topBarItems": [],
+  "socialLinks": [
+    {
+      "_id": "social-1",
+      "name": "Facebook",
+      "link": "https://facebook.com/example",
+      "order": 0
+    },
+    {
+      "_id": "social-2",
+      "name": "Twitter",
+      "link": "https://twitter.com/example",
+      "order": 1
+    },
+    {
+      "_id": "social-3",
+      "name": "LinkedIn",
+      "link": "https://linkedin.com/in/example",
+      "order": 2
+    },
+    {
+      "_id": "social-4",
+      "name": "Instagram",
+      "link": "https://instagram.com/example",
+      "order": 3
+    },
+    {
+      "_id": "social-5",
+      "name": "Behance",
+      "link": "https://behance.net/example",
+      "order": 4
+    }
+  ],
+  "topBarItems": [
+    {
+      "_id": "topbar-1",
+      "name": "Phone",
+      "content": "+01 (24) 568 900",
+      "order": 0
+    },
+    {
+      "_id": "topbar-2",
+      "name": "Email",
+      "content": "contact@infinia.com",
+      "order": 1
+    },
+    {
+      "_id": "topbar-3",
+      "name": "Address",
+      "content": "0811 Erdman Prairie, Joaville CA",
+      "order": 2
+    }
+  ],
   "showDarkModeToggle": true,
-  "showActionButton": true
+  "showActionButton": true,
+  "headerComponent": "Header1"
 }

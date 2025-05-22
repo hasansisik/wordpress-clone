@@ -14,7 +14,7 @@ interface MenuProps {
 	menuItems?: MenuItem[];
 }
 
-export default function Menu({ menuItems }: MenuProps) {
+export default function Menu({ menuItems = [] }: MenuProps) {
 	const [data, setData] = useState<any>(null)
 
 	useEffect(() => {

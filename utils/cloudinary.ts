@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 
-const CLOUD_NAME = 'dxn8cr47c';
-const API_KEY = '151512642623259';
-const API_SECRET = 'VSloUueMYk6xv7OMGBI2PoW8AEY';
+const CLOUD_NAME = 'dbw3ozdoh';
+const API_KEY = '742373231915158';
+const API_SECRET = 'rlJxEB-nHt5b6dIywf57q_fc0iE';
 
 function generateSignature(timestamp: number): string {
   const str = `timestamp=${timestamp}${API_SECRET}`;

@@ -20,8 +20,9 @@ import {
   Upload,
   Moon,
   Sun,
-  Trash,
-  Edit,
+  Trash2,
+  Pencil,
+  ArrowLeft,
 } from "lucide-react";
 import { SortableList } from "@/components/ui/sortable-list";
 import {
@@ -74,6 +75,7 @@ interface HeaderData {
   showActionButton: boolean;
   actionButtonText: string;
   actionButtonLink: string;
+  headerComponent: string;
 }
 
 export default function HeaderEditor() {
@@ -89,6 +91,7 @@ export default function HeaderEditor() {
     showActionButton: true,
     actionButtonText: "",
     actionButtonLink: "",
+    headerComponent: "",
   });
 
   const [showAlert, setShowAlert] = useState(false);
@@ -120,6 +123,7 @@ export default function HeaderEditor() {
       image: "/assets/imgs/headers/header1.png",
       hasTopBar: false,
       buttonText: "Join For Free Trial",
+      component: "Header1"
     },
     {
       id: 2,
@@ -127,6 +131,7 @@ export default function HeaderEditor() {
       image: "/assets/imgs/headers/header2.png",
       hasTopBar: false,
       buttonText: "Join For Free Trial",
+      component: "Header2"
     },
     {
       id: 3,
@@ -134,6 +139,7 @@ export default function HeaderEditor() {
       image: "/assets/imgs/headers/header3.png",
       hasTopBar: true,
       buttonText: "Join For Free Trial",
+      component: "Header3" 
     },
     {
       id: 4,
@@ -141,6 +147,7 @@ export default function HeaderEditor() {
       image: "/assets/imgs/headers/header4.png",
       hasTopBar: false,
       buttonText: "",
+      component: "Header4"
     },
     {
       id: 5,
@@ -148,6 +155,7 @@ export default function HeaderEditor() {
       image: "/assets/imgs/headers/header5.png",
       hasTopBar: true,
       buttonText: "Get a Quote",
+      component: "Header5"
     },
   ];
 
@@ -203,6 +211,7 @@ export default function HeaderEditor() {
       showActionButton: header.buttonText !== "",
       actionButtonText: header.buttonText,
       actionButtonLink: "/contact",
+      headerComponent: header.component
     };
 
     // Set initial data while waiting for API response
@@ -610,6 +619,7 @@ export default function HeaderEditor() {
           showActionButton: header.buttonText !== "",
           actionButtonText: header.buttonText,
           actionButtonLink: freshData.links?.freeTrialLink?.href || "/contact",
+          headerComponent: freshData.headerComponent || header.component
         };
 
         // Use functional state update to ensure we're working with the latest state
@@ -655,7 +665,8 @@ export default function HeaderEditor() {
         socialLinks: data.socialLinks || headerData.socialLinks,
         topBarItems: data.topBarItems || headerData.topBarItems,
         showDarkModeToggle: typeof data.showDarkModeToggle === 'boolean' ? data.showDarkModeToggle : headerData.showDarkModeToggle,
-        showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : headerData.showActionButton
+        showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : headerData.showActionButton,
+        headerComponent: data.headerComponent || headerData.headerComponent || "Header1"
       };
 
       console.log('Saving data to API:', dataToSave);
@@ -726,8 +737,8 @@ export default function HeaderEditor() {
   const selectedHeaderInfo = headers.find((h) => h.id === selectedHeader);
 
   return (
-    <div className="container px-4">
-      <header className="flex h-16 shrink-0 items-center gap-2">
+    <div className="w-full px-4 py-6">
+      <header className="flex h-14 shrink-0 items-center gap-2 mb-6">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator
@@ -737,13 +748,11 @@ export default function HeaderEditor() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">
-                  Building Your Application
-                </BreadcrumbLink>
+                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                <BreadcrumbPage>Header Editor</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -752,7 +761,7 @@ export default function HeaderEditor() {
 
       {showAlert && (
         <Alert
-          className={`mb-4 ${
+          className={`mb-6 ${
             alertType === "success"
               ? "bg-green-50 text-green-700 border-green-200"
               : "bg-red-50 text-red-700 border-red-200"
@@ -763,41 +772,49 @@ export default function HeaderEditor() {
           ) : (
             <AlertCircle className="h-4 w-4" />
           )}
-          <AlertTitle>
+          <AlertTitle className="text-sm font-medium">
             {alertType === "success" ? "Success" : "Error"}
           </AlertTitle>
-          <AlertDescription>{alertMessage}</AlertDescription>
+          <AlertDescription className="text-xs">{alertMessage}</AlertDescription>
         </Alert>
       )}
 
       {selectedHeader === null ? (
-        <Card className="mb-8">
+        <Card className="mb-8 border border-gray-100 shadow-sm w-full">
           <CardHeader>
-            <CardTitle>Select Header Style</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl font-semibold">Select Header Style</CardTitle>
+            <CardDescription className="text-sm text-gray-500">
               Choose a header design that fits your website style.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {headers.map((header) => (
                 <div
                   key={header.id}
-                  className={`border rounded-lg overflow-hidden cursor-pointer transition-all ${
+                  className={`border rounded-lg overflow-hidden cursor-pointer transition-all hover:shadow-md ${
                     selectedHeader === header.id
-                      ? "border-blue-500 ring-2 ring-blue-200"
+                      ? "border-blue-500 ring-2 ring-blue-100"
                       : "hover:border-gray-300"
                   }`}
                   onClick={() => setSelectedHeader(header.id)}
                 >
-                  <div className="h-40 bg-gray-100 relative">
-                    {/* Replace with actual header preview images */}
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                      Header {header.id} Preview
-                    </div>
+                  <div className="h-40 bg-gray-50 relative">
+                    {header.image ? (
+                      <img 
+                        src={header.image} 
+                        alt={`${header.name} Preview`} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                        {header.component} Preview
+                      </div>
+                    )}
                   </div>
                   <div className="p-3">
-                    <h3 className="font-medium">{header.name}</h3>
+                    <h3 className="text-sm font-medium">{header.name}</h3>
+                    <p className="text-xs text-gray-500 mt-1">{header.component}</p>
                   </div>
                 </div>
               ))}
@@ -806,51 +823,35 @@ export default function HeaderEditor() {
         </Card>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <Button
-              variant="ghost"
-              className="flex items-center gap-2 text-gray-600 border hover:text-gray-900"
+              variant="outline"
+              className="flex items-center gap-2 text-sm font-normal"
               onClick={() => setSelectedHeader(null)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-arrow-left"
-              >
-                <path d="m12 19-7-7 7-7" />
-                <path d="M19 12H5" />
-              </svg>
+              <ArrowLeft className="h-4 w-4" />
               <span>Back to Header Selection</span>
             </Button>
-            <div className="mt-6 flex justify-end">
             <Button
-              className="px-4 py-2 rounded-sm bg-black text-white hover:bg-black text-xs h-8 flex items-center"
+              className="bg-black hover:bg-gray-800 text-white text-sm"
               onClick={handleSaveChanges}
             >
               Save Changes
             </Button>
           </div>
-          </div>
 
-          <Tabs defaultValue="main-menu" className="mt-4 space-y-4">
-            <TabsList className="w-full flex h-9 gap-1 bg-background p-0.5 border border-gray-200 rounded-md">
+          <Tabs defaultValue="main-menu" className="mt-4 space-y-6 w-full">
+            <TabsList className="w-full flex h-10 rounded-md border bg-gray-50 p-1">
               <TabsTrigger
                 value="main-menu"
-                className="text-xs h-7 rounded data-[state=active]:shadow-none data-[state=active]:bg-white"
+                className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
               >
                 Main Menu
               </TabsTrigger>
               {selectedHeader === 5 && (
                 <TabsTrigger
                   value="social-links"
-                  className="text-xs h-7 rounded data-[state=active]:shadow-none data-[state=active]:bg-white"
+                  className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
                 >
                   Social Links
                 </TabsTrigger>
@@ -858,30 +859,28 @@ export default function HeaderEditor() {
               {selectedHeaderInfo?.hasTopBar && (
                 <TabsTrigger
                   value="topbar-items"
-                  className="text-xs h-7 rounded data-[state=active]:shadow-none data-[state=active]:bg-white"
+                  className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
                 >
                   Top Bar
                 </TabsTrigger>
               )}
               <TabsTrigger
                 value="general-settings"
-                className="text-xs h-7 rounded data-[state=active]:shadow-none data-[state=active]:bg-white"
+                className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
               >
                 General Settings
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="main-menu">
-              <Card className="border border-gray-200 rounded-lg shadow-none">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-medium text-gray-800">
-                    Main Menu
-                  </CardTitle>
-                  <CardDescription className="text-xs text-gray-500">
+            <TabsContent value="main-menu" className="w-full">
+              <Card className="border border-gray-100 shadow-sm w-full">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-medium">Main Menu</CardTitle>
+                  <CardDescription className="text-sm text-gray-500">
                     Manage and reorder your site's main navigation items.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="pt-2">
+                <CardContent>
                   <div className="mb-4">
                     <Dialog
                       open={menuDialogOpen}
@@ -891,23 +890,23 @@ export default function HeaderEditor() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-9 text-sm font-normal border-gray-200"
+                          className="h-9 text-sm font-normal"
                         >
                           + Add Menu Item
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-[400px]">
                         <DialogHeader>
-                          <DialogTitle className="text-base">
+                          <DialogTitle className="text-base font-semibold">
                             New Menu Item
                           </DialogTitle>
-                          <DialogDescription className="text-xs">
+                          <DialogDescription className="text-sm text-gray-500 mt-1">
                             Add a new item to your main navigation.
                           </DialogDescription>
                         </DialogHeader>
-                        <form onSubmit={handleItemAdd} className="space-y-3">
-                          <div className="space-y-1">
-                            <Label htmlFor="name" className="text-xs">
+                        <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="name" className="text-sm">
                               Name
                             </Label>
                             <Input
@@ -917,11 +916,11 @@ export default function HeaderEditor() {
                                 setNewItem({ ...newItem, name: e.target.value })
                               }
                               placeholder="Menu item name"
-                              className="h-8 text-sm"
+                              className="h-9 text-sm"
                             />
                           </div>
-                          <div className="space-y-1">
-                            <Label htmlFor="link" className="text-xs">
+                          <div className="space-y-2">
+                            <Label htmlFor="link" className="text-sm">
                               Link
                             </Label>
                             <Input
@@ -931,7 +930,7 @@ export default function HeaderEditor() {
                                 setNewItem({ ...newItem, link: e.target.value })
                               }
                               placeholder="/page-link"
-                              className="h-8 text-sm"
+                              className="h-9 text-sm"
                             />
                           </div>
                           <input
@@ -943,10 +942,9 @@ export default function HeaderEditor() {
                           />
                           <Button
                             type="submit"
-                            size="sm"
-                            className="w-full mt-2 h-8 text-xs"
+                            className="w-full mt-2 text-sm"
                           >
-                            Add
+                            Add Menu Item
                           </Button>
                         </form>
                       </DialogContent>
@@ -978,7 +976,7 @@ export default function HeaderEditor() {
                         )}
                       />
                     ) : (
-                      <div className="text-center py-6 text-gray-500">
+                      <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
                         No main menu items yet.
                       </div>
                     )}
@@ -988,17 +986,17 @@ export default function HeaderEditor() {
             </TabsContent>
 
             {selectedHeader === 5 && (
-              <TabsContent value="social-links">
-                <Card className="border border-gray-200 rounded-lg shadow-none">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-medium text-gray-800">
+              <TabsContent value="social-links" className="w-full">
+                <Card className="border border-gray-100 shadow-sm w-full">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-medium">
                       Social Links
                     </CardTitle>
-                    <CardDescription className="text-xs text-gray-500">
+                    <CardDescription className="text-sm text-gray-500">
                       Manage your site's social media links.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-2">
+                  <CardContent>
                     <div className="mb-4">
                       <Dialog
                         open={socialDialogOpen}
@@ -1008,23 +1006,23 @@ export default function HeaderEditor() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 text-xs font-normal border-gray-200"
+                            className="h-9 text-sm font-normal"
                           >
                             + Add Social Link
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[400px]">
                           <DialogHeader>
-                            <DialogTitle className="text-base">
+                            <DialogTitle className="text-base font-semibold">
                               New Social Link
                             </DialogTitle>
-                            <DialogDescription className="text-xs">
+                            <DialogDescription className="text-sm text-gray-500 mt-1">
                               Add a new social media platform link.
                             </DialogDescription>
                           </DialogHeader>
-                          <form onSubmit={handleItemAdd} className="space-y-3">
-                            <div className="space-y-1">
-                              <Label htmlFor="name" className="text-xs">
+                          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="name" className="text-sm">
                                 Platform
                               </Label>
                               <Input
@@ -1038,11 +1036,11 @@ export default function HeaderEditor() {
                                   })
                                 }
                                 placeholder="e.g., Twitter"
-                                className="h-8 text-sm"
+                                className="h-9 text-sm"
                               />
                             </div>
-                            <div className="space-y-1">
-                              <Label htmlFor="link" className="text-xs">
+                            <div className="space-y-2">
+                              <Label htmlFor="link" className="text-sm">
                                 Link
                               </Label>
                               <Input
@@ -1056,15 +1054,14 @@ export default function HeaderEditor() {
                                   })
                                 }
                                 placeholder="https://twitter.com/username"
-                                className="h-8 text-sm"
+                                className="h-9 text-sm"
                               />
                             </div>
                             <Button
                               type="submit"
-                              size="sm"
-                              className="w-full mt-2 h-8 text-xs"
+                              className="w-full mt-2 text-sm"
                             >
-                              Add
+                              Add Social Link
                             </Button>
                           </form>
                         </DialogContent>
@@ -1096,7 +1093,7 @@ export default function HeaderEditor() {
                           )}
                         />
                       ) : (
-                        <div className="text-center py-6 text-gray-500 text-xs">
+                        <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
                           No social links yet.
                         </div>
                       )}
@@ -1107,17 +1104,17 @@ export default function HeaderEditor() {
             )}
 
             {selectedHeaderInfo?.hasTopBar && (
-              <TabsContent value="topbar-items">
-                <Card className="border border-gray-200 rounded-lg shadow-none">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base font-medium text-gray-800">
+              <TabsContent value="topbar-items" className="w-full">
+                <Card className="border border-gray-100 shadow-sm w-full">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-medium">
                       Top Bar
                     </CardTitle>
-                    <CardDescription className="text-xs text-gray-500">
+                    <CardDescription className="text-sm text-gray-500">
                       Manage your header's top bar information.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-2">
+                  <CardContent>
                     <div className="mb-4">
                       <Dialog
                         open={topBarDialogOpen}
@@ -1127,23 +1124,23 @@ export default function HeaderEditor() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 text-xs font-normal"
+                            className="h-9 text-sm font-normal"
                           >
                             + Add Top Bar Item
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[400px]">
                           <DialogHeader>
-                            <DialogTitle className="text-base">
+                            <DialogTitle className="text-base font-semibold">
                               New Top Bar Item
                             </DialogTitle>
-                            <DialogDescription className="text-xs">
+                            <DialogDescription className="text-sm text-gray-500 mt-1">
                               Add contact information to your header's top bar.
                             </DialogDescription>
                           </DialogHeader>
-                          <form onSubmit={handleItemAdd} className="space-y-3">
-                            <div className="space-y-1">
-                              <Label htmlFor="name" className="text-xs">
+                          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="name" className="text-sm">
                                 Label
                               </Label>
                               <Input
@@ -1157,11 +1154,11 @@ export default function HeaderEditor() {
                                   })
                                 }
                                 placeholder="e.g., Phone, Email, Address"
-                                className="h-8 text-sm"
+                                className="h-9 text-sm"
                               />
                             </div>
-                            <div className="space-y-1">
-                              <Label htmlFor="content" className="text-xs">
+                            <div className="space-y-2">
+                              <Label htmlFor="content" className="text-sm">
                                 Content
                               </Label>
                               <Input
@@ -1175,15 +1172,14 @@ export default function HeaderEditor() {
                                   })
                                 }
                                 placeholder="e.g., +1 (555) 123-4567"
-                                className="h-8 text-sm"
+                                className="h-9 text-sm"
                               />
                             </div>
                             <Button
                               type="submit"
-                              size="sm"
-                              className="w-full mt-2 h-8 text-xs"
+                              className="w-full mt-2 text-sm"
                             >
-                              Add
+                              Add Top Bar Item
                             </Button>
                           </form>
                         </DialogContent>
@@ -1215,7 +1211,7 @@ export default function HeaderEditor() {
                           )}
                         />
                       ) : (
-                        <div className="text-center py-6 text-gray-500 text-xs">
+                        <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
                           No top bar items yet.
                         </div>
                       )}
@@ -1225,23 +1221,23 @@ export default function HeaderEditor() {
               </TabsContent>
             )}
 
-            <TabsContent value="general-settings">
-              <Card className="border border-gray-200 rounded-lg shadow-none">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-medium text-gray-800">
+            <TabsContent value="general-settings" className="w-full">
+              <Card className="border border-gray-100 shadow-sm w-full">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-medium">
                     General Settings
                   </CardTitle>
-                  <CardDescription className="text-xs text-gray-500">
+                  <CardDescription className="text-sm text-gray-500">
                     Manage logo, theme options, and action buttons.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
                         <Label
                           htmlFor="logoText"
-                          className="block mb-1 text-xs"
+                          className="text-sm"
                         >
                           Logo Text
                         </Label>
@@ -1255,12 +1251,12 @@ export default function HeaderEditor() {
                             })
                           }
                           placeholder="Logo text"
-                          className="h-8 text-sm"
+                          className="h-9 text-sm"
                         />
                       </div>
 
-                      <div>
-                        <Label htmlFor="logoUrl" className="block mb-1 text-xs">
+                      <div className="space-y-2">
+                        <Label htmlFor="logoUrl" className="text-sm">
                           Logo URL
                         </Label>
                         <div className="flex items-center gap-2">
@@ -1274,7 +1270,7 @@ export default function HeaderEditor() {
                               })
                             }
                             placeholder="/images/logo.png"
-                            className="flex-1 h-8 text-sm"
+                            className="flex-1 h-9 text-sm"
                           />
                           <div className="relative">
                             <Input
@@ -1282,34 +1278,34 @@ export default function HeaderEditor() {
                               id="logoFile"
                               accept="image/*"
                               onChange={handleLogoUpload}
-                              className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                              className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full"
                             />
                             <Button
                               type="button"
                               variant="outline"
                               disabled={logoUploading}
-                              className="relative h-8 text-xs"
+                              className="relative h-9 text-sm"
                               size="sm"
                             >
                               {logoUploading ? (
                                 "Uploading..."
                               ) : (
                                 <>
-                                  <Upload className="w-3 h-3 mr-1" />
+                                  <Upload className="w-3.5 h-3.5 mr-1.5" />
                                   Upload
                                 </>
                               )}
                             </Button>
                           </div>
                         </div>
-                        <p className="text-[10px] text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 mt-1">
                           Enter a URL or upload an image file.
                         </p>
                       </div>
 
                       {headerData.logoUrl && (
-                        <div className="mb-3">
-                          <p className="mb-1 text-[10px] text-gray-500">
+                        <div className="mt-4">
+                          <p className="mb-2 text-xs text-gray-500">
                             Preview:
                           </p>
                           <img
@@ -1321,10 +1317,10 @@ export default function HeaderEditor() {
                       )}
                     </div>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
+                    <div className="space-y-5">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="darkModeToggle" className="text-xs">
+                          <Label htmlFor="darkModeToggle" className="text-sm">
                             Dark Mode Toggle
                           </Label>
                           <Switch
@@ -1336,14 +1332,14 @@ export default function HeaderEditor() {
                                 showDarkModeToggle: checked,
                               })
                             }
-                            className="h-4 w-7"
                           />
                         </div>
+                        <p className="text-xs text-gray-500">Show dark mode toggle in the header.</p>
                       </div>
 
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="actionButton" className="text-xs">
+                          <Label htmlFor="actionButton" className="text-sm">
                             Action Button
                           </Label>
                           <Switch
@@ -1355,16 +1351,16 @@ export default function HeaderEditor() {
                                 showActionButton: checked,
                               })
                             }
-                            className="h-4 w-7"
                           />
                         </div>
+                        <p className="text-xs text-gray-500">Show a call-to-action button in the header.</p>
 
                         {headerData.showActionButton && (
-                          <>
-                            <div>
+                          <div className="space-y-4 mt-4 pl-2 border-l-2 border-gray-100">
+                            <div className="space-y-2">
                               <Label
                                 htmlFor="actionButtonText"
-                                className="block mb-1 text-xs"
+                                className="text-sm"
                               >
                                 Button Text
                               </Label>
@@ -1378,13 +1374,13 @@ export default function HeaderEditor() {
                                   })
                                 }
                                 placeholder="Get Started"
-                                className="h-8 text-sm"
+                                className="h-9 text-sm"
                               />
                             </div>
-                            <div>
+                            <div className="space-y-2">
                               <Label
                                 htmlFor="actionButtonLink"
-                                className="block mb-1 text-xs"
+                                className="text-sm"
                               >
                                 Button Link
                               </Label>
@@ -1398,11 +1394,11 @@ export default function HeaderEditor() {
                                   })
                                 }
                                 placeholder="/contact"
-                                className="h-8 text-sm"
+                                className="h-9 text-sm"
                               />
                             </div>
                            
-                          </>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -1416,14 +1412,14 @@ export default function HeaderEditor() {
           <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogContent className="sm:max-w-[400px]">
               <DialogHeader>
-                <DialogTitle className="text-base">Edit Item</DialogTitle>
-                <DialogDescription className="text-xs">
+                <DialogTitle className="text-lg font-semibold">Edit Item</DialogTitle>
+                <DialogDescription className="text-sm text-gray-500 mt-1">
                   Update the information for this item.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleUpdateItem} className="space-y-3">
-                <div className="space-y-1">
-                  <Label htmlFor="edit-name" className="text-xs">
+              <form onSubmit={handleUpdateItem} className="space-y-4 mt-3">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name" className="text-sm">
                     Name
                   </Label>
                   <Input
@@ -1433,14 +1429,14 @@ export default function HeaderEditor() {
                       setEditedItem({ ...editedItem, name: e.target.value })
                     }
                     placeholder="Item name"
-                    className="h-8 text-sm"
+                    className="h-9 text-sm"
                   />
                 </div>
 
                 {(editedItem.type === "mainMenu" ||
                   editedItem.type === "socialLinks") && (
-                  <div className="space-y-1">
-                    <Label htmlFor="edit-link" className="text-xs">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-link" className="text-sm">
                       Link
                     </Label>
                     <Input
@@ -1450,14 +1446,14 @@ export default function HeaderEditor() {
                         setEditedItem({ ...editedItem, link: e.target.value })
                       }
                       placeholder="/page-link or https://..."
-                      className="h-8 text-sm"
+                      className="h-9 text-sm"
                     />
                   </div>
                 )}
 
                 {editedItem.type === "topBarItems" && (
-                  <div className="space-y-1">
-                    <Label htmlFor="edit-content" className="text-xs">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-content" className="text-sm">
                       Content
                     </Label>
                     <Input
@@ -1470,23 +1466,20 @@ export default function HeaderEditor() {
                         })
                       }
                       placeholder="Content text"
-                      className="h-8 text-sm"
+                      className="h-9 text-sm"
                     />
                   </div>
                 )}
 
                 <Button
                   type="submit"
-                  size="sm"
-                  className="w-full mt-2 h-8 text-xs"
+                  className="w-full mt-2 text-sm"
                 >
                   Update
                 </Button>
               </form>
             </DialogContent>
           </Dialog>
-
-         
         </>
       )}
     </div>
