@@ -3,17 +3,55 @@ import { useEffect, useState } from "react"
 import menuData from "@/data/menu.json"
 import { getMenuIconByName } from "../utils/MenuIcons"
 
-export default function Menu() {
+interface MenuItem {
+	_id: string;
+	name: string;
+	link: string;
+	order: number;
+}
+
+interface MenuProps {
+	menuItems?: MenuItem[];
+}
+
+export default function Menu({ menuItems }: MenuProps) {
 	const [data, setData] = useState<any>(null)
 
 	useEffect(() => {
-		setData(menuData.mainMenuItems)
-	}, [])
+		if (menuItems) {
+			// If menuItems is provided, use it
+			setData(menuItems);
+		} else {
+			// Otherwise use the default menu data
+			setData(menuData.mainMenuItems)
+		}
+	}, [menuItems])
 
 	if (!data) {
 		return <div className="d-none d-lg-flex">Loading...</div>
 	}
 
+	// If using simple menu items format (from header editor)
+	if (menuItems) {
+		return (
+			<div className="d-none d-lg-flex">
+				<ul className="navbar-nav mx-auto gap-4 align-items-lg-center">
+					{data.map((item: MenuItem) => (
+						<li key={item._id} className="nav-item">
+							<Link 
+								className="nav-link fw-bold d-flex align-items-center" 
+								href={item.link}
+							>
+								{item.name}
+							</Link>
+						</li>
+					))}
+				</ul>
+			</div>
+		)
+	}
+
+	// If using complex menu items format (from menu.json)
 	return (
 		<>
 			<div className="d-none d-lg-flex">

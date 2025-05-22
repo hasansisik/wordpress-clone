@@ -43,7 +43,7 @@ const data = {
       items: [
         {
           title: "Header",
-          url: "#",
+          url: "/dashboard/editor/header",
         },
         {
           title: "Hero",

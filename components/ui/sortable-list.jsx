@@ -77,15 +77,14 @@ export const SortableItem = React.memo(
           {onEdit && (
             <div className="flex items-center justify-center bg-gray-200 p-1 rounded-sm">
               <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onEdit(id)}
-              className="h-6 w-6 text-black"
-            >
-              <Edit className="h-3 w-3" />
-            </Button>
+                variant="ghost"
+                size="icon"
+                onClick={() => onEdit(id)}
+                className="h-6 w-6 text-black"
+              >
+                <Edit className="h-3 w-3" />
+              </Button>
             </div>
-            
           )}
           {onDelete && (
             <div className="flex items-center justify-center bg-red-600 p-1 rounded-sm">
@@ -140,17 +139,34 @@ export const SortableList = ({
   idField = "_id",
 }) => {
   const [activeId, setActiveId] = useState(null);
+  const [internalItems, setInternalItems] = useState(items || []);
 
-  // Önceki öğeleri tutmak için ref kullanıyoruz
-  const itemsRef = useRef(items);
-
+  // Update internalItems when external items change
   useEffect(() => {
-    itemsRef.current = items;
+    if (items && JSON.stringify(items) !== JSON.stringify(internalItems)) {
+      setInternalItems(items);
+    }
   }, [items]);
+
+  // Handle deletion of items
+  const handleDelete = useCallback((itemId) => {
+    if (onDelete) {
+      // Call the external delete handler
+      onDelete(itemId);
+    }
+  }, [onDelete]);
+
+  // Handle editing of items
+  const handleEdit = useCallback((itemId) => {
+    if (onEdit) {
+      // Call the external edit handler
+      onEdit(itemId);
+    }
+  }, [onEdit]);
 
   // Get the active item for the drag overlay
   const activeItem = activeId
-    ? items.find((item) => item[idField] === activeId)
+    ? internalItems.find((item) => item[idField] === activeId)
     : null;
 
   const sensors = useSensors(
@@ -173,18 +189,17 @@ export const SortableList = ({
       const { active, over } = event;
 
       if (over && active.id !== over.id) {
-        const currentItems = [...itemsRef.current];
-        const oldIndex = currentItems.findIndex(
+        const oldIndex = internalItems.findIndex(
           (item) => item[idField] === active.id
         );
-        const newIndex = currentItems.findIndex(
+        const newIndex = internalItems.findIndex(
           (item) => item[idField] === over.id
         );
 
         if (oldIndex === -1 || newIndex === -1) return;
 
         // Move the item in the array
-        const newItems = arrayMove(currentItems, oldIndex, newIndex);
+        const newItems = arrayMove(internalItems, oldIndex, newIndex);
 
         // Update order values
         const updatedItems = newItems.map((item, index) => ({
@@ -192,19 +207,24 @@ export const SortableList = ({
           order: index,
         }));
 
+        // Update internal state
+        setInternalItems(updatedItems);
+
         // Call the change handler with the new array and updated order indices
-        onChange(updatedItems);
+        if (onChange) {
+          onChange(updatedItems);
+        }
       }
 
       setActiveId(null);
     },
-    [onChange, idField]
+    [onChange, internalItems, idField]
   );
 
-  // Stabil kalacak şekilde item ID'lerini memo'luyoruz
+  // Stable item IDs
   const itemIds = React.useMemo(
-    () => items.map((item) => item[idField]),
-    [items, idField]
+    () => internalItems.map((item) => item[idField]),
+    [internalItems, idField]
   );
 
   return (
@@ -216,13 +236,13 @@ export const SortableList = ({
     >
       <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
         <div className="space-y-1">
-          {items.map((item) => (
+          {internalItems.map((item) => (
             <SortableItem
               key={item[idField]}
               id={item[idField]}
               item={item}
-              onDelete={onDelete}
-              onEdit={onEdit}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
               renderItem={renderItem}
             />
           ))}

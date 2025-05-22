@@ -47,6 +47,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 // Define types for menu items
 interface MenuItem {
@@ -76,6 +77,7 @@ interface HeaderData {
 }
 
 export default function HeaderEditor() {
+  const router = useRouter();
   const [selectedHeader, setSelectedHeader] = useState<number | null>(null);
   const [headerData, setHeaderData] = useState<HeaderData>({
     mainMenu: [],
@@ -156,60 +158,58 @@ export default function HeaderEditor() {
     const header = headers.find((h) => h.id === selectedHeader);
     if (!header) return;
 
-    // Common menu items for all headers
-    const commonMenuItems = [
-      { _id: "1", name: "Home", link: "/", order: 0 },
-      { _id: "2", name: "About", link: "/about", order: 1 },
-      { _id: "3", name: "Services", link: "/services", order: 2 },
-      { _id: "4", name: "Blog", link: "/blog", order: 3 },
-      { _id: "5", name: "Contact", link: "/contact", order: 4 },
-    ];
-
-    // Social links for headers with social icons
-    const socialLinks = [
-      {
-        _id: "1",
-        name: "Twitter",
-        link: "https://twitter.com/example",
-        order: 0,
-      },
-      {
-        _id: "2",
-        name: "Facebook",
-        link: "https://facebook.com/example",
-        order: 1,
-      },
-      {
-        _id: "3",
-        name: "Instagram",
-        link: "https://instagram.com/example",
-        order: 2,
-      },
-    ];
-
-    // Top bar items for headers with top bars
-    const topBarItems = [
-      { _id: "1", name: "Phone", content: "+01 (24) 568 900", order: 0 },
-      { _id: "2", name: "Email", content: "contact@infinia.com", order: 1 },
-      {
-        _id: "3",
-        name: "Address",
-        content: "0811 Erdman Prairie, Joaville CA",
-        order: 2,
-      },
-    ];
-
-    setHeaderData({
-      mainMenu: commonMenuItems,
-      socialLinks: selectedHeader === 5 ? socialLinks : [],
-      topBarItems: header.hasTopBar ? topBarItems : [],
+    // Initial default values while waiting for API data
+    const initialData = {
+      mainMenu: [
+        { _id: "1", name: "Home", link: "/", order: 0 },
+        { _id: "2", name: "About", link: "/about", order: 1 },
+        { _id: "3", name: "Services", link: "/services", order: 2 },
+        { _id: "4", name: "Blog", link: "/blog", order: 3 },
+        { _id: "5", name: "Contact", link: "/contact", order: 4 },
+      ],
+      socialLinks: selectedHeader === 5 ? [
+        {
+          _id: "1",
+          name: "Twitter",
+          link: "https://twitter.com/example",
+          order: 0,
+        },
+        {
+          _id: "2",
+          name: "Facebook",
+          link: "https://facebook.com/example",
+          order: 1,
+        },
+        {
+          _id: "3",
+          name: "Instagram",
+          link: "https://instagram.com/example",
+          order: 2,
+        }
+      ] : [],
+      topBarItems: header.hasTopBar ? [
+        { _id: "1", name: "Phone", content: "+01 (24) 568 900", order: 0 },
+        { _id: "2", name: "Email", content: "contact@infinia.com", order: 1 },
+        {
+          _id: "3",
+          name: "Address",
+          content: "0811 Erdman Prairie, Joaville CA",
+          order: 2,
+        }
+      ] : [],
       logoText: "Infinia",
       logoUrl: "/assets/imgs/template/favicon.svg",
       showDarkModeToggle: true,
       showActionButton: header.buttonText !== "",
       actionButtonText: header.buttonText,
       actionButtonLink: "/contact",
-    });
+    };
+
+    // Set initial data while waiting for API response
+    setHeaderData(initialData);
+    
+    // Then fetch the latest data from API
+    refreshHeaderData();
   }, [selectedHeader]);
 
   const showSuccessAlert = (message: string) => {
@@ -276,6 +276,7 @@ export default function HeaderEditor() {
     }
 
     const newId = Math.random().toString(36).substr(2, 9);
+    let updatedData = { ...headerData };
 
     if (newItem.type === "mainMenu") {
       const newOrder = headerData.mainMenu.length;
@@ -284,10 +285,10 @@ export default function HeaderEditor() {
         { _id: newId, name: newItem.name, link: newItem.link, order: newOrder },
       ];
 
-      setHeaderData({
+      updatedData = {
         ...headerData,
         mainMenu: newMainMenu,
-      });
+      };
     } else if (newItem.type === "socialLinks") {
       const newOrder = headerData.socialLinks.length;
       const newSocialLinks = [
@@ -295,10 +296,10 @@ export default function HeaderEditor() {
         { _id: newId, name: newItem.name, link: newItem.link, order: newOrder },
       ];
 
-      setHeaderData({
+      updatedData = {
         ...headerData,
         socialLinks: newSocialLinks,
-      });
+      };
     } else if (newItem.type === "topBarItems") {
       const newOrder = headerData.topBarItems.length;
       const newTopBarItems = [
@@ -311,11 +312,17 @@ export default function HeaderEditor() {
         },
       ];
 
-      setHeaderData({
+      updatedData = {
         ...headerData,
         topBarItems: newTopBarItems,
-      });
+      };
     }
+
+    // Update state with new data
+    setHeaderData(updatedData);
+
+    // Save changes to API
+    saveChangesToAPI(updatedData);
 
     setNewItem({
       name: "",
@@ -329,67 +336,109 @@ export default function HeaderEditor() {
     setSocialDialogOpen(false);
     setTopBarDialogOpen(false);
 
-    showSuccessAlert("Item added successfully");
+    showSuccessAlert(`New ${newItem.type === "mainMenu" ? "menu item" : newItem.type === "socialLinks" ? "social link" : "top bar item"} added successfully`);
   };
 
   const handleItemDelete = (itemId: string, type: string) => {
+    let updatedData = { ...headerData };
+
     if (type === "mainMenu") {
       const updatedMenu = headerData.mainMenu.filter(
         (item) => item._id !== itemId
       );
-      setHeaderData({
+      
+      // Re-calculate order values to ensure they remain sequential
+      const reorderedMenu = updatedMenu.map((item, index) => ({
+        ...item,
+        order: index
+      }));
+      
+      updatedData = {
         ...headerData,
-        mainMenu: updatedMenu,
-      });
+        mainMenu: reorderedMenu,
+      };
+
+      showSuccessAlert("Menu item deleted successfully");
     } else if (type === "socialLinks") {
       const updatedSocialLinks = headerData.socialLinks.filter(
         (item) => item._id !== itemId
       );
-      setHeaderData({
+      
+      // Re-calculate order values
+      const reorderedSocialLinks = updatedSocialLinks.map((item, index) => ({
+        ...item,
+        order: index
+      }));
+      
+      updatedData = {
         ...headerData,
-        socialLinks: updatedSocialLinks,
-      });
+        socialLinks: reorderedSocialLinks,
+      };
+
+      showSuccessAlert("Social link deleted successfully");
     } else if (type === "topBarItems") {
       const updatedTopBarItems = headerData.topBarItems.filter(
         (item) => item._id !== itemId
       );
-      setHeaderData({
+      
+      // Re-calculate order values
+      const reorderedTopBarItems = updatedTopBarItems.map((item, index) => ({
+        ...item,
+        order: index
+      }));
+      
+      updatedData = {
         ...headerData,
-        topBarItems: updatedTopBarItems,
-      });
+        topBarItems: reorderedTopBarItems,
+      };
+
+      showSuccessAlert("Top bar item deleted successfully");
     }
 
-    showSuccessAlert("Item deleted successfully");
+    // Update state
+    setHeaderData(updatedData);
+
+    // Save changes to API
+    saveChangesToAPI(updatedData);
   };
 
   const handleItemsReorder = (
     updatedItems: MenuItem[] | TopBarItem[],
     type: string
   ) => {
-    // Update the order based on new positions
+    // Ensure the updatedItems have their order values set correctly
     const itemsWithUpdatedOrder = updatedItems.map((item, index) => ({
       ...item,
       order: index,
     }));
 
+    let updatedData = { ...headerData };
+
     if (type === "mainMenu") {
-      setHeaderData({
+      updatedData = {
         ...headerData,
         mainMenu: itemsWithUpdatedOrder as MenuItem[],
-      });
+      };
+      showSuccessAlert("Menu items reordered successfully");
     } else if (type === "socialLinks") {
-      setHeaderData({
+      updatedData = {
         ...headerData,
         socialLinks: itemsWithUpdatedOrder as MenuItem[],
-      });
+      };
+      showSuccessAlert("Social links reordered successfully");
     } else if (type === "topBarItems") {
-      setHeaderData({
+      updatedData = {
         ...headerData,
         topBarItems: itemsWithUpdatedOrder as TopBarItem[],
-      });
+      };
+      showSuccessAlert("Top bar items reordered successfully");
     }
 
-    showSuccessAlert("Items reordered successfully");
+    // Update state
+    setHeaderData(updatedData);
+
+    // Save changes to API
+    saveChangesToAPI(updatedData);
   };
 
   const handleEditItem = (itemId: string, type: string) => {
@@ -449,16 +498,34 @@ export default function HeaderEditor() {
     }
 
     if (editedItem.type === "mainMenu") {
+      // Create a completely new array with the updated item
       const updatedMenu = headerData.mainMenu.map((item) =>
         item._id === editedItem._id
-          ? { ...item, name: editedItem.name, link: editedItem.link }
+          ? { 
+              ...item, 
+              name: editedItem.name, 
+              link: editedItem.link 
+            }
           : item
       );
 
+      // Log the changes for debugging
+      console.log('Updated menu item:', editedItem);
+      console.log('New menu items:', updatedMenu);
+
+      // Update the state with the new array
       setHeaderData({
         ...headerData,
         mainMenu: updatedMenu,
       });
+      
+      // Save changes to header.json immediately
+      saveChangesToAPI({
+        ...headerData,
+        mainMenu: updatedMenu,
+      });
+      
+      showSuccessAlert("Menu item updated successfully");
     } else if (editedItem.type === "socialLinks") {
       const updatedSocialLinks = headerData.socialLinks.map((item) =>
         item._id === editedItem._id
@@ -470,6 +537,14 @@ export default function HeaderEditor() {
         ...headerData,
         socialLinks: updatedSocialLinks,
       });
+      
+      // Save changes to header.json immediately
+      saveChangesToAPI({
+        ...headerData,
+        socialLinks: updatedSocialLinks,
+      });
+      
+      showSuccessAlert("Social link updated successfully");
     } else if (editedItem.type === "topBarItems") {
       const updatedTopBarItems = headerData.topBarItems.map((item) =>
         item._id === editedItem._id
@@ -481,10 +556,154 @@ export default function HeaderEditor() {
         ...headerData,
         topBarItems: updatedTopBarItems,
       });
+      
+      // Save changes to header.json immediately
+      saveChangesToAPI({
+        ...headerData,
+        topBarItems: updatedTopBarItems,
+      });
+      
+      showSuccessAlert("Top bar item updated successfully");
     }
 
+    // Reset the edited item
+    setEditedItem({
+      _id: "",
+      name: "",
+      link: "",
+      content: "",
+      type: "",
+    });
+    
     setEditDialogOpen(false);
-    showSuccessAlert("Item updated successfully");
+  };
+
+  // Function to refresh header data from API
+  const refreshHeaderData = async () => {
+    if (selectedHeader === null) return;
+
+    try {
+      console.log('Refreshing header data...');
+      const response = await fetch('/api/header', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        next: { revalidate: 0 }
+      });
+      
+      if (response.ok) {
+        const freshData = await response.json();
+        console.log('Refreshed header data:', freshData);
+        
+        const header = headers.find((h) => h.id === selectedHeader);
+        if (!header) return;
+
+        const updatedHeaderData = {
+          mainMenu: Array.isArray(freshData.mainMenu) ? freshData.mainMenu : [],
+          socialLinks: selectedHeader === 5 ? (Array.isArray(freshData.socialLinks) ? freshData.socialLinks : []) : [],
+          topBarItems: header.hasTopBar ? (Array.isArray(freshData.topBarItems) ? freshData.topBarItems : []) : [],
+          logoText: freshData.logo?.text || "Infinia",
+          logoUrl: freshData.logo?.src || "/assets/imgs/template/favicon.svg",
+          showDarkModeToggle: freshData.showDarkModeToggle !== undefined ? freshData.showDarkModeToggle : true,
+          showActionButton: header.buttonText !== "",
+          actionButtonText: header.buttonText,
+          actionButtonLink: freshData.links?.freeTrialLink?.href || "/contact",
+        };
+
+        // Use functional state update to ensure we're working with the latest state
+        setHeaderData(prevData => {
+          // If the data is the same, don't trigger a re-render
+          if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
+            return prevData;
+          }
+          return updatedHeaderData;
+        });
+      } else {
+        console.error('Error refreshing header data:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error refreshing header data:', error);
+    }
+  };
+
+  // Call refreshHeaderData when the selected header changes
+  useEffect(() => {
+    if (selectedHeader !== null) {
+      refreshHeaderData();
+    }
+  }, [selectedHeader]);
+
+  // After successful API operations, refresh data to ensure consistency
+  const saveChangesToAPI = async (data: any) => {
+    try {
+      // Create the data structure to save
+      const dataToSave = {
+        logo: {
+          src: data.logoUrl || headerData.logoUrl,
+          alt: (data.logoText || headerData.logoText).toLowerCase(),
+          text: data.logoText || headerData.logoText
+        },
+        links: {
+          freeTrialLink: {
+            href: data.actionButtonLink || headerData.actionButtonLink || "#",
+            text: data.actionButtonText || headerData.actionButtonText || "Join For Free Trial"
+          }
+        },
+        mainMenu: data.mainMenu || headerData.mainMenu,
+        socialLinks: data.socialLinks || headerData.socialLinks,
+        topBarItems: data.topBarItems || headerData.topBarItems,
+        showDarkModeToggle: typeof data.showDarkModeToggle === 'boolean' ? data.showDarkModeToggle : headerData.showDarkModeToggle,
+        showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : headerData.showActionButton
+      };
+
+      console.log('Saving data to API:', dataToSave);
+
+      // Send the data to the API
+      const response = await fetch('/api/header', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSave),
+        // Make sure we're not caching
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save changes');
+      }
+
+      // Get the response data
+      const result = await response.json();
+      console.log('API response:', result);
+
+      // Force refresh header data after successful API call
+      setTimeout(async () => {
+        await refreshHeaderData();
+      }, 300);
+
+      // We don't show a success message here since the calling function will do it
+    } catch (error: any) {
+      console.error('Error saving menu changes:', error);
+      showErrorAlert(`Error saving changes: ${error.message}`);
+    }
+  };
+
+  // Handler for the "Save Changes" button click
+  const handleSaveChanges = async () => {
+    try {
+      await saveChangesToAPI(headerData);
+      showSuccessAlert("Header changes saved successfully!");
+      
+      // Redirect to dashboard after successful save
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
+    } catch (error: any) {
+      showErrorAlert(`Error saving changes: ${error.message}`);
+    }
   };
 
   // Sort items by order field
@@ -610,6 +829,14 @@ export default function HeaderEditor() {
               </svg>
               <span>Back to Header Selection</span>
             </Button>
+            <div className="mt-6 flex justify-end">
+            <Button
+              className="px-4 py-2 rounded-sm bg-black text-white hover:bg-black text-xs h-8 flex items-center"
+              onClick={handleSaveChanges}
+            >
+              Save Changes
+            </Button>
+          </div>
           </div>
 
           <Tabs defaultValue="main-menu" className="mt-4 space-y-4">
@@ -1259,14 +1486,7 @@ export default function HeaderEditor() {
             </DialogContent>
           </Dialog>
 
-          <div className="mt-6 flex justify-end">
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 text-xs h-8 flex items-center"
-            >
-              Save Changes
-            </Link>
-          </div>
+         
         </>
       )}
     </div>
