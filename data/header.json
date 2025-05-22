@@ -1,0 +1,13 @@
+{
+  "logo": {
+    "src": "/assets/imgs/template/favicon.svg",
+    "alt": "infinia",
+    "text": "Infinia"
+  },
+  "links": {
+    "freeTrialLink": {
+      "href": "#",
+      "text": "Join For Free Trial"
+    }
+  }
+} 
