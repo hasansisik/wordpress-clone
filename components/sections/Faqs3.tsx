@@ -1,4 +1,3 @@
-
 "use client"
 import Link from "next/link"
 import { useState } from "react";
@@ -7,8 +6,8 @@ export default function Faqs3() {
 
 	const [activeItem, setActiveItem] = useState(1);
 
-	const handleActiveItem = (index: any) => {
-		setActiveItem(index);
+	const handleActiveItem = (index: number) => {
+		setActiveItem(activeItem === index ? 0 : index);
 	};
 
 	return (
@@ -24,7 +23,7 @@ export default function Faqs3() {
 								</div>
 								<h3 className="ds-3 my-3 fw-bold">
 									Got questions? <br />
-									We’ve got answers
+									We've got answers
 								</h3>
 								<div className="position-relative d-inline-block mt-3 mb-6">
 									<img src="/assets/imgs/faqs-3/img-1.png" alt="" className=" rounded-pill border border-3 border-white" />
@@ -48,9 +47,12 @@ export default function Faqs3() {
 						</div>
 						<div className="col-lg-6 mt-lg-0 mt-8 ">
 							<div className="accordion">
-								<div className="mb-3 card p-3 border  bg-white rounded-2 shadow-2">
-									<div className="px-0 card-header border-0 bg-gradient-1">
-										<a className={`${activeItem} == 1 ? "accordion-button" : "accordion-button collapsed"} pointer text-900 fw-bold d-flex align-items-center`} onClick={() => handleActiveItem(1)} data-bs-toggle="collapse" >
+								<div className="mb-3 card p-3 border rounded-2 shadow-2">
+									<div className="px-0 card-header border-0">
+										<a 
+											className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === 1 ? '' : ''}`} 
+											onClick={() => handleActiveItem(1)}
+										>
 											<h6 className="m-0">What are the key benefits of using <span className="text-primary">Infinia System</span></h6>
 											<span className="ms-auto arrow me-2">
 												<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
@@ -59,13 +61,19 @@ export default function Faqs3() {
 											</span>
 										</a>
 									</div>
-									<div id="collapse1" className={activeItem == 1 ? "accordion-collapse collapse show" : "accordion-collapse collapse"} data-bs-parent=".accordion">
-										<p className="ps-0card-body">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
-									</div>
+									{activeItem === 1 && (
+										<div className="card-body px-0 mt-2">
+											<p className="text-black-50 mb-0">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
+										</div>
+									)}
 								</div>
-								<div className="mb-3 card p-3 border  bg-white rounded-2 shadow-2">
-									<div className="px-0 card-header border-0 bg-gradient-1">
-										<a className={`${activeItem} == 2 ? "accordion-button" : "accordion-button collapsed"} pointer text-900 fw-bold d-flex align-items-center`} onClick={() => handleActiveItem(2)} data-bs-toggle="collapse" >
+								
+								<div className="mb-3 card p-3 border rounded-2 shadow-2">
+									<div className="px-0 card-header border-0">
+										<a 
+											className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === 2 ? '' : ''}`} 
+											onClick={() => handleActiveItem(2)}
+										>
 											<h6 className="m-0">What features does <span className="text-primary">Infinia</span> offer?</h6>
 											<span className="ms-auto arrow me-2">
 												<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
@@ -74,13 +82,19 @@ export default function Faqs3() {
 											</span>
 										</a>
 									</div>
-									<div id="collapse2" className={activeItem == 2 ? "accordion-collapse collapse show" : "accordion-collapse collapse"} data-bs-parent=".accordion">
-										<p className="ps-0card-body">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
-									</div>
+									{activeItem === 2 && (
+										<div className="card-body px-0 mt-2">
+											<p className="text-black-50 mb-0">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
+										</div>
+									)}
 								</div>
-								<div className="mb-3 card p-3 border  bg-white rounded-2 shadow-2">
-									<div className="px-0 card-header border-0 bg-gradient-1">
-										<a className={`${activeItem} == 3 ? "accordion-button" : "accordion-button collapsed"} pointer text-900 fw-bold d-flex align-items-center`} onClick={() => handleActiveItem(3)} data-bs-toggle="collapse" >
+								
+								<div className="mb-3 card p-3 border rounded-2 shadow-2">
+									<div className="px-0 card-header border-0">
+										<a 
+											className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === 3 ? '' : ''}`} 
+											onClick={() => handleActiveItem(3)}
+										>
 											<h6 className="m-0">How do your services work?</h6>
 											<span className="ms-auto arrow me-2">
 												<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
@@ -89,13 +103,19 @@ export default function Faqs3() {
 											</span>
 										</a>
 									</div>
-									<div id="collapse3" className={activeItem == 3 ? "accordion-collapse collapse show" : "accordion-collapse collapse"} data-bs-parent=".accordion">
-										<p className="ps-0card-body">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
-									</div>
+									{activeItem === 3 && (
+										<div className="card-body px-0 mt-2">
+											<p className="text-black-50 mb-0">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
+										</div>
+									)}
 								</div>
-								<div className="mb-3 card p-3 border  bg-white rounded-2 shadow-2">
-									<div className="px-0 card-header border-0 bg-gradient-1">
-										<a className={`${activeItem} == 4 ? "accordion-button" : "accordion-button collapsed"} pointer text-900 fw-bold d-flex align-items-center`} onClick={() => handleActiveItem(4)} data-bs-toggle="collapse" >
+								
+								<div className="mb-3 card p-3 border rounded-2 shadow-2">
+									<div className="px-0 card-header border-0">
+										<a 
+											className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === 4 ? '' : ''}`} 
+											onClick={() => handleActiveItem(4)}
+										>
 											<h6 className="m-0">What is SEO and why do I need it?</h6>
 											<span className="ms-auto arrow me-2">
 												<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
@@ -104,13 +124,19 @@ export default function Faqs3() {
 											</span>
 										</a>
 									</div>
-									<div id="collapse4" className={activeItem == 4 ? "accordion-collapse collapse show" : "accordion-collapse collapse"} data-bs-parent=".accordion">
-										<p className="ps-0card-body">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
-									</div>
+									{activeItem === 4 && (
+										<div className="card-body px-0 mt-2">
+											<p className="text-black-50 mb-0">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
+										</div>
+									)}
 								</div>
-								<div className="mb-3 card p-3 border  bg-white rounded-2 shadow-2">
-									<div className="px-0 card-header border-0 bg-gradient-1">
-										<a className={`${activeItem} == 5 ? "accordion-button" : "accordion-button collapsed"} pointer text-900 fw-bold d-flex align-items-center`} onClick={() => handleActiveItem(5)} data-bs-toggle="collapse" >
+								
+								<div className="mb-3 card p-3 border rounded-2 shadow-2">
+									<div className="px-0 card-header border-0">
+										<a 
+											className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === 5 ? '' : ''}`} 
+											onClick={() => handleActiveItem(5)}
+										>
 											<h6 className="m-0">What SEO strategies do you use?</h6>
 											<span className="ms-auto arrow me-2">
 												<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
@@ -119,9 +145,11 @@ export default function Faqs3() {
 											</span>
 										</a>
 									</div>
-									<div id="collapse5" className={activeItem == 5 ? "accordion-collapse collapse show" : "accordion-collapse collapse"} data-bs-parent=".accordion">
-										<p className="ps-0card-body">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
-									</div>
+									{activeItem === 5 && (
+										<div className="card-body px-0 mt-2">
+											<p className="text-black-50 mb-0">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
+										</div>
+									)}
 								</div>
 							</div>
 						</div>
