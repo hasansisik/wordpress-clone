@@ -7,12 +7,7 @@ import EditorLayout from "@/components/editor/EditorLayout";
 import EditorSidebar from "@/components/editor/EditorSidebar";
 import SectionPreview from "@/components/editor/SectionPreview";
 import { uploadImageToCloudinary } from "@/utils/cloudinary";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   TextField,
   TextAreaField,
@@ -20,7 +15,7 @@ import {
   FormGroup,
   ImageUploadField,
   ImagePreview,
-  SectionTypeSelector
+  SectionTypeSelector,
 } from "@/components/editor/FormFields";
 import { Layout, Type, Settings, Image } from "lucide-react";
 import Hero1 from "@/components/sections/Hero1";
@@ -29,18 +24,18 @@ import Hero3 from "@/components/sections/Hero3";
 // Hero type options
 const heroTypes = [
   { value: "hero1", label: "Hero 1" },
-  { value: "hero3", label: "Hero 3" }
+  { value: "hero3", label: "Hero 3" },
 ];
 
 // Fallback preview component that renders directly in the editor
 const DirectPreview = ({ data }: { data: any }) => {
   if (!data) return <div>No data available</div>;
-  
+
   const activeComponent = data.activeHero || "hero1";
-  
+
   // Apply direct preview styles
   useEffect(() => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.innerHTML = `
       .preview-container {
         transform: scale(0.8);
@@ -57,12 +52,12 @@ const DirectPreview = ({ data }: { data: any }) => {
       }
     `;
     document.head.appendChild(style);
-    
+
     return () => {
       document.head.removeChild(style);
     };
   }, []);
-  
+
   return (
     <div className="preview-container editor-preview">
       {activeComponent === "hero1" ? (
@@ -87,22 +82,22 @@ export default function HeroEditor() {
       try {
         const timestamp = new Date().getTime();
         const response = await fetch(`/api/hero?t=${timestamp}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-          }
-      });
-      
-      if (response.ok) {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        });
+
+        if (response.ok) {
           const data = await response.json();
           setHeroData(data);
-      } else {
-          console.error('Error fetching hero data:', await response.text());
-      }
-    } catch (error) {
-        console.error('Error fetching hero data:', error);
-    } finally {
+        } else {
+          console.error("Error fetching hero data:", await response.text());
+        }
+      } catch (error) {
+        console.error("Error fetching hero data:", error);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -113,41 +108,44 @@ export default function HeroEditor() {
   // Handler for changing hero type
   const handleHeroTypeChange = (newType: string) => {
     if (!heroData) return;
-    
+
     setHeroData({
       ...heroData,
-      activeHero: newType
+      activeHero: newType,
     });
   };
 
   // Function to handle iframe load failures and success messages
   useEffect(() => {
     if (!heroData) return;
-    
+
     // Listen for preview ready messages from iframe
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
-      
-      if (event.data.type === "PREVIEW_READY" || event.data.type === "PREVIEW_UPDATED") {
+
+      if (
+        event.data.type === "PREVIEW_READY" ||
+        event.data.type === "PREVIEW_UPDATED"
+      ) {
         console.log("Preview is ready:", event.data);
         // Reset attempts and make sure we're using iframe
         iframeLoadAttempts.current = 0;
         setUseFallback(false);
       }
     };
-    
+
     window.addEventListener("message", handleMessage);
-    
+
     // Set a timeout to check if iframe loads properly
     const timeoutId = setTimeout(() => {
       iframeLoadAttempts.current += 1;
-      
+
       if (iframeLoadAttempts.current >= 3) {
         console.log("Iframe failed to load properly, using fallback");
         setUseFallback(true);
       }
     }, 3000);
-    
+
     return () => {
       window.removeEventListener("message", handleMessage);
       clearTimeout(timeoutId);
@@ -157,25 +155,25 @@ export default function HeroEditor() {
   // Render the sidebar content
   const renderSidebarContent = (data: any) => {
     if (!data) return null;
-    
+
     const activeHero = data.activeHero || "hero1";
 
-  return (
+    return (
       <Tabs defaultValue="layout" className="w-full">
         <TabsList className="grid grid-cols-4 m-2">
           <TabsTrigger value="layout" className="px-2">
             <Layout className="h-4 w-4" />
-                </TabsTrigger>
+          </TabsTrigger>
           <TabsTrigger value="content" className="px-2">
             <Type className="h-4 w-4" />
-                </TabsTrigger>
+          </TabsTrigger>
           <TabsTrigger value="style" className="px-2">
             <Settings className="h-4 w-4" />
-                </TabsTrigger>
+          </TabsTrigger>
           <TabsTrigger value="media" className="px-2">
             <Image className="h-4 w-4" />
-                </TabsTrigger>
-              </TabsList>
+          </TabsTrigger>
+        </TabsList>
 
         {/* Layout Tab */}
         <TabsContent value="layout" className="m-0 p-3 border-t">
@@ -185,7 +183,7 @@ export default function HeroEditor() {
             options={heroTypes}
             onChange={handleHeroTypeChange}
           />
-              </TabsContent>
+        </TabsContent>
 
         {/* Content Tab */}
         <TabsContent value="content" className="m-0 p-3 border-t">
@@ -194,14 +192,14 @@ export default function HeroEditor() {
           ) : (
             <Hero3ContentForm data={data.hero3 || {}} />
           )}
-              </TabsContent>
+        </TabsContent>
 
         {/* Style Tab */}
         <TabsContent value="style" className="m-0 p-3 border-t">
           <div className="text-xs text-gray-500">
             Style options will be implemented in future updates.
-                            </div>
-              </TabsContent>
+          </div>
+        </TabsContent>
 
         {/* Media Tab */}
         <TabsContent value="media" className="m-0 p-3 border-t">
@@ -210,7 +208,7 @@ export default function HeroEditor() {
           ) : (
             <Hero3MediaForm data={data.hero3 || {}} />
           )}
-              </TabsContent>
+        </TabsContent>
       </Tabs>
     );
   };
@@ -229,11 +227,7 @@ export default function HeroEditor() {
     >
       <EditorLayout
         title="Hero Editor"
-        sidebarContent={
-          <EditorSidebar>
-            {renderSidebarContent}
-          </EditorSidebar>
-        }
+        sidebarContent={<EditorSidebar>{renderSidebarContent}</EditorSidebar>}
       >
         {useFallback ? (
           <DirectPreview data={heroData} />
@@ -248,7 +242,7 @@ export default function HeroEditor() {
 // Hero 1 Content Form
 function Hero1ContentForm({ data }: { data: any }) {
   return (
-                        <div className="space-y-4">
+    <div className="space-y-4">
       <FormGroup title="Badge">
         <TextField
           label="Label"
@@ -268,21 +262,21 @@ function Hero1ContentForm({ data }: { data: any }) {
           path="hero1.badge.link"
         />
       </FormGroup>
-      
+
       <TextField
         label="Title"
         value={data?.title || ""}
         path="hero1.title"
         placeholder="Enter hero title"
       />
-      
+
       <TextAreaField
         label="Description"
         value={data?.description || ""}
         path="hero1.description"
         placeholder="Enter hero description"
       />
-      
+
       <FormGroup title="Primary Button">
         <TextField
           label="Text"
@@ -296,7 +290,7 @@ function Hero1ContentForm({ data }: { data: any }) {
           path="hero1.primaryButton.link"
         />
       </FormGroup>
-      
+
       <FormGroup title="Secondary Button">
         <TextField
           label="Text"
@@ -310,7 +304,7 @@ function Hero1ContentForm({ data }: { data: any }) {
           path="hero1.secondaryButton.link"
         />
       </FormGroup>
-      
+
       <FormGroup title="Card Settings">
         <TextField
           label="Card Title"
@@ -342,7 +336,7 @@ function Hero1ContentForm({ data }: { data: any }) {
           path="hero1.card.button.link"
         />
       </FormGroup>
-                              </div>
+    </div>
   );
 }
 
@@ -356,28 +350,28 @@ function Hero3ContentForm({ data }: { data: any }) {
         path="hero3.badge.text"
         placeholder="e.g. Build Without Limits"
       />
-      
+
       <TextField
         label="Title (First Line)"
         value={data?.title?.part1 || ""}
         path="hero3.title.part1"
         placeholder="Enter first line of title"
       />
-      
+
       <TextField
         label="Title (Second Line)"
         value={data?.title?.part2 || ""}
         path="hero3.title.part2"
         placeholder="Enter second line of title"
       />
-      
+
       <TextAreaField
         label="Description"
         value={data?.description || ""}
         path="hero3.description"
         placeholder="Enter hero description"
       />
-      
+
       <FormGroup title="Button Settings">
         <TextField
           label="Button Text"
@@ -391,7 +385,7 @@ function Hero3ContentForm({ data }: { data: any }) {
           path="hero3.button.link"
         />
       </FormGroup>
-                              </div>
+    </div>
   );
 }
 
@@ -404,31 +398,31 @@ function Hero1MediaForm({ data }: { data: any }) {
         value={data?.images?.background || ""}
         path="hero1.images.background"
       />
-      
+
       <ImageUploadField
         label="Shape 1 Image"
         value={data?.images?.shape1 || ""}
         path="hero1.images.shape1"
       />
-      
+
       <ImageUploadField
         label="Shape 2 Image"
         value={data?.images?.shape2 || ""}
         path="hero1.images.shape2"
       />
-      
+
       <ImageUploadField
         label="Shape 3 Image"
         value={data?.images?.shape3 || ""}
         path="hero1.images.shape3"
       />
-      
+
       <ImageUploadField
         label="Card Image"
         value={data?.card?.image || ""}
         path="hero1.card.image"
-                          />
-                        </div>
+      />
+    </div>
   );
 }
 
@@ -436,51 +430,53 @@ function Hero1MediaForm({ data }: { data: any }) {
 function Hero3MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-                          <div className="space-y-2">
+      <div className="space-y-2">
         <div className="text-xs text-gray-500 mb-2">Image Grid</div>
         <div className="grid grid-cols-2 gap-2">
           {["image1", "image2", "image3", "image4"].map((key) => (
-            <ImagePreview 
+            <ImagePreview
               key={key}
               src={data?.images?.[key] || "/placeholder.jpg"}
               path={`hero3.images.${key}`}
               alt={`Grid Image ${key}`}
             />
           ))}
-                          </div>
-                          </div>
-      
+        </div>
+      </div>
+
       <ImageUploadField
         label="Star Image"
         value={data?.images?.star || ""}
         path="hero3.images.star"
       />
-      
+
       <div className="space-y-2 mt-4">
         <div className="text-xs text-gray-500 font-medium mb-2">Avatars</div>
         <div className="space-y-4">
           {(data?.avatars || []).map((avatar: any, index: number) => (
             <div key={index} className="p-3 bg-sidebar rounded-md space-y-3">
-              <div className="text-xs font-medium text-gray-700 mb-2">Avatar {index + 1}</div>
+              <div className="text-xs font-medium text-gray-700 mb-2">
+                Avatar {index + 1}
+              </div>
               <div className="flex gap-2 items-center">
-                <ImagePreview 
+                <ImagePreview
                   src={avatar.image || "/placeholder.jpg"}
                   path={`hero3.avatars.${index}.image`}
                   alt={avatar.alt || `User avatar ${index + 1}`}
                   className="h-12 w-12 rounded-full object-cover"
                 />
-                              <div className="flex-1">
+                <div className="flex-1">
                   <TextField
                     label="Alt Text"
                     value={avatar.alt || ""}
                     path={`hero3.avatars.${index}.alt`}
                     placeholder="e.g. User avatar"
                   />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

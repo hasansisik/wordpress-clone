@@ -755,7 +755,7 @@ export default function HeaderEditor() {
   const selectedHeaderInfo = headers.find((h) => h.id === selectedHeader);
 
   return (
-    <div className="w-full px-4 py-6">
+    <div className="w-full px-4 py-6 ">
       <header className="flex h-14 shrink-0 items-center gap-2 mb-6">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
@@ -859,7 +859,7 @@ export default function HeaderEditor() {
           </div>
 
           <Tabs defaultValue="main-menu" className="mt-4 space-y-6 w-full">
-            <TabsList className="w-full flex h-10 rounded-md border bg-sidebar p-1">
+            <TabsList className="w-full flex h-10 rounded-xl border bg-sidebar p-1">
               <TabsTrigger
                 value="main-menu"
                 className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"

@@ -80,7 +80,7 @@ export default function EditorLayout({
 
   return (
     <div className="w-full h-screen flex flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4 z-10">
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4 z-10">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
           <Separator
