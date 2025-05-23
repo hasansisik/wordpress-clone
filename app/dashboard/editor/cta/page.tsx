@@ -24,9 +24,12 @@ import {
 import { Layout, Type, Settings, Image } from "lucide-react";
 import Cta4 from "@/components/sections/Cta4";
 import Cta9 from "@/components/sections/Cta9";
+import Cta1 from "@/components/sections/Cta1";
+import { Label } from "@/components/ui/label";
 
 // CTA type options
 const ctaTypes = [
+  { value: "cta1", label: "CTA 1" },
   { value: "cta4", label: "CTA 4" },
   { value: "cta9", label: "CTA 9" }
 ];
@@ -64,7 +67,9 @@ const DirectPreview = ({ data }: { data: any }) => {
   
   return (
     <div className="preview-container editor-preview">
-      {activeComponent === "cta4" ? (
+      {activeComponent === "cta1" ? (
+        <Cta1 previewData={data} />
+      ) : activeComponent === "cta4" ? (
         <Cta4 previewData={data} />
       ) : (
         <Cta9 previewData={data} />
@@ -192,7 +197,9 @@ export default function CtaEditor() {
         
         {/* Content Tab */}
         <TabsContent value="content" className="m-0 p-3 border-t">
-          {activeCta === "cta4" ? (
+          {activeCta === "cta1" ? (
+            <Cta1ContentForm data={data.cta1 || {}} />
+          ) : activeCta === "cta4" ? (
             <Cta4ContentForm data={data.cta4 || {}} />
           ) : (
             <Cta9ContentForm data={data.cta9 || {}} />
@@ -208,7 +215,9 @@ export default function CtaEditor() {
 
         {/* Media Tab */}
         <TabsContent value="media" className="m-0 p-3 border-t">
-          {activeCta === "cta4" ? (
+          {activeCta === "cta1" ? (
+            <Cta1MediaForm data={data.cta1 || {}} />
+          ) : activeCta === "cta4" ? (
             <Cta4MediaForm data={data.cta4 || {}} />
           ) : (
             <Cta9MediaForm data={data.cta9 || {}} />
@@ -437,6 +446,102 @@ function Cta9MediaForm({ data }: { data: any }) {
           value={data?.vectors?.bgLine || ""}
           path="cta9.vectors.bgLine"
         />
+      </FormGroup>
+    </div>
+  );
+}
+
+// CTA 1 Content Form
+function Cta1ContentForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Badge & Title">
+        <TextField
+          label="Badge Text"
+          value={data?.badge || ""}
+          path="cta1.badge"
+          placeholder="e.g. About Us"
+        />
+        <TextAreaField
+          label="Title (HTML)"
+          value={data?.title || ""}
+          path="cta1.title"
+          placeholder="Enter title with HTML formatting"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Social Media">
+        <TextField
+          label="Social Label"
+          value={data?.socialLabel || ""}
+          path="cta1.socialLabel"
+          placeholder="e.g. Follow us:"
+        />
+      </FormGroup>
+    </div>
+  );
+}
+
+// CTA 1 Media Form
+function Cta1MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <ImageUploadField
+        label="Tag Image"
+        value={data?.tagImage || ""}
+        path="cta1.tagImage"
+      />
+      
+      <FormGroup title="Stars">
+        <ImageUploadField
+          label="Star 1"
+          value={data?.star1 || ""}
+          path="cta1.star1"
+        />
+        
+        <ImageUploadField
+          label="Star 2"
+          value={data?.star2 || ""}
+          path="cta1.star2"
+        />
+      </FormGroup>
+      
+      <ImageUploadField
+        label="Background Ellipse"
+        value={data?.bgEllipse || ""}
+        path="cta1.bgEllipse"
+      />
+      
+      <FormGroup title="Team Images">
+        <p className="text-xs text-gray-500 mb-3">
+          You can add up to 5 team member images. The first and last images will only be shown on larger screens.
+        </p>
+        
+        {(data?.images || []).map((image: any, index: number) => (
+          <div key={index} className="space-y-2 p-3 bg-gray-50 rounded-md mb-3">
+            <div className="flex justify-between items-center">
+              <Label className="text-sm font-medium">Image {index + 1}</Label>
+              {/* Could add delete functionality here if needed */}
+            </div>
+            <ImageUploadField
+              label="Image URL"
+              value={image?.src || ""}
+              path={`cta1.images.${index}.src`}
+            />
+            <TextField
+              label="Alt Text"
+              value={image?.alt || ""}
+              path={`cta1.images.${index}.alt`}
+              placeholder="e.g. Team member 1"
+            />
+          </div>
+        ))}
+      </FormGroup>
+      
+      <FormGroup title="Social Media Icons">
+        <p className="text-xs text-gray-500 mb-3">
+          Manage social media links and icons in the Settings tab.
+        </p>
       </FormGroup>
     </div>
   );

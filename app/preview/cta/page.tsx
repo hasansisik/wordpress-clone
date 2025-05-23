@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cta4 from "@/components/sections/Cta4";
 import Cta9 from "@/components/sections/Cta9";
+import Cta1 from "@/components/sections/Cta1";
 import Script from "next/script";
 
 // Import all the necessary CSS directly in this component
@@ -94,6 +95,21 @@ const fixCtaStyles = `
   font-size: 30px;
   line-height: 1.3;
   font-weight: 700;
+}
+
+.ds-3 {
+  font-size: 36px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+/* Fix for section spacing */
+.pt-120 {
+  padding-top: 120px;
+}
+
+.pb-80 {
+  padding-bottom: 80px;
 }
 
 /* Backdrop filter */
@@ -262,6 +278,8 @@ export default function CtaPreview() {
     console.log("Rendering CTA component:", activeComponent);
     
     switch (activeComponent) {
+      case "cta1":
+        return <Cta1 previewData={ctaData} />;
       case "cta4":
         return <Cta4 previewData={ctaData} />;
       case "cta9":
