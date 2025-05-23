@@ -1,12 +1,10 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import Hero1 from "@/components/sections/Hero1";
-import Hero3 from "@/components/sections/Hero3";
+import { useEffect, useState, ReactNode } from "react";
 import Script from "next/script";
 
-// Import all the necessary CSS directly in this component
+// Import common CSS styles
 import "@/public/assets/css/vendors/bootstrap.min.css";
 import "@/public/assets/css/vendors/swiper-bundle.min.css";
 import "@/public/assets/css/vendors/aos.css";
@@ -155,9 +153,9 @@ const editorModeStyles = `
 }
 `;
 
-// Additional styles to properly render Hero1
-const fixHeroStyles = `
-/* Force section padding for hero content */
+// Fix common styling issues
+const fixCommonStyles = `
+/* Force section padding for content */
 .section-padding {
   padding: 80px 0;
 }
@@ -166,15 +164,6 @@ const fixHeroStyles = `
 .hero-img {
   max-width: 100%;
   height: auto;
-}
-
-/* Make cards visible */
-.card-hero {
-  right: 0;
-  bottom: 60px;
-  max-width: 280px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
 }
 
 /* Fix animation classes */
@@ -204,13 +193,6 @@ const fixHeroStyles = `
   }
 }
 
-/* Fix for text sizes */
-.ds-3 {
-  font-size: 36px;
-  line-height: 1.2;
-  font-weight: 700;
-}
-
 .backdrop-filter {
   backdrop-filter: blur(10px);
 }
@@ -221,39 +203,53 @@ const fixHeroStyles = `
 }
 `;
 
-export default function HeroPreview() {
+interface EditorContext {
+  layoutMode: boolean;
+  handleElementClick: (event: React.MouseEvent, fieldPath: string) => void;
+  handleImageClick: (event: React.MouseEvent, imagePath: string) => void;
+}
+
+interface PreviewWrapperProps {
+  children: (previewData: any, editorContext: EditorContext) => ReactNode;
+}
+
+export default function PreviewWrapper({ children }: PreviewWrapperProps) {
   const searchParams = useSearchParams();
-  const [heroData, setHeroData] = useState<any>(null);
+  const [sectionData, setSectionData] = useState<any>(null);
+  const [sectionType, setSectionType] = useState<string>("");
   const [isEditorMode, setIsEditorMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Initialize AOS (Animate on Scroll) for Hero1 component
+  // Initialize libraries and AOS
   useEffect(() => {
-    // Load AOS library dynamically
-    const loadAOS = async () => {
+    const loadLibraries = async () => {
       try {
         if (typeof window !== 'undefined') {
-          const AOS = (await import('aos')).default;
-          
-          // Initialize AOS with default settings
-          AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true,
-            mirror: false
-          });
-          
-          console.log("AOS initialized in preview");
+          // Initialize AOS if available
+          try {
+            const AOS = (await import('aos')).default;
+            
+            AOS.init({
+              duration: 800,
+              easing: 'ease-in-out',
+              once: true,
+              mirror: false
+            });
+            
+            console.log("AOS initialized in preview");
+          } catch (error) {
+            console.log("AOS not available, skipping initialization");
+          }
         }
       } catch (error) {
-        console.error("Error initializing AOS:", error);
+        console.error("Error initializing libraries:", error);
       }
     };
     
-    loadAOS();
+    loadLibraries();
     
-    // Re-initialize AOS whenever the hero data changes
-    if (heroData) {
+    // Refresh AOS when section data changes
+    if (sectionData) {
       setTimeout(() => {
         if (typeof window !== 'undefined' && window.AOS) {
           window.AOS.refresh();
@@ -261,26 +257,29 @@ export default function HeroPreview() {
         }
       }, 200);
     }
-  }, [heroData]);
+  }, [sectionData]);
 
   useEffect(() => {
     // Get data from URL parameters
-    const heroDataParam = searchParams.get("heroData");
+    const sectionDataParam = searchParams.get("sectionData");
+    const sectionTypeParam = searchParams.get("sectionType");
     const modeParam = searchParams.get("mode");
     
-    console.log("Hero Data from URL:", heroDataParam);
+    console.log("Section data from URL:", sectionDataParam);
+    console.log("Section type from URL:", sectionTypeParam);
     console.log("Mode from URL:", modeParam);
     
-    if (heroDataParam) {
+    if (sectionDataParam && sectionTypeParam) {
       try {
-        const parsedData = JSON.parse(heroDataParam);
-        console.log("Parsed hero data:", parsedData);
-        setHeroData(parsedData);
+        const parsedData = JSON.parse(sectionDataParam);
+        console.log("Parsed section data:", parsedData);
+        setSectionData(parsedData);
+        setSectionType(sectionTypeParam);
         
         // Mark as loaded after a short delay to ensure CSS is applied
         setTimeout(() => setIsLoaded(true), 200);
       } catch (error) {
-        console.error("Error parsing hero data:", error);
+        console.error("Error parsing section data:", error);
       }
     }
     
@@ -293,9 +292,10 @@ export default function HeroPreview() {
       
       console.log("Received message in iframe:", event.data);
       
-      if (event.data.type === "UPDATE_HERO_DATA") {
-        console.log("Updating hero data in iframe:", event.data.heroData);
-        setHeroData(event.data.heroData);
+      if (event.data.type === "UPDATE_SECTION_DATA") {
+        console.log("Updating section data in iframe:", event.data.sectionData);
+        setSectionData(event.data.sectionData);
+        setSectionType(event.data.sectionType);
       }
       
       if (event.data.type === "UPDATE_MODE") {
@@ -308,8 +308,8 @@ export default function HeroPreview() {
     return () => window.removeEventListener("message", handleMessage);
   }, [searchParams]);
 
-  if (!heroData || !isLoaded) {
-    return <div className="w-full h-full flex items-center justify-center text-lg">Loading hero preview...</div>;
+  if (!sectionData || !isLoaded) {
+    return <div className="w-full h-full flex items-center justify-center text-lg">Loading preview...</div>;
   }
 
   // Handle element click for editor mode with improved error handling
@@ -321,7 +321,7 @@ export default function HeroPreview() {
     
     // Get current value to display in edit dialog with better error checking
     const parts = fieldPath.split('.');
-    let current: any = JSON.parse(JSON.stringify(heroData)); // Deep copy to avoid reference issues
+    let current: any = JSON.parse(JSON.stringify(sectionData)); // Deep copy to avoid reference issues
     let currentValue = '';
     
     try {
@@ -380,31 +380,15 @@ export default function HeroPreview() {
     handleImageClick
   };
 
-  // Render the appropriate hero component
-  const renderHeroComponent = () => {
-    const activeComponent = heroData.activeHero || "hero1";
-    
-    console.log("Rendering hero component:", activeComponent);
-    
-    switch (activeComponent) {
-      case "hero1":
-        return <Hero1 previewData={heroData} editorContext={editorContext} />;
-      case "hero3":
-        return <Hero3 previewData={heroData} editorContext={editorContext} />;
-      default:
-        return <Hero1 previewData={heroData} editorContext={editorContext} />;
-    }
-  };
-
   return (
     <>
       <Script src="/assets/js/vendors/bootstrap.bundle.min.js" strategy="beforeInteractive" />
       
       <style jsx global>{editorModeStyles}</style>
-      <style jsx global>{fixHeroStyles}</style>
+      <style jsx global>{fixCommonStyles}</style>
       
       <div className={isEditorMode ? "editor-mode" : ""} style={{ overflow: "hidden" }}>
-        {renderHeroComponent()}
+        {children(sectionData, editorContext)}
       </div>
     </>
   );

@@ -16,10 +16,10 @@ interface Hero1Props {
 
 export default function Hero1({ previewData, editorContext }: Hero1Props = {}) {
 	const [data, setData] = useState<any>(null)
+	const isEditorMode = editorContext?.layoutMode || false;
 
 	useEffect(() => {
 		console.log("Hero1 previewData:", previewData);
-		console.log("Default heroData:", heroData);
 		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.hero1) {
@@ -32,6 +32,24 @@ export default function Hero1({ previewData, editorContext }: Hero1Props = {}) {
 			console.error("No hero data available in Hero1 component");
 		}
 	}, [previewData])
+
+	// Helper function to safely handle element clicks
+	const handleElementClick = (e: React.MouseEvent, path: string) => {
+		if (!isEditorMode || !editorContext) return;
+		
+		e.preventDefault();
+		e.stopPropagation();
+		editorContext.handleElementClick(e, path);
+	};
+	
+	// Helper function to safely handle image clicks
+	const handleImageClick = (e: React.MouseEvent, path: string) => {
+		if (!isEditorMode || !editorContext) return;
+		
+		e.preventDefault();
+		e.stopPropagation();
+		editorContext.handleImageClick(e, path);
+	};
 
 	if (!data) {
 		return <section>Loading Hero1...</section>
@@ -46,14 +64,14 @@ export default function Hero1({ previewData, editorContext }: Hero1Props = {}) {
 							<div className="pe-2">
 								<Link href={data.badge?.link || "#"} className="d-flex align-items-center bg-linear-1 d-inline-flex rounded-pill px-2 py-1">
 									<span 
-										className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white"
-										onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.badge.label')}
+										className={`bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white ${isEditorMode ? 'cursor-pointer' : ''}`}
+										onClick={(e) => handleElementClick(e, 'hero1.badge.label')}
 									>
 										{data.badge.label}
 									</span>
 									<span 
-										className="fs-7 fw-medium text-primary mx-2"
-										onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.badge.text')}
+										className={`fs-7 fw-medium text-primary mx-2 ${isEditorMode ? 'cursor-pointer' : ''}`}
+										onClick={(e) => handleElementClick(e, 'hero1.badge.text')}
 									>
 										{data.badge.text}
 									</span>
@@ -63,27 +81,27 @@ export default function Hero1({ previewData, editorContext }: Hero1Props = {}) {
 									</svg>
 								</Link>
 								<h3 
-									className="ds-3 mt-4 mb-5" 
+									className={`ds-3 mt-4 mb-5 ${isEditorMode ? 'cursor-pointer' : ''}`} 
 									data-aos="fade-zoom-in" 
 									data-aos-delay={0}
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.title')}
+									onClick={(e) => handleElementClick(e, 'hero1.title')}
 								>
 									{data.title}
 								</h3>
 								<p 
-									className="pe-10 mb-5" 
+									className={`pe-10 mb-5 ${isEditorMode ? 'cursor-pointer' : ''}`} 
 									data-aos="fade-zoom-in" 
 									data-aos-delay={200}
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.description')}
+									onClick={(e) => handleElementClick(e, 'hero1.description')}
 								>
 									{data.description}
 								</p>
 								<Link 
 									href={data.primaryButton.link} 
-									className="btn btn-gradient" 
+									className={`btn btn-gradient ${isEditorMode ? 'cursor-pointer' : ''}`} 
 									data-aos="fade-zoom-in" 
 									data-aos-delay={300}
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.primaryButton.text')}
+									onClick={(e) => handleElementClick(e, 'hero1.primaryButton.text')}
 								>
 									{data.primaryButton.text}
 									<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -93,10 +111,10 @@ export default function Hero1({ previewData, editorContext }: Hero1Props = {}) {
 								</Link>
 								<Link 
 									href={data.secondaryButton.link} 
-									className="ms-md-3 mt-3 mt-md-0 btn btn-outline-secondary hover-up" 
+									className={`ms-md-3 mt-3 mt-md-0 btn btn-outline-secondary hover-up ${isEditorMode ? 'cursor-pointer' : ''}`} 
 									data-aos="fade-zoom-in" 
 									data-aos-delay={500}
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.secondaryButton.text')}
+									onClick={(e) => handleElementClick(e, 'hero1.secondaryButton.text')}
 								>
 									<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
 										<path className="stroke-dark" d="M8.89286 4.75H6.06818C5.34017 4.75 4.75 5.34017 4.75 6.06818C4.75 13.3483 10.6517 19.25 17.9318 19.25C18.6598 19.25 19.25 18.6598 19.25 17.9318V15.1071L16.1429 13.0357L14.5317 14.6468C14.2519 14.9267 13.8337 15.0137 13.4821 14.8321C12.8858 14.524 11.9181 13.9452 10.9643 13.0357C9.98768 12.1045 9.41548 11.1011 9.12829 10.494C8.96734 10.1537 9.06052 9.76091 9.32669 9.49474L10.9643 7.85714L8.89286 4.75Z" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -107,68 +125,70 @@ export default function Hero1({ previewData, editorContext }: Hero1Props = {}) {
 						</div>
 						<div className="col-lg-6 position-relative justify-content-center">
 							<img 
-								className="hero-img" 
+								className={`hero-img ${isEditorMode ? 'cursor-pointer' : ''}`} 
 								src={data.images.background} 
 								alt="infinia" 
-								onClick={(e) => editorContext?.layoutMode && editorContext.handleImageClick(e, 'hero1.images.background')}
+								onClick={(e) => handleImageClick(e, 'hero1.images.background')}
 							/>
 							<div className="shape-1 position-absolute">
 								<img 
-									className="rightToLeft" 
+									className={`rightToLeft ${isEditorMode ? 'cursor-pointer' : ''}`} 
 									src={data.images.shape1} 
 									alt="infinia" 
 									data-aos="zoom-in" 
 									data-aos-delay={500}
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleImageClick(e, 'hero1.images.shape1')}
+									onClick={(e) => handleImageClick(e, 'hero1.images.shape1')}
 								/>
 							</div>
 							<div className="shape-2 position-absolute d-none d-md-block">
 								<img 
+									className={isEditorMode ? 'cursor-pointer' : ''}
 									src={data.images.shape2} 
 									alt="infinia" 
 									data-aos="zoom-in" 
 									data-aos-delay={200}
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleImageClick(e, 'hero1.images.shape2')}
+									onClick={(e) => handleImageClick(e, 'hero1.images.shape2')}
 								/>
 							</div>
 							<div className="shape-3 position-absolute d-none d-md-block">
 								<img 
+									className={isEditorMode ? 'cursor-pointer' : ''}
 									src={data.images.shape3} 
 									alt="infinia" 
 									data-aos="zoom-in" 
 									data-aos-delay={300}
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleImageClick(e, 'hero1.images.shape3')}
+									onClick={(e) => handleImageClick(e, 'hero1.images.shape3')}
 								/>
 							</div>
 							<div className="alltuchtopdown card-hero backdrop-filter rounded-3 text-center d-inline-block p-3 position-absolute">
 								<img 
-									className="rounded-3" 
+									className={`rounded-3 ${isEditorMode ? 'cursor-pointer' : ''}`}
 									src={data.card.image} 
 									alt="infinia"
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleImageClick(e, 'hero1.card.image')}
+									onClick={(e) => handleImageClick(e, 'hero1.card.image')}
 								/>
 								<h6 
-									className="mt-3"
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.card.title')}
+									className={`mt-3 ${isEditorMode ? 'cursor-pointer' : ''}`}
+									onClick={(e) => handleElementClick(e, 'hero1.card.title')}
 								>
 									{data.card.title}
 								</h6>
 								<p 
-									className="fs-7 text-700"
-									onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.card.description')}
+									className={`fs-7 text-700 ${isEditorMode ? 'cursor-pointer' : ''}`}
+									onClick={(e) => handleElementClick(e, 'hero1.card.description')}
 								>
 									{data.card.description}
 								</p>
 								<Link href={data.card.button.link} className="shadow-sm d-flex align-items-center bg-white d-inline-flex rounded-pill px-2 py-1 mb-3">
 									<span 
-										className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white"
-										onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.card.button.label')}
+										className={`bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white ${isEditorMode ? 'cursor-pointer' : ''}`}
+										onClick={(e) => handleElementClick(e, 'hero1.card.button.label')}
 									>
 										{data.card.button.label}
 									</span>
 									<span 
-										className="fs-7 fw-medium text-primary mx-2"
-										onClick={(e) => editorContext?.layoutMode && editorContext.handleElementClick(e, 'hero1.card.button.text')}
+										className={`fs-7 fw-medium text-primary mx-2 ${isEditorMode ? 'cursor-pointer' : ''}`}
+										onClick={(e) => handleElementClick(e, 'hero1.card.button.text')}
 									>
 										{data.card.button.text}
 									</span>

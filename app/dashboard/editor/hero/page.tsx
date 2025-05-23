@@ -249,26 +249,14 @@ export default function HeroEditor() {
       // Handle element click from iframe
       if (event.data.type === "ELEMENT_CLICKED") {
         const fieldPath = event.data.fieldPath;
-        console.log("Element clicked in iframe:", fieldPath);
+        const currentValue = event.data.currentValue || '';
+        console.log("Element clicked in iframe:", fieldPath, "Current value:", currentValue);
         
-        // Get the current field value
-        const parts = fieldPath.split('.');
-        let current: any = heroData;
-        for (const part of parts) {
-          if (current && typeof current === 'object') {
-            current = current[part];
-          } else {
-            current = '';
-            break;
-          }
-        }
+        // Create a customized prompt with better formatting
+        const newValue = window.prompt(`Edit content: ${fieldPath}`, currentValue);
         
-        // Create a popup for editing
-        const currentValue = current || '';
-        const newValue = window.prompt('Edit content:', currentValue);
-        
-        // Update if a new value was provided
-        if (newValue !== null && newValue !== currentValue) {
+        // Update if a new value was provided (including empty string)
+        if (newValue !== null) {
           handleTextChange(newValue, fieldPath);
           
           // Also update iframe content
