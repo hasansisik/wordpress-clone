@@ -4,6 +4,7 @@ import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { useEffect, useState } from "react"
 import otherData from "@/data/other.json"
+import blogData from "@/data/blog.json"
 
 interface Blog2Props {
 	previewData?: any;
@@ -11,6 +12,7 @@ interface Blog2Props {
 
 export default function Blog2({ previewData }: Blog2Props = {}) {
 	const [data, setData] = useState<any>(null)
+	const [posts, setPosts] = useState<any[]>([])
 
 	useEffect(() => {
 		console.log("Blog2 previewData:", previewData);
@@ -25,6 +27,9 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 		} else {
 			console.error("No blog data available in Blog2 component");
 		}
+
+		// Set posts from blog.json
+		setPosts(blogData.slice(2, 5));
 	}, [previewData])
 
 	if (!data) {
@@ -38,12 +43,12 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 					<div className="row">
 						<div className="col-lg-4">
 							<div className="pe-6">
-								<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
+								<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2">
 									<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
 									<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.badge}</span>
 								</div>
-								<h3 className="ds-3 mt-3 mb-3" data-aos="fade-zoom-in" data-aos-delay={0}>{data.title}</h3>
-								<span className="fs-5 fw-medium" data-aos="fade-zoom-in" data-aos-delay={0}>{data.subtitle}</span>
+								<h3 className="ds-3 mt-3 mb-3">{data.title}</h3>
+								<span className="fs-5 fw-medium">{data.subtitle}</span>
 								<div className="d-flex align-items-center mt-8">
 									<Link href={data.seeAllLink} className="fw-bold btn bg-white text-primary hover-up">See all articles
 										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={14} viewBox="0 0 24 14" fill="none">
@@ -54,69 +59,73 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 							</div>
 						</div>
 						<div className="col-lg-8">
-							<div className="row">
-								<Swiper
-									className="swiper slider-one p-2 mt-lg-0 mt-5"
-									modules={[Keyboard, Autoplay, Pagination, Navigation]}
-									slidesPerView={2}
-									spaceBetween={20}
-									slidesPerGroup={1}
-									centeredSlides={false}
-									loop={true}
-									autoplay={{
-										delay: 4000,
-									}}
-									breakpoints={{
-										1200: {
-											slidesPerView: 2,
-										},
-										992: {
-											slidesPerView: 2,
-										},
-										768: {
-											slidesPerView: 2,
-										},
-										576: {
-											slidesPerView: 1,
-										},
-										0: {
-											slidesPerView: 1,
-										},
-									}}
-								>
-									<div className="swiper-wrapper">
-										{data.articles.map((article: any, index: number) => (
-											<SwiperSlide key={index} className="swiper-slide">
-												<div className="card border-0 rounded-3 position-relative d-inline-flex card-hover">
-													<img className="rounded-top-3" src={article.image} alt="blog post" />
-													<div className="card-body">
-														<Link href={article.link} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
-															<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{article.category}</span>
-														</Link>
-														<h6 className="my-3">{article.title}</h6>
-														<p>{article.description}</p>
-													</div>
-													<Link href={article.link} className="position-absolute bottom-0 start-0 end-0 top-0" />
+							<div className="blog-slider-container mt-lg-0 mt-5">
+								<div className="blog-cards-grid">
+									{posts.map((post, index) => (
+										<div key={index} className="blog-card">
+											<div className="card border-0 rounded-3 position-relative d-inline-flex card-hover">
+												<img className="rounded-top-3" src={post.image} alt="blog post" />
+												<div className="card-body">
+													<Link href={post.link} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
+														<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category}</span>
+													</Link>
+													<h6 className="my-3">{post.title}</h6>
+													<p>{post.description}</p>
 												</div>
-											</SwiperSlide>
-										))}
-									</div>
-								</Swiper>
+												<Link href={post.link} className="position-absolute bottom-0 start-0 end-0 top-0" />
+											</div>
+										</div>
+									))}
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div className="position-absolute top-0 start-50 translate-middle-x z-0">
+				
+				{/* Remove animated elements that might cause issues */}
+				<div className="position-absolute top-0 start-50 translate-middle-x z-0" style={{ opacity: 0.4 }}>
 					<img src={data.bgLine} alt="background line" />
 				</div>
-				<div className="bouncing-blobs-container">
-					<div className="bouncing-blobs-glass" />
-					<div className="bouncing-blobs">
-						<div className="bouncing-blob bouncing-blob--green" />
-						<div className="bouncing-blob bouncing-blob--primary" />
-					</div>
-				</div>
 			</section>
+			
+			{/* Add custom CSS to fix the blog grid */}
+			<style jsx>{`
+				.blog-cards-grid {
+					display: grid;
+					grid-template-columns: 1fr;
+					gap: 20px;
+					width: 100%;
+				}
+				
+				@media (min-width: 768px) {
+					.blog-cards-grid {
+						grid-template-columns: repeat(2, 1fr);
+					}
+				}
+				
+				.blog-card {
+					width: 100%;
+					height: 100%;
+				}
+				
+				.blog-card .card {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					flex-direction: column;
+				}
+				
+				.blog-card .card-body {
+					flex: 1;
+				}
+				
+				.blog-card img {
+					width: 100%;
+					height: auto;
+					max-height: 200px;
+					object-fit: cover;
+				}
+			`}</style>
 		</>
 	)
 }

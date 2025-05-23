@@ -292,12 +292,6 @@ function Blog1ContentForm({ data }: { data: any }) {
         value={data?.seeAllLink || ""}
         path="blog1.seeAllLink"
       />
-
-      <FormGroup title="Blog Articles">
-        <div className="text-xs text-gray-500 mb-2">
-          Edit articles in the Media tab
-        </div>
-      </FormGroup>
     </div>
   );
 }
@@ -332,12 +326,6 @@ function Blog2ContentForm({ data }: { data: any }) {
         value={data?.seeAllLink || ""}
         path="blog2.seeAllLink"
       />
-
-      <FormGroup title="Blog Articles">
-        <div className="text-xs text-gray-500 mb-2">
-          Edit articles in the Media tab
-        </div>
-      </FormGroup>
     </div>
   );
 }
@@ -352,12 +340,6 @@ function Blog3ContentForm({ data }: { data: any }) {
         path="blog3.title"
         placeholder="Enter blog section title"
       />
-
-      <FormGroup title="Blog Articles">
-        <div className="text-xs text-gray-500 mb-2">
-          Edit articles in the Media tab
-        </div>
-      </FormGroup>
     </div>
   );
 }
@@ -379,12 +361,6 @@ function Blog5ContentForm({ data }: { data: any }) {
         path="blog5.subtitle"
         placeholder="Enter section subtitle"
       />
-
-      <FormGroup title="Blog Articles">
-        <div className="text-xs text-gray-500 mb-2">
-          Edit articles in the Media tab
-        </div>
-      </FormGroup>
     </div>
   );
 }
@@ -509,43 +485,9 @@ function Contact1ContentForm({ data }: { data: any }) {
 function Blog1MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <FormGroup title="Blog Articles">
-        {(data?.articles || []).map((article: any, index: number) => (
-          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4">
-            <div className="text-xs font-medium text-gray-700 mb-2">
-              Article {index + 1}
-            </div>
-            <ImageUploadField
-              label="Image"
-              value={article.image || ""}
-              path={`blog1.articles.${index}.image`}
-            />
-            <TextField
-              label="Category"
-              value={article.category || ""}
-              path={`blog1.articles.${index}.category`}
-              placeholder="e.g. Technology"
-            />
-            <TextField
-              label="Title"
-              value={article.title || ""}
-              path={`blog1.articles.${index}.title`}
-              placeholder="Article title"
-            />
-            <TextAreaField
-              label="Description"
-              value={article.description || ""}
-              path={`blog1.articles.${index}.description`}
-              placeholder="Article description"
-            />
-            <LinkField
-              label="Link"
-              value={article.link || ""}
-              path={`blog1.articles.${index}.link`}
-            />
-          </div>
-        ))}
-      </FormGroup>
+      <div className="text-xs text-gray-500 mb-2">
+        Blog images are managed from a separate source.
+      </div>
     </div>
   );
 }
@@ -554,49 +496,9 @@ function Blog1MediaForm({ data }: { data: any }) {
 function Blog2MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <ImageUploadField
-        label="Background Line"
-        value={data?.bgLine || ""}
-        path="blog2.bgLine"
-      />
-
-      <FormGroup title="Blog Articles">
-        {(data?.articles || []).map((article: any, index: number) => (
-          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4">
-            <div className="text-xs font-medium text-gray-700 mb-2">
-              Article {index + 1}
-            </div>
-            <ImageUploadField
-              label="Image"
-              value={article.image || ""}
-              path={`blog2.articles.${index}.image`}
-            />
-            <TextField
-              label="Category"
-              value={article.category || ""}
-              path={`blog2.articles.${index}.category`}
-              placeholder="e.g. Technology"
-            />
-            <TextField
-              label="Title"
-              value={article.title || ""}
-              path={`blog2.articles.${index}.title`}
-              placeholder="Article title"
-            />
-            <TextAreaField
-              label="Description"
-              value={article.description || ""}
-              path={`blog2.articles.${index}.description`}
-              placeholder="Article description"
-            />
-            <LinkField
-              label="Link"
-              value={article.link || ""}
-              path={`blog2.articles.${index}.link`}
-            />
-          </div>
-        ))}
-      </FormGroup>
+      <div className="text-xs text-gray-500 mb-2">
+        Blog images are managed from a separate source.
+      </div>
     </div>
   );
 }
@@ -605,49 +507,9 @@ function Blog2MediaForm({ data }: { data: any }) {
 function Blog3MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <ImageUploadField
-        label="Background Line"
-        value={data?.bgLine || ""}
-        path="blog3.bgLine"
-      />
-
-      <FormGroup title="Blog Articles">
-        {(data?.articles || []).map((article: any, index: number) => (
-          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4">
-            <div className="text-xs font-medium text-gray-700 mb-2">
-              Article {index + 1}
-            </div>
-            <ImageUploadField
-              label="Image"
-              value={article.image || ""}
-              path={`blog3.articles.${index}.image`}
-            />
-            <TextField
-              label="Category"
-              value={article.category || ""}
-              path={`blog3.articles.${index}.category`}
-              placeholder="e.g. Technology"
-            />
-            <TextField
-              label="Title"
-              value={article.title || ""}
-              path={`blog3.articles.${index}.title`}
-              placeholder="Article title"
-            />
-            <TextAreaField
-              label="Description"
-              value={article.description || ""}
-              path={`blog3.articles.${index}.description`}
-              placeholder="Article description"
-            />
-            <LinkField
-              label="Link"
-              value={article.link || ""}
-              path={`blog3.articles.${index}.link`}
-            />
-          </div>
-        ))}
-      </FormGroup>
+      <div className="text-xs text-gray-500 mb-2">
+        Blog images are managed from a separate source.
+      </div>
     </div>
   );
 }
@@ -656,43 +518,9 @@ function Blog3MediaForm({ data }: { data: any }) {
 function Blog5MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <FormGroup title="Blog Articles">
-        {(data?.articles || []).map((article: any, index: number) => (
-          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4">
-            <div className="text-xs font-medium text-gray-700 mb-2">
-              Article {index + 1}
-            </div>
-            <ImageUploadField
-              label="Image"
-              value={article.image || ""}
-              path={`blog5.articles.${index}.image`}
-            />
-            <TextField
-              label="Category"
-              value={article.category || ""}
-              path={`blog5.articles.${index}.category`}
-              placeholder="e.g. Technology"
-            />
-            <TextField
-              label="Title"
-              value={article.title || ""}
-              path={`blog5.articles.${index}.title`}
-              placeholder="Article title"
-            />
-            <TextAreaField
-              label="Description"
-              value={article.description || ""}
-              path={`blog5.articles.${index}.description`}
-              placeholder="Article description"
-            />
-            <LinkField
-              label="Link"
-              value={article.link || ""}
-              path={`blog5.articles.${index}.link`}
-            />
-          </div>
-        ))}
-      </FormGroup>
+      <div className="text-xs text-gray-500 mb-2">
+        Blog images are managed from a separate source.
+      </div>
     </div>
   );
 }

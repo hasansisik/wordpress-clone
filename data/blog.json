@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "image": "/assets/imgs/blog-1/card-img-1.png",
+    "category": "Business",
+    "title": "The Future of SaaS: Emerging Trends to Watch",
+    "description": "As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...",
+    "link": "#",
+    "author": "miranda h.",
+    "date": "25 April 2023"
+  },
+  {
+    "id": 2,
+    "image": "/assets/imgs/blog-1/card-img-2.png",
+    "category": "Technology",
+    "title": "Choosing the Right SaaS Solution for Your Business",
+    "description": "Selecting the right SaaS solution can be a daunting task with so many options available. This guide breaks down the key...",
+    "link": "#",
+    "author": "miranda h.",
+    "date": "25 April 2023"
+  },
+  {
+    "id": 3,
+    "image": "/assets/imgs/blog-1/card-img-3.png",
+    "category": "Security",
+    "title": "The Importance of Data Security in Your SaaS Projects",
+    "description": "Data security is a top priority for businesses adopting SaaS solutions. With increasing cyber threats, it's essential to understand...",
+    "link": "#",
+    "author": "miranda h.",
+    "date": "25 April 2023"
+  },
+  {
+    "id": 4,
+    "image": "/assets/imgs/blog-6/img-2.png",
+    "category": "Technology",
+    "title": "Choosing the Right SaaS Solution for Your Business",
+    "description": "As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...",
+    "link": "#",
+    "author": "miranda h.",
+    "date": "25 April 2023"
+  },
+  {
+    "id": 5,
+    "image": "/assets/imgs/blog-6/img-1.png",
+    "category": "Business",
+    "title": "The Future of SaaS: Emerging Trends to Watch",
+    "description": "Selecting the right SaaS solution can be a daunting task with so many options available. This guide breaks down the key...",
+    "link": "#",
+    "author": "miranda h.",
+    "date": "25 April 2023"
+  },
+  {
+    "id": 6,
+    "image": "/assets/imgs/blog-6/img-3.png",
+    "category": "Security",
+    "title": "The Importance of Data Security in Your SaaS Projects",
+    "description": "Data security is a top priority for businesses adopting SaaS solutions. With increasing cyber threats, it's essential to understand...",
+    "link": "#",
+    "author": "miranda h.",
+    "date": "25 April 2023"
+  },
+  {
+    "id": 7,
+    "title": "Accessible to telescopes, is about 90 billion years",
+    "image": "/assets/imgs/inner_blog_img01.jpg",
+    "category": "Movie",
+    "author": "miranda h.",
+    "date": "25 April 2023",
+    "description": "As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...",
+    "link": "#"
+  },
+  {
+    "id": 8,
+    "title": "Observable universes each of which would comprise",
+    "image": "/assets/imgs/inner_blog_img02.jpg",
+    "category": "Sports",
+    "author": "miranda h.",
+    "date": "25 April 2023",
+    "description": "Data security is a top priority for businesses adopting SaaS solutions. With increasing cyber threats, it's essential to understand...",
+    "link": "#"
+  }
+] 

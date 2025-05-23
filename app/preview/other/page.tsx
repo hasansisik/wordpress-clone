@@ -644,6 +644,250 @@ const CommonStyles = () => (
         max-width: 33.333333%;
       }
     }
+    
+    /* Fix animation issues for Blog2 */
+    .swiper-wrapper {
+      display: flex;
+      width: 100%;
+    }
+    
+    .swiper-slide {
+      height: auto;
+      flex-shrink: 0;
+      width: 100%;
+      position: relative;
+    }
+    
+    @media (min-width: 768px) {
+      .swiper-slide {
+        width: 48%;
+        margin-right: 2%;
+      }
+    }
+    
+    /* Fix slide card visibility */
+    .swiper .card {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+    
+    /* Fix for Blog2 specific styles */
+    .section-blog-2 {
+      width: 100vw;
+      max-width: 100%;
+      overflow: visible;
+    }
+    
+    /* Add animations if missing */
+    .bouncing-blobs-container {
+      display: none;
+    }
+    
+    /* Fix for swiper slider controls */
+    .swiper-button-next,
+    .swiper-button-prev {
+      position: absolute;
+      top: 50%;
+      width: 40px;
+      height: 40px;
+      margin-top: -20px;
+      z-index: 10;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+    }
+    
+    .swiper-button-next {
+      right: 10px;
+    }
+    
+    .swiper-button-prev {
+      left: 10px;
+    }
+    
+    /* Ensure all blog cards are visible */
+    .slider-one {
+      overflow: visible;
+      padding: 10px;
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Fix for IE 11 */
+    @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+      .swiper-slide {
+        float: left;
+        width: 48%;
+        margin-right: 2%;
+      }
+    }
+    
+    /* Make sure images don't break layout */
+    .swiper img, .card img {
+      max-width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+    
+    /* Specific fixes for Contact1 component */
+    .section-contact-3 {
+      width: 100%;
+      max-width: 100%;
+      padding: 80px 0;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    
+    .section-contact-3 .container {
+      width: 100%;
+      max-width: 1140px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+    
+    .section-contact-3 .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-right: -15px;
+      margin-left: -15px;
+      width: 100%;
+    }
+    
+    .section-contact-3 .col-lg-6,
+    .section-contact-3 .col-lg-10,
+    .section-contact-3 .col-md-6,
+    .section-contact-3 .col-12 {
+      position: relative;
+      width: 100%;
+      padding-right: 15px;
+      padding-left: 15px;
+      margin-bottom: 1rem;
+    }
+    
+    .section-contact-3 form {
+      width: 100%;
+    }
+    
+    .section-contact-3 .input-group {
+      width: 100%;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .section-contact-3 .form-control {
+      flex: 1;
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+    }
+    
+    .section-contact-3 textarea.form-control {
+      height: auto;
+      min-height: 100px;
+    }
+    
+    .section-contact-3 .icon-input {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem;
+      background-color: #fff;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem 0 0 0.25rem;
+    }
+    
+    .section-contact-3 .btn {
+      display: inline-block;
+      font-weight: 500;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      user-select: none;
+      padding: 0.375rem 0.75rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      border-radius: 0.25rem;
+      cursor: pointer;
+    }
+    
+    .section-contact-3 .form-check {
+      position: relative;
+      display: block;
+      padding-left: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    /* Make sure contact and blog components take full width */
+    section.section-blog-1,
+    section.section-blog-2,
+    section.section-blog-3,
+    section.section-blog-5,
+    section.section-contact-3 {
+      width: 100vw;
+      max-width: 100%;
+      margin: 0;
+      padding: 80px 20px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+    
+    /* Fix margin spacing for all blog articles */
+    .card {
+      height: 100%;
+      margin-bottom: 2rem;
+    }
+    
+    /* Better responsive behavior */
+    @media (max-width: 768px) {
+      .section-contact-3 .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      
+      .section-contact-3 form {
+        margin-bottom: 3rem;
+      }
+    }
+    
+    /* Custom spacing for Contact1 elements */
+    .section-contact-3 h4,
+    .section-contact-3 h6 {
+      margin-bottom: 1rem;
+    }
+    
+    .section-contact-3 .ps-lg-6 {
+      padding-left: 1.5rem;
+    }
+    
+    @media (min-width: 992px) {
+      .section-contact-3 .ps-lg-6 {
+        padding-left: 4rem;
+      }
+    }
+    
+    .section-contact-3 .ms-8 {
+      margin-left: 2rem;
+    }
   `}</style>
 );
 

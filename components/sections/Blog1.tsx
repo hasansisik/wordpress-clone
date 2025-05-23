@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import otherData from "@/data/other.json"
+import blogData from "@/data/blog.json"
 
 interface Blog1Props {
 	previewData?: any;
@@ -9,6 +10,7 @@ interface Blog1Props {
 
 export default function Blog1({ previewData }: Blog1Props = {}) {
 	const [data, setData] = useState<any>(null)
+	const [posts, setPosts] = useState<any[]>([])
 
 	useEffect(() => {
 		console.log("Blog1 previewData:", previewData);
@@ -23,6 +25,9 @@ export default function Blog1({ previewData }: Blog1Props = {}) {
 		} else {
 			console.error("No blog data available in Blog1 component");
 		}
+
+		// Set posts from blog.json
+		setPosts(blogData.slice(0, 3));
 	}, [previewData])
 
 	if (!data) {
@@ -51,18 +56,18 @@ export default function Blog1({ previewData }: Blog1Props = {}) {
 						</div>
 					</div>
 					<div className="row">
-						{data.articles.map((article: any, index: number) => (
+						{posts.map((post, index) => (
 							<div key={index} className="col-lg-4 text-start">
 								<div className="card border-0 rounded-3 mt-8 position-relative d-inline-flex" data-aos="fade-zoom-in" data-aos-delay={(index + 1) * 100}>
-									<img className="rounded-3" src={article.image} alt="blog post" />
+									<img className="rounded-3" src={post.image} alt="blog post" />
 									<div className="card-body p-0 bg-white">
-										<Link href={article.link} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
-											<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{article.category}</span>
+										<Link href={post.link} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
+											<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category}</span>
 										</Link>
-										<h6 className="my-3">{article.title}</h6>
-										<p>{article.description}</p>
+										<h6 className="my-3">{post.title}</h6>
+										<p>{post.description}</p>
 									</div>
-									<Link href={article.link} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" />
+									<Link href={post.link} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" />
 								</div>
 							</div>
 						))}
