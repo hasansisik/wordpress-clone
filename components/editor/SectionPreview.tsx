@@ -1,7 +1,7 @@
 "use client";
 
 import { useEditor } from "./EditorProvider";
-import { useEffect, FC, useRef } from "react";
+import { useEffect, FC, useRef, useState } from "react";
 
 interface SectionPreviewProps {
   previewUrl: string;
@@ -23,40 +23,62 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
   } = useEditor();
   
   const initialLoadRef = useRef(false);
+  const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
 
-  // Update iframe URL only on initial load and when saved data changes
+  // Update iframe URL when data changes (with debounce)
   useEffect(() => {
-    // Only load initially or when saved data changes
-    if (!initialLoadRef.current || savedData) {
-      if (sectionData && iframeRef.current) {
-        const queryParams = new URLSearchParams();
-        
-        // Determine the parameter name based on section type
-        const dataParamName = paramName || (sectionType === "hero" ? "heroData" : "sectionData");
-        
-        // Add the main section data
-        queryParams.append(dataParamName, JSON.stringify(sectionData));
-        
-        // Only add section type for non-hero sections
-        if (sectionType !== "hero") {
-          queryParams.append('sectionType', sectionType);
-        }
-        
-        // Add any additional params
-        Object.entries(additionalParams).forEach(([key, value]) => {
-          queryParams.append(key, value);
-        });
-        
-        const fullPreviewUrl = `${previewUrl}?${queryParams.toString()}`;
-        
-        console.log("Setting iframe URL:", fullPreviewUrl);
-        
-        // Update iframe src
-        iframeRef.current.src = fullPreviewUrl;
-        initialLoadRef.current = true;
-      }
+    // Always load on initial render
+    if (!initialLoadRef.current) {
+      updateIframe();
+      initialLoadRef.current = true;
+      return;
     }
-  }, [sectionData, previewUrl, sectionType, additionalParams, paramName, savedData]);
+
+    // Debounce updates to prevent too frequent refreshes
+    const now = Date.now();
+    if (now - lastUpdateTime > 1000) { // Only update if more than 1 second has passed
+      updateIframe();
+      setLastUpdateTime(now);
+    } else {
+      // Schedule an update if it's too soon
+      const timerId = setTimeout(() => {
+        updateIframe();
+        setLastUpdateTime(Date.now());
+      }, 1000);
+      
+      return () => clearTimeout(timerId);
+    }
+  }, [sectionData]);
+
+  // Function to update the iframe
+  const updateIframe = () => {
+    if (sectionData && iframeRef.current) {
+      const queryParams = new URLSearchParams();
+      
+      // Determine the parameter name based on section type
+      const dataParamName = paramName || (sectionType === "hero" ? "heroData" : "sectionData");
+      
+      // Add the main section data
+      queryParams.append(dataParamName, JSON.stringify(sectionData));
+      
+      // Only add section type for non-hero sections
+      if (sectionType !== "hero") {
+        queryParams.append('sectionType', sectionType);
+      }
+      
+      // Add any additional params
+      Object.entries(additionalParams).forEach(([key, value]) => {
+        queryParams.append(key, value);
+      });
+      
+      const fullPreviewUrl = `${previewUrl}?${queryParams.toString()}`;
+      
+      console.log("Setting iframe URL:", fullPreviewUrl);
+      
+      // Update iframe src
+      iframeRef.current.src = fullPreviewUrl;
+    }
+  };
 
   // Only update iframe width when preview mode changes
   useEffect(() => {

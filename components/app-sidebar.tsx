@@ -50,8 +50,8 @@ const data = {
           url: "/dashboard/editor/hero",
         },
         {
-          title: "Call to Action",
-          url: "/dashboard/editor/call",
+          title: "Cta",
+          url: "/dashboard/editor/cta",
         },
         {
           title: "Services",

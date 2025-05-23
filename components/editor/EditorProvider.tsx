@@ -130,6 +130,25 @@ export const EditorProvider = ({
     fetchInitialData();
   }, [apiEndpoint, initialData, sectionType]);
 
+  // Instead of relying on saveCurrentData function being called explicitly,
+  // Let's add a useEffect to automatically update the savedData when sectionData changes
+
+  useEffect(() => {
+    // Don't update on initial load
+    if (initialData && !savedData) return;
+    
+    // Use a debounce approach to avoid too frequent updates
+    const updateTimer = setTimeout(() => {
+      // Only update if there are actual changes
+      if (JSON.stringify(sectionData) !== JSON.stringify(savedData)) {
+        console.log("Auto-updating savedData");
+        setSavedData({...sectionData});
+      }
+    }, 2000); // 2 second debounce
+    
+    return () => clearTimeout(updateTimer);
+  }, [sectionData, savedData, initialData]);
+
   // Function to update iframe content
   const updateIframeContent = () => {
     if (!iframeRef.current || !iframeRef.current.contentWindow) return;

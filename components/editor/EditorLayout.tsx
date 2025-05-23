@@ -12,8 +12,7 @@ import {
   Tablet,
   Maximize2,
   Minimize2,
-  Save,
-  Eye
+  Save
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -71,11 +70,6 @@ export default function EditorLayout({
     }
   };
 
-  // Handler for the "Preview" button click
-  const handlePreviewUpdate = () => {
-    saveCurrentData();
-  };
-
   return (
     <div className="w-full h-screen flex flex-col">
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4">
@@ -125,15 +119,6 @@ export default function EditorLayout({
               <Smartphone className="h-4 w-4" />
             </Button>
           </div>
-          
-          <Button
-            className="bg-gray-600 hover:bg-gray-700 text-white h-8"
-            size="sm"
-            onClick={handlePreviewUpdate}
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            <span className="text-xs">Preview</span>
-          </Button>
           
           <Button
             className="bg-black hover:bg-gray-800 text-white h-8"
@@ -192,8 +177,8 @@ export default function EditorLayout({
         </div>
         
         {/* Preview Area */}
-        <div className="flex-1 bg-gray-100 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-auto relative">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-auto relative pt-2">
             <div className={`
               mx-auto transition-all duration-300 ease-in-out bg-gray-100 h-full overflow-y-auto
               ${previewMode === "desktop" ? "w-full" : previewMode === "tablet" ? "w-[768px]" : "w-[375px]"}

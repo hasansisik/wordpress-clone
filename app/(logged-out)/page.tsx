@@ -1,5 +1,7 @@
 import Layout from "@/components/layout/Layout"
 import Blog1 from "@/components/sections/Blog1"
+import Cta4 from "@/components/sections/Cta4"
+import Cta9 from "@/components/sections/Cta9"
 import Features1 from "@/components/sections/Features1"
 import Features2 from "@/components/sections/Features2"
 import Features3 from "@/components/sections/Features3"
@@ -17,7 +19,7 @@ export default function Home() {
 
 			<Layout headerStyle={1} footerStyle={1}>
 				<Hero1 />
-				<LogoCloud1 />
+				<Cta4 />
 				<Features1 />
 				<Features2 />
 				<Features3 />

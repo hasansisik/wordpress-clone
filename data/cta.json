@@ -1,0 +1,51 @@
+{
+  "activeCta": "cta4",
+  "cta4": {
+    "videoGuide": {
+      "image": "/assets/imgs/cta-4/img-1.png",
+      "videoId": "gXFATcwrO-U",
+      "buttonText": "Video Guide"
+    },
+    "vector": {
+      "image": "/assets/imgs/cta-4/vector.svg"
+    },
+    "heading": {
+      "small": "What We ",
+      "title": "Custom Services For Your Business"
+    },
+    "description": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
+    "features": [
+      "Creative Ideas",
+      "Web Development",
+      "Digital Marketing",
+      "App Development"
+    ],
+    "buttons": {
+      "primary": {
+        "text": "Get Free Quote",
+        "link": "#"
+      },
+      "secondary": {
+        "text": "How We Work",
+        "link": "#"
+      }
+    }
+  },
+  "cta9": {
+    "videoGuide": {
+      "image": "/assets/imgs/cta-14/img-1.png",
+      "videoId": "gXFATcwrO-U",
+      "buttonText": "Video Guide"
+    },
+    "vectors": {
+      "vector1": "/assets/imgs/cta-14/vector.svg",
+      "vector2": "/assets/imgs/cta-14/vector-2.svg",
+      "bgLine": "/assets/imgs/service-2/bg-line.png"
+    },
+    "heading": {
+      "tag": "How It Work",
+      "title": "What are the <span class=\"fw-bold\">Steps Involved</span> in <br /> Our <span class=\"fw-bold\">Process?</span>"
+    },
+    "tagImage": "/assets/imgs/features-1/dots.png"
+  }
+}
