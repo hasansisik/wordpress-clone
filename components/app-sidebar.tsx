@@ -62,10 +62,6 @@ const data = {
           url: "/dashboard/editor/faq",
         },
         {
-          title: "Blog",
-          url: "/dashboard/editor/blog",
-        },
-        {
           title: "Footer",
           url: "/dashboard/editor/footer",
         },
