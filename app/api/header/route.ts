@@ -5,6 +5,7 @@ import path from 'path';
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
+    console.log('Received header data to save:', data);
     
     // Path to header.json file
     const filePath = path.join(process.cwd(), 'data', 'header.json');
@@ -42,8 +43,12 @@ export async function POST(req: NextRequest) {
       })) : [],
       showDarkModeToggle: typeof data.showDarkModeToggle === 'boolean' ? data.showDarkModeToggle : true,
       showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : true,
+      actionButtonText: data.actionButtonText || "Join For Free Trial",
+      actionButtonLink: data.actionButtonLink || "#",
       headerComponent: data.headerComponent || "Header1"
     };
+    
+    console.log('Saving header data:', safeData);
     
     // Convert data to a JSON string
     const jsonData = JSON.stringify(safeData, null, 2);
@@ -98,6 +103,8 @@ export async function GET() {
         topBarItems: [],
         showDarkModeToggle: true,
         showActionButton: true,
+        actionButtonText: "Join For Free Trial",
+        actionButtonLink: "#",
         headerComponent: "Header1"
       };
       

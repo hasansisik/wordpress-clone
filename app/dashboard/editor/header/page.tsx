@@ -23,6 +23,10 @@ import {
   Trash2,
   Pencil,
   ArrowLeft,
+  Layout,
+  Type,
+  Settings,
+  Image,
 } from "lucide-react";
 import { SortableList } from "@/components/ui/sortable-list";
 import {
@@ -50,6 +54,10 @@ import {
 } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 import { uploadImageToCloudinary } from "@/utils/cloudinary";
+import { EditorProvider } from "@/components/editor/EditorProvider";
+import EditorLayout from "@/components/editor/EditorLayout";
+import EditorSidebar from "@/components/editor/EditorSidebar";
+import SectionPreview from "@/components/editor/SectionPreview";
 
 // Define types for menu items
 interface MenuItem {
@@ -98,6 +106,57 @@ const socialMediaTypes = [
   { name: "Pinterest", icon: "pinterest" }
 ];
 
+// Props for HeaderEditorContent
+interface HeaderEditorContentProps {
+  headers: {
+    id: number;
+    name: string;
+    image: string;
+    hasTopBar: boolean;
+    buttonText: string;
+    component: string;
+  }[];
+  selectedHeader: number | null;
+  setSelectedHeader: (header: number | null) => void;
+  headerData: HeaderData;
+  setHeaderData: (data: HeaderData) => void;
+  handleItemAdd: (e: React.FormEvent) => void;
+  handleItemDelete: (itemId: string, type: string) => void;
+  handleItemsReorder: (updatedItems: MenuItem[] | TopBarItem[], type: string) => void;
+  handleEditItem: (itemId: string, type: string) => void;
+  handleUpdateItem: (e: React.FormEvent) => void;
+  menuDialogOpen: boolean;
+  setMenuDialogOpen: (open: boolean) => void;
+  topBarDialogOpen: boolean;
+  setTopBarDialogOpen: (open: boolean) => void;
+  socialDialogOpen: boolean;
+  setSocialDialogOpen: (open: boolean) => void;
+  logoUploading: boolean;
+  handleLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  newItem: {
+    name: string;
+    link: string;
+    content: string;
+    type: string;
+  };
+  setNewItem: (item: { name: string; link: string; content: string; type: string }) => void;
+  sortedMainMenu: MenuItem[];
+  sortedSocialLinks: MenuItem[];
+  sortedTopBarItems: TopBarItem[];
+  editDialogOpen: boolean;
+  setEditDialogOpen: (open: boolean) => void;
+  editedItem: {
+    _id: string;
+    name: string;
+    link: string;
+    content: string;
+    type: string;
+  };
+  setEditedItem: (item: { _id: string; name: string; link: string; content: string; type: string }) => void;
+  handleSaveChanges: () => void;
+  saveChangesToAPI: (data: any) => Promise<void>;
+}
+
 export default function HeaderEditor() {
   const router = useRouter();
   const [selectedHeader, setSelectedHeader] = useState<number | null>(null);
@@ -109,9 +168,9 @@ export default function HeaderEditor() {
     logoUrl: "/assets/imgs/template/favicon.svg",
     showDarkModeToggle: true,
     showActionButton: true,
-    actionButtonText: "",
-    actionButtonLink: "",
-    headerComponent: "",
+    actionButtonText: "Join For Free Trial",
+    actionButtonLink: "/contact",
+    headerComponent: "Header1",
   });
 
   const [showAlert, setShowAlert] = useState(false);
@@ -139,7 +198,7 @@ export default function HeaderEditor() {
   const headers = [
     {
       id: 1,
-      name: "Standard Header",
+      name: "Header 1",
       image: "/assets/imgs/headers/header1.png",
       hasTopBar: false,
       buttonText: "Join For Free Trial",
@@ -147,7 +206,7 @@ export default function HeaderEditor() {
     },
     {
       id: 2,
-      name: "Fluid Header",
+      name: "Header 2",
       image: "/assets/imgs/headers/header2.png",
       hasTopBar: false,
       buttonText: "Join For Free Trial",
@@ -155,7 +214,7 @@ export default function HeaderEditor() {
     },
     {
       id: 3,
-      name: "Topbar Header",
+      name: "Header 3",
       image: "/assets/imgs/headers/header3.png",
       hasTopBar: true,
       buttonText: "Join For Free Trial",
@@ -163,7 +222,7 @@ export default function HeaderEditor() {
     },
     {
       id: 4,
-      name: "Centered Header",
+      name: "Header 4",
       image: "/assets/imgs/headers/header4.png",
       hasTopBar: false,
       buttonText: "",
@@ -171,16 +230,30 @@ export default function HeaderEditor() {
     },
     {
       id: 5,
-      name: "Contact Header",
+      name: "Header 5",
       image: "/assets/imgs/headers/header5.png",
       hasTopBar: true,
       buttonText: "Get a Quote",
       component: "Header5"
     },
+    {
+      id: 6,
+      name: "Header 6",
+      image: "/assets/imgs/headers/header5.png", // Using header5 image temporarily
+      hasTopBar: true,
+      buttonText: "Contact Us",
+      component: "Header5" // Using Header5 component temporarily
+    },
   ];
 
   // Initialize header data based on selection
   useEffect(() => {
+    // Set default selected header if not already set
+    if (selectedHeader === null) {
+      const defaultHeaderId = 1; // Header1 as default
+      setSelectedHeader(defaultHeaderId);
+    }
+    
     if (selectedHeader === null) return;
 
     const header = headers.find((h) => h.id === selectedHeader);
@@ -271,16 +344,35 @@ export default function HeaderEditor() {
 
     try {
       setLogoUploading(true);
-      // Cloudinary'e yükle
+      console.log('Uploading logo file:', file.name);
+      
+      // Upload to Cloudinary
       const uploadedUrl = await uploadImageToCloudinary(file);
+      console.log('Received uploaded logo URL:', uploadedUrl);
 
-      setHeaderData({
+      // Update state with new logo URL
+      const updatedData = {
         ...headerData,
         logoUrl: uploadedUrl,
+      };
+      
+      console.log('Setting headerData with new logo URL:', updatedData.logoUrl);
+      setHeaderData(updatedData);
+      
+      // Immediately save to API to ensure logo changes are persisted
+      console.log('Saving logo changes to API');
+      await saveChangesToAPI({
+        ...updatedData,
+        logo: {
+          src: uploadedUrl,
+          text: updatedData.logoText,
+          alt: updatedData.logoText.toLowerCase()
+        }
       });
 
       showSuccessAlert("Logo uploaded successfully");
     } catch (error: any) {
+      console.error('Error during logo upload:', error);
       showErrorAlert(`Error uploading logo: ${error.message}`);
     } finally {
       setLogoUploading(false);
@@ -622,30 +714,45 @@ export default function HeaderEditor() {
       
       if (response.ok) {
         const freshData = await response.json();
-        console.log('Refreshed header data:', freshData);
+        console.log('API response with header data:', freshData);
         
         const header = headers.find((h) => h.id === selectedHeader);
         if (!header) return;
 
+        // Create updated header data with values from the API while preserving active selections
         const updatedHeaderData = {
+          // These should come from the API
           mainMenu: Array.isArray(freshData.mainMenu) ? freshData.mainMenu : [],
-          socialLinks: selectedHeader === 5 ? (Array.isArray(freshData.socialLinks) ? freshData.socialLinks : []) : [],
-          topBarItems: header.hasTopBar ? (Array.isArray(freshData.topBarItems) ? freshData.topBarItems : []) : [],
+          socialLinks: Array.isArray(freshData.socialLinks) ? freshData.socialLinks : [],
+          topBarItems: Array.isArray(freshData.topBarItems) ? freshData.topBarItems : [],
+          
+          // Logo data should always come from the API
           logoText: freshData.logo?.text || "Infinia",
           logoUrl: freshData.logo?.src || "/assets/imgs/template/favicon.svg",
+          
+          // Settings from API
           showDarkModeToggle: freshData.showDarkModeToggle !== undefined ? freshData.showDarkModeToggle : true,
-          showActionButton: header.buttonText !== "",
-          actionButtonText: header.buttonText,
-          actionButtonLink: freshData.links?.freeTrialLink?.href || "/contact",
+          showActionButton: freshData.showActionButton !== undefined ? freshData.showActionButton : header.buttonText !== "",
+          
+          // Button settings - get from API if available, otherwise use defaults
+          actionButtonText: freshData.actionButtonText || freshData.links?.freeTrialLink?.text || header.buttonText,
+          actionButtonLink: freshData.actionButtonLink || freshData.links?.freeTrialLink?.href || "/contact",
+          
+          // Component type from API or fall back to the header's component
           headerComponent: freshData.headerComponent || header.component
         };
+
+        console.log('Updating header data state with:', updatedHeaderData);
 
         // Use functional state update to ensure we're working with the latest state
         setHeaderData(prevData => {
           // If the data is the same, don't trigger a re-render
           if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
+            console.log('No changes in header data, skipping update');
             return prevData;
           }
+          
+          console.log('Updating header data with new values');
           return updatedHeaderData;
         });
       } else {
@@ -666,6 +773,8 @@ export default function HeaderEditor() {
   // After successful API operations, refresh data to ensure consistency
   const saveChangesToAPI = async (data: any) => {
     try {
+      console.log('Saving header data to API, current state:', data);
+      
       // Create the data structure to save
       const dataToSave = {
         logo: {
@@ -684,10 +793,13 @@ export default function HeaderEditor() {
         topBarItems: data.topBarItems || headerData.topBarItems,
         showDarkModeToggle: typeof data.showDarkModeToggle === 'boolean' ? data.showDarkModeToggle : headerData.showDarkModeToggle,
         showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : headerData.showActionButton,
+        // Add these properties explicitly
+        actionButtonText: data.actionButtonText || headerData.actionButtonText,
+        actionButtonLink: data.actionButtonLink || headerData.actionButtonLink,
         headerComponent: data.headerComponent || headerData.headerComponent || "Header1"
       };
 
-      console.log('Saving data to API:', dataToSave);
+      console.log('Data structure being sent to API:', dataToSave);
 
       // Send the data to the API
       const response = await fetch('/api/header', {
@@ -752,827 +864,858 @@ export default function HeaderEditor() {
       )
     : [];
 
-  const selectedHeaderInfo = headers.find((h) => h.id === selectedHeader);
-
   return (
-    <div className="w-full px-4 py-6 ">
-      <header className="flex h-14 shrink-0 items-center gap-2 mb-6">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Header Editor</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
-      {showAlert && (
-        <Alert
-          className={`mb-6 ${
-            alertType === "success"
-              ? "bg-green-50 text-green-700 border-green-200"
-              : "bg-red-50 text-red-700 border-red-200"
-          }`}
-        >
-          {alertType === "success" ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
-          <AlertTitle className="text-sm font-medium">
-            {alertType === "success" ? "Success" : "Error"}
-          </AlertTitle>
-          <AlertDescription className="text-xs">{alertMessage}</AlertDescription>
-        </Alert>
-      )}
-
-      {selectedHeader === null ? (
-        <Card className="mb-8 border border-gray-100 shadow-sm w-full">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">Select Header Style</CardTitle>
-            <CardDescription className="text-sm text-gray-500">
-              Choose a header design that fits your website style.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {headers.map((header) => (
-                <div
-                  key={header.id}
-                  className={`border rounded-lg overflow-hidden cursor-pointer transition-all hover:shadow-md ${
-                    selectedHeader === header.id
-                      ? "border-blue-500 ring-2 ring-blue-100"
-                      : "hover:border-gray-300"
-                  }`}
-                  onClick={() => setSelectedHeader(header.id)}
+    <div className="w-full">
+      <EditorProvider
+        apiEndpoint="/api/header"
+        sectionType="header"
+        uploadHandler={uploadImageToCloudinary}
+        initialData={headerData}
+      >
+        <HeaderEditorContent 
+          headers={headers} 
+          selectedHeader={selectedHeader}
+          setSelectedHeader={setSelectedHeader}
+          headerData={headerData}
+          setHeaderData={setHeaderData}
+          handleItemAdd={handleItemAdd}
+          handleItemDelete={handleItemDelete}
+          handleItemsReorder={handleItemsReorder}
+          handleEditItem={handleEditItem}
+          handleUpdateItem={handleUpdateItem}
+          menuDialogOpen={menuDialogOpen}
+          setMenuDialogOpen={setMenuDialogOpen}
+          topBarDialogOpen={topBarDialogOpen}
+          setTopBarDialogOpen={setTopBarDialogOpen}
+          socialDialogOpen={socialDialogOpen}
+          setSocialDialogOpen={setSocialDialogOpen}
+          logoUploading={logoUploading}
+          handleLogoUpload={handleLogoUpload}
+          newItem={newItem}
+          setNewItem={setNewItem}
+          sortedMainMenu={sortedMainMenu}
+          sortedSocialLinks={sortedSocialLinks}
+          sortedTopBarItems={sortedTopBarItems}
+          editDialogOpen={editDialogOpen}
+          setEditDialogOpen={setEditDialogOpen}
+          editedItem={editedItem}
+          setEditedItem={setEditedItem}
+          handleSaveChanges={handleSaveChanges}
+          saveChangesToAPI={saveChangesToAPI}
+        />
+      </EditorProvider>
+      
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">Edit Item</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 mt-1">
+              Update the information for this item.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateItem} className="space-y-4 mt-3">
+            {editedItem.type === "socialLinks" && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-name" className="text-sm">
+                  Platform
+                </Label>
+                <select
+                  id="edit-name"
+                  value={editedItem.name}
+                  onChange={(e) =>
+                    setEditedItem({ ...editedItem, name: e.target.value })
+                  }
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
                 >
-                  <div className="h-40 bg-sidebar relative">
-                    {header.image ? (
-                      <img 
-                        src={header.image} 
-                        alt={`${header.name} Preview`} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                        {header.component} Preview
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-medium">{header.name}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{header.component}</p>
-                  </div>
-                </div>
-              ))}
+                  <option value="">Select a platform</option>
+                  {socialMediaTypes.map((type) => (
+                    <option key={type.name} value={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {editedItem.type === "topBarItems" && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-name" className="text-sm">
+                  Type
+                </Label>
+                <select
+                  id="edit-name"
+                  value={editedItem.name}
+                  onChange={(e) =>
+                    setEditedItem({ ...editedItem, name: e.target.value })
+                  }
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+                >
+                  <option value="">Select a type</option>
+                  {topBarItemTypes.map((type) => (
+                    <option key={type.name} value={type.name}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {editedItem.type === "mainMenu" && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-name" className="text-sm">
+                  Name
+                </Label>
+                <Input
+                  id="edit-name"
+                  value={editedItem.name}
+                  onChange={(e) =>
+                    setEditedItem({ ...editedItem, name: e.target.value })
+                  }
+                  placeholder="Item name"
+                  className="h-9 text-sm"
+                />
+              </div>
+            )}
+
+            {(editedItem.type === "mainMenu" ||
+              editedItem.type === "socialLinks") && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-link" className="text-sm">
+                  Link
+                </Label>
+                <Input
+                  id="edit-link"
+                  value={editedItem.link}
+                  onChange={(e) =>
+                    setEditedItem({ ...editedItem, link: e.target.value })
+                  }
+                  placeholder="/page-link or https://..."
+                  className="h-9 text-sm"
+                />
+              </div>
+            )}
+
+            {editedItem.type === "topBarItems" && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-content" className="text-sm">
+                  Content
+                </Label>
+                <Input
+                  id="edit-content"
+                  value={editedItem.content}
+                  onChange={(e) =>
+                    setEditedItem({
+                      ...editedItem,
+                      content: e.target.value,
+                    })
+                  }
+                  placeholder={editedItem.name === "Phone" ? "+1 (555) 123-4567" : 
+                               editedItem.name === "Email" ? "contact@example.com" :
+                               editedItem.name === "Address" ? "123 Main St, City" : 
+                               editedItem.name === "Hours" ? "Mon-Fri: 9am-5pm" : ""}
+                  className="h-9 text-sm"
+                />
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full mt-2 text-sm"
+              disabled={
+                (editedItem.type === "mainMenu" && (!editedItem.name || !editedItem.link)) ||
+                (editedItem.type === "socialLinks" && (!editedItem.name || !editedItem.link)) ||
+                (editedItem.type === "topBarItems" && (!editedItem.name || !editedItem.content))
+              }
+            >
+              Update
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// Separate component for the editor content
+function HeaderEditorContent({
+  headers,
+  selectedHeader,
+  setSelectedHeader,
+  headerData,
+  setHeaderData,
+  handleItemAdd,
+  handleItemDelete,
+  handleItemsReorder,
+  handleEditItem,
+  handleUpdateItem,
+  menuDialogOpen,
+  setMenuDialogOpen,
+  topBarDialogOpen,
+  setTopBarDialogOpen,
+  socialDialogOpen,
+  setSocialDialogOpen,
+  logoUploading,
+  handleLogoUpload,
+  newItem,
+  setNewItem,
+  sortedMainMenu,
+  sortedSocialLinks,
+  sortedTopBarItems,
+  editDialogOpen,
+  setEditDialogOpen,
+  editedItem,
+  setEditedItem,
+  handleSaveChanges,
+  saveChangesToAPI
+}: HeaderEditorContentProps) {
+  const router = useRouter();
+
+  // Render sidebar content function
+  const renderSidebarContent = (data: HeaderData) => {
+    if (!data) return null;
+    
+    // Find the header info based on the selected component
+    const currentHeader = headers.find(h => h.component === data.headerComponent) || headers[0];
+    const hasTopBar = currentHeader.hasTopBar || false;
+    
+    // State for sticky preview toggle
+    const [isSticky, setIsSticky] = useState(false);
+    
+    // Effect to update iframe with sticky state
+    useEffect(() => {
+      const iframe = document.querySelector('iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({
+          type: "TOGGLE_HEADER_SCROLL",
+          scroll: isSticky
+        }, "*");
+      }
+    }, [isSticky]);
+    
+    return (
+      <Tabs defaultValue="layout" className="w-full">
+        <TabsList className="grid grid-cols-4 m-2">
+          <TabsTrigger value="layout" className="px-2">
+            <Layout className="h-4 w-4" />
+          </TabsTrigger>
+          <TabsTrigger value="content" className="px-2">
+            <Type className="h-4 w-4" />
+          </TabsTrigger>
+          <TabsTrigger value="style" className="px-2">
+            <Settings className="h-4 w-4" />
+          </TabsTrigger>
+          <TabsTrigger value="media" className="px-2">
+            <Image className="h-4 w-4" />
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Layout Tab */}
+        <TabsContent value="layout" className="m-0 p-3 border-t overflow-y-auto">
+          <div className="space-y-5 mb-6">
+            <div>
+              <h3 className="text-sm font-medium mb-3">Header Template</h3>
+              <select
+                value={headerData.headerComponent}
+                onChange={(e) => setHeaderData({
+                  ...headerData,
+                  headerComponent: e.target.value
+                })}
+                className="w-full h-10 rounded-md border border-input bg-background px-3 pr-8 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 appearance-none bg-no-repeat bg-[right_0.5rem_center]"
+                style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")" }}
+              >
+                {headers.map((header) => (
+                  <option key={header.id} value={header.component}>
+                    {header.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="flex items-center justify-between mb-8">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 text-sm font-normal"
-              onClick={() => setSelectedHeader(null)}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Back to Header Selection</span>
-            </Button>
-            <Button
-              className="bg-black hover:bg-gray-800 text-white text-sm"
-              onClick={handleSaveChanges}
-            >
-              Save Changes
-            </Button>
+            
+            <div className="flex items-center justify-between">
+              <Label htmlFor="stickyToggle" className="text-sm">
+                Sticky Header Preview
+              </Label>
+              <Switch
+                id="stickyToggle"
+                checked={isSticky}
+                onCheckedChange={setIsSticky}
+              />
+            </div>
           </div>
+        </TabsContent>
 
-          <Tabs defaultValue="main-menu" className="mt-4 space-y-6 w-full">
-            <TabsList className="w-full flex h-10 rounded-xl border bg-sidebar p-1">
-              <TabsTrigger
-                value="main-menu"
-                className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
-              >
-                Main Menu
-              </TabsTrigger>
-              {selectedHeader === 5 && (
-                <TabsTrigger
-                  value="social-links"
-                  className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
-                >
-                  Social Links
-                </TabsTrigger>
-              )}
-              {selectedHeaderInfo?.hasTopBar && (
-                <TabsTrigger
-                  value="topbar-items"
-                  className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
-                >
-                  Top Bar
-                </TabsTrigger>
-              )}
-              <TabsTrigger
-                value="general-settings"
-                className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
-              >
-                General Settings
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="main-menu" className="w-full">
-              <Card className="border border-gray-100 shadow-sm w-full">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-medium">Main Menu</CardTitle>
-                  <CardDescription className="text-sm text-gray-500">
-                    Manage and reorder your site's main navigation items.
-                  </CardDescription>
+        {/* Content Tab - All the main tabs content from the original file */}
+        <TabsContent value="content" className="m-0 p-3 border-t overflow-y-auto max-h-[calc(100vh-200px)]">
+          <div className="space-y-5">
+            <Card className="border shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Main Menu</CardTitle>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <div className="mb-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs font-normal"
+                    onClick={() => setMenuDialogOpen(true)}
+                  >
+                    + Add Menu Item
+                  </Button>
+                </div>
+                <div className="mt-2">
+                  {sortedMainMenu.length > 0 ? (
+                    <SortableList
+                      items={sortedMainMenu}
+                      onChange={(updatedItems: MenuItem[]) =>
+                        handleItemsReorder(updatedItems, "mainMenu")
+                      }
+                      onDelete={(itemId: string) =>
+                        handleItemDelete(itemId, "mainMenu")
+                      }
+                      onEdit={(itemId: string) =>
+                        handleEditItem(itemId, "mainMenu")
+                      }
+                      renderItem={(item: MenuItem) => (
+                        <div className="flex justify-between items-center w-full px-2">
+                          <div className="font-medium text-xs">
+                            {item.name}
+                          </div>
+                          <div className="text-gray-500 text-xs truncate max-w-[100px]">
+                            {item.link}
+                          </div>
+                        </div>
+                      )}
+                    />
+                  ) : (
+                    <div className="text-center py-4 text-gray-500 text-xs bg-sidebar rounded-md">
+                      No menu items yet.
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            {data.headerComponent === "Header5" && (
+              <Card className="border shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Social Links</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <Dialog
-                      open={menuDialogOpen}
-                      onOpenChange={setMenuDialogOpen}
+                <CardContent className="pb-2">
+                  <div className="mb-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs font-normal"
+                      onClick={() => setSocialDialogOpen(true)}
                     >
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-9 text-sm font-normal"
-                        >
-                          + Add Menu Item
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[400px]">
-                        <DialogHeader>
-                          <DialogTitle className="text-base font-semibold">
-                            New Menu Item
-                          </DialogTitle>
-                          <DialogDescription className="text-sm text-gray-500 mt-1">
-                            Add a new item to your main navigation.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
-                          <div className="space-y-2">
-                            <Label htmlFor="name" className="text-sm">
-                              Name
-                            </Label>
-                            <Input
-                              id="name"
-                              value={newItem.name}
-                              onChange={(e) =>
-                                setNewItem({ ...newItem, name: e.target.value })
-                              }
-                              placeholder="Menu item name"
-                              className="h-9 text-sm"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="link" className="text-sm">
-                              Link
-                            </Label>
-                            <Input
-                              id="link"
-                              value={newItem.link}
-                              onChange={(e) =>
-                                setNewItem({ ...newItem, link: e.target.value })
-                              }
-                              placeholder="/page-link"
-                              className="h-9 text-sm"
-                            />
-                          </div>
-                          <input
-                            type="hidden"
-                            value="mainMenu"
-                            onChange={() =>
-                              setNewItem({ ...newItem, type: "mainMenu" })
-                            }
-                          />
-                          <Button
-                            type="submit"
-                            className="w-full mt-2 text-sm"
-                          >
-                            Add Menu Item
-                          </Button>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
+                      + Add Social Link
+                    </Button>
                   </div>
-
                   <div className="mt-2">
-                    {sortedMainMenu.length > 0 ? (
+                    {sortedSocialLinks.length > 0 ? (
                       <SortableList
-                        items={sortedMainMenu}
+                        items={sortedSocialLinks}
                         onChange={(updatedItems: MenuItem[]) =>
-                          handleItemsReorder(updatedItems, "mainMenu")
+                          handleItemsReorder(updatedItems, "socialLinks")
                         }
                         onDelete={(itemId: string) =>
-                          handleItemDelete(itemId, "mainMenu")
+                          handleItemDelete(itemId, "socialLinks")
                         }
                         onEdit={(itemId: string) =>
-                          handleEditItem(itemId, "mainMenu")
+                          handleEditItem(itemId, "socialLinks")
                         }
                         renderItem={(item: MenuItem) => (
                           <div className="flex justify-between items-center w-full px-2">
-                            <div className="font-medium text-sm">
+                            <div className="font-medium text-xs">
                               {item.name}
                             </div>
-                            <div className="text-gray-500 text-xs">
+                            <div className="text-gray-500 text-xs truncate max-w-[100px]">
                               {item.link}
                             </div>
                           </div>
                         )}
                       />
                     ) : (
-                      <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
-                        No main menu items yet.
+                      <div className="text-center py-4 text-gray-500 text-xs bg-sidebar rounded-md">
+                        No social links yet.
                       </div>
                     )}
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-
-            {selectedHeader === 5 && (
-              <TabsContent value="social-links" className="w-full">
-                <Card className="border border-gray-100 shadow-sm w-full">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-medium">
-                      Social Links
-                    </CardTitle>
-                    <CardDescription className="text-sm text-gray-500">
-                      Manage your site's social media links.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <Dialog
-                        open={socialDialogOpen}
-                        onOpenChange={setSocialDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-9 text-sm font-normal"
-                          >
-                            + Add Social Link
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[400px]">
-                          <DialogHeader>
-                            <DialogTitle className="text-base font-semibold">
-                              New Social Link
-                            </DialogTitle>
-                            <DialogDescription className="text-sm text-gray-500 mt-1">
-                              Add a new social media platform link.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
-                            <div className="space-y-2">
-                              <Label htmlFor="name" className="text-sm">
-                                Platform
-                              </Label>
-                              <select
-                                id="name"
-                                value={newItem.name}
-                                onChange={(e) =>
-                                  setNewItem({
-                                    ...newItem,
-                                    name: e.target.value,
-                                    type: "socialLinks",
-                                  })
-                                }
-                                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
-                              >
-                                <option value="">Select a platform</option>
-                                {socialMediaTypes.map((type) => (
-                                  <option key={type.name} value={type.name}>
-                                    {type.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="link" className="text-sm">
-                                Link
-                              </Label>
-                              <Input
-                                id="link"
-                                value={newItem.link}
-                                onChange={(e) =>
-                                  setNewItem({
-                                    ...newItem,
-                                    link: e.target.value,
-                                    type: "socialLinks",
-                                  })
-                                }
-                                placeholder="https://twitter.com/username"
-                                className="h-9 text-sm"
-                              />
-                            </div>
-                            <Button
-                              type="submit"
-                              className="w-full mt-2 text-sm"
-                              disabled={!newItem.name || !newItem.link}
-                            >
-                              Add Social Link
-                            </Button>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-
-                    <div className="mt-2">
-                      {sortedSocialLinks.length > 0 ? (
-                        <SortableList
-                          items={sortedSocialLinks}
-                          onChange={(updatedItems: MenuItem[]) =>
-                            handleItemsReorder(updatedItems, "socialLinks")
-                          }
-                          onDelete={(itemId: string) =>
-                            handleItemDelete(itemId, "socialLinks")
-                          }
-                          onEdit={(itemId: string) =>
-                            handleEditItem(itemId, "socialLinks")
-                          }
-                          renderItem={(item: MenuItem) => (
-                            <div className="flex justify-between items-center w-full px-2">
-                              <div className="font-medium text-sm">
-                                {item.name}
-                              </div>
-                              <div className="text-gray-500 text-xs">
-                                {item.link}
-                              </div>
-                            </div>
-                          )}
-                        />
-                      ) : (
-                        <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
-                          No social links yet.
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
             )}
-
-            {selectedHeaderInfo?.hasTopBar && (
-              <TabsContent value="topbar-items" className="w-full">
-                <Card className="border border-gray-100 shadow-sm w-full">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-medium">
-                      Top Bar
-                    </CardTitle>
-                    <CardDescription className="text-sm text-gray-500">
-                      Manage your header's top bar information.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <Dialog
-                        open={topBarDialogOpen}
-                        onOpenChange={setTopBarDialogOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-9 text-sm font-normal"
-                          >
-                            + Add Top Bar Item
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[400px]">
-                          <DialogHeader>
-                            <DialogTitle className="text-base font-semibold">
-                              New Top Bar Item
-                            </DialogTitle>
-                            <DialogDescription className="text-sm text-gray-500 mt-1">
-                              Add contact information to your header's top bar.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
-                            <div className="space-y-2">
-                              <Label htmlFor="name" className="text-sm">
-                                Type
-                              </Label>
-                              <select
-                                id="name"
-                                value={newItem.name}
-                                onChange={(e) =>
-                                  setNewItem({
-                                    ...newItem,
-                                    name: e.target.value,
-                                    type: "topBarItems",
-                                  })
-                                }
-                                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
-                              >
-                                <option value="">Select a type</option>
-                                {topBarItemTypes.map((type) => (
-                                  <option key={type.name} value={type.name}>
-                                    {type.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="content" className="text-sm">
-                                Content
-                              </Label>
-                              <Input
-                                id="content"
-                                value={newItem.content}
-                                onChange={(e) =>
-                                  setNewItem({
-                                    ...newItem,
-                                    content: e.target.value,
-                                    type: "topBarItems",
-                                  })
-                                }
-                                placeholder={newItem.name === "Phone" ? "+1 (555) 123-4567" : 
-                                            newItem.name === "Email" ? "contact@example.com" :
-                                            newItem.name === "Address" ? "123 Main St, City" : 
-                                            newItem.name === "Hours" ? "Mon-Fri: 9am-5pm" : ""}
-                                className="h-9 text-sm"
-                              />
-                            </div>
-                            <Button
-                              type="submit"
-                              className="w-full mt-2 text-sm"
-                              disabled={!newItem.name || !newItem.content}
-                            >
-                              Add Top Bar Item
-                            </Button>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-
-                    <div className="mt-2">
-                      {sortedTopBarItems.length > 0 ? (
-                        <SortableList
-                          items={sortedTopBarItems}
-                          onChange={(updatedItems: TopBarItem[]) =>
-                            handleItemsReorder(updatedItems, "topBarItems")
-                          }
-                          onDelete={(itemId: string) =>
-                            handleItemDelete(itemId, "topBarItems")
-                          }
-                          onEdit={(itemId: string) =>
-                            handleEditItem(itemId, "topBarItems")
-                          }
-                          renderItem={(item: TopBarItem) => (
-                            <div className="flex justify-between items-center w-full px-2">
-                              <div className="font-medium text-sm">
-                                {item.name}
-                              </div>
-                              <div className="text-gray-500 text-xs">
-                                {item.content}
-                              </div>
-                            </div>
-                          )}
-                        />
-                      ) : (
-                        <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
-                          No top bar items yet.
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            )}
-
-            <TabsContent value="general-settings" className="w-full">
-              <Card className="border border-gray-100 shadow-sm w-full">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-medium">
-                    General Settings
-                  </CardTitle>
-                  <CardDescription className="text-sm text-gray-500">
-                    Manage logo, theme options, and action buttons.
-                  </CardDescription>
+            
+            {hasTopBar && (
+              <Card className="border shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium">Top Bar Items</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="logoText"
-                          className="text-sm"
-                        >
-                          Logo Text
-                        </Label>
-                        <Input
-                          id="logoText"
-                          value={headerData.logoText}
-                          onChange={(e) =>
-                            setHeaderData({
-                              ...headerData,
-                              logoText: e.target.value,
-                            })
-                          }
-                          placeholder="Logo text"
-                          className="h-9 text-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="logoUrl" className="text-sm">
-                          Logo URL
-                        </Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            id="logoUrl"
-                            value={headerData.logoUrl}
-                            onChange={(e) =>
-                              setHeaderData({
-                                ...headerData,
-                                logoUrl: e.target.value,
-                              })
-                            }
-                            placeholder="/images/logo.png"
-                            className="flex-1 h-9 text-sm"
-                          />
-                          <div className="relative">
-                            <Input
-                              type="file"
-                              id="logoFile"
-                              accept="image/*"
-                              onChange={handleLogoUpload}
-                              className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              disabled={logoUploading}
-                              className="relative h-9 text-sm"
-                              size="sm"
-                            >
-                              {logoUploading ? (
-                                "Uploading..."
-                              ) : (
-                                <>
-                                  <Upload className="w-3.5 h-3.5 mr-1.5" />
-                                  Upload
-                                </>
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Enter a URL or upload an image file.
-                        </p>
-                      </div>
-
-                      {headerData.logoUrl && (
-                        <div className="mt-4">
-                          <p className="mb-2 text-xs text-gray-500">
-                            Preview:
-                          </p>
-                          <img
-                            src={headerData.logoUrl}
-                            alt={headerData.logoText || "Logo"}
-                            className="h-8 object-contain border rounded p-1"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-5">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="darkModeToggle" className="text-sm">
-                            Dark Mode Toggle
-                          </Label>
-                          <Switch
-                            id="darkModeToggle"
-                            checked={headerData.showDarkModeToggle}
-                            onCheckedChange={(checked) =>
-                              setHeaderData({
-                                ...headerData,
-                                showDarkModeToggle: checked,
-                              })
-                            }
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500">Show dark mode toggle in the header.</p>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="actionButton" className="text-sm">
-                            Action Button
-                          </Label>
-                          <Switch
-                            id="actionButton"
-                            checked={headerData.showActionButton}
-                            onCheckedChange={(checked) =>
-                              setHeaderData({
-                                ...headerData,
-                                showActionButton: checked,
-                              })
-                            }
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500">Show a call-to-action button in the header.</p>
-
-                        {headerData.showActionButton && (
-                          <div className="space-y-4 mt-4 pl-2 border-l-2 border-gray-100">
-                            <div className="space-y-2">
-                              <Label
-                                htmlFor="actionButtonText"
-                                className="text-sm"
-                              >
-                                Button Text
-                              </Label>
-                              <Input
-                                id="actionButtonText"
-                                value={headerData.actionButtonText}
-                                onChange={(e) =>
-                                  setHeaderData({
-                                    ...headerData,
-                                    actionButtonText: e.target.value,
-                                  })
-                                }
-                                placeholder="Get Started"
-                                className="h-9 text-sm"
-                              />
+                <CardContent className="pb-2">
+                  <div className="mb-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs font-normal"
+                      onClick={() => setTopBarDialogOpen(true)}
+                    >
+                      + Add Top Bar Item
+                    </Button>
+                  </div>
+                  <div className="mt-2">
+                    {sortedTopBarItems.length > 0 ? (
+                      <SortableList
+                        items={sortedTopBarItems}
+                        onChange={(updatedItems: TopBarItem[]) =>
+                          handleItemsReorder(updatedItems, "topBarItems")
+                        }
+                        onDelete={(itemId: string) =>
+                          handleItemDelete(itemId, "topBarItems")
+                        }
+                        onEdit={(itemId: string) =>
+                          handleEditItem(itemId, "topBarItems")
+                        }
+                        renderItem={(item: TopBarItem) => (
+                          <div className="flex justify-between items-center w-full px-2">
+                            <div className="font-medium text-xs">
+                              {item.name}
                             </div>
-                            <div className="space-y-2">
-                              <Label
-                                htmlFor="actionButtonLink"
-                                className="text-sm"
-                              >
-                                Button Link
-                              </Label>
-                              <Input
-                                id="actionButtonLink"
-                                value={headerData.actionButtonLink}
-                                onChange={(e) =>
-                                  setHeaderData({
-                                    ...headerData,
-                                    actionButtonLink: e.target.value,
-                                  })
-                                }
-                                placeholder="/contact"
-                                className="h-9 text-sm"
-                              />
+                            <div className="text-gray-500 text-xs truncate max-w-[100px]">
+                              {item.content}
                             </div>
-                           
                           </div>
                         )}
+                      />
+                    ) : (
+                      <div className="text-center py-4 text-gray-500 text-xs bg-sidebar rounded-md">
+                        No top bar items yet.
                       </div>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
+        </TabsContent>
 
-          {/* Edit Dialog */}
-          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-            <DialogContent className="sm:max-w-[400px]">
-              <DialogHeader>
-                <DialogTitle className="text-lg font-semibold">Edit Item</DialogTitle>
-                <DialogDescription className="text-sm text-gray-500 mt-1">
-                  Update the information for this item.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleUpdateItem} className="space-y-4 mt-3">
-                {editedItem.type === "socialLinks" && (
+        {/* Style Tab */}
+        <TabsContent value="style" className="m-0 p-3 border-t overflow-y-auto max-h-[calc(100vh-200px)]">
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="darkModeToggle" className="text-sm">
+                  Dark Mode Toggle
+                </Label>
+                <Switch
+                  id="darkModeToggle"
+                  checked={headerData.showDarkModeToggle}
+                  onCheckedChange={(checked) => {
+                    const updatedData = {
+                      ...headerData,
+                      showDarkModeToggle: checked,
+                    };
+                    setHeaderData(updatedData);
+                    // Save changes immediately
+                    saveChangesToAPI(updatedData);
+                  }}
+                />
+              </div>
+              <p className="text-xs text-gray-500">Show dark mode toggle in the header.</p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="actionButton" className="text-sm">
+                  Action Button
+                </Label>
+                <Switch
+                  id="actionButton"
+                  checked={headerData.showActionButton}
+                  onCheckedChange={(checked) => {
+                    const updatedData = {
+                      ...headerData,
+                      showActionButton: checked,
+                    };
+                    setHeaderData(updatedData);
+                    // Save changes immediately
+                    saveChangesToAPI(updatedData);
+                  }}
+                />
+              </div>
+              <p className="text-xs text-gray-500">Show a call-to-action button in the header.</p>
+
+              {headerData.showActionButton && (
+                <div className="space-y-4 mt-4 pl-2 border-l-2 border-gray-100">
                   <div className="space-y-2">
-                    <Label htmlFor="edit-name" className="text-sm">
-                      Platform
-                    </Label>
-                    <select
-                      id="edit-name"
-                      value={editedItem.name}
-                      onChange={(e) =>
-                        setEditedItem({ ...editedItem, name: e.target.value })
-                      }
-                      className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+                    <Label
+                      htmlFor="actionButtonText"
+                      className="text-sm"
                     >
-                      <option value="">Select a platform</option>
-                      {socialMediaTypes.map((type) => (
-                        <option key={type.name} value={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {editedItem.type === "topBarItems" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-name" className="text-sm">
-                      Type
+                      Button Text
                     </Label>
-                    <select
-                      id="edit-name"
-                      value={editedItem.name}
-                      onChange={(e) =>
-                        setEditedItem({ ...editedItem, name: e.target.value })
-                      }
-                      className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+                    <Input
+                      id="actionButtonText"
+                      value={headerData.actionButtonText}
+                      onChange={(e) => {
+                        const updatedData = {
+                          ...headerData,
+                          actionButtonText: e.target.value,
+                        };
+                        setHeaderData(updatedData);
+                      }}
+                      onBlur={(e) => {
+                        // Save changes on blur
+                        saveChangesToAPI({
+                          ...headerData,
+                          actionButtonText: e.target.value
+                        });
+                      }}
+                      placeholder="Get Started"
+                      className="h-9 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="actionButtonLink"
+                      className="text-sm"
                     >
-                      <option value="">Select a type</option>
-                      {topBarItemTypes.map((type) => (
-                        <option key={type.name} value={type.name}>
-                          {type.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {editedItem.type === "mainMenu" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-name" className="text-sm">
-                      Name
+                      Button Link
                     </Label>
                     <Input
-                      id="edit-name"
-                      value={editedItem.name}
-                      onChange={(e) =>
-                        setEditedItem({ ...editedItem, name: e.target.value })
-                      }
-                      placeholder="Item name"
+                      id="actionButtonLink"
+                      value={headerData.actionButtonLink}
+                      onChange={(e) => {
+                        const updatedData = {
+                          ...headerData,
+                          actionButtonLink: e.target.value,
+                        };
+                        setHeaderData(updatedData);
+                      }}
+                      onBlur={(e) => {
+                        // Save changes on blur
+                        saveChangesToAPI({
+                          ...headerData,
+                          actionButtonLink: e.target.value
+                        });
+                      }}
+                      placeholder="/contact"
                       className="h-9 text-sm"
                     />
                   </div>
-                )}
+                </div>
+              )}
+            </div>
+          </div>
+        </TabsContent>
 
-                {(editedItem.type === "mainMenu" ||
-                  editedItem.type === "socialLinks") && (
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-link" className="text-sm">
-                      Link
-                    </Label>
-                    <Input
-                      id="edit-link"
-                      value={editedItem.link}
-                      onChange={(e) =>
-                        setEditedItem({ ...editedItem, link: e.target.value })
-                      }
-                      placeholder="/page-link or https://..."
-                      className="h-9 text-sm"
-                    />
-                  </div>
-                )}
+        {/* Media Tab */}
+        <TabsContent value="media" className="m-0 p-3 border-t overflow-y-auto max-h-[calc(100vh-200px)]">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="logoText"
+                className="text-sm"
+              >
+                Logo Text
+              </Label>
+              <Input
+                id="logoText"
+                value={headerData.logoText}
+                onChange={(e) => {
+                  const updatedData = {
+                    ...headerData,
+                    logoText: e.target.value,
+                  };
+                  setHeaderData(updatedData);
+                }}
+                onBlur={(e) => {
+                  // Save changes on blur
+                  saveChangesToAPI({
+                    ...headerData,
+                    logoText: e.target.value
+                  });
+                }}
+                placeholder="Logo text"
+                className="h-9 text-sm"
+              />
+            </div>
 
-                {editedItem.type === "topBarItems" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-content" className="text-sm">
-                      Content
-                    </Label>
-                    <Input
-                      id="edit-content"
-                      value={editedItem.content}
-                      onChange={(e) =>
-                        setEditedItem({
-                          ...editedItem,
-                          content: e.target.value,
-                        })
-                      }
-                      placeholder={editedItem.name === "Phone" ? "+1 (555) 123-4567" : 
-                                   editedItem.name === "Email" ? "contact@example.com" :
-                                   editedItem.name === "Address" ? "123 Main St, City" : 
-                                   editedItem.name === "Hours" ? "Mon-Fri: 9am-5pm" : ""}
-                      className="h-9 text-sm"
-                    />
-                  </div>
-                )}
+            <div className="space-y-2">
+              <Label htmlFor="logoUrl" className="text-sm">
+                Logo URL
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="logoUrl"
+                  value={headerData.logoUrl}
+                  onChange={(e) => {
+                    const updatedData = {
+                      ...headerData,
+                      logoUrl: e.target.value,
+                    };
+                    setHeaderData(updatedData);
+                  }}
+                  onBlur={(e) => {
+                    // Save changes on blur
+                    saveChangesToAPI({
+                      ...headerData,
+                      logoUrl: e.target.value
+                    });
+                  }}
+                  placeholder="/images/logo.png"
+                  className="flex-1 h-9 text-sm"
+                />
+                <div className="relative">
+                  <Input
+                    type="file"
+                    id="logoFile"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={logoUploading}
+                    className="relative h-9 text-sm"
+                    size="sm"
+                  >
+                    {logoUploading ? (
+                      "Uploading..."
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5 mr-1.5" />
+                        Upload
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter a URL or upload an image file.
+              </p>
+            </div>
 
-                <Button
-                  type="submit"
-                  className="w-full mt-2 text-sm"
-                  disabled={
-                    (editedItem.type === "mainMenu" && (!editedItem.name || !editedItem.link)) ||
-                    (editedItem.type === "socialLinks" && (!editedItem.name || !editedItem.link)) ||
-                    (editedItem.type === "topBarItems" && (!editedItem.name || !editedItem.content))
-                  }
-                >
-                  Update
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </>
-      )}
-    </div>
+            {headerData.logoUrl && (
+              <div className="mt-4">
+                <p className="mb-2 text-xs text-gray-500">
+                  Preview:
+                </p>
+                <img
+                  src={headerData.logoUrl}
+                  alt={headerData.logoText || "Logo"}
+                  className="h-8 object-contain border rounded p-1"
+                />
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    );
+  };
+
+  return (
+    <EditorLayout
+      title="Header Editor"
+      sidebarContent={<EditorSidebar>{renderSidebarContent}</EditorSidebar>}
+    >
+      <div className="w-full h-full flex flex-col">
+        <div className="flex-1 overflow-hidden">
+          <SectionPreview previewUrl="/preview/header" paramName="headerData" />
+        </div>
+        
+        {/* Save Changes Button */}
+        <div className="w-full px-4 py-3 border-t border-gray-200 bg-white z-10">
+          <div className="max-w-screen-xl mx-auto flex justify-end">
+            <Button 
+              onClick={handleSaveChanges} 
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Add Menu Dialog */}
+      <Dialog open={menuDialogOpen} onOpenChange={setMenuDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold">New Menu Item</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 mt-1">
+              Add a new item to your main navigation.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm">Name</Label>
+              <Input
+                id="name"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                placeholder="Menu item name"
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link" className="text-sm">Link</Label>
+              <Input
+                id="link"
+                value={newItem.link}
+                onChange={(e) => setNewItem({ ...newItem, link: e.target.value })}
+                placeholder="/page-link"
+                className="h-9 text-sm"
+              />
+            </div>
+            <input
+              type="hidden"
+              value="mainMenu"
+              onChange={() => setNewItem({ ...newItem, type: "mainMenu" })}
+            />
+            <Button type="submit" className="w-full mt-2 text-sm">
+              Add Menu Item
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Social Link Dialog */}
+      <Dialog open={socialDialogOpen} onOpenChange={setSocialDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold">New Social Link</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 mt-1">
+              Add a new social media platform link.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm">
+                Platform
+              </Label>
+              <select
+                id="name"
+                value={newItem.name}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    name: e.target.value,
+                    type: "socialLinks",
+                  })
+                }
+                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+              >
+                <option value="">Select a platform</option>
+                {[
+                  "Facebook", 
+                  "Twitter", 
+                  "LinkedIn", 
+                  "Instagram", 
+                  "Behance", 
+                  "YouTube", 
+                  "Pinterest"
+                ].map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link" className="text-sm">
+                Link
+              </Label>
+              <Input
+                id="link"
+                value={newItem.link}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    link: e.target.value,
+                    type: "socialLinks",
+                  })
+                }
+                placeholder="https://twitter.com/username"
+                className="h-9 text-sm"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full mt-2 text-sm"
+              disabled={!newItem.name || !newItem.link}
+            >
+              Add Social Link
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Add Top Bar Item Dialog */}
+      <Dialog open={topBarDialogOpen} onOpenChange={setTopBarDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold">New Top Bar Item</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500 mt-1">
+              Add contact information to your header's top bar.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm">
+                Type
+              </Label>
+              <select
+                id="name"
+                value={newItem.name}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    name: e.target.value,
+                    type: "topBarItems",
+                  })
+                }
+                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm text-muted-foreground focus:outline-none"
+              >
+                <option value="">Select a type</option>
+                {["Phone", "Email", "Address", "Hours"].map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="content" className="text-sm">
+                Content
+              </Label>
+              <Input
+                id="content"
+                value={newItem.content}
+                onChange={(e) =>
+                  setNewItem({
+                    ...newItem,
+                    content: e.target.value,
+                    type: "topBarItems",
+                  })
+                }
+                placeholder={newItem.name === "Phone" ? "+1 (555) 123-4567" : 
+                            newItem.name === "Email" ? "contact@example.com" :
+                            newItem.name === "Address" ? "123 Main St, City" : 
+                            newItem.name === "Hours" ? "Mon-Fri: 9am-5pm" : ""}
+                className="h-9 text-sm"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full mt-2 text-sm"
+              disabled={!newItem.name || !newItem.content}
+            >
+              Add Top Bar Item
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </EditorLayout>
   );
 }
