@@ -10,6 +10,7 @@ import LogoCloud1 from "@/components/sections/LogoCloud1"
 import Newsletter1 from "@/components/sections/Newsletter1"
 import Pricing1 from "@/components/sections/Pricing1"
 import Services1 from "@/components/sections/Services1"
+import Services2 from "@/components/sections/Services2"
 import Team1 from "@/components/sections/Team1"
 import Testimonial1 from "@/components/sections/Testimonial1"
 export default function Home() {
@@ -23,7 +24,7 @@ export default function Home() {
 				<Features1 />
 				<Features2 />
 				<Features3 />
-				<Services1 />
+				<Services2 />
 				<Team1 />
 				<Pricing1 />
 				<Testimonial1 />
