@@ -18,143 +18,6 @@ import "@/public/assets/fonts/boxicons/boxicons.min.css";
 import "@/public/assets/fonts/satoshi/satoshi.css";
 import "@/public/assets/css/main.css";
 
-// CSS style for editor mode with improved visual cues
-const editorModeStyles = `
-.editor-mode h1, 
-.editor-mode h2, 
-.editor-mode h3,
-.editor-mode p,
-.editor-mode .btn,
-.editor-mode span {
-  position: relative;
-  outline: 2px dashed #3b82f6 !important;
-  outline-offset: 2px;
-  transition: all 0.2s ease;
-  cursor: pointer !important;
-}
-
-.editor-mode h1:hover, 
-.editor-mode h2:hover, 
-.editor-mode h3:hover,
-.editor-mode p:hover,
-.editor-mode .btn:hover,
-.editor-mode span:hover {
-  outline: 2px solid #3b82f6 !important;
-  background-color: rgba(59, 130, 246, 0.1) !important;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-  z-index: 1000;
-}
-
-.editor-mode h1:hover::before, 
-.editor-mode h2:hover::before, 
-.editor-mode h3:hover::before,
-.editor-mode p:hover::before,
-.editor-mode .btn:hover::before,
-.editor-mode span:hover::before {
-  content: "Edit Text";
-  position: absolute;
-  top: -30px;
-  left: 0;
-  background: #3b82f6;
-  color: white;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  z-index: 1001;
-  font-weight: 600;
-  pointer-events: none;
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-.editor-mode img {
-  position: relative;
-  outline: 2px dashed #f97316 !important;
-  outline-offset: 2px;
-  transition: all 0.2s ease;
-  cursor: pointer !important;
-}
-
-.editor-mode img:hover {
-  outline: 2px solid #f97316 !important;
-  filter: brightness(0.95);
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
-  z-index: 1000;
-}
-
-.editor-mode img:hover::before {
-  content: "Replace Image";
-  position: absolute;
-  top: -30px;
-  left: 0;
-  background: #f97316;
-  color: white;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  z-index: 1001;
-  font-weight: 600;
-  pointer-events: none;
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-/* Add visual indicator for the entire editor mode */
-.editor-mode {
-  position: relative;
-}
-
-.editor-mode::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 3px solid rgba(59, 130, 246, 0.3);
-  pointer-events: none;
-  z-index: 999;
-}
-
-/* Better hover indicators that don't shift layout */
-.editor-mode a:hover,
-.editor-mode button:hover,
-.editor-mode div[role="button"]:hover {
-  color: inherit;
-}
-
-/* Make sure links don't navigate in editor mode */
-.editor-mode a {
-  pointer-events: none;
-}
-.editor-mode a * {
-  pointer-events: auto;
-}
-
-/* Highlight editable areas */
-.editor-mode .cursor-pointer {
-  position: relative;
-  z-index: 1;
-}
-
-.editor-mode .cursor-pointer:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(59, 130, 246, 0.05);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.editor-mode .cursor-pointer:hover:after {
-  opacity: 1;
-}
-`;
-
 // Additional styles to properly render Hero1
 const fixHeroStyles = `
 /* Force section padding for hero content */
@@ -224,7 +87,6 @@ const fixHeroStyles = `
 export default function HeroPreview() {
   const searchParams = useSearchParams();
   const [heroData, setHeroData] = useState<any>(null);
-  const [isEditorMode, setIsEditorMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Initialize AOS (Animate on Scroll) for Hero1 component
@@ -266,10 +128,8 @@ export default function HeroPreview() {
   useEffect(() => {
     // Get data from URL parameters
     const heroDataParam = searchParams.get("heroData");
-    const modeParam = searchParams.get("mode");
     
     console.log("Hero Data from URL:", heroDataParam);
-    console.log("Mode from URL:", modeParam);
     
     if (heroDataParam) {
       try {
@@ -284,9 +144,6 @@ export default function HeroPreview() {
       }
     }
     
-    // Set editor mode
-    setIsEditorMode(modeParam === "editor");
-    
     // Listen for messages from parent frame
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
@@ -296,11 +153,6 @@ export default function HeroPreview() {
       if (event.data.type === "UPDATE_HERO_DATA") {
         console.log("Updating hero data in iframe:", event.data.heroData);
         setHeroData(event.data.heroData);
-      }
-      
-      if (event.data.type === "UPDATE_MODE") {
-        console.log("Updating mode in iframe:", event.data.mode);
-        setIsEditorMode(event.data.mode === "editor");
       }
     };
     
@@ -312,74 +164,6 @@ export default function HeroPreview() {
     return <div className="w-full h-full flex items-center justify-center text-lg">Loading hero preview...</div>;
   }
 
-  // Handle element click for editor mode with improved error handling
-  const handleElementClick = (event: React.MouseEvent, fieldPath: string) => {
-    if (!isEditorMode) return;
-    
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Get current value to display in edit dialog with better error checking
-    const parts = fieldPath.split('.');
-    let current: any = JSON.parse(JSON.stringify(heroData)); // Deep copy to avoid reference issues
-    let currentValue = '';
-    
-    try {
-      // Navigate through object path
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        if (current && typeof current === 'object' && part in current) {
-          if (i === parts.length - 1) {
-            // Last part in path - this is our value
-            currentValue = current[part] !== null ? String(current[part]) : '';
-          } else {
-            current = current[part];
-          }
-        } else {
-          // Path doesn't exist or is invalid
-          currentValue = '';
-          break;
-        }
-      }
-    } catch (error) {
-      console.error("Error getting field value:", error, fieldPath);
-      currentValue = '';
-    }
-    
-    // Log the extracted value for debugging
-    console.log(`Element clicked in iframe: ${fieldPath}, Current value: "${currentValue}"`);
-    
-    // Send detailed message to parent frame with both the path and current value
-    window.parent.postMessage({
-      type: "ELEMENT_CLICKED",
-      fieldPath: fieldPath,
-      currentValue: currentValue
-    }, "*");
-  };
-
-  // Handle image click for editor mode
-  const handleImageClick = (event: React.MouseEvent, imagePath: string) => {
-    if (!isEditorMode) return;
-    
-    event.preventDefault();
-    event.stopPropagation();
-    
-    console.log("Image clicked in iframe:", imagePath);
-    
-    // Send message to parent frame
-    window.parent.postMessage({
-      type: "IMAGE_CLICKED",
-      imagePath: imagePath
-    }, "*");
-  };
-
-  // Set editor context
-  const editorContext = {
-    layoutMode: isEditorMode,
-    handleElementClick,
-    handleImageClick
-  };
-
   // Render the appropriate hero component
   const renderHeroComponent = () => {
     const activeComponent = heroData.activeHero || "hero1";
@@ -388,22 +172,19 @@ export default function HeroPreview() {
     
     switch (activeComponent) {
       case "hero1":
-        return <Hero1 previewData={heroData} editorContext={editorContext} />;
+        return <Hero1 previewData={heroData} />;
       case "hero3":
-        return <Hero3 previewData={heroData} editorContext={editorContext} />;
+        return <Hero3 previewData={heroData} />;
       default:
-        return <Hero1 previewData={heroData} editorContext={editorContext} />;
+        return <Hero1 previewData={heroData} />;
     }
   };
 
   return (
     <>
       <Script src="/assets/js/vendors/bootstrap.bundle.min.js" strategy="beforeInteractive" />
-      
-      <style jsx global>{editorModeStyles}</style>
       <style jsx global>{fixHeroStyles}</style>
-      
-      <div className={isEditorMode ? "editor-mode" : ""} style={{ overflow: "hidden" }}>
+      <div style={{ overflow: "hidden" }}>
         {renderHeroComponent()}
       </div>
     </>

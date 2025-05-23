@@ -11,8 +11,7 @@ export const SectionPreview: FC<SectionPreviewProps> = ({ previewUrl }) => {
   const { 
     iframeRef, 
     previewMode, 
-    sectionData, 
-    editorMode, 
+    sectionData,
     sectionType
   } = useEditor();
 
@@ -22,7 +21,6 @@ export const SectionPreview: FC<SectionPreviewProps> = ({ previewUrl }) => {
       const queryParams = new URLSearchParams();
       queryParams.append('sectionData', JSON.stringify(sectionData));
       queryParams.append('sectionType', sectionType);
-      queryParams.append('mode', editorMode);
       
       const fullPreviewUrl = `${previewUrl}?${queryParams.toString()}`;
       
@@ -31,7 +29,7 @@ export const SectionPreview: FC<SectionPreviewProps> = ({ previewUrl }) => {
         iframeRef.current.src = fullPreviewUrl;
       }
     }
-  }, [sectionData, editorMode, previewUrl, sectionType]);
+  }, [sectionData, previewUrl, sectionType]);
 
   // Determine preview width class based on responsive mode
   const getPreviewWidthClass = () => {
@@ -50,7 +48,7 @@ export const SectionPreview: FC<SectionPreviewProps> = ({ previewUrl }) => {
         border-none transition-all duration-300 ease-in-out bg-white h-full
         ${getPreviewWidthClass()} mx-auto
       `}
-      title={`${sectionType} Preview`}
+      title={`${sectionType} Preview2`}
     />
   );
 };

@@ -2,20 +2,17 @@
 
 import { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
 
-// Editor Modu türleri
-export type EditorMode = "live" | "editor";
+export type PreviewMode = "desktop" | "tablet" | "mobile";
 
-// Düzenleyici bağlamı için gerekli tip tanımları
+// Editor context for the necessary functionality
 export interface EditorContextType {
   sectionData: any;
   setSectionData: (data: any) => void;
   selectedSection: number | null;
   setSelectedSection: (id: number | null) => void;
   sectionType: string;
-  editorMode: EditorMode;
-  setEditorMode: (mode: EditorMode) => void;
-  previewMode: "desktop" | "tablet" | "mobile";
-  setPreviewMode: (mode: "desktop" | "tablet" | "mobile") => void;
+  previewMode: PreviewMode;
+  setPreviewMode: (mode: PreviewMode) => void;
   sidebarCollapsed: boolean;
   setSidebarCollapsed: (collapsed: boolean) => void;
   showAlert: boolean;
@@ -33,21 +30,19 @@ export interface EditorContextType {
   setIsLoading: (loading: boolean) => void;
   imageUploading: boolean; 
   setImageUploading: (uploading: boolean) => void;
-  handleElementClick: (event: React.MouseEvent, fieldPath: string) => void;
-  handleImageClick: (event: React.MouseEvent, imagePath: string) => void;
   handleTextChange: (value: string, path: string) => void;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, imagePath: string) => Promise<void>;
 }
 
-// Varsayılan değerlerle context oluşturma
+// Create context with default values
 const EditorContext = createContext<EditorContextType | null>(null);
 
-// EditorProvider props türü
+// EditorProvider props type
 interface EditorProviderProps {
   children: ReactNode;
   apiEndpoint: string;
   sectionType: string;
-  defaultSection?: number;
+  defaultSection?: number | null;
   uploadHandler?: (file: File) => Promise<string>;
 }
 
@@ -60,8 +55,7 @@ export const EditorProvider = ({
 }: EditorProviderProps) => {
   const [sectionData, setSectionData] = useState<any>(null);
   const [selectedSection, setSelectedSection] = useState<number | null>(defaultSection);
-  const [editorMode, setEditorMode] = useState<EditorMode>("editor");
-  const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState<"success" | "error">("success");
@@ -70,7 +64,7 @@ export const EditorProvider = ({
   const [imageUploading, setImageUploading] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // API'dan veri yükleme
+  // Load data from API
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -109,59 +103,14 @@ export const EditorProvider = ({
     };
 
     fetchInitialData();
-
-    // Handle messages from iframe
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.data) return;
-
-      console.log("Received message from iframe:", event.data);
-      
-      // Handle element click from iframe
-      if (event.data.type === "ELEMENT_CLICKED") {
-        const fieldPath = event.data.fieldPath;
-        const currentValue = event.data.currentValue || '';
-        console.log("Element clicked in iframe:", fieldPath, "Current value:", currentValue);
-        
-        // Create a customized prompt with better formatting
-        const newValue = window.prompt(`Edit content: ${fieldPath}`, currentValue);
-        
-        // Update if a new value was provided (including empty string)
-        if (newValue !== null) {
-          handleTextChange(newValue, fieldPath);
-          
-          // Also update iframe content
-          updateIframeContent();
-        }
-      }
-      
-      // Handle image click from iframe
-      if (event.data.type === "IMAGE_CLICKED") {
-        const imagePath = event.data.imagePath;
-        console.log("Image clicked in iframe:", imagePath);
-        
-        // Create a file input element
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'image/*';
-        fileInput.onchange = (e) => {
-          handleImageUpload(e as any, imagePath);
-          // Update iframe content after upload
-          setTimeout(() => updateIframeContent(), 1000);
-        };
-        fileInput.click();
-      }
-    };
-    
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  // Update iframe when data or mode changes
+  // Update iframe when data changes
   useEffect(() => {
     if (sectionData) {
       updateIframeContent();
     }
-  }, [sectionData, editorMode]);
+  }, [sectionData]);
 
   // Function to update iframe content
   const updateIframeContent = () => {
@@ -172,24 +121,7 @@ export const EditorProvider = ({
       sectionData: sectionData,
       sectionType: sectionType
     }, "*");
-    
-    iframeRef.current.contentWindow.postMessage({
-      type: "UPDATE_MODE",
-      mode: editorMode
-    }, "*");
   };
-
-  // Toggle editor visibility when mode changes
-  useEffect(() => {
-    console.log("Preview mode changed:", editorMode === "live" ? "Live" : "Edit");
-    
-    // Apply any additional changes needed for edit mode
-    if (editorMode === "editor") {
-      document.documentElement.classList.add('editor-mode-active');
-    } else {
-      document.documentElement.classList.remove('editor-mode-active');
-    }
-  }, [editorMode]);
 
   // Show success alert
   const showSuccessAlert = (message: string) => {
@@ -277,52 +209,6 @@ export const EditorProvider = ({
     }
   };
 
-  // Direct element click handler for editor components
-  const handleElementClick = (event: React.MouseEvent, fieldPath: string) => {
-    if (editorMode === "live") return;
-    
-    // Stop event propagation
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Get the current field value
-    const parts = fieldPath.split('.');
-    let current: any = sectionData;
-    for (const part of parts) {
-      if (current && typeof current === 'object') {
-        current = current[part];
-      } else {
-        current = '';
-        break;
-      }
-    }
-    
-    // Create a popup for editing
-    const currentValue = current || '';
-    const newValue = window.prompt('Edit content:', currentValue);
-    
-    // Update if a new value was provided
-    if (newValue !== null && newValue !== currentValue) {
-      handleTextChange(newValue, fieldPath);
-    }
-  };
-
-  // Direct image click handler for editor components
-  const handleImageClick = (event: React.MouseEvent, imagePath: string) => {
-    if (editorMode === "live") return;
-    
-    // Stop event propagation
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Create a file input element
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = (e) => handleImageUpload(e as any, imagePath);
-    fileInput.click();
-  };
-
   // Save changes to API
   const saveChangesToAPI = async (data: any) => {
     try {
@@ -357,15 +243,13 @@ export const EditorProvider = ({
     }
   };
 
-  // Context değerini oluştur
+  // Create context value
   const contextValue: EditorContextType = {
     sectionData,
     setSectionData,
     selectedSection,
     setSelectedSection,
     sectionType,
-    editorMode,
-    setEditorMode,
     previewMode,
     setPreviewMode,
     sidebarCollapsed,
@@ -385,8 +269,6 @@ export const EditorProvider = ({
     setIsLoading,
     imageUploading,
     setImageUploading,
-    handleElementClick,
-    handleImageClick,
     handleTextChange,
     handleImageUpload
   };

@@ -16,7 +16,7 @@ import Cta2 from "@/components/sections/Cta2";
 
 export default function SectionPreview() {
   // Render the appropriate section component based on section type
-  const renderSection = (sectionData: any, editorContext: any) => {
+  const renderSection = (sectionData: any) => {
     // Get active section type from data
     const sectionType = sectionData.activeSection || "hero1";
     
@@ -61,13 +61,13 @@ export default function SectionPreview() {
     
     // Render with appropriate props based on section type
     return isSectionWithPreviewData 
-      ? <SectionComponent previewData={sectionData} editorContext={editorContext} />
-      : <SectionComponent data={sectionData[sectionType]} editorContext={editorContext} />;
+      ? <SectionComponent previewData={sectionData} />
+      : <SectionComponent data={sectionData[sectionType]} />;
   };
 
   return (
     <PreviewWrapper>
-      {(sectionData, editorContext) => renderSection(sectionData, editorContext)}
+      {(sectionData) => renderSection(sectionData)}
     </PreviewWrapper>
   );
 } 

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useEditor } from "./EditorProvider";
 
-// Form alanları için grup bileşeni
+// Form group component
 export function FormGroup({ 
   title, 
   children 
@@ -24,7 +24,7 @@ export function FormGroup({
   );
 }
 
-// Text input alanı
+// Text input field
 export function TextField({
   label,
   value,
@@ -51,7 +51,7 @@ export function TextField({
   );
 }
 
-// Çoklu satır text alanı
+// Textarea field
 export function TextAreaField({
   label,
   value,
@@ -80,7 +80,7 @@ export function TextAreaField({
   );
 }
 
-// Link URL alanı
+// Link URL field
 export function LinkField({
   label,
   value,
@@ -107,7 +107,7 @@ export function LinkField({
   );
 }
 
-// Bölüm türü seçici
+// Section type selector
 export function SectionTypeSelector({
   label = "Section Type",
   value,
@@ -137,7 +137,7 @@ export function SectionTypeSelector({
   );
 }
 
-// Resim yükleme alanı
+// Image upload field
 export function ImageUploadField({
   label,
   value,
@@ -199,7 +199,7 @@ export function ImageUploadField({
   );
 }
 
-// Basit resim önizleme
+// Simple image preview
 export function ImagePreview({
   src,
   alt = "Preview",

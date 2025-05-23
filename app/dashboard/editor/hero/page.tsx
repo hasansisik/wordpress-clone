@@ -25,7 +25,6 @@ import {
   Maximize2,
   Minimize2,
   Save,
-  Eye,
   Layout,
   Settings,
   Type,
@@ -50,106 +49,6 @@ import { uploadImageToCloudinary } from "@/utils/cloudinary";
 import { Textarea } from "@/components/ui/textarea";
 import Hero1 from "@/components/sections/Hero1";
 import Hero3 from "@/components/sections/Hero3";
-
-// CSS styles for editor layout mode
-const editorStyles = `
-.editor-layout-mode {
-  position: relative;
-}
-
-.editor-layout-mode h1, 
-.editor-layout-mode h2, 
-.editor-layout-mode h3,
-.editor-layout-mode p,
-.editor-layout-mode .btn {
-  position: relative;
-  outline: 2px dashed #3b82f6 !important;
-  outline-offset: 2px;
-  transition: outline 0.2s ease;
-}
-
-.editor-layout-mode h1:hover, 
-.editor-layout-mode h2:hover, 
-.editor-layout-mode h3:hover,
-.editor-layout-mode p:hover,
-.editor-layout-mode .btn:hover {
-  outline: 2px solid #3b82f6 !important;
-  cursor: pointer;
-  background-color: rgba(59, 130, 246, 0.05);
-}
-
-.editor-layout-mode h1:hover::before, 
-.editor-layout-mode h2:hover::before, 
-.editor-layout-mode h3:hover::before,
-.editor-layout-mode p:hover::before,
-.editor-layout-mode .btn:hover::before {
-  content: "Edit Text";
-  position: absolute;
-  top: -20px;
-  left: 0;
-  background: #3b82f6;
-  color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 2px;
-  z-index: 100;
-}
-
-.editor-layout-mode img {
-  position: relative;
-  outline: 2px dashed #f97316 !important;
-  outline-offset: 2px;
-  transition: outline 0.2s ease;
-}
-
-.editor-layout-mode img:hover {
-  outline: 2px solid #f97316 !important;
-  cursor: pointer;
-  filter: brightness(0.95);
-}
-
-.editor-layout-mode img:hover::before {
-  content: "Replace Image";
-  position: absolute;
-  top: -20px;
-  left: 0;
-  background: #f97316;
-  color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 2px;
-  z-index: 100;
-}
-
-/* Make edit mode more visible */
-.editor-mode-active .editor-layout-mode::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  border: 3px solid #3b82f6;
-  z-index: 1;
-}
-
-/* Style for the edit/live toggle buttons */
-.mode-toggle-btn {
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.mode-toggle-btn.active {
-  background-color: #3b82f6 !important;
-  color: white !important;
-  box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
-}
-
-.mode-toggle-btn.active svg {
-  color: white !important;
-}
-`;
 
 // Hero style options
 const heroes = [
@@ -179,7 +78,6 @@ export default function HeroEditor() {
   const [imageUploading, setImageUploading] = useState(false);
   const [previewMode, setPreviewMode] = useState("desktop"); // desktop, tablet, mobile
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [livePreview, setLivePreview] = useState(false); // başlangıçta editor mode aktif
 
   // For auto-save debounce
   const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -222,7 +120,6 @@ export default function HeroEditor() {
             if (iframeRef.current) {
               const queryParams = new URLSearchParams();
               queryParams.append('heroData', JSON.stringify(data));
-              queryParams.append('mode', livePreview ? 'live' : 'editor');
               
               const previewUrl = `/preview/hero?${queryParams.toString()}`;
               iframeRef.current.src = previewUrl;
@@ -291,7 +188,7 @@ export default function HeroEditor() {
     if (heroData) {
       updateIframeContent();
     }
-  }, [heroData, livePreview]);
+  }, [heroData]);
 
   // Function to update iframe content
   const updateIframeContent = () => {
@@ -304,21 +201,9 @@ export default function HeroEditor() {
     
     iframeRef.current.contentWindow.postMessage({
       type: "UPDATE_MODE",
-      mode: livePreview ? "live" : "editor"
+      mode: "live"
     }, "*");
   };
-
-  // Toggle editor visibility when mode changes
-  useEffect(() => {
-    console.log("Preview mode changed:", livePreview ? "Live" : "Edit");
-    
-    // Apply any additional changes needed for edit mode
-    if (!livePreview) {
-      document.documentElement.classList.add('editor-mode-active');
-    } else {
-      document.documentElement.classList.remove('editor-mode-active');
-    }
-  }, [livePreview]);
 
   // Show success alert
   const showSuccessAlert = (message: string) => {
@@ -470,52 +355,6 @@ export default function HeroEditor() {
 
   const selectedHeroInfo = heroes.find((h) => h.id === selectedHero);
 
-  // Function to handle direct element editing in layout mode
-  const handleElementClick = (event: React.MouseEvent, fieldPath: string) => {
-    if (livePreview) return;
-    
-    // Stop event propagation
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Get the current field value
-    const parts = fieldPath.split('.');
-    let current: any = heroData;
-    for (const part of parts) {
-      if (current && typeof current === 'object') {
-        current = current[part];
-      } else {
-        current = '';
-        break;
-      }
-    }
-    
-    // Create a popup for editing
-    const currentValue = current || '';
-    const newValue = window.prompt('Edit content:', currentValue);
-    
-    // Update if a new value was provided
-    if (newValue !== null && newValue !== currentValue) {
-      handleTextChange(newValue, fieldPath);
-    }
-  };
-
-  // Function to handle image editing in layout mode
-  const handleImageClick = (event: React.MouseEvent, imagePath: string) => {
-    if (livePreview) return;
-    
-    // Stop event propagation
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Create a file input element
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.onchange = (e) => handleImageUpload(e as any, imagePath);
-    fileInput.click();
-  };
-
   // Render the preview div with iframe
   const renderPreviewArea = () => {
     if (!heroData) {
@@ -526,7 +365,6 @@ export default function HeroEditor() {
     // Create a query string with the hero data
     const queryParams = new URLSearchParams();
     queryParams.append('heroData', JSON.stringify(heroData));
-    queryParams.append('mode', livePreview ? 'live' : 'editor');
     
     // URL for the preview iframe
     const previewUrl = `/preview/hero?${queryParams.toString()}`;
@@ -569,7 +407,6 @@ export default function HeroEditor() {
       if (iframeRef.current) {
         const queryParams = new URLSearchParams();
         queryParams.append('heroData', JSON.stringify(newData));
-        queryParams.append('mode', livePreview ? 'live' : 'editor');
         
         // Direct URL update instead of postMessage for more reliable update
         const previewUrl = `/preview/hero?${queryParams.toString()}`;
@@ -646,9 +483,6 @@ export default function HeroEditor() {
 
   return (
     <div className="w-full h-screen flex flex-col">
-      {/* Include editor styles */}
-      <style jsx global>{editorStyles}</style>
-      
       <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
@@ -1330,31 +1164,7 @@ export default function HeroEditor() {
         </div>
         
         {/* Preview Area */}
-        <div className="flex-1 bg-gray-100 flex flex-col overflow-hidden">
-          <div className="p-3 border-b bg-white flex justify-between items-center">
-            <h3 className="text-sm font-medium">Preview</h3>
-            <div className="flex items-center">
-              <div className="mr-4 border rounded-md bg-gray-50 flex overflow-hidden">
-                <Button
-                  variant={livePreview ? "default" : "ghost"}
-                  className={`px-4 rounded-none h-8 text-xs mode-toggle-btn ${livePreview ? 'active' : ''}`}
-                  onClick={() => setLivePreview(true)}
-                >
-                  <Eye className="h-3 w-3 mr-1.5" />
-                  Live Preview
-                </Button>
-                <Button 
-                  variant={!livePreview ? "default" : "ghost"}
-                  className={`px-4 rounded-none h-8 text-xs mode-toggle-btn ${!livePreview ? 'active' : ''}`}
-                  onClick={() => setLivePreview(false)}
-                >
-                  <Layout className="h-3 w-3 mr-1.5" />
-                  Editor Mode
-                </Button>
-              </div>
-            </div>
-          </div>
-          
+        <div className="flex-1 bg-gray-100 flex flex-col overflow-hidden">   
           <div className="flex-1 overflow-auto relative">
             <div className={`
               mx-auto transition-all duration-300 ease-in-out bg-gray-100 h-full overflow-y-auto
@@ -1362,23 +1172,10 @@ export default function HeroEditor() {
             `}>
               {heroData && (
                 <div className="relative h-full">
-                  {!livePreview && (
-                    <div className="absolute left-4 top-4 z-50 bg-blue-500 text-white text-xs font-medium px-3 py-1.5 rounded shadow-md">
-                      <Layout className="h-3 w-3 mr-1.5 inline" /> Editor Mode
-                    </div>
-                  )}
                   {renderPreviewArea()}
                 </div>
               )}
             </div>
-
-            {/* Floating help message when in layout mode */}
-            {!livePreview && (
-              <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-sm px-6 py-3 rounded-full shadow-lg z-50 flex items-center">
-                <Layout className="h-4 w-4 mr-2" />
-                <span className="font-medium">Editor Mode:</span> <span className="ml-1">Click on elements in the preview to edit them</span>
-              </div>
-            )}
           </div>
         </div>
       </div>

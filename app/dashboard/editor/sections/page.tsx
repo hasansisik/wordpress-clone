@@ -15,7 +15,7 @@ import { SectionTypeSelector,
          ImagePreview } from "@/components/editor/FormFields";
 import { uploadImageToCloudinary } from "@/utils/cloudinary";
 
-// Mevcut section türleri
+// Available section types
 const sectionTypes = [
   { value: "hero1", label: "Hero 1" },
   { value: "hero3", label: "Hero 3" },
@@ -34,8 +34,31 @@ const sectionTypes = [
 export default function SectionsEditor() {
   const [selectedSectionType, setSelectedSectionType] = useState("hero1");
   
-  // Section türüne göre form içeriğini renderla
-  const renderContentFields = (sectionData: any) => {
+  // Section type change handler
+  const handleSectionTypeChange = (newType: string) => {
+    setSelectedSectionType(newType);
+  };
+  
+  // Render the sidebar content
+  const renderSidebarContent = (sectionData: any) => {
+    return (
+      <>
+        <div className="mb-6">
+          <SectionTypeSelector
+            label="Section Component"
+            value={selectedSectionType}
+            options={sectionTypes}
+            onChange={handleSectionTypeChange}
+          />
+        </div>
+        
+        {renderFormFields(sectionData)}
+      </>
+    );
+  };
+  
+  // Render form fields based on section type
+  const renderFormFields = (sectionData: any) => {
     if (!sectionData) return null;
     
     switch (sectionData.activeSection) {
@@ -45,7 +68,6 @@ export default function SectionsEditor() {
         return renderHero3Fields(sectionData);
       case "features1":
         return renderFeatures1Fields(sectionData);
-      // Diğer section türleri için benzer içerikler ekle
       default:
         return (
           <p className="text-xs text-gray-500">
@@ -55,41 +77,7 @@ export default function SectionsEditor() {
     }
   };
   
-  // Section türüne göre medya alanlarını renderla
-  const renderMediaFields = (sectionData: any) => {
-    if (!sectionData) return null;
-    
-    switch (sectionData.activeSection) {
-      case "hero1":
-        return renderHero1MediaFields(sectionData);
-      case "hero3":
-        return renderHero3MediaFields(sectionData);
-      // Diğer section türleri için benzer içerikler ekle
-      default:
-        return (
-          <p className="text-xs text-gray-500">
-            Select a section type to edit its media
-          </p>
-        );
-    }
-  };
-  
-  // Section türünü değiştir
-  const handleSectionTypeChange = (newType: string) => {
-    setSelectedSectionType(newType);
-  };
-  
-  // Section tipi seçici
-  const sectionTypeSelector = (
-    <SectionTypeSelector
-      label="Section Component"
-      value={selectedSectionType}
-      options={sectionTypes}
-      onChange={handleSectionTypeChange}
-    />
-  );
-  
-  // Hero1 için içerik alanları
+  // Hero1 fields
   const renderHero1Fields = (sectionData: any) => {
     const hero1 = sectionData.hero1 || {};
     
@@ -189,51 +177,43 @@ export default function SectionsEditor() {
             path="hero1.card.button.link"
           />
         </FormGroup>
+        
+        <FormGroup title="Images">
+          <ImageUploadField
+            label="Background Image"
+            value={hero1.images?.background || ""}
+            path="hero1.images.background"
+          />
+          
+          <ImageUploadField
+            label="Shape 1 Image"
+            value={hero1.images?.shape1 || ""}
+            path="hero1.images.shape1"
+          />
+          
+          <ImageUploadField
+            label="Shape 2 Image"
+            value={hero1.images?.shape2 || ""}
+            path="hero1.images.shape2"
+          />
+          
+          <ImageUploadField
+            label="Shape 3 Image"
+            value={hero1.images?.shape3 || ""}
+            path="hero1.images.shape3"
+          />
+          
+          <ImageUploadField
+            label="Card Image"
+            value={hero1.card?.image || ""}
+            path="hero1.card.image"
+          />
+        </FormGroup>
       </>
     );
   };
   
-  // Hero1 için medya alanları
-  const renderHero1MediaFields = (sectionData: any) => {
-    const hero1 = sectionData.hero1 || {};
-    const images = hero1.images || {};
-    
-    return (
-      <>
-        <ImageUploadField
-          label="Background Image"
-          value={images.background || ""}
-          path="hero1.images.background"
-        />
-        
-        <ImageUploadField
-          label="Shape 1 Image"
-          value={images.shape1 || ""}
-          path="hero1.images.shape1"
-        />
-        
-        <ImageUploadField
-          label="Shape 2 Image"
-          value={images.shape2 || ""}
-          path="hero1.images.shape2"
-        />
-        
-        <ImageUploadField
-          label="Shape 3 Image"
-          value={images.shape3 || ""}
-          path="hero1.images.shape3"
-        />
-        
-        <ImageUploadField
-          label="Card Image"
-          value={hero1.card?.image || ""}
-          path="hero1.card.image"
-        />
-      </>
-    );
-  };
-  
-  // Hero3 için içerik alanları
+  // Hero3 fields
   const renderHero3Fields = (sectionData: any) => {
     const hero3 = sectionData.hero3 || {};
     
@@ -281,69 +261,57 @@ export default function SectionsEditor() {
             path="hero3.button.link"
           />
         </FormGroup>
-      </>
-    );
-  };
-  
-  // Hero3 için medya alanları
-  const renderHero3MediaFields = (sectionData: any) => {
-    const hero3 = sectionData.hero3 || {};
-    const images = hero3.images || {};
-    
-    return (
-      <>
-        <div className="space-y-2">
-          <label className="text-xs text-gray-500 font-medium">Image Grid</label>
-          <div className="grid grid-cols-2 gap-2">
-            {["image1", "image2", "image3", "image4"].map((key) => (
-              <ImagePreview 
-                key={key}
-                src={images[key] || "/placeholder.jpg"}
-                path={`hero3.images.${key}`}
-                alt={`Grid Image ${key}`}
-              />
-            ))}
+        
+        <FormGroup title="Images">
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              {["image1", "image2", "image3", "image4"].map((key) => (
+                <ImagePreview 
+                  key={key}
+                  src={hero3.images?.[key] || "/placeholder.jpg"}
+                  path={`hero3.images.${key}`}
+                  alt={`Grid Image ${key}`}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+          
+          <ImageUploadField
+            label="Star Image"
+            value={hero3.images?.star || ""}
+            path="hero3.images.star"
+          />
+        </FormGroup>
         
-        <ImageUploadField
-          label="Star Image"
-          value={images.star || ""}
-          path="hero3.images.star"
-        />
-        
-        <div className="space-y-4 mt-4">
-          <label className="text-xs text-gray-500 font-medium">Avatars</label>
+        <FormGroup title="Avatars">
           <div className="space-y-4">
             {(hero3.avatars || []).map((avatar: any, index: number) => (
-              <FormGroup key={index} title={`Avatar ${index + 1}`}>
-                <div className="flex gap-2 items-center">
-                  <ImagePreview 
-                    src={avatar.image || "/placeholder.jpg"}
-                    path={`hero3.avatars.${index}.image`}
-                    alt={avatar.alt || `User avatar ${index + 1}`}
-                    className="h-12 w-12 rounded-full"
+              <div key={index} className="flex gap-2 items-center">
+                <ImagePreview 
+                  src={avatar.image || "/placeholder.jpg"}
+                  path={`hero3.avatars.${index}.image`}
+                  alt={avatar.alt || `User avatar ${index + 1}`}
+                  className="h-12 w-12 rounded-full"
+                />
+                <div className="flex-1">
+                  <TextField
+                    label="Alt Text"
+                    value={avatar.alt || ""}
+                    path={`hero3.avatars.${index}.alt`}
+                    placeholder="e.g. User avatar"
                   />
-                  <div className="flex-1">
-                    <TextField
-                      label="Alt Text"
-                      value={avatar.alt || ""}
-                      path={`hero3.avatars.${index}.alt`}
-                      placeholder="e.g. User avatar"
-                    />
-                  </div>
                 </div>
-              </FormGroup>
+              </div>
             ))}
           </div>
-        </div>
+        </FormGroup>
       </>
     );
   };
   
-  // Features1 için içerik alanları
+  // Features1 fields
   const renderFeatures1Fields = (sectionData: any) => {
-    // Features1 componentine özgü form alanları burada...
+    // Features1 form fields...
     return (
       <p className="text-xs text-gray-500">
         Features1 editing form will be implemented here
@@ -360,13 +328,9 @@ export default function SectionsEditor() {
       <EditorLayout
         title="Section Editor"
         sidebarContent={
-          <EditorSidebar
-            layoutContent={<>
-              {sectionTypeSelector}
-            </>}
-            contentContent={(sectionData) => renderContentFields(sectionData)}
-            mediaContent={(sectionData) => renderMediaFields(sectionData)}
-          />
+          <EditorSidebar>
+            {renderSidebarContent}
+          </EditorSidebar>
         }
       >
         <SectionPreview previewUrl="/preview/sections" />
