@@ -1021,7 +1021,7 @@ export default function FooterEditor() {
                   }`}
                   onClick={() => setSelectedFooter(footer.id)}
                 >
-                  <div className="h-40 bg-gray-50 relative">
+                  <div className="h-40 bg-sidebar relative">
                     {footer.image ? (
                       <img 
                         src={footer.image} 
@@ -1063,7 +1063,7 @@ export default function FooterEditor() {
           </div>
           
           <Tabs defaultValue="general-settings" className="mt-4 space-y-6 w-full">
-            <TabsList className="w-full flex h-10 rounded-md border bg-gray-50 p-1">
+            <TabsList className="w-full flex h-10 rounded-md border bg-sidebar p-1">
               <TabsTrigger
                 value="general-settings"
                 className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
@@ -1439,13 +1439,13 @@ export default function FooterEditor() {
                         />
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
+                      <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
                         No social links yet. Add some using the button above.
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-6 p-4 border rounded-md bg-gray-50">
+                  <div className="mt-6 p-4 border rounded-md bg-sidebar">
                     <h3 className="text-sm font-medium mb-2">Social Links Preview</h3>
                     <div className="flex flex-wrap gap-2">
                       {sortedSocialLinks.map((social) => (
@@ -1543,7 +1543,7 @@ export default function FooterEditor() {
                     {sortedColumns.length > 0 ? (
                       sortedColumns.map((column) => (
                         <div key={column._id} className="border rounded-md overflow-hidden">
-                          <div className="bg-gray-50 p-3 border-b flex justify-between items-center">
+                          <div className="bg-sidebar p-3 border-b flex justify-between items-center">
                             <h3 className="font-medium text-sm">{column.title}</h3>
                             <div className="flex gap-1">
                               <Button 
@@ -1568,7 +1568,7 @@ export default function FooterEditor() {
                             {column.links && column.links.length > 0 ? (
                               <div className="space-y-2">
                                 {column.links.map((link) => (
-                                  <div key={link._id} className="flex justify-between items-center bg-gray-50 p-2 rounded-md text-sm">
+                                  <div key={link._id} className="flex justify-between items-center bg-sidebar p-2 rounded-md text-sm">
                                     <div className="font-medium">{link.name}</div>
                                     <div className="flex gap-1">
                                       <Button 
@@ -1611,7 +1611,7 @@ export default function FooterEditor() {
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md col-span-4">
+                      <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md col-span-4">
                         No columns yet. Add some using the button above.
                       </div>
                     )}
@@ -1632,7 +1632,7 @@ export default function FooterEditor() {
                       </DialogHeader>
                       <form onSubmit={handleLinkAdd} className="space-y-4 mt-3">
                         {selectedColumn && (
-                          <div className="p-3 bg-gray-50 rounded-md text-sm mb-2">
+                          <div className="p-3 bg-sidebar rounded-md text-sm mb-2">
                             Adding to column: <span className="font-medium">
                               {footerData.columns.find(col => col._id === selectedColumn)?.title || 'Selected Column'}
                             </span>
@@ -1683,7 +1683,7 @@ export default function FooterEditor() {
                     </DialogContent>
                   </Dialog>
 
-                  <div className="mt-6 p-4 border rounded-md bg-gray-50">
+                  <div className="mt-6 p-4 border rounded-md bg-sidebar">
                     <h3 className="text-sm font-medium mb-4">Column Layout Preview</h3>
                     <div className="flex flex-wrap gap-6 bg-gray-800 p-4 rounded-md">
                       {sortedColumns.map((column) => (
@@ -1806,7 +1806,7 @@ export default function FooterEditor() {
                     </div>
                   </div>
 
-                  <div className="mt-8 p-4 border rounded-md bg-gray-50">
+                  <div className="mt-8 p-4 border rounded-md bg-sidebar">
                     <h3 className="text-sm font-medium mb-4">Contact Information Preview</h3>
                     <div className="bg-gray-800 p-4 rounded-md">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1894,7 +1894,7 @@ export default function FooterEditor() {
                         </div>
                       ))}
                       
-                      <div className="relative border border-dashed rounded-md overflow-hidden bg-gray-50 flex items-center justify-center aspect-square">
+                      <div className="relative border border-dashed rounded-md overflow-hidden bg-sidebar flex items-center justify-center aspect-square">
                         <div className="flex flex-col items-center text-gray-500 p-4">
                           <Upload className="h-6 w-6 mb-2" />
                           <span className="text-xs text-center">Upload Instagram Post</span>
@@ -1931,7 +1931,7 @@ export default function FooterEditor() {
                       </div>
                     </div>
                     
-                    <div className="bg-gray-50 p-4 rounded-md">
+                    <div className="bg-sidebar p-4 rounded-md">
                       <h3 className="text-sm font-medium mb-3">Instagram Posts Preview</h3>
                       <div className="flex flex-wrap gap-2 bg-gray-800 p-4 rounded-md">
                         {footerData.instagramPosts.slice(0, 6).map((post, index) => (
@@ -2026,7 +2026,7 @@ export default function FooterEditor() {
                       
                       <Dialog>
                         <DialogTrigger asChild>
-                          <div className="border border-dashed rounded-md p-3 text-center cursor-pointer hover:bg-gray-50 transition-colors">
+                          <div className="border border-dashed rounded-md p-3 text-center cursor-pointer hover:bg-sidebar transition-colors">
                             <div className="flex flex-col items-center py-3">
                               <Upload className="h-6 w-6 mb-2 text-gray-400" />
                               <span className="text-sm text-gray-500">Add New App Link</span>
@@ -2134,7 +2134,7 @@ export default function FooterEditor() {
                       </Dialog>
                     </div>
                     
-                    <div className="bg-gray-50 p-4 rounded-md">
+                    <div className="bg-sidebar p-4 rounded-md">
                       <h3 className="text-sm font-medium mb-3">App Links Preview</h3>
                       <div className="bg-gray-800 p-4 rounded-md">
                         <div className="grid grid-cols-2 gap-2">
@@ -2267,7 +2267,7 @@ export default function FooterEditor() {
                                 {sortedPrivacyLinks.map((link) => (
                                   <div
                                     key={link._id}
-                                    className="flex justify-between items-center p-3 hover:bg-gray-50"
+                                    className="flex justify-between items-center p-3 hover:bg-sidebar"
                                   >
                                     <div>
                                       <h4 className="font-medium text-sm">{link.name}</h4>
@@ -2296,7 +2296,7 @@ export default function FooterEditor() {
                               </div>
                             </div>
                           ) : (
-                            <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
+                            <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
                               No privacy links yet. Add some using the button above.
                             </div>
                           )}

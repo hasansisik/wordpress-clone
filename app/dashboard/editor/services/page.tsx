@@ -255,7 +255,7 @@ function Services2ContentForm({ data }: { data: any }) {
       
       <FormGroup title="Services">
         {(data?.services || []).map((service: any, index: number) => (
-          <div key={index} className="p-3 bg-gray-50 rounded-md space-y-3 mb-4">
+          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4">
             <div className="text-xs font-medium text-gray-700 mb-2">Service {index + 1}</div>
             <TextField
               label="Title"
@@ -335,7 +335,7 @@ function Services2MediaForm({ data }: { data: any }) {
       
       <FormGroup title="Service Icons">
         {(data?.services || []).map((service: any, index: number) => (
-          <div key={index} className="p-3 bg-gray-50 rounded-md space-y-3 mb-4">
+          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4">
             <div className="text-xs font-medium text-gray-700 mb-2">Service {index + 1} Icon</div>
             <ImageUploadField
               label={`Icon for ${service.title || `Service ${index + 1}`}`}

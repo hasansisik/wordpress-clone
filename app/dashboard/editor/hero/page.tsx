@@ -460,7 +460,7 @@ function Hero3MediaForm({ data }: { data: any }) {
         <div className="text-xs text-gray-500 font-medium mb-2">Avatars</div>
         <div className="space-y-4">
           {(data?.avatars || []).map((avatar: any, index: number) => (
-            <div key={index} className="p-3 bg-gray-50 rounded-md space-y-3">
+            <div key={index} className="p-3 bg-sidebar rounded-md space-y-3">
               <div className="text-xs font-medium text-gray-700 mb-2">Avatar {index + 1}</div>
               <div className="flex gap-2 items-center">
                 <ImagePreview 

@@ -817,7 +817,7 @@ export default function HeaderEditor() {
                   }`}
                   onClick={() => setSelectedHeader(header.id)}
                 >
-                  <div className="h-40 bg-gray-50 relative">
+                  <div className="h-40 bg-sidebar relative">
                     {header.image ? (
                       <img 
                         src={header.image} 
@@ -859,7 +859,7 @@ export default function HeaderEditor() {
           </div>
 
           <Tabs defaultValue="main-menu" className="mt-4 space-y-6 w-full">
-            <TabsList className="w-full flex h-10 rounded-md border bg-gray-50 p-1">
+            <TabsList className="w-full flex h-10 rounded-md border bg-sidebar p-1">
               <TabsTrigger
                 value="main-menu"
                 className="rounded-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:font-medium text-sm"
@@ -994,7 +994,7 @@ export default function HeaderEditor() {
                         )}
                       />
                     ) : (
-                      <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
+                      <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
                         No main menu items yet.
                       </div>
                     )}
@@ -1118,7 +1118,7 @@ export default function HeaderEditor() {
                           )}
                         />
                       ) : (
-                        <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
+                        <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
                           No social links yet.
                         </div>
                       )}
@@ -1246,7 +1246,7 @@ export default function HeaderEditor() {
                           )}
                         />
                       ) : (
-                        <div className="text-center py-8 text-gray-500 text-sm bg-gray-50 rounded-md">
+                        <div className="text-center py-8 text-gray-500 text-sm bg-sidebar rounded-md">
                           No top bar items yet.
                         </div>
                       )}

@@ -101,7 +101,7 @@ export default function EditorLayout({
         </div>
         
         <div className="ml-auto flex items-center gap-2">
-          <div className="border rounded-md bg-gray-50 p-1 flex">
+          <div className="border rounded-md bg-sidebar p-1 flex">
             <Button
               variant={previewMode === "desktop" ? "default" : "ghost"}
               size="icon"
@@ -171,7 +171,7 @@ export default function EditorLayout({
                 minSize={15}
                 maxSize={35} 
                 onResize={(size) => setSidebarWidth(size)}
-                className="bg-gray-50"
+                className="bg-white"
               >
                 <div className="flex flex-col h-full">
                   <div className="p-3 border-b bg-white flex justify-between items-center">
@@ -193,7 +193,7 @@ export default function EditorLayout({
               <ResizableHandle withHandle />
             </>
           ) : (
-            <ResizablePanel defaultSize={4} maxSize={4} minSize={4} className="bg-gray-50 border-r">
+            <ResizablePanel defaultSize={4} maxSize={4} minSize={4} className="bg-sidebar border-r">
               <div className="flex justify-center p-2">
                 <Button 
                   variant="ghost" 

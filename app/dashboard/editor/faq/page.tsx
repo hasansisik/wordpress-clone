@@ -492,7 +492,7 @@ function Faqs2ContentForm({
       </FormGroup>
       
       <FormGroup title="FAQ Items">
-        <div className="bg-gray-50 p-4 rounded-md">
+        <div className="bg-sidebar p-4 rounded-md">
           <div className="mb-4">
             <EditorButton 
               onClick={addFaqItem} 
@@ -610,7 +610,7 @@ function Faqs3ContentForm({
       </FormGroup>
       
       <FormGroup title="FAQ Items">
-        <div className="bg-gray-50 p-4 rounded-md">
+        <div className="bg-sidebar p-4 rounded-md">
           <div className="mb-4">
             <EditorButton 
               onClick={addFaqItem} 

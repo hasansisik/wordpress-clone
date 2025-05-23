@@ -29,7 +29,7 @@ interface FormGroupProps {
 export const FormGroup = ({ 
   title, 
   children, 
-  className = "p-3 bg-gray-50 rounded-md space-y-3 mb-5" 
+  className = "p-3 bg-sidebar rounded-md space-y-3 mb-5" 
 }: FormGroupProps) => {
   return (
     <div className={className}>
@@ -254,7 +254,7 @@ export const ImagePreview = ({
           alt={alt} 
           className={className}
         />
-        <div className="p-1 bg-gray-50 text-xs">
+        <div className="p-1 bg-sidebar text-xs">
           <Button
             variant="ghost"
             size="sm"
