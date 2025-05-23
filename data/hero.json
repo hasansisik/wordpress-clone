@@ -1,18 +1,20 @@
 {
+  "activeHero": "hero1",
   "hero1": {
     "badge": {
       "label": "New",
-      "text": "Free Lifetime Update"
+      "text": "Free Lifetime Updates",
+      "link": "#"
     },
-    "title": "Boost your project's speed and.",
-    "description": "Access top-tier group mentoring plans and exclusive professional benefits for your team.",
+    "title": "Create stunning websites with our WordPress Clone",
+    "description": "Build beautiful, responsive websites without code. Our drag-and-drop interface makes it easy to create professional sites in minutes.",
     "primaryButton": {
-      "text": "Explore Now",
-      "link": "/page-services-1"
+      "text": "Get Started",
+      "link": "/register"
     },
     "secondaryButton": {
-      "text": "Contact Us",
-      "link": "/page-contact-1"
+      "text": "Contact Sales",
+      "link": "/contact"
     },
     "images": {
       "background": "/assets/imgs/hero-1/background.png",
@@ -22,8 +24,8 @@
     },
     "card": {
       "image": "/assets/imgs/hero-1/shape-4.png",
-      "title": "Book A Call",
-      "description": "Customer activity can be easily tracked with one click",
+      "title": "Join Our Community",
+      "description": "Over 2,500+ happy customers",
       "button": {
         "label": "Get",
         "text": "Free Update",
@@ -33,16 +35,16 @@
   },
   "hero3": {
     "badge": {
-      "text": "🚀 Free Lifetime Update"
+      "text": "Build Without Limits"
     },
     "title": {
-      "part1": "Elevate your",
-      "part2": "brand with Infinia."
+      "part1": "Create Stunning",
+      "part2": "Websites Easily"
     },
-    "description": "Access top-tier group mentoring plans and exclusive professional benefits for your team.",
+    "description": "Design professional websites with our powerful drag-and-drop builder. No coding skills required.",
     "button": {
-      "text": "Get Free Quote",
-      "link": "#"
+      "text": "Try It Free",
+      "link": "/register"
     },
     "avatars": [
       {
@@ -54,8 +56,8 @@
         "alt": "User avatar 2"
       },
       {
-        "image": "/assets/imgs/hero-3/icon.svg",
-        "alt": "Icon avatar"
+        "image": "/assets/imgs/hero-3/avatar-3.png",
+        "alt": "User avatar 3"
       }
     ],
     "images": {
@@ -64,8 +66,6 @@
       "image3": "/assets/imgs/hero-3/img-3.png",
       "image4": "/assets/imgs/hero-3/img-4.png",
       "star": "/assets/imgs/hero-3/star-rotate.png"
-    },
-    "active": true
-  },
-  "activeHero": "hero1"
+    }
+  }
 }
