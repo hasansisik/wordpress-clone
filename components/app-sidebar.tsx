@@ -12,6 +12,17 @@ import {
   Send,
   Settings2,
   SquareTerminal,
+  FilePenLine,
+  Home,
+  Users,
+  Laptop,
+  FileText,
+  Database,
+  Layout,
+  MessageSquare,
+  FolderGit2,
+  Search,
+  Globe,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -38,7 +49,7 @@ const data = {
     {
       title: "Section Editor",
       url: "#",
-      icon: SquareTerminal,
+      icon: Layout,
       isActive: true,
       items: [
         {
@@ -68,45 +79,40 @@ const data = {
       ],
     },
     {
-      title: "Models",
+      title: "Page",
       url: "#",
-      icon: Bot,
+      icon: FileText,
       items: [
         {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
+          title: "Home",
+          url: "/dashboard/page/home",
+        }
       ],
     },
     {
-      title: "Documentation",
+      title: "Users",
       url: "#",
-      icon: BookOpen,
+      icon: Users,
       items: [
         {
-          title: "Introduction",
+          title: "Users",
+          url: "/dashboard/users",
+        }
+      ],
+    },
+    {
+      title: "Editor",
+      url: "#",
+      icon: FilePenLine,
+      items: [
+        {
+          title: "Blog",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "Project",
           url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
+        }
       ],
     },
     {
@@ -116,50 +122,25 @@ const data = {
       items: [
         {
           title: "General",
-          url: "#",
+          url: "/dashboard/settings/general",
         },
         {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "SEO",
+          url: "/dashboard/settings/seo",
         },
       ],
     },
   ],
   navSecondary: [
     {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
+      title: "Blog",
+      url: "/dashboard/blog",
+      icon: MessageSquare,
     },
     {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      title: "Project",
+      url: "/dashboard/project",
+      icon: FolderGit2,
     },
   ],
 }
@@ -173,11 +154,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Command className="size-4" />
+                  B
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-medium">Birim Ajans</span>
+                  <span className="truncate text-xs">Admin</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -186,7 +167,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

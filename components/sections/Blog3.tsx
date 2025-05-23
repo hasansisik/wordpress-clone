@@ -1,74 +1,81 @@
+"use client"
+import Link from "next/link";
+import { useEffect, useState } from "react"
+import otherData from "@/data/other.json"
 
-import Link from "next/link"
+interface Blog3Props {
+	previewData?: any;
+}
 
-export default function Blog3() {
-	return (
-		<>
-			<section className="section-blog-3 position-relative @@classList section-padding fix">
-				<div className="container position-relative z-1">
-					<div className="row align-items-end mb-5">
-						<div className="col-md-auto col-12 me-auto">
-							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">From Blog</span>
-							</div>
-							<h3 className="ds-3 mt-3 mb-3">Our Latest Articles</h3>
-							<span className="fs-5 fw-medium">Explore the insights and trends shaping our industry</span>
-						</div>
-						<div className="col-md-auto col-12 pt-md-0 pt-3">
-							<Link href="#" className="ms-md-5 fw-bold text-primary">See all articles
-								<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={14} viewBox="0 0 24 14" fill="none">
-									<path className="fill-dark" d="M17.4177 0.417969L16.3487 1.48705L21.1059 6.24429H0V7.75621H21.1059L16.3487 12.5134L17.4177 13.5825L24 7.0002L17.4177 0.417969Z" fill="black" />
-								</svg>
-							</Link>
-						</div>
-					</div>
-					<div className="row">
-						<div className="col-lg-6 pe-lg-8">
-							<Link href="#" className="d-flex flex-md-row flex-column align-items-center mb-4 hover-up">
-								<img className="rounded-3 w-100 w-md-auto" src="/assets/imgs/blog-3/img-1.png" alt="infinia" />
-								<span className="content ms-5 mt-md-0 mt-3">
-									<h6 className="mb-2">10 Proven SEO Strategies to Boost Your Website Traffic in 2024</h6>
-									<p>As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...</p>
-								</span>
-							</Link>
-							<Link href="#" className="d-flex flex-md-row flex-column align-items-center mb-4 hover-up">
-								<img className="rounded-3 w-100 w-md-auto" src="/assets/imgs/blog-3/img-2.png" alt="infinia" />
-								<span className="content ms-5 mt-md-0 mt-3">
-									<h6 className="mb-2">The Power of Branding: How to Create a Memorable Brand Identity</h6>
-									<p>As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...</p>
-								</span>
-							</Link>
-						</div>
-						<div className="col-lg-6 pe-lg-8">
-							<Link href="#" className="d-flex flex-md-row flex-column align-items-center mb-4 hover-up">
-								<img className="rounded-3 w-100 w-md-auto" src="/assets/imgs/blog-3/img-3.png" alt="infinia" />
-								<span className="content ms-5 mt-md-0 mt-3">
-									<h6 className="mb-2">Why Consistent Brand Identity is Key to Business Success</h6>
-									<p>As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...</p>
-								</span>
-							</Link>
-							<Link href="#" className="d-flex flex-md-row flex-column align-items-center mb-4 hover-up">
-								<img className="rounded-3 w-100 w-md-auto" src="/assets/imgs/blog-3/img-4.png" alt="infinia" />
-								<span className="content ms-5 mt-md-0 mt-3">
-									<h6 className="mb-2">Top Trends in Digital Marketing and How They Impact Your Business</h6>
-									<p>As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...</p>
-								</span>
-							</Link>
-						</div>
-					</div>
-				</div>
-				<div className="position-absolute top-0 start-50 translate-middle-x z-0">
-					<img src="/assets/imgs/blog-2/img-bg-line.png" alt="infinia" />
-				</div>
-				<div className="bouncing-blobs-container">
-					<div className="bouncing-blobs-glass" />
-					<div className="bouncing-blobs">
-						<div className="bouncing-blob bouncing-blob--green" />
-						<div className="bouncing-blob bouncing-blob--primary" />
-					</div>
-				</div>
-			</section>
-		</>
-	)
+export default function Blog3({ previewData }: Blog3Props = {}) {
+  const [data, setData] = useState<any>(null)
+
+  useEffect(() => {
+    console.log("Blog3 previewData:", previewData);
+    
+    // If preview data is provided, use it, otherwise load from the file
+    if (previewData && previewData.blog3) {
+      console.log("Setting from previewData", previewData.blog3);
+      setData(previewData.blog3);
+    } else if (otherData.blog3) {
+      console.log("Setting from local otherData", otherData.blog3);
+      setData(otherData.blog3);
+    } else {
+      console.error("No blog data available in Blog3 component");
+    }
+  }, [previewData])
+
+  if (!data) {
+    return <section>Loading Blog3...</section>
+  }
+
+  return (
+    <>
+      <section className="section-blog-8 section-padding position-relative fix">
+        <div className="container position-relative z-1">
+          <div className="row text-center">
+            <h5 className="ds-5">{data.title}</h5>
+          </div>
+          <div className="row">
+            {data.articles.map((article: any, index: number) => (
+              <div key={index} className="col-lg-4 text-start">
+                <div className="card border-0 rounded-3 mt-8 position-relative d-inline-flex">
+                  <img
+                    className="rounded-top-3"
+                    src={article.image}
+                    alt="blog post"
+                  />
+                  <div className="card-body bg-white p-0">
+                    <Link
+                      href={article.link}
+                      className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
+                    >
+                      <span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">
+                        {article.category}
+                      </span>
+                    </Link>
+                    <h6 className="my-3">
+                      {article.title}
+                    </h6>
+                    <p>
+                      {article.description}
+                    </p>
+                  </div>
+                  <Link
+                    href={article.link}
+                    className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="position-absolute top-0 start-50 translate-middle-x z-0">
+          <img src={data.bgLine} alt="background line" />
+        </div>
+        <div className="rotate-center ellipse-rotate-success position-absolute z-0" />
+        <div className="rotate-center-rev ellipse-rotate-primary position-absolute z-0" />
+      </section>
+    </>
+  );
 }

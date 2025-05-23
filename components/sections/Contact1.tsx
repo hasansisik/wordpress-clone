@@ -1,6 +1,34 @@
+"use client"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import otherData from "@/data/other.json"
 
-export default function Contact1() {
+interface Contact1Props {
+	previewData?: any;
+}
+
+export default function Contact1({ previewData }: Contact1Props = {}) {
+	const [data, setData] = useState<any>(null)
+
+	useEffect(() => {
+		console.log("Contact1 previewData:", previewData);
+		
+		// If preview data is provided, use it, otherwise load from the file
+		if (previewData && previewData.contact1) {
+			console.log("Setting from previewData", previewData.contact1);
+			setData(previewData.contact1);
+		} else if (otherData.contact1) {
+			console.log("Setting from local otherData", otherData.contact1);
+			setData(otherData.contact1);
+		} else {
+			console.error("No contact data available in Contact1 component");
+		}
+	}, [previewData])
+
+	if (!data) {
+		return <section>Loading Contact1...</section>
+	}
+
 	return (
 		<>
 <section className="section-contact-3 position-relative section-padding fix">
@@ -8,19 +36,16 @@ export default function Contact1() {
 						<div className="text-center">
 							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
 								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">Get in Tourch</span>
+								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.badge}</span>
 							</div>
-							<h3 className="ds-3 mt-3 mb-3">Contact Our Team</h3>
-							<p className="fs-5">
-								We are a comprehensive service agency with specialists prepared to assist. <br />
-								We will contact you within 24 hours.
-							</p>
+							<h3 className="ds-3 mt-3 mb-3">{data.title}</h3>
+							<p className="fs-5" dangerouslySetInnerHTML={{ __html: data.description }}></p>
 						</div>
 						<div className="row mt-8">
 							<div className="col-lg-10 mx-lg-auto">
 								<div className="row">
 									<div className="col-lg-6 ps-lg-0 pb-5 pb-lg-0">
-										<h4>Leave a message</h4>
+										<h4>{data.formTitle}</h4>
 										<form action="#">
 											<div className="row mt-5">
 												<div className="col-md-6">

@@ -1,0 +1,142 @@
+{
+  "activeOther": "blog1",
+  "blog1": {
+    "badge": "From Blog",
+    "title": "Our Latest Articles",
+    "subtitle": "Explore the insights and trends shaping our industry",
+    "seeAllLink": "#",
+    "articles": [
+      {
+        "image": "/assets/imgs/blog-1/card-img-1.png",
+        "category": "Business",
+        "title": "The Future of SaaS: Emerging Trends to Watch",
+        "description": "As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-1/card-img-2.png",
+        "category": "Technology",
+        "title": "Choosing the Right SaaS Solution for Your Business",
+        "description": "Selecting the right SaaS solution can be a daunting task with so many options available. This guide breaks down the key...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-1/card-img-3.png",
+        "category": "Security",
+        "title": "The Importance of Data Security in Your SaaS Projects",
+        "description": "Data security is a top priority for businesses adopting SaaS solutions. With increasing cyber threats, it's essential to understand...",
+        "link": "#"
+      }
+    ]
+  },
+  "blog2": {
+    "badge": "From Blog",
+    "title": "Our Latest News and Articles",
+    "subtitle": "Explore the insights and trends shaping our industry. 🔥",
+    "seeAllLink": "#",
+    "articles": [
+      {
+        "image": "/assets/imgs/blog-1/card-img-1.png",
+        "category": "Business",
+        "title": "The Future of SaaS: Emerging Trends to Watch",
+        "description": "As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-1/card-img-2.png",
+        "category": "Business",
+        "title": "The Importance of Data Security in Your SaaS Projects",
+        "description": "Data security is a top priority for businesses adopting SaaS solutions. With increasing cyber threats, it's essential to understand...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-1/card-img-3.png",
+        "category": "Business",
+        "title": "Choosing the Right SaaS Solution for Your Business",
+        "description": "Selecting the right SaaS solution can be a daunting task with so many options available. This guide breaks down the key...",
+        "link": "#"
+      }
+    ],
+    "bgLine": "/assets/imgs/blog-2/img-bg-line.png"
+  },
+  "blog3": {
+    "title": "Related Posts",
+    "articles": [
+      {
+        "image": "/assets/imgs/blog-1/card-img-1.png",
+        "category": "Business",
+        "title": "The Future of SaaS: Emerging Trends to Watch",
+        "description": "As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-1/card-img-2.png",
+        "category": "Technology",
+        "title": "Choosing the Right SaaS Solution for Your Business",
+        "description": "Selecting the right SaaS solution can be a daunting task with so many options available. This guide breaks down the key...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-1/card-img-3.png",
+        "category": "Security",
+        "title": "The Importance of Data Security in Your SaaS Projects",
+        "description": "Data security is a top priority for businesses adopting SaaS solutions. With increasing cyber threats, it's essential to understand...",
+        "link": "#"
+      }
+    ],
+    "bgLine": "/assets/imgs/team-1/bg-line.png"
+  },
+  "blog5": {
+    "title": "Trending News",
+    "subtitle": "Explore the insights and trends shaping our industry",
+    "articles": [
+      {
+        "image": "/assets/imgs/blog-6/img-2.png",
+        "category": "Technology",
+        "title": "Choosing the Right SaaS Solution for Your Business",
+        "description": "As the SaaS industry continues to evolve, new trends are shaping the future of software delivery and consumption...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-6/img-1.png",
+        "category": "Business",
+        "title": "The Future of SaaS: Emerging Trends to Watch",
+        "description": "Selecting the right SaaS solution can be a daunting task with so many options available. This guide breaks down the key...",
+        "link": "#"
+      },
+      {
+        "image": "/assets/imgs/blog-6/img-3.png",
+        "category": "Security",
+        "title": "The Importance of Data Security in Your SaaS Projects",
+        "description": "Data security is a top priority for businesses adopting SaaS solutions. With increasing cyber threats, it's essential to understand...",
+        "link": "#"
+      }
+    ]
+  },
+  "contact1": {
+    "badge": "Get in Touch",
+    "title": "Contact Our Team",
+    "description": "We are a comprehensive service agency with specialists prepared to assist. <br />We will contact you within 24 hours.",
+    "formTitle": "Leave a message",
+    "chatTitle": "Chat with us",
+    "chatDescription": "The support team is always available 24/7",
+    "whatsappLink": "#",
+    "viberLink": "#",
+    "messengerLink": "#",
+    "emailTitle": "Send us an email",
+    "emailDescription": "Our team will respond promptly to your inquiries",
+    "supportEmail": "support@infinia.com",
+    "salesEmail": "sale@infinia.com",
+    "inquiryTitle": "For more inquiry",
+    "inquiryDescription": "Reach out for immediate assistance",
+    "phoneNumber": "+01 (24) 568 900",
+    "services": [
+      "Research planning",
+      "Finance Advisory",
+      "Business promotion",
+      "Business Consultancy",
+      "Finance Advisory",
+      "Business promotion"
+    ]
+  }
+} 
