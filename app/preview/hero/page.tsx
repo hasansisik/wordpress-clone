@@ -74,6 +74,12 @@ const fixHeroStyles = `
   font-weight: 700;
 }
 
+.ds-1 {
+  font-size: 48px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
 .backdrop-filter {
   backdrop-filter: blur(10px);
 }
@@ -81,6 +87,52 @@ const fixHeroStyles = `
 /* Background linear gradient */
 .bg-linear-1 {
   background: linear-gradient(to right, rgba(99, 66, 236, 0.1), rgba(99, 66, 236, 0.05));
+}
+
+/* Ensure all hero elements are visible */
+.section-hero-3, .position-relative {
+  overflow: visible !important;
+}
+
+/* Fix button styling */
+.btn-gradient {
+  background: linear-gradient(90deg, #6342EC 0%, #4731D8 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Fix spacing issues */
+.my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+/* Fix image sizes */
+.icon-shape {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.icon-xxl {
+  width: 60px;
+  height: 60px;
+}
+
+.border-white-keep {
+  border-color: white !important;
+}
+
+/* Fix avatars */
+.avt-hero {
+  margin-left: -10px;
 }
 `;
 
@@ -106,6 +158,11 @@ export default function HeroPreview() {
           });
           
           console.log("AOS initialized in preview");
+          
+          // Signal to parent that the preview is ready
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: "PREVIEW_READY" }, "*");
+          }
         }
       } catch (error) {
         console.error("Error initializing AOS:", error);
@@ -120,6 +177,14 @@ export default function HeroPreview() {
         if (typeof window !== 'undefined' && window.AOS) {
           window.AOS.refresh();
           console.log("AOS refreshed after data change");
+          
+          // Signal to parent that the preview has updated
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ 
+              type: "PREVIEW_UPDATED", 
+              activeHero: heroData.activeHero 
+            }, "*");
+          }
         }
       }, 200);
     }
@@ -153,12 +218,17 @@ export default function HeroPreview() {
       if (event.data.type === "UPDATE_HERO_DATA") {
         console.log("Updating hero data in iframe:", event.data.heroData);
         setHeroData(event.data.heroData);
+        
+        // Mark as loaded if not already
+        if (!isLoaded) {
+          setTimeout(() => setIsLoaded(true), 200);
+        }
       }
     };
     
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [searchParams]);
+  }, [searchParams, isLoaded]);
 
   if (!heroData || !isLoaded) {
     return <div className="w-full h-full flex items-center justify-center text-lg">Loading hero preview...</div>;
@@ -182,7 +252,12 @@ export default function HeroPreview() {
 
   return (
     <>
-      <Script src="/assets/js/vendors/bootstrap.bundle.min.js" strategy="beforeInteractive" />
+      <Script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" 
+        strategy="beforeInteractive" 
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" 
+        crossOrigin="anonymous"
+      />
       <style jsx global>{fixHeroStyles}</style>
       <div style={{ overflow: "hidden" }}>
         {renderHeroComponent()}

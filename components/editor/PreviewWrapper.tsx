@@ -68,12 +68,20 @@ const fixCommonStyles = `
 
 interface PreviewWrapperProps {
   children: (previewData: any) => ReactNode;
+  dataParamName?: string;
+  typeParamName?: string;
+  customStyles?: string;
 }
 
-export default function PreviewWrapper({ children }: PreviewWrapperProps) {
+export default function PreviewWrapper({ 
+  children, 
+  dataParamName = "sectionData",
+  typeParamName = "sectionType",
+  customStyles = ""
+}: PreviewWrapperProps) {
   const searchParams = useSearchParams();
-  const [sectionData, setSectionData] = useState<any>(null);
-  const [sectionType, setSectionType] = useState<string>("");
+  const [contentData, setContentData] = useState<any>(null);
+  const [contentType, setContentType] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Initialize libraries and AOS
@@ -104,8 +112,8 @@ export default function PreviewWrapper({ children }: PreviewWrapperProps) {
     
     loadLibraries();
     
-    // Refresh AOS when section data changes
-    if (sectionData) {
+    // Refresh AOS when content data changes
+    if (contentData) {
       setTimeout(() => {
         if (typeof window !== 'undefined' && window.AOS) {
           window.AOS.refresh();
@@ -113,27 +121,30 @@ export default function PreviewWrapper({ children }: PreviewWrapperProps) {
         }
       }, 200);
     }
-  }, [sectionData]);
+  }, [contentData]);
 
   useEffect(() => {
     // Get data from URL parameters
-    const sectionDataParam = searchParams.get("sectionData");
-    const sectionTypeParam = searchParams.get("sectionType");
+    const dataParam = searchParams.get(dataParamName);
+    const typeParam = searchParams.get(typeParamName);
     
-    console.log("Section data from URL:", sectionDataParam);
-    console.log("Section type from URL:", sectionTypeParam);
+    console.log(`${dataParamName} from URL:`, dataParam);
+    console.log(`${typeParamName} from URL:`, typeParam);
     
-    if (sectionDataParam && sectionTypeParam) {
+    if (dataParam) {
       try {
-        const parsedData = JSON.parse(sectionDataParam);
-        console.log("Parsed section data:", parsedData);
-        setSectionData(parsedData);
-        setSectionType(sectionTypeParam);
+        const parsedData = JSON.parse(dataParam);
+        console.log("Parsed data:", parsedData);
+        setContentData(parsedData);
+        
+        if (typeParam) {
+          setContentType(typeParam);
+        }
         
         // Mark as loaded after a short delay to ensure CSS is applied
         setTimeout(() => setIsLoaded(true), 200);
       } catch (error) {
-        console.error("Error parsing section data:", error);
+        console.error("Error parsing data:", error);
       }
     }
     
@@ -143,18 +154,29 @@ export default function PreviewWrapper({ children }: PreviewWrapperProps) {
       
       console.log("Received message in iframe:", event.data);
       
+      // Handle different message types
       if (event.data.type === "UPDATE_SECTION_DATA") {
         console.log("Updating section data in iframe:", event.data.sectionData);
-        setSectionData(event.data.sectionData);
-        setSectionType(event.data.sectionType);
+        setContentData(event.data.sectionData);
+        setContentType(event.data.sectionType);
+      } else if (event.data.type === "UPDATE_HERO_DATA") {
+        console.log("Updating hero data in iframe:", event.data.heroData);
+        setContentData(event.data.heroData); 
+      } else if (event.data.type === "UPDATE_CONTENT") {
+        // Generic content update
+        console.log("Updating content in iframe:", event.data.data);
+        setContentData(event.data.data);
+        if (event.data.contentType) {
+          setContentType(event.data.contentType);
+        }
       }
     };
     
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [searchParams]);
+  }, [searchParams, dataParamName, typeParamName]);
 
-  if (!sectionData || !isLoaded) {
+  if (!contentData || !isLoaded) {
     return <div className="w-full h-full flex items-center justify-center text-lg">Loading preview...</div>;
   }
 
@@ -162,8 +184,9 @@ export default function PreviewWrapper({ children }: PreviewWrapperProps) {
     <>
       <Script src="/assets/js/vendors/bootstrap.bundle.min.js" strategy="beforeInteractive" />
       <style jsx global>{fixCommonStyles}</style>
+      {customStyles && <style jsx global>{customStyles}</style>}
       <div style={{ overflow: "hidden" }}>
-        {children(sectionData)}
+        {children(contentData)}
       </div>
     </>
   );

@@ -13,6 +13,7 @@ import {
   Maximize2,
   Minimize2,
   Save,
+  Eye
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -43,7 +44,6 @@ export default function EditorLayout({
 }: EditorLayoutProps) {
   const router = useRouter();
   const {
-    sectionType,
     sectionData,
     previewMode,
     setPreviewMode,
@@ -52,7 +52,9 @@ export default function EditorLayout({
     showAlert,
     alertType,
     alertMessage,
-    saveChangesToAPI
+    saveChangesToAPI,
+    isLoading,
+    saveCurrentData
   } = useEditor();
 
   // Handler for the "Save Changes" button click
@@ -67,6 +69,11 @@ export default function EditorLayout({
     } catch (error) {
       // Error is handled inside saveChangesToAPI
     }
+  };
+
+  // Handler for the "Preview" button click
+  const handlePreviewUpdate = () => {
+    saveCurrentData();
   };
 
   return (
@@ -120,12 +127,22 @@ export default function EditorLayout({
           </div>
           
           <Button
+            className="bg-gray-600 hover:bg-gray-700 text-white h-8"
+            size="sm"
+            onClick={handlePreviewUpdate}
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            <span className="text-xs">Preview</span>
+          </Button>
+          
+          <Button
             className="bg-black hover:bg-gray-800 text-white h-8"
             size="sm"
             onClick={handleSaveChanges}
+            disabled={isLoading}
           >
             <Save className="h-4 w-4 mr-1" />
-            <span className="text-xs">Save Changes</span>
+            <span className="text-xs">{isLoading ? "Saving..." : "Save Changes"}</span>
           </Button>
         </div>
       </header>
@@ -176,10 +193,6 @@ export default function EditorLayout({
         
         {/* Preview Area */}
         <div className="flex-1 bg-gray-100 flex flex-col overflow-hidden">
-          <div className="p-3 border-b bg-white">
-            <h3 className="text-sm font-medium">Preview</h3>
-          </div>
-          
           <div className="flex-1 overflow-auto relative">
             <div className={`
               mx-auto transition-all duration-300 ease-in-out bg-gray-100 h-full overflow-y-auto

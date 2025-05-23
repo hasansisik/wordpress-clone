@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
 
+// Preview mode types
 export type PreviewMode = "desktop" | "tablet" | "mobile";
 
 // Editor context for the necessary functionality
@@ -32,6 +33,8 @@ export interface EditorContextType {
   setImageUploading: (uploading: boolean) => void;
   handleTextChange: (value: string, path: string) => void;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, imagePath: string) => Promise<void>;
+  savedData: any;
+  saveCurrentData: () => void;
 }
 
 // Create context with default values
@@ -44,6 +47,7 @@ interface EditorProviderProps {
   sectionType: string;
   defaultSection?: number | null;
   uploadHandler?: (file: File) => Promise<string>;
+  initialData?: any;
 }
 
 export const EditorProvider = ({ 
@@ -51,9 +55,11 @@ export const EditorProvider = ({
   apiEndpoint,
   sectionType,
   defaultSection = null,
-  uploadHandler
+  uploadHandler,
+  initialData = null
 }: EditorProviderProps) => {
-  const [sectionData, setSectionData] = useState<any>(null);
+  const [sectionData, setSectionData] = useState<any>(initialData);
+  const [savedData, setSavedData] = useState<any>(initialData);
   const [selectedSection, setSelectedSection] = useState<number | null>(defaultSection);
   const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -64,8 +70,26 @@ export const EditorProvider = ({
   const [imageUploading, setImageUploading] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Load data from API
+  // Save the current data to the saved state to trigger a preview update
+  const saveCurrentData = () => {
+    setSavedData({...sectionData});
+    updateIframeContent();
+  };
+
+  // Load data from API if no initial data provided
   useEffect(() => {
+    if (initialData) {
+      setSectionData(initialData);
+      setSavedData(initialData);
+      
+      // Force immediate iframe update
+      setTimeout(() => {
+        updateIframeContent();
+      }, 100);
+      
+      return;
+    }
+    
     const fetchInitialData = async () => {
       try {
         setIsLoading(true);
@@ -85,6 +109,7 @@ export const EditorProvider = ({
           const data = await response.json();
           console.log(`Initial ${sectionType} data:`, data);
           setSectionData(data);
+          setSavedData(data);
           
           // Force immediate iframe update
           setTimeout(() => {
@@ -103,24 +128,26 @@ export const EditorProvider = ({
     };
 
     fetchInitialData();
-  }, []);
-
-  // Update iframe when data changes
-  useEffect(() => {
-    if (sectionData) {
-      updateIframeContent();
-    }
-  }, [sectionData]);
+  }, [apiEndpoint, initialData, sectionType]);
 
   // Function to update iframe content
   const updateIframeContent = () => {
     if (!iframeRef.current || !iframeRef.current.contentWindow) return;
     
-    iframeRef.current.contentWindow.postMessage({
-      type: "UPDATE_SECTION_DATA",
-      sectionData: sectionData,
-      sectionType: sectionType
-    }, "*");
+    console.log(`Sending ${sectionType} data to iframe:`, sectionData);
+    
+    if (sectionType === "hero") {
+      iframeRef.current.contentWindow.postMessage({
+        type: "UPDATE_HERO_DATA",
+        heroData: sectionData
+      }, "*");
+    } else {
+      iframeRef.current.contentWindow.postMessage({
+        type: "UPDATE_SECTION_DATA",
+        sectionData: sectionData,
+        sectionType: sectionType
+      }, "*");
+    }
   };
 
   // Show success alert
@@ -160,6 +187,9 @@ export const EditorProvider = ({
     
     // Navigate to the second-to-last part
     for (let i = 0; i < parts.length - 1; i++) {
+      if (!current[parts[i]]) {
+        current[parts[i]] = {};
+      }
       current = current[parts[i]];
     }
     
@@ -189,6 +219,9 @@ export const EditorProvider = ({
       
       // Navigate to the second-to-last part
       for (let i = 0; i < parts.length - 1; i++) {
+        if (!current[parts[i]]) {
+          current[parts[i]] = {};
+        }
         current = current[parts[i]];
       }
       
@@ -198,9 +231,7 @@ export const EditorProvider = ({
       // Update state with new data
       setSectionData(newData);
       
-      // Save changes to API
-      await saveChangesToAPI(newData);
-
+      // Success message
       showSuccessAlert("Image uploaded successfully");
     } catch (error: any) {
       showErrorAlert(`Error uploading image: ${error.message}`);
@@ -233,6 +264,9 @@ export const EditorProvider = ({
       const result = await response.json();
       console.log('API response:', result);
       
+      // Update saved data to match current data
+      setSavedData({...data});
+      
       showSuccessAlert(`${sectionType} changes saved successfully!`);
     } catch (error: any) {
       console.error(`Error saving ${sectionType} changes:`, error);
@@ -252,7 +286,7 @@ export const EditorProvider = ({
     sectionType,
     previewMode,
     setPreviewMode,
-    sidebarCollapsed,
+    sidebarCollapsed, 
     setSidebarCollapsed,
     showAlert,
     setShowAlert,
@@ -270,7 +304,9 @@ export const EditorProvider = ({
     imageUploading,
     setImageUploading,
     handleTextChange,
-    handleImageUpload
+    handleImageUpload,
+    savedData,
+    saveCurrentData
   };
 
   return (
@@ -280,11 +316,11 @@ export const EditorProvider = ({
   );
 };
 
-// Custom hook for using the editor context
+// Custom hook to use the editor context
 export const useEditor = () => {
   const context = useContext(EditorContext);
   if (!context) {
-    throw new Error("useEditor must be used within an EditorProvider");
+    throw new Error('useEditor must be used within an EditorProvider');
   }
   return context;
 }; 

@@ -1,35 +1,73 @@
 "use client";
 
 import { useEditor } from "./EditorProvider";
-import { useEffect, FC } from "react";
+import { useEffect, FC, useRef } from "react";
 
 interface SectionPreviewProps {
   previewUrl: string;
+  additionalParams?: Record<string, string>;
+  paramName?: string;
 }
 
-export const SectionPreview: FC<SectionPreviewProps> = ({ previewUrl }) => {
+export const SectionPreview: FC<SectionPreviewProps> = ({ 
+  previewUrl, 
+  additionalParams = {},
+  paramName
+}) => {
   const { 
     iframeRef, 
     previewMode, 
     sectionData,
-    sectionType
+    sectionType,
+    savedData
   } = useEditor();
+  
+  const initialLoadRef = useRef(false);
 
-  // Update iframe URL when necessary
+  // Update iframe URL only on initial load and when saved data changes
   useEffect(() => {
-    if (sectionData && iframeRef.current) {
-      const queryParams = new URLSearchParams();
-      queryParams.append('sectionData', JSON.stringify(sectionData));
-      queryParams.append('sectionType', sectionType);
-      
-      const fullPreviewUrl = `${previewUrl}?${queryParams.toString()}`;
-      
-      // Only update src if it's changed to prevent unnecessary reloads
-      if (iframeRef.current.src !== fullPreviewUrl) {
+    // Only load initially or when saved data changes
+    if (!initialLoadRef.current || savedData) {
+      if (sectionData && iframeRef.current) {
+        const queryParams = new URLSearchParams();
+        
+        // Determine the parameter name based on section type
+        const dataParamName = paramName || (sectionType === "hero" ? "heroData" : "sectionData");
+        
+        // Add the main section data
+        queryParams.append(dataParamName, JSON.stringify(sectionData));
+        
+        // Only add section type for non-hero sections
+        if (sectionType !== "hero") {
+          queryParams.append('sectionType', sectionType);
+        }
+        
+        // Add any additional params
+        Object.entries(additionalParams).forEach(([key, value]) => {
+          queryParams.append(key, value);
+        });
+        
+        const fullPreviewUrl = `${previewUrl}?${queryParams.toString()}`;
+        
+        console.log("Setting iframe URL:", fullPreviewUrl);
+        
+        // Update iframe src
         iframeRef.current.src = fullPreviewUrl;
+        initialLoadRef.current = true;
       }
     }
-  }, [sectionData, previewUrl, sectionType]);
+  }, [sectionData, previewUrl, sectionType, additionalParams, paramName, savedData]);
+
+  // Only update iframe width when preview mode changes
+  useEffect(() => {
+    if (iframeRef.current) {
+      // Update iframe width class without reloading the content
+      iframeRef.current.className = `
+        border-none transition-all duration-300 ease-in-out bg-white h-full
+        ${getPreviewWidthClass()} mx-auto
+      `;
+    }
+  }, [previewMode]);
 
   // Determine preview width class based on responsive mode
   const getPreviewWidthClass = () => {
@@ -44,11 +82,12 @@ export const SectionPreview: FC<SectionPreviewProps> = ({ previewUrl }) => {
   return (
     <iframe 
       ref={iframeRef}
+      src={`${previewUrl}`} 
       className={`
         border-none transition-all duration-300 ease-in-out bg-white h-full
         ${getPreviewWidthClass()} mx-auto
       `}
-      title={`${sectionType} Preview2`}
+      title={`${sectionType} Preview`}
     />
   );
 };
