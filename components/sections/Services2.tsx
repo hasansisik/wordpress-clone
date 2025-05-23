@@ -43,31 +43,31 @@ export default function Services2({ previewData }: Services2Props = {}) {
 					<div className="row mt-6 position-relative">
 						{data.services.map((service: any, index: number) => (
 							<div key={index} className="col-lg-4 col-md-6">
-								<div className="p-2 rounded-4 shadow-1 bg-white position-relative z-1 hover-up mb-4">
-									<div className="card-service bg-white p-6 border rounded-4 text-center">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
+							<div className="p-2 rounded-4 shadow-1 bg-white position-relative z-1 hover-up mb-4">
+								<div className="card-service bg-white p-6 border rounded-4 text-center">
+									<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
+										<div className="icon">
 												<img src={service.icon} alt="infinia" />
-											</div>
+						</div>
 										</div>
 										<h5 className="my-3">{service.title}</h5>
 										<p className="mb-6">{service.description}</p>
 										<Link href={service.link} className="text-primary fs-7 fw-bold">
 											{service.linkText}
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-									</div>
+										<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
+											<g clipPath="url(#clip0_399_9647)">
+												<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
+											</g>
+											<defs>
+												<clipPath>
+													<rect width={18} height={18} fill="white" transform="translate(0.5)" />
+												</clipPath>
+											</defs>
+										</svg>
+									</Link>
 								</div>
 							</div>
+						</div>
 						))}
 						<svg className="position-absolute top-50 start-50 translate-middle z-0" xmlns="http://www.w3.org/2000/svg" width={828} height={699} viewBox="0 0 828 699" fill="none">
 							<path className="fill-primary-soft" d="M0 130.481C0 110.236 15.1267 93.1822 35.2276 90.7667L783.228 0.880261C807.04 -1.98124 828 16.611 828 40.5945V533.155C828 552.691 813.888 569.369 794.622 572.603L46.6224 698.173C22.2271 702.269 0 683.462 0 658.725V130.481Z" fill="#F5EEFF" />

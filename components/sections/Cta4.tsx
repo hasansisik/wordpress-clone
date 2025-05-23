@@ -66,17 +66,17 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 								<ul className="list-unstyled phase-items mb-0">
 									{data.features.slice(0, 2).map((feature, index) => (
 										<li key={index} className="d-flex align-items-center mt-3">
-											<img src="/assets/imgs/cta-2/check.svg" alt="infinia" />
+										<img src="/assets/imgs/cta-2/check.svg" alt="infinia" />
 											<span className="ms-2 text-900">{feature}</span>
-										</li>
+									</li>
 									))}
 								</ul>
 								<ul className="list-unstyled phase-items ms-md-5 mb-0">
 									{data.features.slice(2, 4).map((feature, index) => (
 										<li key={index} className="d-flex align-items-center mt-3">
-											<img src="/assets/imgs/cta-2/check.svg" alt="infinia" />
+										<img src="/assets/imgs/cta-2/check.svg" alt="infinia" />
 											<span className="ms-2 text-900">{feature}</span>
-										</li>
+									</li>
 									))}
 								</ul>
 							</div>

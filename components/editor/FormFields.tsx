@@ -341,4 +341,33 @@ export const ColorField = ({
       </div>
     </div>
   );
+};
+
+// Custom Button component for editor forms
+interface EditorButtonProps {
+  children: ReactNode;
+  onClick: () => void;
+  className?: string;
+  icon?: ReactNode;
+  disabled?: boolean;
+}
+
+export const EditorButton = ({ 
+  children, 
+  onClick, 
+  className = "", 
+  icon,
+  disabled = false
+}: EditorButtonProps) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center justify-center px-4 py-2 bg-primary text-white rounded-md text-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+    >
+      {icon}
+      {children}
+    </button>
+  );
 }; 
