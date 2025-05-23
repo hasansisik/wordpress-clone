@@ -38,6 +38,7 @@
     "react-modal-video": "^2.0.2",
     "react-perfect-scrollbar": "^1.5.8",
     "react-redux": "^9.2.0",
+    "react-resizable-panels": "^3.0.2",
     "swiper": "^11.1.12",
     "tailwind-merge": "^3.3.0",
     "tw-animate-css": "^1.3.0",

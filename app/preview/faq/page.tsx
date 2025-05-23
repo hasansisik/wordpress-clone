@@ -20,6 +20,19 @@ import "@/public/assets/css/main.css";
 
 // Additional styles for FAQ preview
 const fixFaqStyles = `
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+body > div {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Force section padding for FAQ content */
 .section-padding {
   padding: 80px 0;
@@ -125,6 +138,11 @@ export default function FaqPreview() {
 
   // Initialize AOS (Animate on Scroll)
   useEffect(() => {
+    // Apply styles to ensure full height display
+    document.documentElement.style.height = "100%";
+    document.body.style.height = "100%";
+    document.body.style.overflow = "auto";
+    
     // Load AOS library dynamically
     const loadAOS = async () => {
       try {
@@ -170,6 +188,13 @@ export default function FaqPreview() {
         }
       }, 200);
     }
+    
+    // Cleanup function
+    return () => {
+      document.documentElement.style.height = "";
+      document.body.style.height = "";
+      document.body.style.overflow = "";
+    };
   }, [faqData]);
 
   useEffect(() => {
@@ -225,7 +250,7 @@ export default function FaqPreview() {
         crossOrigin="anonymous"
       />
       <style jsx global>{fixFaqStyles}</style>
-      <div style={{ overflow: "hidden" }}>
+      <div className="h-full overflow-auto">
         {faqData.activeFaq === "faqs2" ? (
           <Faqs2 previewData={faqData} />
         ) : (

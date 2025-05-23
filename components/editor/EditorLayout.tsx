@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useEditor } from "./EditorProvider";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -27,6 +27,11 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 interface EditorLayoutProps {
   children: ReactNode;
@@ -55,6 +60,9 @@ export default function EditorLayout({
     isLoading,
     saveCurrentData
   } = useEditor();
+  
+  // To track and save the sidebar width before collapsing
+  const [sidebarWidth, setSidebarWidth] = useState(30); // Default: 25% (wider)
 
   // Handler for the "Save Changes" button click
   const handleSaveChanges = async () => {
@@ -72,7 +80,7 @@ export default function EditorLayout({
 
   return (
     <div className="w-full h-screen flex flex-col">
-      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4">
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4 z-10">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
           <Separator
@@ -152,45 +160,71 @@ export default function EditorLayout({
         </Alert>
       )}
 
-      {/* Main layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
-        <div className={`border-r bg-gray-50 flex flex-col ${sidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-300 ease-in-out`}>
-          <div className="p-3 border-b bg-white flex justify-between items-center">
-            <h3 className={`text-sm font-medium ${sidebarCollapsed ? 'hidden' : 'block'}`}>Edit {title}</h3>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8" 
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            >
-              {sidebarCollapsed ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
-            </Button>
-          </div>
-          
-          {!sidebarCollapsed && (
-            <div className="overflow-y-auto flex-1">
-              {/* Sidebar Content */}
-              {sidebarContent}
-            </div>
-          )}
-        </div>
-        
-        {/* Preview Area */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-auto relative pt-2">
-            <div className={`
-              mx-auto transition-all duration-300 ease-in-out bg-gray-100 h-full overflow-y-auto
-              ${previewMode === "desktop" ? "w-full" : previewMode === "tablet" ? "w-[768px]" : "w-[375px]"}
-            `}>
-              {sectionData && (
-                <div className="relative h-full">
-                  {children}
+      {/* Main layout with resizable panels */}
+      <div className="flex-1 overflow-hidden">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Sidebar Panel */}
+          {!sidebarCollapsed ? (
+            <>
+              <ResizablePanel 
+                defaultSize={sidebarWidth} 
+                minSize={15}
+                maxSize={35} 
+                onResize={(size) => setSidebarWidth(size)}
+                className="bg-gray-50"
+              >
+                <div className="flex flex-col h-full">
+                  <div className="p-3 border-b bg-white flex justify-between items-center">
+                    <h3 className="text-sm font-medium">Edit {title}</h3>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8" 
+                      onClick={() => setSidebarCollapsed(true)}
+                    >
+                      <Minimize2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="overflow-y-auto flex-1">
+                    {sidebarContent}
+                  </div>
                 </div>
-              )}
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+            </>
+          ) : (
+            <ResizablePanel defaultSize={4} maxSize={4} minSize={4} className="bg-gray-50 border-r">
+              <div className="flex justify-center p-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  onClick={() => setSidebarCollapsed(false)}
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </ResizablePanel>
+          )}
+          
+          {/* Preview Panel */}
+          <ResizablePanel defaultSize={sidebarCollapsed ? 96 : 75}>
+            <div className="h-full flex flex-col">
+              <div className="flex-1 overflow-auto p-2">
+                <div className={`
+                  mx-auto h-full bg-gray-100 overflow-y-auto
+                  ${previewMode === "desktop" ? "w-full" : previewMode === "tablet" ? "w-[768px]" : "w-[375px]"}
+                `}>
+                  {sectionData && (
+                    <div className="h-full">
+                      {children}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );

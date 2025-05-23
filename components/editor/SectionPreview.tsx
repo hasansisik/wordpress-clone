@@ -85,7 +85,7 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
     if (iframeRef.current) {
       // Update iframe width class without reloading the content
       iframeRef.current.className = `
-        border-none transition-all duration-300 ease-in-out bg-white h-full
+        border-none w-full h-full transition-all duration-300 ease-in-out bg-white
         ${getPreviewWidthClass()} mx-auto
       `;
     }
@@ -102,15 +102,17 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
   };
 
   return (
-    <iframe 
-      ref={iframeRef}
-      src={`${previewUrl}`} 
-      className={`
-        border-none transition-all duration-300 ease-in-out bg-white h-full
-        ${getPreviewWidthClass()} mx-auto
-      `}
-      title={`${sectionType} Preview`}
-    />
+    <div className="w-full h-full flex items-center justify-center overflow-auto">
+      <iframe 
+        ref={iframeRef}
+        src={`${previewUrl}`} 
+        className={`
+          border-none w-full h-full transition-all duration-300 ease-in-out bg-white
+          ${getPreviewWidthClass()} mx-auto
+        `}
+        title={`${sectionType} Preview`}
+      />
+    </div>
   );
 };
 

@@ -20,6 +20,19 @@ import "@/public/assets/css/main.css";
 
 // Additional styles to properly render Hero1
 const fixHeroStyles = `
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+
+body > div {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 /* Force section padding for hero content */
 .section-padding {
   padding: 80px 0;
@@ -143,6 +156,11 @@ export default function HeroPreview() {
 
   // Initialize AOS (Animate on Scroll) for Hero1 component
   useEffect(() => {
+    // Apply styles to ensure full height display
+    document.documentElement.style.height = "100%";
+    document.body.style.height = "100%";
+    document.body.style.overflow = "auto";
+    
     // Load AOS library dynamically
     const loadAOS = async () => {
       try {
@@ -188,6 +206,13 @@ export default function HeroPreview() {
         }
       }, 200);
     }
+    
+    // Cleanup function
+    return () => {
+      document.documentElement.style.height = "";
+      document.body.style.height = "";
+      document.body.style.overflow = "";
+    };
   }, [heroData]);
 
   useEffect(() => {
@@ -259,7 +284,7 @@ export default function HeroPreview() {
         crossOrigin="anonymous"
       />
       <style jsx global>{fixHeroStyles}</style>
-      <div style={{ overflow: "hidden" }}>
+      <div className="h-full overflow-auto">
         {renderHeroComponent()}
       </div>
     </>

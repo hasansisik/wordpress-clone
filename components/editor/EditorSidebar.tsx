@@ -12,7 +12,7 @@ export default function EditorSidebar({ children, className = "p-3 space-y-6" }:
   const { sectionData } = useEditor();
 
   return (
-    <div className={className}>
+    <div className={`h-full overflow-auto ${className}`}>
       {typeof children === 'function' 
         ? children(sectionData) 
         : children
