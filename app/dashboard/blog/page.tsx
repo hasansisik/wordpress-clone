@@ -766,8 +766,8 @@ export default function BlogEditor() {
                           <Label htmlFor="intro" className="text-sm font-medium">Introduction</Label>
                           <RichTextEditor
                             content={formData.intro}
-                            onChange={(html) => setFormData({...formData, intro: html})}
-                            className="min-h-[180px]"
+                            onChange={(html) => setFormData({ ...formData, intro: html })}
+                            className="min-h-[150px]"
                           />
                         </div>
                         
@@ -775,9 +775,8 @@ export default function BlogEditor() {
                           <Label htmlFor="fullContent" className="text-sm font-medium">Main Content</Label>
                           <RichTextEditor
                             content={formData.fullContent}
-                            onChange={(html) => setFormData({...formData, fullContent: html})}
+                            onChange={(html) => setFormData({ ...formData, fullContent: html })}
                             className="min-h-[350px]"
-                            showCodeView={true}
                           />
                           <p className="text-xs text-muted-foreground mt-1">
                             <strong>Tip:</strong> Use the editor's formatting tools to structure your content. 

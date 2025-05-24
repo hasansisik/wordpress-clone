@@ -39,7 +39,6 @@ interface RichTextEditorProps {
   onChange: (html: string) => void;
   className?: string;
   placeholder?: string;
-  showCodeView?: boolean;
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
@@ -47,7 +46,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onChange,
   className = '',
   placeholder = 'Write your content here...',
-  showCodeView = false
 }) => {
   const [isLinkMenuOpen, setIsLinkMenuOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -316,29 +314,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               </div>
             </div>
           </div>
-
-          {showCodeView && (
-            <div className="ml-auto flex gap-1 items-center">
-              <Button
-                size="sm"
-                variant={viewMode === 'edit' ? "default" : "outline"}
-                onClick={() => setViewMode('edit')}
-                type="button"
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                Preview
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === 'code' ? "default" : "outline"}
-                onClick={() => setViewMode('code')}
-                type="button"
-              >
-                <Code className="h-4 w-4 mr-1" />
-                HTML
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Structure formatting toolbar - Second row */}
@@ -538,6 +513,35 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Third row - View mode toggle */}
+        <div className="flex flex-wrap gap-1 p-2 border-t">
+          <div className="flex gap-1 items-center">
+            <div className="border rounded-md overflow-hidden flex shadow-sm">
+              <Button
+                size="sm"
+                variant={viewMode === 'edit' ? "default" : "ghost"}
+                onClick={() => setViewMode('edit')}
+                type="button"
+                className="rounded-none border-0 py-1 px-3 h-8"
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                Preview
+              </Button>
+              <Separator orientation="vertical" className="h-8" />
+              <Button
+                size="sm"
+                variant={viewMode === 'code' ? "default" : "ghost"}
+                onClick={() => setViewMode('code')}
+                type="button"
+                className="rounded-none border-0 py-1 px-3 h-8"
+              >
+                <Code className="h-4 w-4 mr-1" />
+                HTML
+              </Button>
             </div>
           </div>
         </div>
