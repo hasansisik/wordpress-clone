@@ -23,9 +23,7 @@ interface Content {
   readTime: string;
   author: Author;
   mainImage: string;
-  sections: Section[];
-  gallery: string[];
-  conclusion: string;
+  fullContent: string;
 }
 
 interface Post {
@@ -83,21 +81,21 @@ export default function BlogDetails() {
                 <div className="d-flex gap-2">
                   {Array.isArray(blogPost.category) ? (
                     blogPost.category.map((cat, index) => (
-                      <Link
+                  <Link
                         key={index}
-                        href="#"
-                        className="bg-primary-soft rounded-pill px-3 fw-bold py-2 text-primary text-uppercase fs-7"
-                      >
+                    href="#"
+                    className="bg-primary-soft rounded-pill px-3 fw-bold py-2 text-primary text-uppercase fs-7"
+                  >
                         {cat}
-                      </Link>
+                  </Link>
                     ))
                   ) : (
-                    <Link
-                      href="#"
-                      className="bg-primary-soft rounded-pill px-3 fw-bold py-2 text-primary text-uppercase fs-7"
-                    >
+                  <Link
+                    href="#"
+                    className="bg-primary-soft rounded-pill px-3 fw-bold py-2 text-primary text-uppercase fs-7"
+                  >
                       {blogPost.category}
-                    </Link>
+                  </Link>
                   )}
                 </div>
                 <h5 className="ds-5 mt-3 mb-4">{blogPost.title}</h5>
@@ -151,42 +149,9 @@ export default function BlogDetails() {
                 />
               </div>
               <div className="col-md-8 mx-auto">
-                {blogPost.content.sections.map((section, index) => (
-                  <div key={index} className={index > 0 ? "mt-5" : ""}>
-                    <h5 className="mb-3">{section.title}</h5>
-                    <div>{parse(section.content)}</div>
-                  </div>
-                ))}
-              </div>
-              {blogPost.content.gallery && blogPost.content.gallery.length > 0 && (
-                <div className="col-md-10 mx-auto my-7">
-                  <div className="d-flex flex-lg-row flex-column gap-4 mb-4">
-                    {blogPost.content.gallery.slice(0, 2).map((img, index) => (
-                      <img
-                        key={index}
-                        className="rounded-4"
-                        src={img}
-                        alt={`${blogPost.title} gallery ${index + 1}`}
-                      />
-                    ))}
-                  </div>
-                  {blogPost.content.gallery.length > 2 && (
-                    <div className="d-flex flex-lg-row flex-column gap-4">
-                      {blogPost.content.gallery.slice(2, 4).map((img, index) => (
-                        <img
-                          key={index}
-                          className="rounded-4"
-                          src={img}
-                          alt={`${blogPost.title} gallery ${index + 3}`}
-                        />
-                      ))}
-                    </div>
-                  )}
+                <div className="blog-content tw-prose tw-prose-lg tw-max-w-none">
+                  {parse(blogPost.content.fullContent)}
                 </div>
-              )}
-              <div className="col-md-8 mx-auto">
-                <h5 className="mt-7 mb-3">Conclusion</h5>
-                <div>{parse(blogPost.content.conclusion)}</div>
               </div>
             </div>
           </div>
@@ -196,4 +161,4 @@ export default function BlogDetails() {
       </Layout>
     </>
   );
-} 
+}

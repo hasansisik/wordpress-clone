@@ -107,11 +107,11 @@ const data = {
       items: [
         {
           title: "Blog",
-          url: "#",
+          url: "/dashboard/blog",
         },
         {
           title: "Project",
-          url: "#",
+          url: "/dashboard/project",
         }
       ],
     },

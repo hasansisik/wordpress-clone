@@ -8,7 +8,9 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
   corePlugins: {
     preflight: false, // Diğer stilleri etkilememek için Tailwind'in temel stillerini devre dışı bırakıyoruz
   },
