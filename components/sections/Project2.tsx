@@ -4,7 +4,33 @@ import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import projectsData from '@/data/projects.json'
 
-export default function Project2() {
+interface Project2Props {
+	previewData?: any;
+}
+
+export default function Project2({ previewData }: Project2Props) {
+	const editorData = previewData?.project2 || {};
+
+	// Use editor data if available, otherwise use the default data
+	const title = editorData.title || "Our featured projects";
+	const subtitle = editorData.subtitle || "Recent work";
+	const description = editorData.description || "⚡Don't miss any contact. Stay connected.";
+	const backgroundColor = editorData.backgroundColor || "#f8f9fa";
+	const titleColor = editorData.titleColor || "#333333";
+	const badgeColor = editorData.badgeColor || "rgba(99, 66, 236, 0.1)";
+
+	// Style objects for dynamic styling
+	const sectionStyle = {
+		backgroundColor: backgroundColor
+	};
+
+	const titleStyle = {
+		color: titleColor
+	};
+
+	const badgeStyle = {
+		backgroundColor: badgeColor
+	};
 
 	const swiperOptions = {
 		slidesPerView: 3,
@@ -43,16 +69,16 @@ export default function Project2() {
 
 	return (
 		<>
-			<section className="section-project-2 pt-120 pb-8">
+			<section className="section-project-2 pt-120 pb-8" style={sectionStyle}>
 				<div className="container">
 					<div className="row mb-8">
 						<div className="col-lg-6">
-							<div className="d-flex align-items-center justify-text-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-3 py-1">
+							<div className="d-flex align-items-center justify-text-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-3 py-1" style={badgeStyle}>
 								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">Recent work</span>
+								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{subtitle}</span>
 							</div>
-							<h3 className="ds-3 mt-3 mb-3">Our feared projects</h3>
-							<p className="fs-5 fw-medium">⚡Don't miss any contact. Stay connected.</p>
+							<h3 className="ds-3 mt-3 mb-3" style={titleStyle}>{title}</h3>
+							<p className="fs-5 fw-medium">{description}</p>
 						</div>
 						<div className="col-lg-2 col-md-3 col-6 ms-auto align-self-end mb-lg-7 mt-lg-0 mt-4">
 							<div className="position-relative z-0">

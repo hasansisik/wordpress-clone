@@ -70,8 +70,16 @@ const data = {
           url: "/dashboard/editor/services",
         },
         {
+          title: "Project",
+          url: "/dashboard/editor/project",
+        },
+        {
           title: "Faq",
           url: "/dashboard/editor/faq",
+        },
+        {
+          title: "Other",
+          url: "/dashboard/editor/other",
         },
         {
           title: "Footer",
