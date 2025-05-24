@@ -37,6 +37,7 @@ const DirectPreview = ({ data }: { data: any }) => {
   if (!data) return <div>No data available</div>;
 
   const activeComponent = data.activeProject || "services5";
+  const [Component, setComponent] = useState<React.ReactNode>(null);
 
   // Apply direct preview styles
   useEffect(() => {
@@ -58,18 +59,21 @@ const DirectPreview = ({ data }: { data: any }) => {
     `;
     document.head.appendChild(style);
 
+    // Dynamically load the component based on the active component type
+    if (activeComponent === "services5") {
+      setComponent(<Services5 previewData={data} />);
+    } else {
+      setComponent(<Project2 previewData={data} />);
+    }
+
     return () => {
       document.head.removeChild(style);
     };
-  }, []);
+  }, [activeComponent, data]);
 
   return (
     <div className="preview-container editor-preview">
-      {activeComponent === "services5" ? (
-        <Services5 previewData={data} />
-      ) : (
-        <Project2 previewData={data} />
-      )}
+      {Component}
     </div>
   );
 };

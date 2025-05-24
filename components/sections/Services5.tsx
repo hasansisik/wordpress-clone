@@ -1,5 +1,4 @@
 'use client'
-import Isotope from 'isotope-layout';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import projectsData from '@/data/projects.json';
 
@@ -8,18 +7,23 @@ interface Services5Props {
 }
 
 export default function Services5({ previewData }: Services5Props) {
-	const isotope = useRef<Isotope | null>(null);
+	const isotope = useRef<any>(null);
 	const [filterKey, setFilterKey] = useState<string>('*');
 	const editorData = previewData?.services5 || {};
 
 	useEffect(() => {
+		// Import Isotope dynamically only on the client side
 		if (typeof window !== 'undefined') {
-			isotope.current = new Isotope('.masonary-active', {
-				itemSelector: '.filter-item',
-				percentPosition: true,
-				masonry: {
-					columnWidth: '.filter-item',
-				},
+			// Dynamic import
+			import('isotope-layout').then(({ default: Isotope }) => {
+				// Initialize isotope after the component is mounted
+				isotope.current = new Isotope('.masonary-active', {
+					itemSelector: '.filter-item',
+					percentPosition: true,
+					masonry: {
+						columnWidth: '.filter-item',
+					},
+				});
 			});
 		}
 	}, []);

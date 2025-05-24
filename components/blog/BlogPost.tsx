@@ -1,7 +1,7 @@
 
 'use client'
 import React, { useEffect, useState } from "react"
-import data from "../../util/blog.json"
+import data from "../../data/blog.json"
 import BlogCard1 from "./BlogCard1"
 import BlogCard2 from "./BlogCard2"
 import BlogCard3 from "./BlogCard3"

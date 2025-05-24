@@ -487,6 +487,7 @@ const CommonStyles = () => (
 export default function ProjectPreview() {
   const [projectData, setProjectData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [Component, setComponent] = useState<React.ReactNode>(null);
 
   // Initialize AOS for animations if needed
   useEffect(() => {
@@ -571,17 +572,21 @@ export default function ProjectPreview() {
     if (!projectData) return <div>Loading...</div>;
 
     const activeComponent = projectData.activeProject || "services5";
-
-    console.log("Rendering project component:", activeComponent);
     
-    switch(activeComponent) {
-      case "services5":
-        return <Services5 previewData={projectData} />;
-      case "project2":
-        return <Project2 previewData={projectData} />;
-      default:
-        return <div>Unknown component type: {activeComponent}</div>;
-    }
+    // Only render components on the client side
+    useEffect(() => {
+      if (typeof window !== 'undefined') {
+        if (activeComponent === "services5") {
+          setComponent(<Services5 previewData={projectData} />);
+        } else if (activeComponent === "project2") {
+          setComponent(<Project2 previewData={projectData} />);
+        } else {
+          setComponent(<div>Unknown component type: {activeComponent}</div>);
+        }
+      }
+    }, [projectData, activeComponent]);
+
+    return Component;
   };
 
   return (
