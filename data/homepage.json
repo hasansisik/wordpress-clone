@@ -1,0 +1,18 @@
+{
+  "sections": [
+    {
+      "id": "hero1-1748048918807",
+      "name": "Hero 1",
+      "type": "Hero1"
+    },
+    {
+      "id": "hero1-1748049596115",
+      "name": "Hero 1",
+      "type": "Hero1",
+      "description": "Main hero with floating card and shapes",
+      "thumbnail": "/assets/thumbnails/hero1.jpg"
+    }
+  ],
+  "headerStyle": 1,
+  "footerStyle": 1
+}

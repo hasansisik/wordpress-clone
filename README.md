@@ -1,42 +1,58 @@
-# WordPress Clone Editor Improvements
+# WordPress Clone with Drag-and-Drop Home Page Builder
 
-## Editor System Overview
+A modern WordPress-style CMS built with Next.js, featuring a powerful drag-and-drop home page builder that allows you to create beautiful pages without writing code.
 
-The WordPress clone editor system has been completely restructured to provide a more efficient and user-friendly editing experience. The key improvements include:
+## Features
 
-### 1. Simplified Editor Structure
+- **Drag-and-Drop Page Builder**: Easily build your home page by adding and rearranging sections
+- **Multiple Component Options**: Choose from a variety of Hero, CTA, FAQ, Features, and Services sections
+- **Header & Footer Styles**: Select from different header and footer styles
+- **Live Code Preview**: See the generated code for your page as you build
+- **Instant Updates**: Changes are automatically applied to your site when saved
 
-- Removed the editor mode functionality, keeping only the sidebar editing and live preview
-- Eliminated visual in-preview editing capabilities while maintaining the preview functionality
-- Reduced complexity by removing mode toggling and related state management
+## Home Page Builder
 
-### 2. Modular Component Architecture
+The home page builder allows you to:
 
-- Created reusable form field components in `FormFields.tsx`
-- Developed a flexible `EditorProvider` for centralized state management
-- Built modular sidebar components that work with different content types
-- Implemented a generic content preview system
+1. **Add Sections**: Choose from various pre-built sections to add to your page
+2. **Rearrange Sections**: Drag and drop to reorder sections
+3. **Change Header/Footer**: Select different styles for your header and footer
+4. **Preview Code**: See the actual Next.js code being generated for your page
+5. **Instant Preview**: View your page as you build it
 
-### 3. Improved User Experience
+### Available Sections
 
-- Organized editing controls into logical tabs (Layout, Content, Style, Media)
-- Simplified the UI by removing unnecessary toggles and controls
-- Made responsive preview options (desktop/tablet/mobile) more intuitive
-- Created a more efficient image upload workflow
+- **Hero Sections**: Eye-catching headers for your page
+- **CTA Sections**: Call-to-action components with various layouts
+- **FAQ Sections**: Accordion-style FAQ layouts
+- **Feature Sections**: Showcase your features in different grid layouts
+- **Service Sections**: Display your services with icons and descriptions
 
-### 4. Better Extensibility
+## Getting Started
 
-- Implemented a clean abstraction between data models and UI components
-- Made it easy to add new section types without restructuring the system
-- Created consistent naming patterns across components
-- Developed standardized API communication for all content types
+1. Visit the dashboard at `/dashboard/page/home` to access the page builder
+2. Add sections from the right sidebar by clicking on them
+3. Drag and drop sections to rearrange them
+4. Select your preferred header and footer styles
+5. Save your changes to update the live site
 
-## Key Components
+## Development
 
-1. **EditorProvider**: Central state management for editing sessions
-2. **EditorLayout**: Main layout component for all editor pages
-3. **EditorSidebar**: Flexible sidebar that can render different form fields
-4. **FormFields**: Collection of reusable form field components
-5. **SectionPreview**: Renders live previews with responsive options
+```bash
+# Install dependencies
+npm install
 
-This new architecture ensures a better development experience while making the system easier to maintain and extend with new features.
+# Run the development server
+npm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to see your site.
+Visit [http://localhost:3000/dashboard/page/home](http://localhost:3000/dashboard/page/home) to use the page builder.
+
+## Technologies Used
+
+- Next.js
+- React
+- @dnd-kit (for drag and drop functionality)
+- TypeScript
+- Tailwind CSS

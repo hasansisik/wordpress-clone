@@ -23,6 +23,7 @@ import {
   FolderGit2,
   Search,
   Globe,
+  FileCode,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -79,13 +80,14 @@ const data = {
       ],
     },
     {
-      title: "Page",
+      title: "Page Builder",
       url: "#",
-      icon: FileText,
+      icon: FileCode,
       items: [
         {
-          title: "Home",
+          title: "Home Page",
           url: "/dashboard/page/home",
+          description: "Drag and drop page builder"
         }
       ],
     },
