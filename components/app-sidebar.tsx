@@ -88,6 +88,14 @@ const data = {
           title: "Home Page",
           url: "/dashboard/page/home",
           description: "Drag and drop page builder"
+        },
+        {
+          title: "Privacy Policy",
+          url: "/dashboard/page/privacy",
+        },
+        {
+          title: "Terms and Conditions",
+          url: "/dashboard/page/terms",
         }
       ],
     },

@@ -41,6 +41,9 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+// Stil sınıfları için sabit
+const editorClasses = 'prose prose-sm sm:prose lg:prose-lg prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-sm prose-p:my-3 prose-ul:list-disc prose-ol:list-decimal prose-li:my-1 prose-img:rounded-md prose-img:mx-auto focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-0';
+
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
@@ -59,11 +62,48 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
 
+  // Update htmlContent when content prop changes
+  useEffect(() => {
+    console.log('RichTextEditor content prop changed:', content);
+    setHtmlContent(content);
+  }, [content]);
+
   // Initialize editor with initial content
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Image,
+      StarterKit.configure({
+        paragraph: {
+          HTMLAttributes: {
+            class: 'mb-3',
+          },
+        },
+        heading: {
+          levels: [1, 2, 3, 4, 5, 6],
+          HTMLAttributes: {
+            class: 'font-bold mt-4 mb-2',
+          },
+        },
+        bulletList: {
+          HTMLAttributes: {
+            class: 'pl-5 mb-4 list-disc space-y-1',
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'pl-5 mb-4 list-decimal space-y-1',
+          },
+        },
+        listItem: {
+          HTMLAttributes: {
+            class: 'mb-1',
+          },
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'rounded-md max-w-full mb-4',
+        },
+      }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
         alignments: ['left', 'center', 'right', 'justify'],
@@ -74,6 +114,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       Link.configure({
         openOnClick: false,
         validate: href => /^https?:\/\//.test(href),
+        HTMLAttributes: {
+          class: 'text-blue-600 underline',
+        },
       }),
     ],
     content: content,
@@ -84,11 +127,23 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
     editorProps: {
       attributes: {
-        class: 'tw-prose tw-prose-sm sm:tw-prose lg:tw-prose-lg xl:tw-prose-xl focus:tw-outline-none min-h-[200px] p-4',
+        class: editorClasses + ' outline-none border-none ring-0 ring-offset-0',
         placeholder,
+        spellcheck: 'false',
       },
     },
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
   });
+
+  // Update editor content when content prop changes
+  useEffect(() => {
+    if (editor && content) {
+      console.log('Updating editor content to:', content);
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   // Update editor content when html content changes in code view
   useEffect(() => {
@@ -167,11 +222,56 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-  // Handle HTML changes in code view
+  // Fonksiyon ekleyelim: HTML'i görsel olarak daha güzel formatlayalım
+  const formatHtml = (html: string): string => {
+    // Basit bir şekilde HTML'i daha okunabilir hale getirelim
+    let formatted = html
+      .replace(/></g, '>\n<') // Her tag'ı yeni satıra geçir
+      .replace(/<\/([^>]+)>/g, '</$1>\n') // Kapanış tag'larından sonra yeni satır
+      .replace(/<([^\/][^>]+)>/g, '\n<$1>') // Açılış tag'larından önce yeni satır
+      .replace(/\n\s*\n/g, '\n'); // Fazla boş satırları temizle
+    
+    // Girintileri ekleyelim
+    let indentLevel = 0;
+    const lines = formatted.split('\n');
+    formatted = lines.map(line => {
+      line = line.trim();
+      if (!line) return line;
+      
+      // Kapanış tag'ı ise girinti azalt
+      if (line.startsWith('</')) {
+        indentLevel = Math.max(0, indentLevel - 1);
+      }
+      
+      // Mevcut girinti seviyesine göre boşluk ekle
+      const indent = '  '.repeat(indentLevel);
+      const result = indent + line;
+      
+      // Açılış tag'ı ise (kapanışı aynı satırda değilse) girinti arttır
+      if (line.startsWith('<') && !line.startsWith('</') && !line.endsWith('/>') && !line.includes('</')) {
+        indentLevel++;
+      }
+      
+      return result;
+    }).join('\n');
+    
+    return formatted;
+  };
+
+  // HTML içerik değiştiğinde formatlayalım
   const handleHtmlChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newHtml = e.target.value;
     setHtmlContent(newHtml);
     onChange(newHtml);
+  };
+
+  // HTML kod editörüne geçerken formatla
+  const switchToCodeView = () => {
+    if (viewMode !== 'code') {
+      const formattedHtml = editor ? formatHtml(editor.getHTML()) : htmlContent;
+      setHtmlContent(formattedHtml);
+      setViewMode('code');
+    }
   };
 
   // Focus the editor on mount
@@ -207,7 +307,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   }
 
   return (
-    <div className={`border rounded-md ${className}`}>
+    <div className={`rounded-md ${className}`}>
       <div className="flex flex-col border-b bg-gray-50">
         {/* Text formatting toolbar - First row */}
         <div className="flex flex-wrap gap-1 p-2 border-b">
@@ -529,18 +629,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 className="rounded-none border-0 py-1 px-3 h-8"
               >
                 <Eye className="h-4 w-4 mr-1" />
-                Preview
+                Görsel Editör
               </Button>
               <Separator orientation="vertical" className="h-8" />
               <Button
                 size="sm"
                 variant={viewMode === 'code' ? "default" : "ghost"}
-                onClick={() => setViewMode('code')}
+                onClick={switchToCodeView}
                 type="button"
                 className="rounded-none border-0 py-1 px-3 h-8"
               >
                 <Code className="h-4 w-4 mr-1" />
-                HTML
+                HTML Kodu
               </Button>
             </div>
           </div>
@@ -548,17 +648,188 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       </div>
 
       {viewMode === 'edit' && (
-        <EditorContent editor={editor} className="editor-content" />
+        <div className="relative border-0 outline-none">
+          <EditorContent 
+            editor={editor} 
+            className={`editor-content ${editorClasses} focus-visible:outline-none focus-visible:ring-0 border-0`}
+          />
+          {!editor?.getText() && (
+            <div className="absolute top-0 left-0 p-4 text-gray-400 pointer-events-none">
+              {placeholder}
+            </div>
+          )}
+        </div>
       )}
 
       {viewMode === 'code' && (
-        <Textarea 
-          value={htmlContent}
-          onChange={handleHtmlChange}
-          className="min-h-[200px] max-h-full font-mono p-4 w-full border-0 focus-visible:ring-0"
-          placeholder="Enter HTML code here..."
-        />
+        <div className="relative border-0">
+          <Textarea 
+            value={htmlContent}
+            onChange={handleHtmlChange}
+            className="min-h-[400px] max-h-full font-mono p-4 w-full border-0 focus-visible:ring-0 focus-visible:outline-none whitespace-pre-wrap text-sm"
+            placeholder="HTML kodunu buraya girin..."
+          />
+          <div className="absolute top-2 right-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="bg-white"
+              onClick={() => {
+                if (editor) {
+                  const formattedHtml = formatHtml(editor.getHTML());
+                  setHtmlContent(formattedHtml);
+                }
+              }}
+            >
+              HTML Düzenle
+            </Button>
+          </div>
+        </div>
       )}
+
+      <style jsx global>{`
+        /* Root element */
+        .tiptap {
+          outline: none !important;
+          border: none !important;
+        }
+        
+        /* Editor content */
+        .editor-content {
+          min-height: 300px;
+          padding: 1rem;
+          overflow-y: auto;
+          outline: none !important;
+          border: none !important;
+        }
+        
+        /* Tiptap ProseMirror sınıfına odaklanma */
+        .ProseMirror {
+          outline: none !important;
+          border: none !important;
+          outline-color: transparent !important;
+          box-shadow: none !important;
+          border-color: transparent !important;
+        }
+        
+        .ProseMirror:focus,
+        .ProseMirror:focus-visible,
+        .ProseMirror-focused {
+          outline: none !important;
+          border: none !important;
+          box-shadow: none !important;
+          --tw-ring-color: transparent !important;
+          --tw-ring-offset-width: 0 !important;
+          --tw-ring-offset-color: transparent !important;
+          --tw-ring-width: 0 !important;
+          --tw-ring-inset: 0 !important;
+        }
+        
+        /* Tüm düzenlenebilir elementler */
+        .editor-content:focus,
+        .editor-content:focus-visible,
+        .editor-content [contenteditable]:focus,
+        .editor-content [contenteditable]:focus-visible,
+        .editor-content *:focus,
+        .editor-content *:focus-visible {
+          outline: none !important;
+          box-shadow: none !important;
+          border: none !important;
+          border-color: transparent !important;
+          --tw-ring-color: transparent !important;
+          --tw-ring-offset-width: 0 !important;
+          --tw-ring-offset-color: transparent !important;
+          --tw-ring-width: 0 !important;
+          --tw-ring-inset: 0 !important;
+        }
+        
+        .editor-content [contenteditable] {
+          outline: none !important;
+          caret-color: #000;
+        }
+        
+        /* Kırmızı sınırı gösteren tüm elementleri hedefle */
+        *:focus-visible {
+          outline: none !important;
+          border-color: transparent !important;
+          box-shadow: none !important;
+          ring: 0 !important;
+          ring-offset: 0 !important;
+        }
+        
+        /* Tiptap editor içindeki her elemana odaklandığında */
+        [data-tippy-root], 
+        [contenteditable="true"],
+        [contenteditable="true"]:focus,
+        [contenteditable="true"]:focus-visible {
+          outline: none !important;
+          border-color: transparent !important;
+          box-shadow: none !important;
+        }
+        
+        .editor-content h1, .editor-content h2, .editor-content h3, 
+        .editor-content h4, .editor-content h5, .editor-content h6 {
+          margin-top: 1rem;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+        }
+        
+        .editor-content p {
+          margin-bottom: 0.75rem;
+        }
+        
+        .editor-content ul, .editor-content ol {
+          padding-left: 1.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        .editor-content ul {
+          list-style-type: disc;
+        }
+        
+        .editor-content ol {
+          list-style-type: decimal;
+        }
+        
+        .editor-content li {
+          margin-bottom: 0.25rem;
+        }
+        
+        .editor-content a {
+          color: #2563eb;
+          text-decoration: underline;
+        }
+        
+        .editor-content img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 0.375rem;
+          margin: 1rem auto;
+        }
+        
+        .editor-content blockquote {
+          border-left: 4px solid #e5e7eb;
+          padding-left: 1rem;
+          font-style: italic;
+          margin: 1rem 0;
+        }
+        
+        .editor-content pre {
+          background-color: #f3f4f6;
+          padding: 1rem;
+          border-radius: 0.375rem;
+          overflow-x: auto;
+          margin: 1rem 0;
+        }
+        
+        .editor-content code {
+          font-family: monospace;
+          background-color: #f3f4f6;
+          padding: 0.2rem 0.4rem;
+          border-radius: 0.25rem;
+          font-size: 0.875em;
+        }
+      `}</style>
     </div>
   );
 };
