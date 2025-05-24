@@ -567,25 +567,26 @@ export default function ProjectPreview() {
     }
   };
 
+  // Move the component rendering logic to a top-level useEffect
+  useEffect(() => {
+    if (!projectData) return;
+    
+    const activeComponent = projectData.activeProject || "services5";
+    
+    if (typeof window !== 'undefined') {
+      if (activeComponent === "services5") {
+        setComponent(<Services5 previewData={projectData} />);
+      } else if (activeComponent === "project2") {
+        setComponent(<Project2 previewData={projectData} />);
+      } else {
+        setComponent(<div>Unknown component type: {activeComponent}</div>);
+      }
+    }
+  }, [projectData]);
+
   // Render the appropriate component
   const renderProjectComponent = () => {
     if (!projectData) return <div>Loading...</div>;
-
-    const activeComponent = projectData.activeProject || "services5";
-    
-    // Only render components on the client side
-    useEffect(() => {
-      if (typeof window !== 'undefined') {
-        if (activeComponent === "services5") {
-          setComponent(<Services5 previewData={projectData} />);
-        } else if (activeComponent === "project2") {
-          setComponent(<Project2 previewData={projectData} />);
-        } else {
-          setComponent(<div>Unknown component type: {activeComponent}</div>);
-        }
-      }
-    }, [projectData, activeComponent]);
-
     return Component;
   };
 
