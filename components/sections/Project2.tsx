@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import projectsData from '@/data/projects.json'
 
 export default function Project2() {
 
@@ -70,97 +71,28 @@ export default function Project2() {
 							modules={[Keyboard, Autoplay, Pagination, Navigation]}
 						>
 							<div className="swiper-wrapper">
-								{/* prettier-ignore */}
-								<SwiperSlide className="swiper-slide">
-									<div className="text-center">
-										<div className="zoom-img position-relative d-inline-block z-1">
-											<div className="rounded-3 fix">
-												<img className="img-fluid w-100" src="/assets/imgs/project-2/img-1.png" alt="infinia" />
+								{projectsData.projects.map((project) => (
+									<SwiperSlide key={project.id} className="swiper-slide">
+										<div className="text-center">
+											<div className="zoom-img position-relative d-inline-block z-1" style={{ height: '480px', width: '100%' }}>
+												<div className="rounded-3 fix" style={{ height: '480px', overflow: 'hidden' }}>
+													<img 
+														className="img-fluid w-100 h-100" 
+														src={project.image} 
+														alt="infinia" 
+														style={{ objectFit: 'cover', objectPosition: 'center' }}
+													/>
+												</div>
+												<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
+													<p className="fs-7 text-primary mb-1">{project.company}</p>
+													<h6>{project.subtitle}</h6>
+													<p className="text-900">{project.fullDescription}</p>
+												</Link>
+												<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag}</Link>
 											</div>
-											<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
-												<p className="fs-7 text-primary mb-1">InnovateTech Inc.</p>
-												<h6>Strategic Solutions Initiative</h6>
-												<p className="text-900">Streamlining operations and growth strategies for market enhancement.</p>
-											</Link>
-											<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">Software Development</Link>
 										</div>
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="text-center">
-										<div className="zoom-img position-relative d-inline-block z-1">
-											<div className="rounded-3 fix">
-												<img className="img-fluid w-100" src="/assets/imgs/project-2/img-2.png" alt="infinia" />
-											</div>
-											<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
-												<p className="fs-7 text-primary mb-1">Pioneer Enterprises</p>
-												<h6>Innovate Consulting Challenge</h6>
-												<p className="text-900">Leveraging consulting practices to solve complex problems.</p>
-											</Link>
-											<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">Consulting</Link>
-										</div>
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="text-center">
-										<div className="zoom-img position-relative d-inline-block z-1">
-											<div className="rounded-3 fix">
-												<img className="img-fluid w-100" src="/assets/imgs/project-2/img-3.png" alt="infinia" />
-											</div>
-											<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
-												<p className="fs-7 text-primary mb-1">Summit Corp</p>
-												<h6>Growth Catalyst Program</h6>
-												<p className="text-900">Accelerating business growth through strategic planning.</p>
-											</Link>
-											<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">Financial Advisory</Link>
-										</div>
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="text-center">
-										<div className="zoom-img position-relative d-inline-block z-1">
-											<div className="rounded-3 fix">
-												<img className="img-fluid w-100" src="/assets/imgs/project-2/img-1.png" alt="infinia" />
-											</div>
-											<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
-												<p className="fs-7 text-primary mb-1">InnovateTech Inc.</p>
-												<h6>Strategic Solutions Initiative</h6>
-												<p className="text-900">Streamlining operations and growth strategies for market enhancement.</p>
-											</Link>
-											<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">Software Development</Link>
-										</div>
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="text-center">
-										<div className="zoom-img position-relative d-inline-block z-1">
-											<div className="rounded-3 fix">
-												<img className="img-fluid w-100" src="/assets/imgs/project-2/img-2.png" alt="infinia" />
-											</div>
-											<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
-												<p className="fs-7 text-primary mb-1">Pioneer Enterprises</p>
-												<h6>Innovate Consulting Challenge</h6>
-												<p className="text-900">Leveraging consulting practices to solve complex problems.</p>
-											</Link>
-											<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">Consulting</Link>
-										</div>
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="text-center">
-										<div className="zoom-img position-relative d-inline-block z-1">
-											<div className="rounded-3 fix">
-												<img className="img-fluid w-100" src="/assets/imgs/project-2/img-3.png" alt="infinia" />
-											</div>
-											<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
-												<p className="fs-7 text-primary mb-1">Summit Corp</p>
-												<h6>Growth Catalyst Program</h6>
-												<p className="text-900">Accelerating business growth through strategic planning.</p>
-											</Link>
-											<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">Financial Advisory</Link>
-										</div>
-									</div>
-								</SwiperSlide>
+									</SwiperSlide>
+								))}
 							</div>
 						</Swiper>
 					</div>

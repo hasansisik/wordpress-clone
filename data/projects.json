@@ -1,0 +1,79 @@
+{
+  "categories": [
+    { "id": "all", "name": "All Projects" },
+    { "id": "seo", "name": "SEO Services" },
+    { "id": "webdesign", "name": "Web Design" },
+    { "id": "social", "name": "Social" },
+    { "id": "marketing", "name": "Marketing" },
+    { "id": "app", "name": "APP" },
+    { "id": "dataanalysis", "name": "Data Analysis" }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "title": "Financial analysis software 4.0 for JiCo JSC",
+      "description": "Achieve Your a of Business",
+      "image": "/assets/imgs/project-2/img-1.png",
+      "categories": ["seo", "marketing"],
+      "company": "InnovateTech Inc.",
+      "subtitle": "Strategic Solutions Initiative",
+      "fullDescription": "Streamlining operations and growth strategies for market enhancement.",
+      "tag": "Software Development"
+    },
+    {
+      "id": 2,
+      "title": "Financial analysis software 4.0 for JiCo JSC",
+      "description": "Achieve Your a of Business",
+      "image": "/assets/imgs/project-2/img-2.png",
+      "categories": ["webdesign", "dataanalysis", "seo"],
+      "company": "Pioneer Enterprises",
+      "subtitle": "Innovate Consulting Challenge",
+      "fullDescription": "Leveraging consulting practices to solve complex problems.",
+      "tag": "Consulting"
+    },
+    {
+      "id": 3,
+      "title": "Financial analysis software 4.0 for JiCo JSC",
+      "description": "Achieve Your a of Business",
+      "image": "/assets/imgs/project-2/img-3.png",
+      "categories": ["social", "marketing"],
+      "company": "Summit Corp",
+      "subtitle": "Growth Catalyst Program",
+      "fullDescription": "Accelerating business growth through strategic planning.",
+      "tag": "Financial Advisory"
+    },
+    {
+      "id": 4,
+      "title": "Financial analysis software 4.0 for JiCo JSC",
+      "description": "Achieve Your a of Business",
+      "image": "/assets/imgs/project-2/img-1.png",
+      "categories": ["marketing", "app", "dataanalysis", "seo"],
+      "company": "InnovateTech Inc.",
+      "subtitle": "Strategic Solutions Initiative",
+      "fullDescription": "Streamlining operations and growth strategies for market enhancement.",
+      "tag": "Software Development"
+    },
+    {
+      "id": 5,
+      "title": "Financial analysis software 4.0 for JiCo JSC",
+      "description": "Achieve Your a of Business",
+      "image": "/assets/imgs/project-2/img-2.png",
+      "categories": ["app", "dataanalysis"],
+      "company": "Pioneer Enterprises",
+      "subtitle": "Innovate Consulting Challenge",
+      "fullDescription": "Leveraging consulting practices to solve complex problems.",
+      "tag": "Consulting"
+    },
+    {
+      "id": 6,
+      "title": "Financial analysis software 4.0 for JiCo JSC",
+      "description": "Achieve Your a of Business",
+      "image": "/assets/imgs/project-2/img-3.png",
+      "categories": ["social"],
+      "company": "Summit Corp",
+      "subtitle": "Growth Catalyst Program",
+      "fullDescription": "Accelerating business growth through strategic planning.",
+      "tag": "Financial Advisory"
+    }
+  ]
+} 

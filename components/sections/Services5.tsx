@@ -1,6 +1,7 @@
 'use client'
 import Isotope from 'isotope-layout';
 import { useEffect, useRef, useState, useCallback } from 'react';
+import projectsData from '@/data/projects.json';
 
 export default function Services5() {
 	const isotope = useRef<Isotope | null>(null);
@@ -49,121 +50,43 @@ export default function Services5() {
 					</div>
 					<div className="text-center mt-6">
 						<div className="button-group filter-button-group filter-menu-active">
-							<button className={activeBtn("*")} onClick={handleFilterKeyChange("*")}>All Projects</button>
-							<button className={activeBtn("seo")} onClick={handleFilterKeyChange("seo")}>SEO Services</button>
-							<button className={activeBtn("webdesign")} onClick={handleFilterKeyChange("webdesign")}>Web Design</button>
-							<button className={activeBtn("social")} onClick={handleFilterKeyChange("social")}>Social</button>
-							<button className={activeBtn("marketing")} onClick={handleFilterKeyChange("marketing")}>Marketing</button>
-							<button className={activeBtn("app")} onClick={handleFilterKeyChange("app")}>APP</button>
-							<button className={activeBtn("dataanalysis")} onClick={handleFilterKeyChange("dataanalysis")}>Data Analysis</button>
+							{projectsData.categories.map((category) => (
+								<button key={category.id} className={activeBtn(category.id === "all" ? "*" : category.id)} onClick={handleFilterKeyChange(category.id === "all" ? "*" : category.id)}>
+									{category.name}
+								</button>
+							))}
 						</div>
 					</div>
 				</div>
 				<div className="container mt-6">
 					<div className="masonary-active justify-content-between row">
 						<div className="grid-sizer" />
-						<div className="filter-item col-12 col-md-4 seo marketing">
-							<div className="project-item zoom-img rounded-2 fix position-relative">
-								<img className="rounded-2" src="assets/imgs/project-1/img-1.png" alt="infinia" />
-								<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-									<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
-										<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
-										<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
-										<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
-											<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-											<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</span>
-									<h5 className="text-700">Financial analysis software 4.0 for JiCo JSC</h5>
-									<p className="fs-7 mb-0">Achieve Your a of Business</p>
-								</a>
+						{projectsData.projects.map((project) => (
+							<div key={project.id} className={`filter-item col-12 col-md-4 ${project.categories.join(' ')}`}>
+								<div className="project-item zoom-img rounded-2 fix position-relative">
+									<div style={{ height: '300px', overflow: 'hidden' }}>
+										<img 
+											className="rounded-2 w-100 h-100" 
+											src={project.image} 
+											alt="infinia" 
+											style={{ objectFit: 'cover', objectPosition: 'center' }}
+										/>
+									</div>
+									<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
+										<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
+											<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
+											<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
+											<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
+												<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
+												<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
+											</svg>
+										</span>
+										<h5 className="text-700">{project.title}</h5>
+										<p className="fs-7 mb-0">{project.description}</p>
+									</a>
+								</div>
 							</div>
-						</div>
-						<div className="filter-item col-12 col-md-4 webdesign dataanalysis seo">
-							<div className="project-item zoom-img rounded-2 fix position-relative">
-								<img className="rounded-2" src="assets/imgs/project-1/img-2.png" alt="infinia" />
-								<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-									<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
-										<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
-										<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
-										<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
-											<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-											<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</span>
-									<h5 className="text-700">Financial analysis software 4.0 for JiCo JSC</h5>
-									<p className="fs-7 mb-0">Achieve Your a of Business</p>
-								</a>
-							</div>
-						</div>
-						<div className="filter-item col-12 col-md-4 social marketing">
-							<div className="project-item zoom-img rounded-2 fix position-relative">
-								<img className="rounded-2" src="assets/imgs/project-1/img-3.png" alt="infinia" />
-								<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-									<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
-										<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
-										<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
-										<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
-											<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-											<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</span>
-									<h5 className="text-700">Financial analysis software 4.0 for JiCo JSC</h5>
-									<p className="fs-7 mb-0">Achieve Your a of Business</p>
-								</a>
-							</div>
-						</div>
-						<div className="filter-item col-12 col-md-4 marketing app dataanalysis seo">
-							<div className="project-item zoom-img rounded-2 fix position-relative">
-								<img className="rounded-2" src="assets/imgs/project-1/img-4.png" alt="infinia" />
-								<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-									<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
-										<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
-										<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
-										<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
-											<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-											<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</span>
-									<h5 className="text-700">Financial analysis software 4.0 for JiCo JSC</h5>
-									<p className="fs-7 mb-0">Achieve Your a of Business</p>
-								</a>
-							</div>
-						</div>
-						<div className="filter-item col-12 col-md-4 grid-item--height2 app dataanalysis">
-							<div className="project-item zoom-img rounded-2 fix position-relative">
-								<img className="rounded-2" src="assets/imgs/project-1/img-5.png" alt="infinia" />
-								<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-									<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
-										<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
-										<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
-										<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
-											<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-											<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</span>
-									<h5 className="text-700">Financial analysis software 4.0 for JiCo JSC</h5>
-									<p className="fs-7 mb-0">Achieve Your a of Business</p>
-								</a>
-							</div>
-						</div>
-						<div className="filter-item col-12 col-md-4 social grid-item--width2">
-							<div className="project-item zoom-img rounded-2 fix position-relative">
-								<img className="rounded-2" src="assets/imgs/project-1/img-6.png" alt="infinia" />
-								<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-									<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
-										<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
-										<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
-										<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
-											<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-											<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</span>
-									<h5 className="text-700">Financial analysis software 4.0 for JiCo JSC</h5>
-									<p className="fs-7 mb-0">Achieve Your a of Business</p>
-								</a>
-							</div>
-						</div>
+						))}
 					</div>
 				</div>
 				<div className="container">
