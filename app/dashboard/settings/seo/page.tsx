@@ -26,6 +26,7 @@ import Link from "next/link"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { Image, ImagePlus, Search, ExternalLink, AlertCircle, CheckCircle2 } from "lucide-react"
+import { getGeneralSeoData } from "@/lib/seo"
 
 interface SeoPageConfig {
   id: string;
@@ -93,7 +94,22 @@ export default function Page() {
     return () => clearTimeout(timer);
   }, []);
   
+  // Get general SEO data from the utility
+  const generalSeoData = getGeneralSeoData();
+  
   const seoPages: SeoPageConfig[] = [
+    {
+      id: "general",
+      name: "Genel SEO",
+      url: "/",
+      title: generalSeoData.title,
+      description: generalSeoData.description,
+      lastUpdated: "2023-06-20",
+      keywords: generalSeoData.keywords || "",
+      ogTitle: generalSeoData.ogTitle || generalSeoData.title,
+      ogDescription: generalSeoData.ogDescription || generalSeoData.description,
+      ogImage: generalSeoData.ogImage || "",
+    },
     {
       id: "home",
       name: "Ana Sayfa",
@@ -180,7 +196,7 @@ export default function Page() {
 
   const handleSave = () => {
     // In a real application, this would save to a database or API
-    alert("SEO settings saved! In a real application, this would save to a database or API.");
+    alert("SEO settings saved! In a real application, this would update the lib/seo.ts file or save to a database.");
     setEditMode(false);
   };
   
@@ -302,6 +318,56 @@ export default function Page() {
                       ))}
                     </TableBody>
                   </Table>
+                </CardContent>
+              </Card>
+
+              <Card className="mt-8">
+                <CardHeader>
+                  <CardTitle>General SEO Settings</CardTitle>
+                  <CardDescription>
+                    Site-wide SEO settings that apply to your entire website
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">Site Title</h3>
+                      <p className="text-sm text-muted-foreground mb-4">{seoPages[0].title}</p>
+                      
+                      <h3 className="text-sm font-medium mb-2">Site Description</h3>
+                      <p className="text-sm text-muted-foreground mb-4">{seoPages[0].description}</p>
+                      
+                      <h3 className="text-sm font-medium mb-2">Global Keywords</h3>
+                      <p className="text-sm text-muted-foreground">{seoPages[0].keywords}</p>
+                    </div>
+                    
+                    <div className="flex flex-col items-center justify-center">
+                      {seoPages[0].ogImage && (
+                        <div className="relative mb-4">
+                          <h3 className="text-sm font-medium mb-2 text-center">Default OG Image</h3>
+                          <div className="relative w-full max-w-[250px] rounded-md overflow-hidden border">
+                            <img 
+                              src={seoPages[0].ogImage} 
+                              alt="Default Open Graph Image"
+                              className="w-full h-auto"
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2 text-center">
+                            This image will be used when sharing your site on social media
+                          </p>
+                        </div>
+                      )}
+                      
+                      <Button 
+                        onClick={() => {
+                          setSelectedPage(seoPages[0]);
+                          setActiveTab("editor");
+                        }}
+                      >
+                        Edit General SEO
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 

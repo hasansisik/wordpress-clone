@@ -11,6 +11,14 @@ export interface SeoData {
 }
 
 const defaultSeoData: Record<string, SeoData> = {
+  general: {
+    title: "WordPress Clone - Modern CMS Template",
+    description: "WordPress Clone ile web sitenizi hızlı ve kolay bir şekilde oluşturun ve yönetin.",
+    keywords: "wordpress, clone, cms, website builder, blog, portfolio",
+    ogTitle: "WordPress Clone - Modern Web Site Oluşturucu",
+    ogDescription: "WordPress Clone ile web sitenizi hızlı ve kolay bir şekilde oluşturun ve yönetin.",
+    ogImage: "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+  },
   home: {
     title: "Ana Sayfa | WordPress Clone",
     description: "WordPress Clone ile web sitenizi hızlı ve kolay bir şekilde oluşturun.",
@@ -55,7 +63,7 @@ const defaultSeoData: Record<string, SeoData> = {
 
 // Storage might be upgraded to a database or API call in the future
 export function getSeoData(page: string): SeoData {
-  return defaultSeoData[page] || defaultSeoData.home;
+  return defaultSeoData[page] || defaultSeoData.general;
 }
 
 export function generateMetadata(page: string): Metadata {
@@ -76,4 +84,9 @@ export function generateMetadata(page: string): Metadata {
       },
     }),
   };
+}
+
+// Get general site-wide SEO settings
+export function getGeneralSeoData(): SeoData {
+  return defaultSeoData.general;
 } 
