@@ -32,6 +32,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { Toaster, toast } from "sonner";
 
 interface EditorLayoutProps {
   children: ReactNode;
@@ -68,12 +69,10 @@ export default function EditorLayout({
   const handleSaveChanges = async () => {
     try {
       await saveChangesToAPI(sectionData);
-      
-      // Redirect to dashboard after successful save (with small delay)
-      setTimeout(() => {
-        router.push(dashboardUrl);
-      }, 1000);
+      toast.success(`${title} changes saved successfully!`);
+      // No redirection to dashboard
     } catch (error) {
+      toast.error("Error saving changes");
       // Error is handled inside saveChangesToAPI
     }
   };
@@ -140,25 +139,8 @@ export default function EditorLayout({
         </div>
       </header>
 
-      {showAlert && (
-        <Alert
-          className={`mx-4 mt-4 ${
-            alertType === "success"
-              ? "bg-green-50 text-green-700 border-green-200"
-              : "bg-red-50 text-red-700 border-red-200"
-          }`}
-        >
-          {alertType === "success" ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
-          <AlertTitle className="text-sm font-medium">
-            {alertType === "success" ? "Success" : "Error"}
-          </AlertTitle>
-          <AlertDescription className="text-xs">{alertMessage}</AlertDescription>
-        </Alert>
-      )}
+      {/* Sonner Toaster component */}
+      <Toaster position="top-right" richColors />
 
       {/* Main layout with resizable panels */}
       <div className="flex-1 overflow-hidden">

@@ -9,8 +9,8 @@ export const metadata: Metadata = generateSeoMetadata("blog")
 export default function Blog() {
     return (
         <>
-            <Blog1 />
-            <Blog5 />
+                <Blog1 />
+                <Blog5 />
         </>
     )
 }

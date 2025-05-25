@@ -838,19 +838,7 @@ function FooterEditorContent({
             </Button>
           </div>
         </div>
-        
-        {/* Save Changes Button */}
-        <div className="w-full px-4 py-3 border-t border-gray-200 bg-white z-10">
-          <div className="max-w-screen-xl mx-auto flex justify-end">
-            <Button 
-              onClick={handleSaveChanges} 
-              className="bg-primary hover:bg-primary/90 text-white"
-            >
-              <Check className="h-4 w-4 mr-2" />
-              Save Changes
-            </Button>
-          </div>
-        </div>
+
       </div>
     </EditorLayout>
   );
@@ -1718,7 +1706,6 @@ export default function FooterEditor() {
     saveChangesToAPI(updatedData);
   };
 
-  // Handler for the "Save Changes" button click
   const handleSaveChanges = async () => {
     try {
       await saveChangesToAPI(footerData);

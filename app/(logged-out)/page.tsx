@@ -7,8 +7,8 @@ export const metadata: Metadata = generateSeoMetadata("home")
 export default function Home() {
 	return (
 		<>
-			<Hero1 />
-			<Hero1 />
+				<Hero1 />
+				<Hero1 />
 		</>
 	)
 }
