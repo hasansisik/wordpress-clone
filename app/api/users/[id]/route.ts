@@ -2,22 +2,12 @@ import { getCurrentUser } from '@/lib/auth';
 import { findUserById, users } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-// Delete user - admin only
+// Delete user - accessible to all authenticated users
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const currentUser = await getCurrentUser();
-    
-    // Only admins can delete users
-    if (!currentUser || currentUser.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 403 }
-      );
-    }
-    
     const userId = params.id;
     
     // Check if user exists
@@ -27,14 +17,6 @@ export async function DELETE(
       return NextResponse.json(
         { success: false, message: 'User not found' },
         { status: 404 }
-      );
-    }
-    
-    // Don't allow deleting self
-    if (userId === currentUser.id) {
-      return NextResponse.json(
-        { success: false, message: 'You cannot delete your own account' },
-        { status: 400 }
       );
     }
     

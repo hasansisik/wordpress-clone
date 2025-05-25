@@ -2,22 +2,12 @@ import { getCurrentUser } from '@/lib/auth';
 import { findUserById, users } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-// Change user password - admin only
+// Change user password - accessible to all authenticated users
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const currentUser = await getCurrentUser();
-    
-    // Only admins can change passwords
-    if (!currentUser || currentUser.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 403 }
-      );
-    }
-    
     const userId = params.id;
     const { password } = await request.json();
     

@@ -299,19 +299,10 @@ export default function UsersPage() {
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-        ) : !isAdmin ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Access Denied</CardTitle>
-              <CardDescription>
-                Only administrators can view and manage users.
-              </CardDescription>
-            </CardHeader>
-          </Card>
         ) : (
           <>
             {formSuccess && (
-              <Alert variant="success" className="mb-4">
+              <Alert variant="default" className="mb-4 bg-green-50 text-green-800 border-green-300">
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>{formSuccess}</AlertDescription>
               </Alert>

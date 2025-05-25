@@ -1,60 +1,29 @@
 import { cookies } from 'next/headers';
-import { createSession, deleteSession, findUserByEmail, getSession } from './db';
+import { getSession } from './db';
 import { User } from './types';
 
-const SESSION_COOKIE_NAME = 'session_id';
-
-// Login function
-export async function login(email: string, password: string) {
-  const user = findUserByEmail(email);
-  
-  if (!user || user.password !== password) {
-    return { success: false, message: 'Invalid email or password' };
-  }
-
-  // Create a session
-  const { sessionId, expires } = createSession(user.id);
-  
-  // Set cookie
-  cookies().set({
-    name: SESSION_COOKIE_NAME,
-    value: sessionId,
-    expires,
-    httpOnly: true,
-    path: '/',
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-  });
-
-  return { success: true };
-}
-
-// Logout function
-export async function logout() {
-  const sessionId = cookies().get(SESSION_COOKIE_NAME)?.value;
-  
-  if (sessionId) {
-    deleteSession(sessionId);
-    cookies().delete(SESSION_COOKIE_NAME);
-  }
-  
-  return { success: true };
-}
-
-// Get current user
+// Get current user from custom session
 export async function getCurrentUser(): Promise<Omit<User, 'password'> | null> {
-  const sessionId = cookies().get(SESSION_COOKIE_NAME)?.value;
-  
-  if (!sessionId) {
+  try {
+    // Get the cookie store
+    const cookieStore = await cookies();
+    
+    // Check for our custom session
+    const sessionId = cookieStore.get('test-session')?.value;
+    
+    if (sessionId) {
+      const customSession = getSession(sessionId);
+      if (customSession) {
+        return customSession.user;
+      }
+    }
+    
+    // If no custom session found, return null
+    return null;
+  } catch (error) {
+    console.error('Error getting current user:', error);
     return null;
   }
-  
-  const session = getSession(sessionId);
-  if (!session) {
-    return null;
-  }
-  
-  return session.user;
 }
 
 // Check if user is authenticated

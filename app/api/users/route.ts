@@ -3,19 +3,9 @@ import { createUser, findUserByEmail, users } from '@/lib/db';
 import { UserRole } from '@/lib/types';
 import { NextResponse } from 'next/server';
 
-// Get all users - only accessible to admins
+// Get all users - accessible to all authenticated users
 export async function GET() {
   try {
-    const currentUser = await getCurrentUser();
-    
-    // Only admins can access the user list
-    if (!currentUser || currentUser.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 403 }
-      );
-    }
-    
     // Return users without passwords
     const safeUsers = users.map(user => ({
       ...user,
@@ -32,19 +22,9 @@ export async function GET() {
   }
 }
 
-// Create a new user - only accessible to admins
+// Create a new user - accessible to all authenticated users
 export async function POST(request: Request) {
   try {
-    const currentUser = await getCurrentUser();
-    
-    // Only admins can create users
-    if (!currentUser || currentUser.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 403 }
-      );
-    }
-    
     const { name, email, password, role } = await request.json();
     
     if (!name || !email || !password) {

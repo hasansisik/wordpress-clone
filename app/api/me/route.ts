@@ -1,5 +1,5 @@
-import { getCurrentUser } from '@/lib/auth';
 import { NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -12,11 +12,14 @@ export async function GET() {
       );
     }
     
-    return NextResponse.json({ success: true, user });
+    return NextResponse.json({
+      success: true,
+      user,
+    });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error('Error fetching current user:', error);
     return NextResponse.json(
-      { success: false, message: 'An error occurred while getting user data' },
+      { success: false, message: 'An error occurred' },
       { status: 500 }
     );
   }

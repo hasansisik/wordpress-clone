@@ -10,22 +10,19 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      const response = await fetch('/api/auth/logout', {
+      // Use our custom logout API
+      const response = await fetch('/api/logout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
-
+      
       if (response.ok) {
-        // Redirect to login page
         router.push('/login');
       } else {
         console.error('Logout failed');
+        setIsLoggingOut(false);
       }
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
       setIsLoggingOut(false);
     }
   };

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BadgeCheck,
   Bell,
@@ -33,30 +33,65 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar?: string
-    role?: string
-  }
-}) {
+type UserWithAvatar = {
+  name: string;
+  email: string;
+  role?: string;
+  avatar?: string;
+}
+
+export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [user, setUser] = useState<UserWithAvatar>({
+    name: 'Loading...',
+    email: '',
+    role: ''
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Fetch the current user on component mount
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/me');
+        
+        if (response.ok) {
+          const data = await response.json();
+          setUser({
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            avatar: undefined
+          });
+        } else {
+          // If user is not authenticated, use a default guest user
+          setUser({
+            name: 'Guest User',
+            email: 'guest@example.com',
+            role: 'guest'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      // Use our custom logout endpoint
+      const response = await fetch('/api/logout', {
+        method: 'POST'
       });
-
+      
       if (response.ok) {
         // Redirect to login page
         router.push('/login');
@@ -89,8 +124,8 @@ export function NavUser({
                 <AvatarFallback className="rounded-lg">{nameInitial}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{isLoading ? 'Loading...' : user.name}</span>
+                <span className="truncate text-xs">{isLoading ? '' : user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>

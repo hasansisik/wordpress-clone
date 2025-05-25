@@ -20,7 +20,8 @@ export default function PageLogin() {
 		const password = formData.get('password') as string;
 
 		try {
-			const response = await fetch('/api/auth/login', {
+			// Use our custom login API instead of NextAuth
+			const response = await fetch('/api/test-login', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -31,16 +32,16 @@ export default function PageLogin() {
 			const data = await response.json();
 
 			if (!response.ok) {
-				setError(data.message || 'Login failed');
+				setLoading(false);
+				setError(data.message || "Invalid username or password");
 				return;
 			}
 
-			// Redirect to dashboard or the original requested page
+			// Success! Redirect to dashboard
 			router.push(redirect);
 		} catch (err) {
 			setError('An error occurred during login');
 			console.error(err);
-		} finally {
 			setLoading(false);
 		}
 	}
