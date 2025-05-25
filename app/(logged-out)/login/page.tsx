@@ -53,10 +53,10 @@ export default function PageLogin() {
 					<div className="row pt-7 pb-120">
 						<div className="col-lg-5 ms-auto ps-lg-10 text-center">
 							<h3>Login to WordPress Clone</h3>
-							<p className="text-500">Enter your credentials to access the dashboard</p>
+							<p className="text-500">Log in to access your dashboard</p>
 							
 							<div className="border-top mt-3 mb-2 position-relative">
-								<p className="text-500 position-absolute top-50 start-50 translate-middle bg-white px-2">Admin System Login</p>
+								<p className="text-500 position-absolute top-50 start-50 translate-middle bg-white px-2">Enter your credentials</p>
 							</div>
 
 							{error && (
@@ -108,7 +108,7 @@ export default function PageLogin() {
 										/>
 									</div>
 								</div>
-								<div className="col-12 mt-2 d-flex justify-content-between">
+								<div className="col-12 mt-2 d-flex justify-content-end">
 									<div className="form-check text-start">
 										<input className="form-check-input" type="checkbox" id="remember" name="remember" />
 										<label className="form-check-label text-500 fs-7" htmlFor="remember"> Remember me </label>
@@ -134,18 +134,13 @@ export default function PageLogin() {
 									</button>
 								</div>
 							</form>
-							<div className="mt-4 text-500 fs-7">
-								<p>Default admin credentials: admin@example.com / admin123</p>
-								<p>Default editor credentials: editor@example.com / editor123</p>
-							</div>
 						</div>
 					</div>
 				</div>
 				<div className="position-lg-absolute start-0 bottom-0 top-0">
-					<img className="h-100 w-100 object-fit-cover" src="/assets/imgs/other/img-8.png" alt="infinia" />
+					<img className="h-100 w-100 object-fit-cover" src="/assets/imgs/other/img-8.png" alt="wordpress clone" />
 				</div>
 			</section>
 		</>
 	)
-}
 }
