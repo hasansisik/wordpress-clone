@@ -1,9 +1,9 @@
 import { Metadata } from "next"
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo"
 
-export const metadata: Metadata = generateSeoMetadata("project")
+export const metadata: Metadata = generateSeoMetadata("service")
 
-export default function ProjectLayout({
+export default function HizmetlerLayout({
   children,
 }: {
   children: React.ReactNode

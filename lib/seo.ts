@@ -43,13 +43,13 @@ const defaultSeoData: Record<string, SeoData> = {
     ogDescription: "Bizimle iletişime geçin. Sorularınızı yanıtlamaktan memnuniyet duyarız.",
     ogImage: "/contact-og-image.jpg",
   },
-  project: {
-    title: "Projeler | WordPress Clone",
-    description: "Projelerimizi keşfedin ve neler yapabileceğimizi görün.",
-    keywords: "projeler, çalışmalar, portfolyo, örnekler, işler",
-    ogTitle: "Projeler | WordPress Clone",
-    ogDescription: "Projelerimizi keşfedin ve neler yapabileceğimizi görün.",
-    ogImage: "/projects-og-image.jpg",
+  service: {
+    title: "Hizmetlerimiz | WordPress Clone",
+    description: "Sunduğumuz profesyonel hizmetleri keşfedin ve ihtiyaçlarınıza uygun çözümleri bulun.",
+    keywords: "hizmetler, çözümler, servisler, örnekler, işler",
+    ogTitle: "Hizmetlerimiz | WordPress Clone",
+    ogDescription: "Sunduğumuz profesyonel hizmetleri keşfedin ve ihtiyaçlarınıza uygun çözümleri bulun.",
+    ogImage: "/services-og-image.jpg",
   },
 };
 
