@@ -1,5 +1,18 @@
 'use client';
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Plus,
+  X,
+  Loader2,
+  UserCog,
+  Trash2,
+  Lock,
+  AlertCircle,
+  CheckCircle
+} from "lucide-react";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,18 +23,62 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { User, UserRole } from "@/lib/types";
 
 export default function UsersPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   
   // Form states
-  const [showAddUserForm, setShowAddUserForm] = useState(false);
-  const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
+  const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -31,6 +88,7 @@ export default function UsersPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch users
   useEffect(() => {
@@ -67,9 +125,11 @@ export default function UsersPage() {
     e.preventDefault();
     setFormError(null);
     setFormSuccess(null);
+    setIsSubmitting(true);
     
     if (password.length < 6) {
       setFormError("Password must be at least 6 characters");
+      setIsSubmitting(false);
       return;
     }
     
@@ -86,6 +146,7 @@ export default function UsersPage() {
       
       if (!response.ok) {
         setFormError(data.message || "Failed to add user");
+        setIsSubmitting(false);
         return;
       }
       
@@ -98,10 +159,12 @@ export default function UsersPage() {
       setEmail("");
       setPassword("");
       setRole("user");
-      setShowAddUserForm(false);
+      setAddUserDialogOpen(false);
     } catch (err) {
       setFormError("An error occurred. Please try again.");
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -110,19 +173,23 @@ export default function UsersPage() {
     e.preventDefault();
     setFormError(null);
     setFormSuccess(null);
+    setIsSubmitting(true);
     
     if (!selectedUser) {
       setFormError("No user selected");
+      setIsSubmitting(false);
       return;
     }
     
     if (newPassword.length < 6) {
       setFormError("Password must be at least 6 characters");
+      setIsSubmitting(false);
       return;
     }
     
     if (newPassword !== confirmPassword) {
       setFormError("Passwords do not match");
+      setIsSubmitting(false);
       return;
     }
     
@@ -139,6 +206,7 @@ export default function UsersPage() {
       
       if (!response.ok) {
         setFormError(data.message || "Failed to change password");
+        setIsSubmitting(false);
         return;
       }
       
@@ -147,11 +215,13 @@ export default function UsersPage() {
       // Reset form
       setNewPassword("");
       setConfirmPassword("");
-      setShowChangePasswordForm(false);
+      setChangePasswordDialogOpen(false);
       setSelectedUser(null);
     } catch (err) {
       setFormError("An error occurred. Please try again.");
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -162,6 +232,7 @@ export default function UsersPage() {
     }
     
     try {
+      setIsSubmitting(true);
       const response = await fetch(`/api/users/${userId}`, {
         method: 'DELETE',
       });
@@ -169,6 +240,7 @@ export default function UsersPage() {
       if (!response.ok) {
         const data = await response.json();
         setError(data.message || "Failed to delete user");
+        setIsSubmitting(false);
         return;
       }
       
@@ -178,6 +250,19 @@ export default function UsersPage() {
     } catch (err) {
       setError("An error occurred. Please try again.");
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getRoleBadgeStyles = (role: UserRole) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-destructive/20 text-destructive hover:bg-destructive/30';
+      case 'editor':
+        return 'bg-green-100 text-green-800 hover:bg-green-200';
+      default:
+        return 'bg-primary/20 text-primary hover:bg-primary/30';
     }
   };
 
@@ -206,268 +291,273 @@ export default function UsersPage() {
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
-            <div className="loader"></div>
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : error ? (
-          <div className="bg-red-50 p-8 rounded-xl text-center">
-            <h2 className="text-2xl font-bold mb-2 text-red-800">Error</h2>
-            <p className="text-red-700">{error}</p>
-          </div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         ) : !isAdmin ? (
-          <div className="bg-muted/50 p-8 rounded-xl text-center">
-            <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
-            <p>Only administrators can view and manage users.</p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Access Denied</CardTitle>
+              <CardDescription>
+                Only administrators can view and manage users.
+              </CardDescription>
+            </CardHeader>
+          </Card>
         ) : (
           <>
             {formSuccess && (
-              <div className="bg-green-50 p-4 rounded-xl mb-4">
-                <p className="text-green-700">{formSuccess}</p>
-              </div>
+              <Alert variant="success" className="mb-4">
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>{formSuccess}</AlertDescription>
+              </Alert>
             )}
             
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold">User Management</h1>
-              <button 
-                className="bg-primary text-white px-4 py-2 rounded-md"
+              <Button 
                 onClick={() => {
-                  setShowAddUserForm(true);
-                  setShowChangePasswordForm(false);
+                  setAddUserDialogOpen(true);
                   setFormError(null);
                   setFormSuccess(null);
                 }}
               >
+                <Plus className="mr-2 h-4 w-4" />
                 Add New User
-              </button>
+              </Button>
             </div>
             
-            {/* Add User Form */}
-            {showAddUserForm && (
-              <div className="bg-white rounded-xl shadow overflow-hidden mb-4">
-                <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-xl font-bold">Add New User</h2>
-                  <button 
-                    className="text-gray-500"
-                    onClick={() => setShowAddUserForm(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="p-6">
-                  {formError && (
-                    <div className="bg-red-50 p-4 rounded-xl mb-4">
-                      <p className="text-red-700">{formError}</p>
+            {/* Add User Dialog */}
+            <Dialog open={addUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add New User</DialogTitle>
+                  <DialogDescription>
+                    Create a new user account with the required information.
+                  </DialogDescription>
+                </DialogHeader>
+                {formError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{formError}</AlertDescription>
+                  </Alert>
+                )}
+                <form onSubmit={handleAddUser}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="name" className="text-right text-sm font-medium">
+                        Name
+                      </label>
+                      <Input
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="col-span-3"
+                        required
+                      />
                     </div>
-                  )}
-                  <form onSubmit={handleAddUser}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input
-                          type="email"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                      </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="email" className="text-right text-sm font-medium">
+                        Email
+                      </label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="col-span-3"
+                        required
+                      />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input
-                          type="password"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          minLength={6}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                        <select
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={role}
-                          onChange={(e) => setRole(e.target.value as UserRole)}
-                          required
-                        >
-                          <option value="user">User</option>
-                          <option value="editor">Editor</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="password" className="text-right text-sm font-medium">
+                        Password
+                      </label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="col-span-3"
+                        required
+                        minLength={6}
+                      />
                     </div>
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        className="px-4 py-2 border border-gray-300 rounded-md mr-2"
-                        onClick={() => setShowAddUserForm(false)}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="role" className="text-right text-sm font-medium">
+                        Role
+                      </label>
+                      <Select
+                        value={role}
+                        onValueChange={(value) => setRole(value as UserRole)}
                       >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-primary text-white rounded-md"
-                      >
-                        Add User
-                      </button>
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="editor">Editor</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </form>
-                </div>
-              </div>
-            )}
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        'Add User'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
             
-            {/* Change Password Form */}
-            {showChangePasswordForm && selectedUser && (
-              <div className="bg-white rounded-xl shadow overflow-hidden mb-4">
-                <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                  <h2 className="text-xl font-bold">Change Password for {selectedUser.name}</h2>
-                  <button 
-                    className="text-gray-500"
-                    onClick={() => {
-                      setShowChangePasswordForm(false);
-                      setSelectedUser(null);
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div className="p-6">
-                  {formError && (
-                    <div className="bg-red-50 p-4 rounded-xl mb-4">
-                      <p className="text-red-700">{formError}</p>
+            {/* Change Password Dialog */}
+            <Dialog open={changePasswordDialogOpen} onOpenChange={setChangePasswordDialogOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>
+                    Change Password for {selectedUser?.name}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Update the password for this user account.
+                  </DialogDescription>
+                </DialogHeader>
+                {formError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{formError}</AlertDescription>
+                  </Alert>
+                )}
+                <form onSubmit={handleChangePassword}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="new-password" className="text-right text-sm font-medium">
+                        New Password
+                      </label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="col-span-3"
+                        required
+                        minLength={6}
+                      />
                     </div>
-                  )}
-                  <form onSubmit={handleChangePassword}>
-                    <div className="grid grid-cols-1 gap-4 mb-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                        <input
-                          type="password"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          required
-                          minLength={6}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                        <input
-                          type="password"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          required
-                          minLength={6}
-                        />
-                      </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="confirm-password" className="text-right text-sm font-medium">
+                        Confirm
+                      </label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="col-span-3"
+                        required
+                        minLength={6}
+                      />
                     </div>
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        className="px-4 py-2 border border-gray-300 rounded-md mr-2"
-                        onClick={() => {
-                          setShowChangePasswordForm(false);
-                          setSelectedUser(null);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-primary text-white rounded-md"
-                      >
-                        Change Password
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Updating...
+                        </>
+                      ) : (
+                        'Update Password'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
             
             {/* Users Table */}
-            <div className="bg-white rounded-xl shadow overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
-                    <tr key={user.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                            {user.name.charAt(0).toUpperCase()}
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium">{user.name}</span>
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          user.role === 'admin' ? 'bg-red-100 text-red-800' : 
-                          user.role === 'editor' ? 'bg-green-100 text-green-800' :
-                          'bg-blue-100 text-blue-800'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                        <button 
-                          className="text-indigo-600 hover:text-indigo-900 mr-3"
-                          onClick={() => {
-                            setSelectedUser(user);
-                            setShowChangePasswordForm(true);
-                            setShowAddUserForm(false);
-                            setFormError(null);
-                            setFormSuccess(null);
-                          }}
-                        >
-                          Change Password
-                        </button>
-                        <button 
-                          className="text-red-600 hover:text-red-900"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  
-                  {users.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
-                        No users found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-        </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                        <TableCell>
+                          <Badge className={getRoleBadgeStyles(user.role as UserRole)}>
+                            {user.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(user.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setChangePasswordDialogOpen(true);
+                              setFormError(null);
+                              setFormSuccess(null);
+                            }}
+                            className="mr-1"
+                          >
+                            <Lock className="h-4 w-4 mr-1" />
+                            Password
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    
+                    {users.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                          No users found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </>
         )}
       </div>
