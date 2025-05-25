@@ -1,5 +1,4 @@
 "use client"
-import Layout from "@/components/layout/Layout"
 import privacyData from "@/data/privacy.json"
 
 export default function PagePrivacyPolicy() {
@@ -7,8 +6,7 @@ export default function PagePrivacyPolicy() {
 
 	return (
 		<>
-			<Layout headerStyle={1} footerStyle={1}>
-				<section className="section-privacy-policy section-padding">
+			<section className="section-privacy-policy section-padding">
 					<div className="container">
 						<div className="text-center">
 							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
@@ -27,7 +25,6 @@ export default function PagePrivacyPolicy() {
 						</div>
 					</div>
 				</section>
-			</Layout>
 		</>
 	)
 }

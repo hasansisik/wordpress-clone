@@ -38,11 +38,13 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 import { uploadImageToCloudinary } from "@/utils/cloudinary";
+import { useThemeConfig } from "@/lib/store/themeConfig";
 
 export default function SiteSettingsPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [faviconUploading, setFaviconUploading] = useState(false);
+  const { headerStyle, footerStyle, setHeaderStyle, setFooterStyle } = useThemeConfig();
 
   // Site settings state
   const [siteSettings, setSiteSettings] = useState({
@@ -157,6 +159,18 @@ export default function SiteSettingsPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleThemeStyleChange = (type: 'headerStyle' | 'footerStyle', value: number) => {
+    if (type === 'headerStyle') {
+      setHeaderStyle(value);
+    } else {
+      setFooterStyle(value);
+    }
+    
+    toast.success(`${type === 'headerStyle' ? 'Header' : 'Footer'} style updated`, {
+      description: `Global style changed to option ${value}`
+    });
   };
 
   return (
@@ -442,6 +456,38 @@ export default function SiteSettingsPage() {
                       <div className="h-8 w-24 rounded-md" style={{ backgroundColor: siteSettings.darkSecondaryColor }}></div>
                       <div className="h-4 w-16 rounded-md" style={{ backgroundColor: siteSettings.darkAccentColor }}></div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="headerStyle">Default Header Style</Label>
+                    <select 
+                      id="headerStyle"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      value={headerStyle}
+                      onChange={(e) => handleThemeStyleChange('headerStyle', parseInt(e.target.value))}
+                    >
+                      {[1, 2, 3, 4, 5].map(num => (
+                        <option key={`header-${num}`} value={num}>Header Style {num}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-muted-foreground">This will be the default header style for all pages.</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="footerStyle">Default Footer Style</Label>
+                    <select 
+                      id="footerStyle"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      value={footerStyle}
+                      onChange={(e) => handleThemeStyleChange('footerStyle', parseInt(e.target.value))}
+                    >
+                      {[1, 2, 3, 4].map(num => (
+                        <option key={`footer-${num}`} value={num}>Footer Style {num}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-muted-foreground">This will be the default footer style for all pages.</p>
                   </div>
                 </div>
               </TabsContent>

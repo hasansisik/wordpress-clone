@@ -1,4 +1,3 @@
-
 'use client'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -14,16 +13,24 @@ import Header2 from './header/Header2'
 import Header3 from './header/Header3'
 import Header4 from './header/Header4'
 import Header5 from './header/Header5'
+import { useThemeConfig } from '@/lib/store/themeConfig'
 
 interface LayoutProps {
 	headerStyle?: Number
 	footerStyle?: Number
 	children?: React.ReactNode
 	breadcrumbTitle?: string
+	useGlobalTheme?: boolean
 }
 
 
-export default function Layout({ headerStyle, footerStyle, breadcrumbTitle, children }: LayoutProps) {
+export default function Layout({ headerStyle: propHeaderStyle, footerStyle: propFooterStyle, breadcrumbTitle, children, useGlobalTheme = true }: LayoutProps) {
+	const { headerStyle: globalHeaderStyle, footerStyle: globalFooterStyle } = useThemeConfig()
+	
+	// Use prop values if provided, otherwise use global theme settings
+	const headerStyle = useGlobalTheme ? globalHeaderStyle : propHeaderStyle
+	const footerStyle = useGlobalTheme ? globalFooterStyle : propFooterStyle
+
 	const [scroll, setScroll] = useState<boolean>(false)
 	// Mobile Menu
 	const [isMobileMenu, setMobileMenu] = useState<boolean>(false)

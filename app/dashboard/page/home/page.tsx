@@ -63,6 +63,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useThemeConfig } from '@/lib/store/themeConfig';
 
 // Define Section Type
 interface Section {
@@ -252,6 +253,7 @@ function SortableSectionItem({ id, section, handleRemove }: { id: string, sectio
 
 export default function HomePageEditor() {
   const router = useRouter();
+  const { setHeaderStyle, setFooterStyle } = useThemeConfig();
   const [pageData, setPageData] = useState<any>({
     sections: [],
     headerStyle: 1,
@@ -288,7 +290,13 @@ export default function HomePageEditor() {
         
         if (response.ok) {
           const data = await response.json();
+          
+          // Update pageData with the fetched data
           setPageData(data);
+          
+          // Also update the global theme config
+          setHeaderStyle(data.headerStyle || 1);
+          setFooterStyle(data.footerStyle || 1);
         }
       } catch (error) {
         console.error('Error fetching homepage data:', error);
@@ -304,7 +312,7 @@ export default function HomePageEditor() {
     };
 
     fetchData();
-  }, []);
+  }, [setHeaderStyle, setFooterStyle]);
 
   // Add a section to the page
   const addSection = (sectionType: string) => {
@@ -378,8 +386,15 @@ export default function HomePageEditor() {
       [type]: value
     });
     
+    // Update global theme config
+    if (type === 'headerStyle') {
+      setHeaderStyle(value);
+    } else if (type === 'footerStyle') {
+      setFooterStyle(value);
+    }
+    
     toast.success(`${type === 'headerStyle' ? 'Header' : 'Footer'} style updated`, {
-      description: `Style changed to option ${value}`
+      description: `Style changed to option ${value} (applied globally)`
     });
     
     setIsSaved(false);
@@ -389,6 +404,11 @@ export default function HomePageEditor() {
   const savePageData = async () => {
     try {
       setIsLoading(true);
+      
+      // Update global theme config before saving
+      setHeaderStyle(pageData.headerStyle);
+      setFooterStyle(pageData.footerStyle);
+      
       const response = await fetch('/api/homepage', {
         method: 'POST',
         headers: {
@@ -400,7 +420,7 @@ export default function HomePageEditor() {
       if (response.ok) {
         setIsSaved(true);
         toast.success("Page saved successfully", {
-          description: "Your changes have been applied to the live site"
+          description: "Your changes have been applied to the live site and global theme settings"
         });
       } else {
         toast.error("Error saving page", {
@@ -580,7 +600,12 @@ ${sectionsJSX}
                 <h3 className="text-sm font-medium mb-2">Layout Options</h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-xs font-medium text-foreground/80 mb-1">Header Style</label>
+                    <label className="block text-xs font-medium text-foreground/80 mb-1">
+                      Header Style
+                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5">
+                        Global
+                      </span>
+                    </label>
                     <select 
                       className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       value={pageData.headerStyle}
@@ -590,9 +615,15 @@ ${sectionsJSX}
                         <option key={`header-${num}`} value={num}>Header Style {num}</option>
                       ))}
                     </select>
+                    <p className="text-[10px] text-muted-foreground mt-1">This setting applies globally to all pages</p>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-foreground/80 mb-1">Footer Style</label>
+                    <label className="block text-xs font-medium text-foreground/80 mb-1">
+                      Footer Style
+                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5">
+                        Global
+                      </span>
+                    </label>
                     <select 
                       className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       value={pageData.footerStyle}
@@ -602,6 +633,7 @@ ${sectionsJSX}
                         <option key={`footer-${num}`} value={num}>Footer Style {num}</option>
                       ))}
                     </select>
+                    <p className="text-[10px] text-muted-foreground mt-1">This setting applies globally to all pages</p>
                   </div>
                 </div>
               </div>

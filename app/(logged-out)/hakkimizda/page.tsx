@@ -1,4 +1,3 @@
-import Layout from "@/components/layout/Layout"
 import Contact1 from "@/components/sections/Contact1"
 import Cta1 from "@/components/sections/Cta1"
 import Link from "next/link"
@@ -12,9 +11,7 @@ export default function PageAbout3() {
 	return (
 		<>
 
-			<Layout >
-
-				{/*CTA 15*/}
+			{/*CTA 15*/}
 				<Cta1 />
 				{/* feature-12 */}
 				<section className="section-feature-12 border-bottom pb-120 pt-110">
@@ -205,8 +202,6 @@ export default function PageAbout3() {
 						</div>
 					</div>
 				</section>
-
-			</Layout>
 		</>
 	)
 }

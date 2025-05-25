@@ -1,14 +1,11 @@
 
-import Layout from "@/components/layout/Layout"
 import Link from "next/link"
 export default function PageLogin() {
 
 	return (
 		<>
 
-			<Layout >
-
-				{/* Section Login */}
+			{/* Section Login */}
 				<section className="position-relative border-bottom">
 					<div className="container">
 						<div className="row pt-7 pb-120">
@@ -148,8 +145,6 @@ export default function PageLogin() {
 						</div>
 					</div>
 				</section>
-
-			</Layout>
 		</>
 	)
 }

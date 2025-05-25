@@ -13,6 +13,7 @@ import "@/node_modules/react-modal-video/css/modal-video.css"
 
 import type { Metadata } from "next"
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo"
+import Layout from "@/components/layout/Layout"
 
 export const metadata: Metadata = generateSeoMetadata("general")
 
@@ -21,5 +22,9 @@ export default function LogoutLayout({
   }: {
     children: React.ReactNode;
   }) {
-    return <>{children}</>;
+    return (
+      <Layout useGlobalTheme={true}>
+        {children}
+      </Layout>
+    );
   }

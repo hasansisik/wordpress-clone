@@ -7,38 +7,38 @@
   "links": {
     "freeTrialLink": {
       "href": "#",
-      "text": "Join For Free"
+      "text": "Join For Free Trial"
     }
   },
   "mainMenu": [
     {
       "_id": "1",
-      "name": "Anasayy",
+      "name": "Anasayfa",
       "link": "/",
       "order": 0
     },
     {
-      "_id": "2",
-      "name": "About",
-      "link": "/about",
-      "order": 1
-    },
-    {
       "_id": "3",
-      "name": "Services",
-      "link": "/services",
-      "order": 2
+      "name": "Hizmetler",
+      "link": "/hizmetler",
+      "order": 1
     },
     {
       "_id": "4",
       "name": "Blog",
       "link": "/blog",
-      "order": 3
+      "order": 2
     },
     {
       "_id": "5",
-      "name": "Contact",
-      "link": "/contact",
+      "name": "İletişim",
+      "link": "/iletisim",
+      "order": 3
+    },
+    {
+      "_id": "2",
+      "name": "Hakkımızda",
+      "link": "/hakkimizda",
       "order": 4
     }
   ],

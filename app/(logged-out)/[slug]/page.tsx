@@ -1,6 +1,5 @@
 import { Metadata } from "next"
 import { getSeoData } from "@/lib/seo"
-import Layout from "@/components/layout/Layout"
 import { notFound } from "next/navigation"
 import fs from 'fs';
 import path from 'path';
@@ -179,8 +178,7 @@ export default async function SlugPage({ params }: Props) {
   const content = blogPost || project;
   
   return (
-    <Layout>
-      {contentType === 'blog' && blogPost && (
+    {contentType === 'blog' && blogPost && (
         <section>
           <img 
             className="w-100"
@@ -310,6 +308,5 @@ export default async function SlugPage({ params }: Props) {
           </div>
         </div>
       )}
-    </Layout>
   );
 }
