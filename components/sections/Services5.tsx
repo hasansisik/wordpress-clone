@@ -1,10 +1,23 @@
 'use client'
 import { useEffect, useRef, useState, useCallback } from 'react';
 import projectsData from '@/data/projects.json';
+import Link from 'next/link';
 
 interface Services5Props {
 	previewData?: any;
 }
+
+// Function to convert title to slug
+const slugify = (text: string) => {
+	return text
+		.toString()
+		.toLowerCase()
+		.replace(/\s+/g, '-')        // Replace spaces with -
+		.replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+		.replace(/\-\-+/g, '-')      // Replace multiple - with single -
+		.replace(/^-+/, '')          // Trim - from start of text
+		.replace(/-+$/, '');         // Trim - from end of text
+};
 
 export default function Services5({ previewData }: Services5Props) {
 	const isotope = useRef<any>(null);
@@ -105,7 +118,7 @@ export default function Services5({ previewData }: Services5Props) {
 											style={{ objectFit: 'cover', objectPosition: 'center' }}
 										/>
 									</div>
-									<a href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
+									<Link href={`/${slugify(project.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
 										<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
 											<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
 											<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
@@ -116,7 +129,8 @@ export default function Services5({ previewData }: Services5Props) {
 										</span>
 										<h5 className="text-700">{project.title}</h5>
 										<p className="fs-7 mb-0">{project.description}</p>
-									</a>
+									</Link>
+									<Link href={`/${slugify(project.title)}`} className="position-absolute w-100 h-100 top-0 start-0" aria-label={project.title} />
 								</div>
 							</div>
 						))}

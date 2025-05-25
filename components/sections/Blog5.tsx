@@ -8,6 +8,18 @@ interface Blog5Props {
 	previewData?: any;
 }
 
+// Function to convert title to slug
+const slugify = (text: string) => {
+	return text
+		.toString()
+		.toLowerCase()
+		.replace(/\s+/g, '-')        // Replace spaces with -
+		.replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+		.replace(/\-\-+/g, '-')      // Replace multiple - with single -
+		.replace(/^-+/, '')          // Trim - from start of text
+		.replace(/-+$/, '');         // Trim - from end of text
+};
+
 export default function Blog5({ previewData }: Blog5Props = {}) {
 	const [data, setData] = useState<any>(null)
 	const [posts, setPosts] = useState<any[]>([])
@@ -50,13 +62,13 @@ export default function Blog5({ previewData }: Blog5Props = {}) {
 								<div className="card border-0 rounded-3 mt-4 position-relative d-inline-flex">
 									<img className="rounded-top-3" src={post.image} alt="blog post" />
 									<div className="card-body bg-white p-0">
-										<Link href={post.link} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
+										<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
 											<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category}</span>
 										</Link>
 										<h6 className="my-3">{post.title}</h6>
 										<p>{post.description}</p>
 									</div>
-									<Link href={post.link} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" />
+									<Link href={`/${slugify(post.title)}`} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" />
 								</div>
 							</div>
 						))}

@@ -8,6 +8,18 @@ interface Project2Props {
 	previewData?: any;
 }
 
+// Function to convert title to slug
+const slugify = (text: string) => {
+	return text
+		.toString()
+		.toLowerCase()
+		.replace(/\s+/g, '-')        // Replace spaces with -
+		.replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+		.replace(/\-\-+/g, '-')      // Replace multiple - with single -
+		.replace(/^-+/, '')          // Trim - from start of text
+		.replace(/-+$/, '');         // Trim - from end of text
+};
+
 export default function Project2({ previewData }: Project2Props) {
 	const editorData = previewData?.project2 || {};
 
@@ -109,12 +121,12 @@ export default function Project2({ previewData }: Project2Props) {
 														style={{ objectFit: 'cover', objectPosition: 'center' }}
 													/>
 												</div>
-												<Link href="#" className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
+												<Link href={`/${slugify(project.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
 													<p className="fs-7 text-primary mb-1">{project.company}</p>
 													<h6>{project.subtitle}</h6>
 													<p className="text-900">{project.fullDescription}</p>
 												</Link>
-												<Link href="#" className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag}</Link>
+												<Link href={`/${slugify(project.title)}`} className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag}</Link>
 											</div>
 										</div>
 									</SwiperSlide>

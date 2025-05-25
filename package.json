@@ -45,6 +45,7 @@
     "bootstrap": "^5.3.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "fs": "^0.0.1-security",
     "html-react-parser": "^5.2.5",
     "isotope-layout": "^3.0.6",
     "lucide-react": "^0.511.0",
