@@ -1,7 +1,9 @@
-import { notFound } from 'next/navigation';
+import { Metadata } from "next"
+import { getSeoData } from "@/lib/seo"
+import Layout from "@/components/layout/Layout"
+import { notFound } from "next/navigation"
 import fs from 'fs';
 import path from 'path';
-import Layout from '@/components/layout/Layout';
 import Link from 'next/link';
 import parse from 'html-react-parser';
 
@@ -50,12 +52,6 @@ interface Project {
   };
 }
 
-interface Props {
-  params: {
-    slug: string;
-  };
-}
-
 // Helper function to read JSON data
 function readJsonData(filePath: string) {
   const fullPath = path.join(process.cwd(), filePath);
@@ -75,8 +71,82 @@ const slugify = (text: string) => {
     .replace(/-+$/, '');         // Trim - from end of text
 };
 
+type Props = {
+  params: { slug: string }
+}
+
+// Generate dynamic metadata for each page
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // Ensure params is properly awaited by using Promise.resolve
+  const resolvedParams = await Promise.resolve(params);
+  const { slug } = resolvedParams;
+  
+  try {
+    // Try to find in blog data
+    let blogData: BlogPost[] = [];
+    try {
+      blogData = readJsonData('data/blog.json');
+    } catch (error) {
+      console.error('Failed to load blog data:', error);
+    }
+    
+    // Try to find in project data
+    let projectData: Project[] = [];
+    try {
+      const projectsJson = readJsonData('data/projects.json');
+      projectData = projectsJson.projects;
+    } catch (error) {
+      console.error('Failed to load project data:', error);
+    }
+    
+    // Find the content by slugified title in either data set
+    const blogPost = blogData.find(post => slugify(post.title) === slug);
+    const project = projectData.find(proj => slugify(proj.title) === slug);
+    
+    // If we have a blog post
+    if (blogPost) {
+      return {
+        title: `${blogPost.title} | WordPress Clone Blog`,
+        description: blogPost.description,
+        keywords: blogPost.category.join(', '),
+        openGraph: {
+          title: blogPost.title,
+          description: blogPost.description,
+          images: [blogPost.image],
+          type: 'article',
+        },
+      };
+    }
+    
+    // If we have a project
+    if (project) {
+      return {
+        title: `${project.title} | WordPress Clone Projects`,
+        description: project.description,
+        keywords: project.categories.join(', '),
+        openGraph: {
+          title: project.title,
+          description: project.description,
+          images: [project.image],
+          type: 'article',
+        },
+      };
+    }
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+  }
+  
+  // Default metadata if not found
+  return {
+    title: "Content Not Found | WordPress Clone",
+    description: "The requested content could not be found.",
+  };
+}
+
 export default async function SlugPage({ params }: Props) {
-  const { slug } = await params;
+  // Ensure params is properly awaited by using Promise.resolve
+  const resolvedParams = await Promise.resolve(params);
+  const { slug } = resolvedParams;
   
   // Try to find in blog data
   let blogData: BlogPost[] = [];
@@ -226,14 +296,16 @@ export default async function SlugPage({ params }: Props) {
             
             {/* Main image */}
             <img 
-              src={project.content.mainImage} 
+              src={project.content?.mainImage} 
               alt={project.title} 
               className="w-full h-auto rounded-lg mb-8" 
             />
             
             {/* Content */}
             <div className="prose max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: project.content.fullContent || '' }} />
+              {project.content?.fullContent && (
+                <div dangerouslySetInnerHTML={{ __html: project.content.fullContent }} />
+              )}
             </div>
           </div>
         </div>

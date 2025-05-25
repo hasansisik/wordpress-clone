@@ -1,8 +1,12 @@
-
 import Layout from "@/components/layout/Layout"
 import Contact1 from "@/components/sections/Contact1"
 import Cta1 from "@/components/sections/Cta1"
 import Link from "next/link"
+import { Metadata } from "next"
+import { generateMetadata as generateSeoMetadata } from "@/lib/seo"
+
+export const metadata: Metadata = generateSeoMetadata("about")
+
 export default function PageAbout3() {
 
 	return (
