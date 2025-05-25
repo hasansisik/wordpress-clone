@@ -75,8 +75,8 @@ const slugify = (text: string) => {
     .replace(/-+$/, '');         // Trim - from end of text
 };
 
-export default function SlugPage({ params }: Props) {
-  const { slug } = params;
+export default async function SlugPage({ params }: Props) {
+  const { slug } = await params;
   
   // Try to find in blog data
   let blogData: BlogPost[] = [];
