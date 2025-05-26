@@ -3,19 +3,35 @@ import Link from "next/link"
 import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { getAllBlogs } from "@/redux/actions/blogActions"
+import { AppDispatch, RootState } from "@/redux/store"
 import otherData from "@/data/other.json"
-import blogData from "@/data/blog.json"
 
 interface Blog2Props {
 	previewData?: any;
 }
 
+// Function to convert title to slug
+const slugify = (text: string) => {
+	return text
+		.toString()
+		.toLowerCase()
+		.replace(/\s+/g, '-')        // Replace spaces with -
+		.replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+		.replace(/\-\-+/g, '-')      // Replace multiple - with single -
+		.replace(/^-+/, '')          // Trim - from start of text
+		.replace(/-+$/, '');         // Trim - from end of text
+};
+
 export default function Blog2({ previewData }: Blog2Props = {}) {
+	const dispatch = useDispatch<AppDispatch>();
+	const { blogs, loading } = useSelector((state: RootState) => state.blog);
+	
 	const [data, setData] = useState<any>(null)
 	const [posts, setPosts] = useState<any[]>([])
 
 	useEffect(() => {
-		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.blog2) {
 			setData(previewData.blog2);
@@ -24,13 +40,24 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 		} else {
 			console.error("No blog data available in Blog2 component");
 		}
-
-		// Set posts from blog.json
-		setPosts(blogData.slice(2, 5));
 	}, [previewData])
+
+	// Fetch blogs from Redux
+	useEffect(() => {
+		if (blogs.length === 0) {
+			dispatch(getAllBlogs());
+		} else {
+			// Use slice to get only the posts we need (similar to the previous slice(2, 5))
+			setPosts(blogs.slice(2, 5));
+		}
+	}, [blogs, dispatch]);
 
 	if (!data) {
 		return <section>Loading Blog2...</section>
+	}
+
+	if (loading) {
+		return <section>Loading Blogs...</section>
 	}
 
 	return (
@@ -63,13 +90,13 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 											<div className="card border-0 rounded-3 position-relative d-inline-flex card-hover">
 												<img className="rounded-top-3" src={post.image} alt="blog post" />
 												<div className="card-body">
-													<Link href={post.link} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
-														<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category}</span>
+													<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
+														<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{Array.isArray(post.category) ? post.category[0] : post.category}</span>
 													</Link>
 													<h6 className="my-3">{post.title}</h6>
 													<p>{post.description}</p>
 												</div>
-												<Link href={post.link} className="position-absolute bottom-0 start-0 end-0 top-0" />
+												<Link href={`/${slugify(post.title)}`} className="position-absolute bottom-0 start-0 end-0 top-0" />
 											</div>
 										</div>
 									))}
