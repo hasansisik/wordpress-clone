@@ -71,7 +71,7 @@ export function NavUser() {
           setUser({
             name: 'Guest User',
             email: 'guest@example.com',
-            role: 'guest'
+            role: 'editor'
           });
         }
       } catch (error) {

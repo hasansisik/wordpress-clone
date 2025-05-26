@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 
 export default function PageLogin() {
 	const router = useRouter();
@@ -9,9 +9,14 @@ export default function PageLogin() {
 	const redirect = searchParams.get('redirect') || '/dashboard';
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [loginSuccess, setLoginSuccess] = useState(false);
 
 	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		
+		// If already logged in, don't submit again
+		if (loginSuccess) return;
+		
 		setError(null);
 		setLoading(true);
 
@@ -37,8 +42,9 @@ export default function PageLogin() {
 				return;
 			}
 
-			// Success! Redirect to dashboard
-			router.push(redirect);
+			// Mark login as successful but don't redirect yet
+			setLoginSuccess(true);
+			setLoading(false);
 		} catch (err) {
 			setError('An error occurred during login');
 			console.error(err);
@@ -65,8 +71,14 @@ export default function PageLogin() {
 									{error}
 								</div>
 							)}
+							
+							{loginSuccess && (
+								<div className="alert alert-success" role="alert">
+									Login successful! Click the button below to go to dashboard.
+								</div>
+							)}
 
-							<form onSubmit={handleSubmit}>
+							<form onSubmit={handleSubmit} id="loginForm">
 								<div className="col text-start">
 									<label htmlFor="email" className="form-label mt-2 text-900">Email *</label>
 									<div className="input-group d-flex align-items-center">
@@ -84,6 +96,7 @@ export default function PageLogin() {
 											id="email" 
 											aria-label="email" 
 											required 
+											disabled={loginSuccess}
 										/>
 									</div>
 								</div>
@@ -106,33 +119,53 @@ export default function PageLogin() {
 											id="password" 
 											aria-label="password" 
 											required 
+											disabled={loginSuccess}
 										/>
 									</div>
 								</div>
 								<div className="col-12 mt-2 d-flex justify-content-end">
 									<div className="form-check text-start">
-										<input className="form-check-input" type="checkbox" id="remember" name="remember" />
+										<input className="form-check-input" type="checkbox" id="remember" name="remember" disabled={loginSuccess} />
 										<label className="form-check-label text-500 fs-7" htmlFor="remember"> Remember me </label>
 									</div>
 								</div>
 								<div className="col-12 mt-5">
-									<button 
-										type="submit" 
-										className="btn btn-primary w-100" 
-										disabled={loading}
-									>
-										{loading ? 'Logging in...' : 'Login'}
-										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={25} height={24} viewBox="0 0 25 24" fill="none">
-											<g clipPath="url(#clip0_741_28206)">
-												<path d="M21.6059 12.256H1V11.744H21.6059H22.813L21.9594 10.8905L17.5558 6.4868L17.9177 6.12484L23.7929 12L17.9177 17.8751L17.5558 17.5132L21.9594 13.1095L22.813 12.256H21.6059Z" stroke="white" />
-											</g>
-											<defs>
-												<clipPath>
-													<rect width={24} height={24} fill="white" transform="translate(0.5)" />
-												</clipPath>
-											</defs>
-										</svg>
-									</button>
+									{!loginSuccess ? (
+										<button 
+											type="submit" 
+											className="btn btn-primary w-100 d-flex align-items-center justify-content-center" 
+											disabled={loading}
+										>
+											{loading ? 'Logging in...' : 'Login'}
+											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={25} height={24} viewBox="0 0 25 24" fill="none">
+												<g clipPath="url(#clip0_741_28206)">
+													<path d="M21.6059 12.256H1V11.744H21.6059H22.813L21.9594 10.8905L17.5558 6.4868L17.9177 6.12484L23.7929 12L17.9177 17.8751L17.5558 17.5132L21.9594 13.1095L22.813 12.256H21.6059Z" stroke="white" />
+												</g>
+												<defs>
+													<clipPath>
+														<rect width={24} height={24} fill="white" transform="translate(0.5)" />
+													</clipPath>
+												</defs>
+											</svg>
+										</button>
+									) : (
+										<a 
+											href="/dashboard"
+											className="btn btn-primary w-100 d-flex align-items-center justify-content-center text-white text-decoration-none"
+										>
+											Go to Dashboard
+											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={25} height={24} viewBox="0 0 25 24" fill="none">
+												<g clipPath="url(#clip0_741_28206)">
+													<path d="M21.6059 12.256H1V11.744H21.6059H22.813L21.9594 10.8905L17.5558 6.4868L17.9177 6.12484L23.7929 12L17.9177 17.8751L17.5558 17.5132L21.9594 13.1095L22.813 12.256H21.6059Z" stroke="white" />
+												</g>
+												<defs>
+													<clipPath>
+														<rect width={24} height={24} fill="white" transform="translate(0.5)" />
+													</clipPath>
+												</defs>
+											</svg>
+										</a>
+									)}
 								</div>
 							</form>
 						</div>

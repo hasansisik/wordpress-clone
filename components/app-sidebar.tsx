@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useState, useEffect } from "react"
 import {
   BookOpen,
   Bot,
@@ -24,6 +25,7 @@ import {
   Search,
   Globe,
   FileCode,
+  Loader2,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -39,6 +41,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { UserRole } from "@/lib/types"
 
 const data = {
   user: {
@@ -52,6 +55,7 @@ const data = {
       url: "#",
       icon: Layout,
       isActive: true,
+      roles: ["admin"],
       items: [
         {
           title: "Header",
@@ -91,6 +95,7 @@ const data = {
       title: "Page Builder",
       url: "#",
       icon: FileCode,
+      roles: ["admin"],
       items: [
         {
           title: "Home Page",
@@ -111,6 +116,7 @@ const data = {
       title: "Users",
       url: "#",
       icon: Users,
+      roles: ["admin"],
       items: [
         {
           title: "Users",
@@ -122,6 +128,7 @@ const data = {
       title: "Editor",
       url: "#",
       icon: FilePenLine,
+      roles: ["admin", "editor"],
       items: [
         {
           title: "Blog",
@@ -137,6 +144,7 @@ const data = {
       title: "Settings",
       url: "#",
       icon: Settings2,
+      roles: ["admin"],
       items: [
         {
           title: "General",
@@ -154,16 +162,55 @@ const data = {
       title: "Blog",
       url: "/dashboard/blog",
       icon: MessageSquare,
+      roles: ["admin", "editor"],
     },
     {
       title: "Project",
       url: "/dashboard/project",
       icon: FolderGit2,
+      roles: ["admin", "editor"],
     },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUserRole() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/me');
+        
+        if (response.ok) {
+          const data = await response.json();
+          setUserRole(data.user.role);
+        } else {
+          // Default to editor if not authenticated
+          setUserRole('editor');
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole('editor'); // Fallback to editor on error
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchUserRole();
+  }, []);
+
+  // Filter navMain items based on user role
+  const filteredNavMain = data.navMain.filter(item => 
+    item.roles && item.roles.includes(userRole as string)
+  );
+  
+  // Filter navSecondary items based on user role
+  const filteredNavSecondary = data.navSecondary.filter(item => 
+    item.roles && item.roles.includes(userRole as string)
+  );
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -176,7 +223,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">Birim Ajans</span>
-                  <span className="truncate text-xs">Admin</span>
+                  <span className="truncate text-xs capitalize">{userRole || 'Loading...'}</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -184,11 +231,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {isLoading ? (
+          <div className="flex justify-center items-center p-4">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : (
+          <>
+            <NavMain items={filteredNavMain} />
+            <NavSecondary items={filteredNavSecondary} className="mt-auto" />
+          </>
+        )}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
