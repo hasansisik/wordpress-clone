@@ -11,14 +11,11 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 	const [data, setData] = useState<any>(null)
 
 	useEffect(() => {
-		console.log("Contact1 previewData:", previewData);
 		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.contact1) {
-			console.log("Setting from previewData", previewData.contact1);
 			setData(previewData.contact1);
 		} else if (otherData.contact1) {
-			console.log("Setting from local otherData", otherData.contact1);
 			setData(otherData.contact1);
 		} else {
 			console.error("No contact data available in Contact1 component");

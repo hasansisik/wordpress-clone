@@ -13,14 +13,11 @@ export default function Cta9({ previewData }: Cta9Props = {}) {
 	const [data, setData] = useState<any>(null)
 
 	useEffect(() => {
-		console.log("Cta9 previewData:", previewData);
 		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.cta9) {
-			console.log("Setting from previewData", previewData.cta9);
 			setData(previewData.cta9);
 		} else if (ctaData.cta9) {
-			console.log("Setting from local ctaData", ctaData.cta9);
 			setData(ctaData.cta9);
 		} else {
 			console.error("No CTA data available in Cta9 component");

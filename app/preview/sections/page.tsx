@@ -12,7 +12,6 @@ import Team2 from "@/components/sections/Team2";
 import Pricing1 from "@/components/sections/Pricing1";
 import Pricing2 from "@/components/sections/Pricing2";
 import Cta1 from "@/components/sections/Cta1";
-import Cta2 from "@/components/sections/Cta2";
 
 export default function SectionPreview() {
   // Render the appropriate section component based on section type
@@ -20,7 +19,6 @@ export default function SectionPreview() {
     // Get active section type from data
     const sectionType = sectionData.activeSection || "hero1";
     
-    console.log("Rendering section component:", sectionType);
     
     // Map of available section components
     const sectionComponents: { [key: string]: React.ComponentType<any> } = {
@@ -46,7 +44,6 @@ export default function SectionPreview() {
       
       // CTA sections
       "cta1": Cta1,
-      "cta2": Cta2
     };
     
     // Get the component to render

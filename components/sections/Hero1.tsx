@@ -11,14 +11,11 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 	const [data, setData] = useState<any>(null)
 
 	useEffect(() => {
-		console.log("Hero1 previewData:", previewData);
 		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.hero1) {
-			console.log("Setting from previewData", previewData.hero1);
 			setData(previewData.hero1);
 		} else if (heroData.hero1) {
-			console.log("Setting from local heroData", heroData.hero1);
 			setData(heroData.hero1);
 		} else {
 			console.error("No hero data available in Hero1 component");

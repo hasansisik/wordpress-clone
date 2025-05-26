@@ -4,13 +4,10 @@ import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
   try {
-    console.log('Test login request received');
     const { email, password } = await request.json();
     
-    console.log(`Login attempt for email: ${email}`);
     
     if (!email || !password) {
-      console.log('Missing email or password');
       return NextResponse.json(
         { success: false, message: 'Email and password are required' },
         { status: 400 }
@@ -22,7 +19,6 @@ export async function POST(request: Request) {
     
     // Check if user exists and password matches
     if (!user) {
-      console.log(`User not found for email: ${email}`);
       return NextResponse.json(
         { success: false, message: 'Invalid email or password' },
         { status: 401 }
@@ -30,14 +26,12 @@ export async function POST(request: Request) {
     }
     
     if (user.password !== password) {
-      console.log(`Invalid password for email: ${email}`);
       return NextResponse.json(
         { success: false, message: 'Invalid email or password' },
         { status: 401 }
       );
     }
     
-    console.log(`User authenticated: ${user.name} (${user.email})`);
     
     // Create a session
     const { sessionId, expires } = createSession(user.id);
@@ -55,7 +49,6 @@ export async function POST(request: Request) {
         secure: process.env.NODE_ENV === 'production',
       });
       
-      console.log('Session cookie set successfully');
       
       // Return user data (without password)
       return NextResponse.json({

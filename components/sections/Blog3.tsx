@@ -13,14 +13,11 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
   const [posts, setPosts] = useState<any[]>([])
 
   useEffect(() => {
-    console.log("Blog3 previewData:", previewData);
     
     // If preview data is provided, use it, otherwise load from the file
     if (previewData && previewData.blog3) {
-      console.log("Setting from previewData", previewData.blog3);
       setData(previewData.blog3);
     } else if (otherData.blog3) {
-      console.log("Setting from local otherData", otherData.blog3);
       setData(otherData.blog3);
     } else {
       console.error("No blog data available in Blog3 component");

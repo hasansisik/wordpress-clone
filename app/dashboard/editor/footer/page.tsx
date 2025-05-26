@@ -917,7 +917,6 @@ export default function FooterEditor() {
       
         if (response.ok) {
           const data = await response.json();
-          console.log("Fetched footer data:", data);
           setFooterData(data);
         } else {
           console.error("Error fetching footer data:", await response.text());
@@ -944,7 +943,6 @@ export default function FooterEditor() {
         event.data.type === "PREVIEW_READY" ||
         event.data.type === "PREVIEW_UPDATED"
       ) {
-        console.log("Footer preview is ready:", event.data);
         setUseFallback(false);
       }
     };
@@ -962,7 +960,6 @@ export default function FooterEditor() {
       if (!event.data) return;
       
       if (event.data.type === "PREVIEW_UPDATED") {
-        console.log("Received confirmation from iframe:", event.data);
       }
     };
     
@@ -972,7 +969,6 @@ export default function FooterEditor() {
     let iframeRefreshTimer: any = null;
     
     const refreshIframe = () => {
-      console.log("Checking if iframe needs refresh...");
       const iframe = document.querySelector('iframe');
       if (iframe && iframe.src) {
         // Force reload the iframe if it seems stuck
@@ -983,7 +979,6 @@ export default function FooterEditor() {
         setTimeout(() => {
           if (iframe) {
             iframe.src = currentSrc;
-            console.log("Iframe refreshed");
           }
         }, 100);
       }
@@ -1030,11 +1025,9 @@ export default function FooterEditor() {
 
     try {
       setLogoUploading(true);
-      console.log('Uploading logo file:', file.name);
       
       // Upload to Cloudinary
       const uploadedUrl = await uploadImageToCloudinary(file);
-      console.log('Received uploaded logo URL:', uploadedUrl);
 
       // Update state with new logo URL
       const updatedData = {
@@ -1045,11 +1038,9 @@ export default function FooterEditor() {
         }
       };
       
-      console.log('Setting footerData with new logo URL:', updatedData.logo.src);
       setFooterData(updatedData);
       
       // Immediately save to API to ensure logo changes are persisted
-      console.log('Saving logo changes to API');
       await saveChangesToAPI(updatedData);
 
       showSuccessAlert("Logo uploaded successfully");
@@ -1063,7 +1054,6 @@ export default function FooterEditor() {
   // Update the saveChangesToAPI function to handle columns better
   const saveChangesToAPI = async (data: any) => {
     try {
-      console.log('Saving footer data to API:', data);
       
       // Ensure data has proper structure before sending
       const dataToSave = {
@@ -1119,12 +1109,10 @@ export default function FooterEditor() {
       }
 
       const result = await response.json();
-      console.log('API response:', result);
 
       // Update the iframe with new data
       const iframe = document.querySelector('iframe');
       if (iframe && iframe.contentWindow) {
-        console.log('Sending updated footer data to iframe');
         
         // Send the exact same data structure that was saved to the API
         iframe.contentWindow.postMessage({
@@ -1132,12 +1120,10 @@ export default function FooterEditor() {
           footerData: dataToSave
         }, "*");
         
-        console.log('Sent updated data to iframe');
         
         // Add a retry mechanism in case the first message wasn't received
         setTimeout(() => {
           if (iframe && iframe.contentWindow) {
-            console.log('Sending retry message to iframe');
             iframe.contentWindow.postMessage({
               type: "UPDATE_FOOTER_DATA",
               footerData: dataToSave

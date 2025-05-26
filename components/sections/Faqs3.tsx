@@ -21,13 +21,10 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 	}, [previewData]);
 
 	useEffect(() => {
-		console.log("Faqs3 previewData:", previewData);
 		
 		if (previewData && previewData.faqs3) {
-			console.log("Setting from previewData", previewData.faqs3);
 			setData(previewData.faqs3);
 		} else if (faqData.faqs3) {
-			console.log("Setting from local faqData", faqData.faqs3);
 			setData(faqData.faqs3);
 		} else {
 			console.error("No FAQ data available in Faqs3 component");

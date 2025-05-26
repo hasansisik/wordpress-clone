@@ -156,9 +156,7 @@ export default function FaqPreview() {
             once: true,
             mirror: false
           });
-          
-          console.log("AOS initialized in preview");
-          
+                    
           // Signal to parent that the preview is ready
           if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: "PREVIEW_READY" }, "*");
@@ -176,7 +174,6 @@ export default function FaqPreview() {
       setTimeout(() => {
         if (typeof window !== 'undefined' && window.AOS) {
           window.AOS.refresh();
-          console.log("AOS refreshed after data change");
           
           // Signal to parent that the preview has updated
           if (window.parent && window.parent !== window) {
@@ -201,12 +198,10 @@ export default function FaqPreview() {
     // Get data from URL parameters
     const faqDataParam = searchParams.get("faqData");
     
-    console.log("FAQ Data from URL:", faqDataParam);
     
     if (faqDataParam) {
       try {
         const parsedData = JSON.parse(faqDataParam);
-        console.log("Parsed FAQ data:", parsedData);
         setFaqData(parsedData);
         
         // Mark as loaded after a short delay to ensure CSS is applied
@@ -220,10 +215,8 @@ export default function FaqPreview() {
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       
-      console.log("Received message in iframe:", event.data);
       
       if (event.data.type === "UPDATE_SECTION_DATA" && event.data.sectionType === "faq") {
-        console.log("Updating FAQ data in iframe:", event.data.sectionData);
         setFaqData(event.data.sectionData);
         
         // Mark as loaded if not already

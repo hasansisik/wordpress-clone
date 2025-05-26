@@ -505,7 +505,6 @@ export default function ProjectPreview() {
             mirror: false
           });
           
-          console.log("AOS initialized in project preview");
         }
       } catch (error) {
         console.error("Error initializing AOS:", error);
@@ -523,7 +522,6 @@ export default function ProjectPreview() {
     if (projectDataParam) {
       try {
         const decodedData = JSON.parse(decodeURIComponent(projectDataParam));
-        console.log("Received project data:", decodedData);
         setProjectData(decodedData);
       } catch (error) {
         console.error("Error parsing project data:", error);

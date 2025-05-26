@@ -225,7 +225,6 @@ export default function FaqEditor() {
       if (!event.data) return;
       
       if (event.data.type === "PREVIEW_READY" || event.data.type === "PREVIEW_UPDATED") {
-        console.log("Preview is ready:", event.data);
         // Reset attempts and make sure we're using iframe
         iframeLoadAttempts.current = 0;
         setUseFallback(false);
@@ -239,7 +238,6 @@ export default function FaqEditor() {
       iframeLoadAttempts.current += 1;
       
       if (iframeLoadAttempts.current >= 3) {
-        console.log("Iframe failed to load properly, using fallback");
         setUseFallback(true);
       }
     }, 3000);

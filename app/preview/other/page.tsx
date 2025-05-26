@@ -903,7 +903,6 @@ export default function OtherPreview() {
     if (otherDataParam) {
       try {
         const decodedData = JSON.parse(decodeURIComponent(otherDataParam));
-        console.log("Received other data:", decodedData);
         setOtherData(decodedData);
       } catch (error) {
         console.error("Error parsing other data:", error);
@@ -953,7 +952,6 @@ export default function OtherPreview() {
 
     const activeComponent = otherData.activeOther || "blog1";
 
-    console.log("Rendering other component:", activeComponent);
     
     switch(activeComponent) {
       case "blog1":

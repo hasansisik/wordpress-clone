@@ -344,11 +344,9 @@ export default function HeaderEditor() {
 
     try {
       setLogoUploading(true);
-      console.log('Uploading logo file:', file.name);
       
       // Upload to Cloudinary
       const uploadedUrl = await uploadImageToCloudinary(file);
-      console.log('Received uploaded logo URL:', uploadedUrl);
 
       // Update state with new logo URL
       const updatedData = {
@@ -356,11 +354,9 @@ export default function HeaderEditor() {
         logoUrl: uploadedUrl,
       };
       
-      console.log('Setting headerData with new logo URL:', updatedData.logoUrl);
       setHeaderData(updatedData);
       
       // Immediately save to API to ensure logo changes are persisted
-      console.log('Saving logo changes to API');
       await saveChangesToAPI({
         ...updatedData,
         logo: {
@@ -629,8 +625,7 @@ export default function HeaderEditor() {
       );
 
       // Log the changes for debugging
-      console.log('Updated menu item:', editedItem);
-      console.log('New menu items:', updatedMenu);
+
 
       // Update the state with the new array
       setHeaderData({
@@ -702,7 +697,6 @@ export default function HeaderEditor() {
     if (selectedHeader === null) return;
 
     try {
-      console.log('Refreshing header data...');
       const response = await fetch('/api/header', {
         cache: 'no-store',
         headers: {
@@ -714,7 +708,6 @@ export default function HeaderEditor() {
       
       if (response.ok) {
         const freshData = await response.json();
-        console.log('API response with header data:', freshData);
         
         const header = headers.find((h) => h.id === selectedHeader);
         if (!header) return;
@@ -742,17 +735,14 @@ export default function HeaderEditor() {
           headerComponent: freshData.headerComponent || header.component
         };
 
-        console.log('Updating header data state with:', updatedHeaderData);
 
         // Use functional state update to ensure we're working with the latest state
         setHeaderData(prevData => {
           // If the data is the same, don't trigger a re-render
           if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
-            console.log('No changes in header data, skipping update');
             return prevData;
           }
           
-          console.log('Updating header data with new values');
           return updatedHeaderData;
         });
       } else {
@@ -773,7 +763,6 @@ export default function HeaderEditor() {
   // After successful API operations, refresh data to ensure consistency
   const saveChangesToAPI = async (data: any) => {
     try {
-      console.log('Saving header data to API, current state:', data);
       
       // Create the data structure to save
       const dataToSave = {
@@ -799,7 +788,6 @@ export default function HeaderEditor() {
         headerComponent: data.headerComponent || headerData.headerComponent || "Header1"
       };
 
-      console.log('Data structure being sent to API:', dataToSave);
 
       // Send the data to the API
       const response = await fetch('/api/header', {
@@ -818,7 +806,6 @@ export default function HeaderEditor() {
 
       // Get the response data
       const result = await response.json();
-      console.log('API response:', result);
 
       // Force refresh header data after successful API call
       setTimeout(async () => {

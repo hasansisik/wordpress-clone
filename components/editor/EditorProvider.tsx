@@ -93,7 +93,6 @@ export const EditorProvider = ({
     const fetchInitialData = async () => {
       try {
         setIsLoading(true);
-        console.log(`Fetching initial ${sectionType} data...`);
         // Add a timestamp to prevent caching
         const timestamp = new Date().getTime();
         const response = await fetch(`${apiEndpoint}?t=${timestamp}`, {
@@ -107,7 +106,6 @@ export const EditorProvider = ({
         
         if (response.ok) {
           const data = await response.json();
-          console.log(`Initial ${sectionType} data:`, data);
           setSectionData(data);
           setSavedData(data);
           
@@ -141,7 +139,6 @@ export const EditorProvider = ({
     const updateTimer = setTimeout(() => {
       // Only update if there are actual changes
       if (JSON.stringify(sectionData) !== JSON.stringify(savedData)) {
-        console.log("Auto-updating savedData");
         setSavedData({...sectionData});
       }
     }, 2000); // 2 second debounce
@@ -153,7 +150,6 @@ export const EditorProvider = ({
   const updateIframeContent = () => {
     if (!iframeRef.current || !iframeRef.current.contentWindow) return;
     
-    console.log(`Sending ${sectionType} data to iframe:`, sectionData);
     
     if (sectionType === "hero") {
       iframeRef.current.contentWindow.postMessage({
@@ -263,7 +259,6 @@ export const EditorProvider = ({
   const saveChangesToAPI = async (data: any) => {
     try {
       setIsLoading(true);
-      console.log(`Saving ${sectionType} data to API:`, data);
 
       // Send the data to the API
       const response = await fetch(apiEndpoint, {
@@ -281,7 +276,6 @@ export const EditorProvider = ({
 
       // Get the response data
       const result = await response.json();
-      console.log('API response:', result);
       
       // Update saved data to match current data
       setSavedData({...data});

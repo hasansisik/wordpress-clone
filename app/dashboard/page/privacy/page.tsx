@@ -49,7 +49,6 @@ export default function PrivacyPolicyPage() {
         
         if (response.ok) {
           const data = await response.json();
-          console.log('Fetched privacy policy data:', data);
           setPageData(data);
         }
       } catch (error) {
@@ -63,10 +62,6 @@ export default function PrivacyPolicyPage() {
     fetchData();
   }, []);
 
-  // Add a debug useEffect to check when pageData changes
-  useEffect(() => {
-    console.log('Current pageData state:', pageData);
-  }, [pageData]);
 
   // Save the page data
   const savePageData = async () => {

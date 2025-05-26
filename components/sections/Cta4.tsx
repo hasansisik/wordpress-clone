@@ -13,14 +13,11 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 	const [data, setData] = useState<any>(null)
 
 	useEffect(() => {
-		console.log("Cta4 previewData:", previewData);
 		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.cta4) {
-			console.log("Setting from previewData", previewData.cta4);
 			setData(previewData.cta4);
 		} else if (ctaData.cta4) {
-			console.log("Setting from local ctaData", ctaData.cta4);
 			setData(ctaData.cta4);
 		} else {
 			console.error("No CTA data available in Cta4 component");

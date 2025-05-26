@@ -11,14 +11,11 @@ export default function Services2({ previewData }: Services2Props = {}) {
 	const [data, setData] = useState<any>(null)
 
 	useEffect(() => {
-		console.log("Services2 previewData:", previewData);
 		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.services2) {
-			console.log("Setting from previewData", previewData.services2);
 			setData(previewData.services2);
 		} else if (servicesData.services2) {
-			console.log("Setting from local servicesData", servicesData.services2);
 			setData(servicesData.services2);
 		} else {
 			console.error("No services data available in Services2 component");

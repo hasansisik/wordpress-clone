@@ -73,7 +73,6 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
       
       const fullPreviewUrl = `${previewUrl}?${queryParams.toString()}`;
       
-      console.log("Setting iframe URL:", fullPreviewUrl);
       
       // Update iframe src
       iframeRef.current.src = fullPreviewUrl;

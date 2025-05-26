@@ -70,13 +70,14 @@ const slugify = (text: string) => {
     .replace(/-+$/, '');         // Trim - from end of text
 };
 
-type Props = {
-  params: { slug: string }
-}
-
 // Generate dynamic metadata for each page
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  // Ensure params is properly awaited by using Promise.resolve
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { slug: string }
+  searchParams?: { [key: string]: string | string[] | undefined }
+}): Promise<Metadata> {
+  // Await params before accessing properties
   const resolvedParams = await Promise.resolve(params);
   const { slug } = resolvedParams;
   
@@ -142,8 +143,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function SlugPage({ params }: Props) {
-  // Ensure params is properly awaited by using Promise.resolve
+export default async function SlugPage({ 
+  params 
+}: { 
+  params: { slug: string }
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
+  // Await params before accessing properties
   const resolvedParams = await Promise.resolve(params);
   const { slug } = resolvedParams;
   
@@ -178,7 +184,8 @@ export default async function SlugPage({ params }: Props) {
   const content = blogPost || project;
   
   return (
-    {contentType === 'blog' && blogPost && (
+    <>
+      {contentType === 'blog' && blogPost && (
         <section>
           <img 
             className="w-100"
@@ -308,5 +315,6 @@ export default async function SlugPage({ params }: Props) {
           </div>
         </div>
       )}
+    </>
   );
 }

@@ -100,9 +100,7 @@ export default function PreviewWrapper({
               mirror: false
             });
             
-            console.log("AOS initialized in preview");
           } catch (error) {
-            console.log("AOS not available, skipping initialization");
           }
         }
       } catch (error) {
@@ -117,7 +115,6 @@ export default function PreviewWrapper({
       setTimeout(() => {
         if (typeof window !== 'undefined' && window.AOS) {
           window.AOS.refresh();
-          console.log("AOS refreshed after data change");
         }
       }, 200);
     }
@@ -128,13 +125,11 @@ export default function PreviewWrapper({
     const dataParam = searchParams.get(dataParamName);
     const typeParam = searchParams.get(typeParamName);
     
-    console.log(`${dataParamName} from URL:`, dataParam);
-    console.log(`${typeParamName} from URL:`, typeParam);
+
     
     if (dataParam) {
       try {
         const parsedData = JSON.parse(dataParam);
-        console.log("Parsed data:", parsedData);
         setContentData(parsedData);
         
         if (typeParam) {
@@ -152,19 +147,15 @@ export default function PreviewWrapper({
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       
-      console.log("Received message in iframe:", event.data);
       
       // Handle different message types
       if (event.data.type === "UPDATE_SECTION_DATA") {
-        console.log("Updating section data in iframe:", event.data.sectionData);
         setContentData(event.data.sectionData);
         setContentType(event.data.sectionType);
       } else if (event.data.type === "UPDATE_HERO_DATA") {
-        console.log("Updating hero data in iframe:", event.data.heroData);
         setContentData(event.data.heroData); 
       } else if (event.data.type === "UPDATE_CONTENT") {
         // Generic content update
-        console.log("Updating content in iframe:", event.data.data);
         setContentData(event.data.data);
         if (event.data.contentType) {
           setContentType(event.data.contentType);
@@ -183,8 +174,10 @@ export default function PreviewWrapper({
   return (
     <>
       <Script src="/assets/js/vendors/bootstrap.bundle.min.js" strategy="beforeInteractive" />
-      <style jsx global>{fixCommonStyles}</style>
-      {customStyles && <style jsx global>{customStyles}</style>}
+      <style jsx global>{`
+        ${fixCommonStyles}
+        ${customStyles}
+      `}</style>
       <div style={{ overflow: "hidden" }}>
         {children(contentData)}
       </div>

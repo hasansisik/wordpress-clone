@@ -181,7 +181,6 @@ export default function ServicesPreview() {
             mirror: false
           });
           
-          console.log("AOS initialized in preview");
           
           // Signal to parent that the preview is ready
           if (window.parent && window.parent !== window) {
@@ -200,7 +199,6 @@ export default function ServicesPreview() {
       setTimeout(() => {
         if (typeof window !== 'undefined' && window.AOS) {
           window.AOS.refresh();
-          console.log("AOS refreshed after data change");
           
           // Signal to parent that the preview has updated
           if (window.parent && window.parent !== window) {
@@ -218,12 +216,10 @@ export default function ServicesPreview() {
     // Get data from URL parameters
     const servicesDataParam = searchParams.get("servicesData");
     
-    console.log("Services Data from URL:", servicesDataParam);
     
     if (servicesDataParam) {
       try {
         const parsedData = JSON.parse(servicesDataParam);
-        console.log("Parsed Services data:", parsedData);
         setServicesData(parsedData);
         
         // Mark as loaded after a short delay to ensure CSS is applied
@@ -237,10 +233,8 @@ export default function ServicesPreview() {
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       
-      console.log("Received message in iframe:", event.data);
       
       if (event.data.type === "UPDATE_SECTION_DATA" && event.data.sectionType === "services") {
-        console.log("Updating Services data in iframe:", event.data.sectionData);
         setServicesData(event.data.sectionData);
         
         // Mark as loaded if not already

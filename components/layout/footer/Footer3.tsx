@@ -33,12 +33,9 @@ export default function Footer3(props: FooterProps = {}) {
 	useEffect(() => {
 		// If props are provided, use them, otherwise load from the local data file
 		if (Object.keys(props).length > 0) {
-			console.log("Footer3: Using provided props data");
-			console.log("Footer3 received columns:", props.columns?.length);
-			console.log("Footer3 app links:", props.showAppLinks, props.appLinks?.length);
+
 			setData(props);
 		} else {
-			console.log("Footer3: Using local footer data");
 			setData(footerData);
 		}
 	}, [props])

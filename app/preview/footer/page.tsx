@@ -352,18 +352,14 @@ export default function FooterPreview() {
     // Get data from URL parameters
     const footerDataParam = searchParams.get("footerData");
     
-    console.log("Footer Data from URL:", footerDataParam?.substring(0, 100) + "...");
     
     if (footerDataParam) {
       try {
         const parsedData = JSON.parse(footerDataParam);
-        console.log("Parsed footer data:", parsedData);
         
         // Debug column and menu data
         if (parsedData.columns) {
-          console.log("Columns:", parsedData.columns.length);
           parsedData.columns.forEach((col: any, i: number) => {
-            console.log(`Column ${i+1}: ${col.title}, Links: ${col.links?.length || 0}`);
           });
         } else {
           console.warn("No columns data found in footer data");
@@ -372,7 +368,6 @@ export default function FooterPreview() {
         }
         
         if (parsedData.socialLinks) {
-          console.log("Social links:", parsedData.socialLinks.length);
         } else {
           console.warn("No social links found in footer data");
           // Initialize with empty social links if missing
@@ -397,7 +392,6 @@ export default function FooterPreview() {
           footerComponent: parsedData.footerComponent || "Footer1"
         };
         
-        console.log("Enhanced footer data:", enhancedData);
         setFooterData(enhancedData);
         
         // Mark as loaded after a longer delay to ensure CSS is applied
@@ -417,18 +411,14 @@ export default function FooterPreview() {
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       
-      console.log("Received message in iframe:", event.data.type);
       
       if (event.data.type === "UPDATE_FOOTER_DATA" && event.data.footerData) {
-        console.log("Updating footer data in iframe");
         
         const updatedData = event.data.footerData;
         
         // Debug column and menu data
         if (updatedData.columns) {
-          console.log("Updated Columns:", updatedData.columns.length);
           updatedData.columns.forEach((col: any, i: number) => {
-            console.log(`Updated Column ${i+1}: ${col.title}, Links: ${col.links?.length || 0}`);
           });
         } else {
           console.warn("No columns data found in updated footer data");
@@ -451,7 +441,6 @@ export default function FooterPreview() {
           footerComponent: updatedData.footerComponent || "Footer1"
         };
         
-        console.log("Enhanced updated footer data:", enhancedData);
         setFooterData(enhancedData);
         
         // Mark as loaded if not already and reset any error state
@@ -538,9 +527,6 @@ export default function FooterPreview() {
   const renderFooterComponent = () => {
     const footerComponent = safeFooterData.footerComponent || "Footer1";
     
-    console.log("Rendering footer component:", footerComponent);
-    console.log("Footer has columns:", safeFooterData.columns.length);
-    
     // Common props for all footer components with complete fallbacks
     const footerProps = {
       logo: safeFooterData.logo,
@@ -562,7 +548,6 @@ export default function FooterPreview() {
       className: "preview-footer",
     };
     
-    console.log("Footer props columns:", footerProps.columns.length);
     
     switch (footerComponent) {
       case "Footer1":

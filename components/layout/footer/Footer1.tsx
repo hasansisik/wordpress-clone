@@ -33,16 +33,13 @@ export default function Footer1(props: FooterProps = {}) {
 	useEffect(() => {
 		// If props are provided, use them, otherwise load from the local data file
 		if (Object.keys(props).length > 0) {
-			console.log("Footer1: Using provided props data");
-			console.log("Footer1 received columns:", props.columns?.length);
+
 			if (props.columns) {
 				props.columns.forEach((col, i) => {
-					console.log(`Column ${i+1}: ${col.title}, Links: ${col.links?.length || 0}`);
 				});
 			}
 			setData(props);
 		} else {
-			console.log("Footer1: Using local footer data");
 			setData(footerData);
 		}
 	}, [props])
@@ -60,7 +57,6 @@ export default function Footer1(props: FooterProps = {}) {
 		columns: Array.isArray(data.columns) ? data.columns : []
 	};
 
-	console.log("Footer1 rendering with columns:", safeData.columns.length);
 
 	return (
 		<>

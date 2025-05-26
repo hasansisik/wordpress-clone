@@ -64,7 +64,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   // Update htmlContent when content prop changes
   useEffect(() => {
-    console.log('RichTextEditor content prop changed:', content);
     setHtmlContent(content);
   }, [content]);
 
@@ -140,7 +139,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   // Update editor content when content prop changes
   useEffect(() => {
     if (editor && content) {
-      console.log('Updating editor content to:', content);
       editor.commands.setContent(content);
     }
   }, [content, editor]);

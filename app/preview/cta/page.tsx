@@ -193,9 +193,7 @@ export default function CtaPreview() {
             once: true,
             mirror: false
           });
-          
-          console.log("AOS initialized in preview");
-          
+                    
           // Signal to parent that the preview is ready
           if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: "PREVIEW_READY" }, "*");
@@ -213,7 +211,6 @@ export default function CtaPreview() {
       setTimeout(() => {
         if (typeof window !== 'undefined' && window.AOS) {
           window.AOS.refresh();
-          console.log("AOS refreshed after data change");
           
           // Signal to parent that the preview has updated
           if (window.parent && window.parent !== window) {
@@ -231,12 +228,10 @@ export default function CtaPreview() {
     // Get data from URL parameters
     const ctaDataParam = searchParams.get("ctaData");
     
-    console.log("CTA Data from URL:", ctaDataParam);
     
     if (ctaDataParam) {
       try {
         const parsedData = JSON.parse(ctaDataParam);
-        console.log("Parsed CTA data:", parsedData);
         setCtaData(parsedData);
         
         // Mark as loaded after a short delay to ensure CSS is applied
@@ -250,10 +245,8 @@ export default function CtaPreview() {
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       
-      console.log("Received message in iframe:", event.data);
       
       if (event.data.type === "UPDATE_CTA_DATA") {
-        console.log("Updating CTA data in iframe:", event.data.ctaData);
         setCtaData(event.data.ctaData);
         
         // Mark as loaded if not already
@@ -274,9 +267,7 @@ export default function CtaPreview() {
   // Render the appropriate CTA component
   const renderCtaComponent = () => {
     const activeComponent = ctaData.activeCta || "cta4";
-    
-    console.log("Rendering CTA component:", activeComponent);
-    
+        
     switch (activeComponent) {
       case "cta1":
         return <Cta1 previewData={ctaData} />;

@@ -212,12 +212,10 @@ export default function HeaderPreview() {
     // Get data from URL parameters
     const headerDataParam = searchParams.get("headerData");
     
-    console.log("Header Data from URL:", headerDataParam);
     
     if (headerDataParam) {
       try {
         const parsedData = JSON.parse(headerDataParam);
-        console.log("Parsed header data:", parsedData);
         setHeaderData(parsedData);
         
         // Mark as loaded after a short delay to ensure CSS is applied
@@ -231,10 +229,8 @@ export default function HeaderPreview() {
     const handleMessage = (event: MessageEvent) => {
       if (!event.data) return;
       
-      console.log("Received message in iframe:", event.data);
       
       if (event.data.type === "UPDATE_HEADER_DATA") {
-        console.log("Updating header data in iframe:", event.data.headerData);
         setHeaderData(event.data.headerData);
         
         // Mark as loaded if not already
@@ -260,9 +256,7 @@ export default function HeaderPreview() {
   // Render the appropriate header component
   const renderHeaderComponent = () => {
     const headerComponent = headerData.headerComponent || "Header1";
-    
-    console.log("Rendering header component:", headerComponent);
-    
+        
     const props = {
       scroll,
       isMobileMenu,

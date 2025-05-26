@@ -5,7 +5,6 @@ import path from 'path';
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    console.log('Received header data to save:', data);
     
     // Path to header.json file
     const filePath = path.join(process.cwd(), 'data', 'header.json');
@@ -48,7 +47,6 @@ export async function POST(req: NextRequest) {
       headerComponent: data.headerComponent || "Header1"
     };
     
-    console.log('Saving header data:', safeData);
     
     // Convert data to a JSON string
     const jsonData = JSON.stringify(safeData, null, 2);

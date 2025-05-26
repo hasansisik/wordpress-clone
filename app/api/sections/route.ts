@@ -106,7 +106,6 @@ const createDefaultDataFile = async () => {
     };
     
     await fs.writeFile(dataFilePath, JSON.stringify(defaultData, null, 2));
-    console.log('Created default sections data file');
   }
 };
 

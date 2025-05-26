@@ -26,7 +26,6 @@ const findPageFiles = (dir) => {
 
 // Process each file
 const processFile = (filePath) => {
-  console.log(`Processing: ${filePath}`);
   
   try {
     let content = fs.readFileSync(filePath, 'utf8');
@@ -38,7 +37,6 @@ const processFile = (filePath) => {
     content = content.replace(/<Layout[^>]*>\s*([\s\S]*?)\s*<\/Layout>/g, '$1');
     
     fs.writeFileSync(filePath, content, 'utf8');
-    console.log(`Updated: ${filePath}`);
   } catch (error) {
     console.error(`Error processing ${filePath}:`, error);
   }
@@ -48,4 +46,3 @@ const processFile = (filePath) => {
 const pageFiles = findPageFiles(loggedOutDir);
 pageFiles.forEach(processFile);
 
-console.log(`Updated ${pageFiles.length} files.`); 

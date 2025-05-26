@@ -24,14 +24,11 @@ export default function Faqs2({ previewData }: Faqs2Props = {}) {
 	}, [previewData]);
 
 	useEffect(() => {
-		console.log("Faqs2 previewData:", previewData);
 		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.faqs2) {
-			console.log("Setting from previewData", previewData.faqs2);
 			setData(previewData.faqs2);
 		} else if (faqData.faqs2) {
-			console.log("Setting from local faqData", faqData.faqs2);
 			setData(faqData.faqs2);
 		} else {
 			console.error("No FAQ data available in Faqs2 component");
