@@ -9,7 +9,7 @@ interface Hero3Props {
 }
 
 export default function Hero3({ previewData }: Hero3Props = {}) {
-	const [data, setData] = useState<any>(null)
+	const [data, setData] = useState<any>(heroData.hero3 || {})
 
 	useEffect(() => {
 		
@@ -23,10 +23,6 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 		}
 	}, [previewData])
 
-	if (!data) {
-		return <section>Loading Hero3...</section>
-	}
-
 	return (
 		<>
 			<section className="section-hero-3 position-relative fix section-padding">
@@ -36,64 +32,49 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 							<div className="text-start mb-lg-0 mb-5">
 								<div className="border-linear-1 rounded-pill d-inline-block mb-3">
 									<div className="text-primary bg-white px-4 py-2 rounded-pill fw-medium position-relative z-2">
-										{data.badge.text}
+										{data?.badge?.text || ""}
 									</div>
 								</div>
 								<div className="d-flex align-items-center">
 									<h1 className="ds-1 my-3 me-4 lh-1">
-										{data.title.part1}
+										{data?.title?.part1 || ""}
 									</h1>
 									<div className="mt-3 d-none d-md-flex">
-										{data.avatars.map((avatar: any, index: number) => (
+										{data?.avatars?.map((avatar: any, index: number) => (
 											<div key={index} className={`avt-hero ${index === 2 ? 'icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle' : ''}`}>
 												{index !== 2 ? (
-													<img className="icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle" src={avatar.image} alt={avatar.alt} />
+													<img className="icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle" src={avatar?.image || ""} alt={avatar?.alt || ""} />
 												) : (
-													<img src={avatar.image} alt={avatar.alt} />
+													<img src={avatar?.image || ""} alt={avatar?.alt || ""} />
 												)}
 											</div>
-										))}
+										)) || []}
 									</div>
 								</div>
 								<h1 className="ds-1 lh-1 m-0">
-									{data.title.part2}
+									{data?.title?.part2 || ""}
 								</h1>
 								<p className="fs-5 text-900 my-6">
-									{data.description}
+									{data?.description || ""}
 								</p>
-								<Link href={data.button.link} className="btn btn-gradient">
-									{data.button.text}
-									<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-										<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-										<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-									</svg>
-								</Link>
+								<div className="d-flex flex-wrap gap-3">
+									<Link href={data?.buttons?.primary?.link || "#"} className="btn btn-gradient-1">
+										{data?.buttons?.primary?.text || ""}
+										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
+											<path d="M17.9199 12.79L14.1199 9L15.5299 7.59L21.9199 14L15.5299 20.41L14.1199 19L17.9199 15.21H2.91992V12.79H17.9199Z" fill="white" />
+										</svg>
+									</Link>
+									<Link href={data?.buttons?.secondary?.link || "#"} className="btn btn-outline-secondary">
+										{data?.buttons?.secondary?.text || ""}
+									</Link>
+								</div>
 							</div>
 						</div>
-						<div className="col-lg-7 position-xl-absolute mb-lg-10 top-50 end-0 translate-middle-lg-y z-0">
-							<div className="row">
-								<div className="col-6 align-self-end">
-									<div className="border-5 border-white border rounded-4 mb-4 d-block d-xl-none">
-										<img className="rounded-4" src={data.images.image4} alt="infinia" />
-									</div>
-									<div className="border-5 border-white border rounded-4">
-										<img className="rounded-4" src={data.images.image3} alt="infinia" />
-									</div>
+						<div className="col-lg-5 position-lg-absolute end-0 pe-0">
+							<div className="device-1-wrapper">
+								<div className="hero-3-img position-relative">
+									<img className="w-100 h-100 object-cover" src={data?.heroImage || ""} alt="device" />
 								</div>
-								<div className="col-6 align-self-end">
-									<div className="border-5 border-white border rounded-4 mb-4">
-										<img className="rounded-4" src={data.images.image1} alt="infinia" />
-									</div>
-									<div className="border-5 border-white border rounded-4">
-										<img className="rounded-4" src={data.images.image2} alt="infinia" />
-									</div>
-								</div>
-							</div>
-							<div className="position-absolute top-50 start-50 translate-middle pb-10 pe-10">
-								<img className="rotateme" src={data.images.star} alt="infinia" />
-							</div>
-							<div className="position-absolute top-50 start-50 translate-middle">
-								<div className="ellipse-primary" />
 							</div>
 						</div>
 					</div>

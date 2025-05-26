@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  // No authentication logic
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('token')?.value || '';
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/dashboard');
+
+  if (isAuthRoute && !token) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
   return NextResponse.next();
 }
 
-// Empty matcher since we don't need to protect any routes
 export const config = {
-  matcher: [],
-}; 
+  matcher: ['/dashboard/:path*'],
+};

@@ -8,7 +8,7 @@ interface Faqs3Props {
 }
 
 export default function Faqs3({ previewData }: Faqs3Props = {}) {
-	const [data, setData] = useState<any>(null)
+	const [data, setData] = useState<any>(faqData.faqs3 || {})
 	const [activeItem, setActiveItem] = useState(1);
 	const [key, setKey] = useState(0);
 
@@ -31,67 +31,49 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 		}
 	}, [previewData, key])
 
-	if (!data) {
-		return <section>Loading Faqs3...</section>
-	}
-
 	return (
 		<>
 			<section className="section-faqs-1 section-padding position-relative" key={key}>
 				<div className="container position-relative z-2">
-					<div className="row align-items-center">
-						<div className="col-lg-6">
-							<div className="text-start">
-								<div className="d-flex align-items-center position-relative z-2 justify-content-center bg-primary-soft d-inline-flex rounded-pill border border-2 border-white px-3 py-1">
-									<img src={data.tagImage} alt="infinia" />
-									<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.heading.tag}</span>
-								</div>
-								<h3 className="ds-3 my-3 fw-bold" dangerouslySetInnerHTML={{ __html: data.heading.title }}></h3>
-								<div className="position-relative d-inline-block mt-3 mb-6">
-									<img src={data.images.image1} alt="" className=" rounded-pill border border-3 border-white" />
-									<img src={data.images.image2} alt="" className="position-absolute z-1 top-0 start-50 mt-3 rounded-pill border border-3 border-white" />
-								</div>
-								<p className="fs-5 mb-0" dangerouslySetInnerHTML={{ __html: data.heading.description }}></p>
-								<div className="d-flex align-items-center mt-5">
-									<Link href={data.buttons.primary.link} className="btn btn-gradient">
-										{data.buttons.primary.text}
-										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-											<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-											<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</Link>
-									<Link href={data.buttons.secondary.link} className="ms-5 fw-bold">{data.buttons.secondary.text}</Link>
-								</div>
-							</div>
+					<div className="mb-5 text-center">
+						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
+							<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
+							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data?.heading?.tag || "FAQs"}</span>
 						</div>
-						<div className="col-lg-6 mt-lg-0 mt-8 ">
-							<div className="accordion">
-								{data.questions.map((faq: any, index: number) => (
-									<div key={`faq-${index}-${key}`} className="mb-3 card p-3 border rounded-2 shadow-2">
-										<div className="px-0 card-header border-0">
-											<a 
-												className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === index+1 ? '' : ''}`} 
-												onClick={() => handleActiveItem(index+1)}
-											>
-												<h6 className="m-0" dangerouslySetInnerHTML={{ __html: faq.question }}></h6>
-												<span className="ms-auto arrow me-2">
-													<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
-														<path className="stroke-dark" d="M11.5 1L6.25 6.5L1 1" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-													</svg>
-												</span>
-											</a>
+						<h3 className="ds-3 mt-3 mb-3" data-aos="fade-zoom-in" data-aos-delay={100} dangerouslySetInnerHTML={{ __html: data?.heading?.title || "Frequently Asked Questions" }}></h3>
+					</div>
+					<div className="row">
+						<div className="col-lg-10 mx-auto">
+							<div className="content-one accordion-list-one pe-lg-8 pe-md-0">
+								{data?.items?.map((item: any, index: number) => (
+									<div key={index} className={`accordion-item bg-white rounded-4 border-0 mb-4 shadow-1 ${activeItem === index + 1 ? 'active' : ''}`}>
+										<h2 className="accordion-header" onClick={() => handleActiveItem(index + 1)}>
+											<button className="accordion-button">
+												{item?.question || `Question ${index + 1}`}
+											</button>
+										</h2>
+										<div className={`accordion-collapse collapse ${activeItem === index + 1 ? 'show' : ''}`}>
+											<div className="accordion-body" dangerouslySetInnerHTML={{ __html: item?.answer || "Answer goes here" }}></div>
 										</div>
-										{activeItem === index+1 && (
-											<div className="card-body px-0 mt-2">
-												<p className="text-black-50 mb-0">{faq.answer}</p>
-											</div>
-										)}
 									</div>
-								))}
+								)) || (
+									<div className="accordion-item bg-white rounded-4 border-0 mb-4 shadow-1 active">
+										<h2 className="accordion-header" onClick={() => handleActiveItem(1)}>
+											<button className="accordion-button">
+												Sample Question
+											</button>
+										</h2>
+										<div className={`accordion-collapse collapse ${activeItem === 1 ? 'show' : ''}`}>
+											<div className="accordion-body">Sample Answer</div>
+										</div>
+									</div>
+								)}
 							</div>
 						</div>
 					</div>
 				</div>
+				<div className="ellipse-24 position-absolute" />
+				<div className="ellipse-27 position-absolute" />
 			</section>
 		</>
 	)

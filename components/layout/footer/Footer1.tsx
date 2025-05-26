@@ -28,7 +28,7 @@ interface FooterProps {
 }
 
 export default function Footer1(props: FooterProps = {}) {
-	const [data, setData] = useState<any>(null)
+	const [data, setData] = useState<any>(Object.keys(props).length > 0 ? props : footerData || {})
 
 	useEffect(() => {
 		// If props are provided, use them, otherwise load from the local data file
@@ -44,19 +44,14 @@ export default function Footer1(props: FooterProps = {}) {
 		}
 	}, [props])
 
-	if (!data) {
-		return <footer>Loading...</footer>
-	}
-
 	// Ensure data has all required properties with fallbacks
 	const safeData = {
-		logo: data.logo || { src: "/assets/imgs/logo/logo-white.svg", alt: "logo", text: "Logo" },
-		copyright: data.copyright || "Copyright © 2024. All Rights Reserved",
-		description: data.description || "",
-		socialLinks: Array.isArray(data.socialLinks) ? data.socialLinks : [],
-		columns: Array.isArray(data.columns) ? data.columns : []
+		logo: data?.logo || { src: "/assets/imgs/logo/logo-white.svg", alt: "logo", text: "Logo" },
+		copyright: data?.copyright || "Copyright © 2024. All Rights Reserved",
+		description: data?.description || "",
+		socialLinks: Array.isArray(data?.socialLinks) ? data.socialLinks : [],
+		columns: Array.isArray(data?.columns) ? data.columns : []
 	};
-
 
 	return (
 		<>

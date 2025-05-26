@@ -8,13 +8,11 @@ import Features1 from "@/components/sections/Features1"
 export default function Home() {
 	return (
 		<>
-			<Layout headerStyle={1} footerStyle={1}>
 				<Hero1 />
 				<Cta4 />
 				<Services2 />
 				<Faqs2 />
 				<Features1 />
-			</Layout>
 		</>
 	)
 }
