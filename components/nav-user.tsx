@@ -7,7 +7,6 @@ import { AppDispatch } from "@/redux/store"
 import {
   Avatar,
   AvatarFallback,
-  AvatarImage,
 } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -54,6 +53,28 @@ export function NavUser({ user }: NavUserProps) {
   // Get the first letter of the name for the avatar fallback
   const nameInitial = userData.name ? userData.name.charAt(0).toUpperCase() : 'U';
   
+  // Get user avatar background color based on name
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      "bg-red-500", "bg-blue-500", "bg-green-500", 
+      "bg-yellow-500", "bg-purple-500", "bg-pink-500",
+      "bg-indigo-500", "bg-teal-500", "bg-orange-500"
+    ];
+    
+    // Generate a consistent index based on the name
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Use the hash to pick a color
+    const index = Math.abs(hash % colors.length);
+    return colors[index];
+  };
+  
+  // Get color class for the avatar
+  const avatarColorClass = getAvatarColor(userData.name || "User");
+  
   const handleLogout = async () => {
     try {
       await dispatch(logout()).unwrap();
@@ -73,10 +94,7 @@ export function NavUser({ user }: NavUserProps) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                {userData.profile?.picture ? (
-                <AvatarImage src={userData.profile.picture} alt={userData.name} />
-                ) : null}
-                <AvatarFallback className="rounded-lg">{nameInitial}</AvatarFallback>
+                <AvatarFallback className={`rounded-lg ${avatarColorClass} text-white`}>{nameInitial}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{userData.name}</span>
@@ -94,10 +112,7 @@ export function NavUser({ user }: NavUserProps) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {userData.profile?.picture ? (
-                  <AvatarImage src={userData.profile.picture} alt={userData.name} />
-                  ) : null}
-                  <AvatarFallback className="rounded-lg">{nameInitial}</AvatarFallback>
+                  <AvatarFallback className={`rounded-lg ${avatarColorClass} text-white`}>{nameInitial}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{userData.name}</span>

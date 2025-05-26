@@ -2,10 +2,10 @@
 import Link from "next/link"
 import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import projectsData from '@/data/projects.json'
 
 interface Project2Props {
 	previewData?: any;
+	projects?: any[];
 }
 
 // Function to convert title to slug
@@ -20,7 +20,7 @@ const slugify = (text: string) => {
 		.replace(/-+$/, '');         // Trim - from end of text
 };
 
-export default function Project2({ previewData }: Project2Props) {
+export default function Project2({ previewData, projects = [] }: Project2Props) {
 	const editorData = previewData?.project2 || {};
 
 	// Use editor data if available, otherwise use the default data
@@ -109,8 +109,8 @@ export default function Project2({ previewData }: Project2Props) {
 							modules={[Keyboard, Autoplay, Pagination, Navigation]}
 						>
 							<div className="swiper-wrapper">
-								{projectsData.projects.map((project) => (
-									<SwiperSlide key={project.id} className="swiper-slide">
+								{projects.map((project) => (
+									<SwiperSlide key={project._id || project.id} className="swiper-slide">
 										<div className="text-center">
 											<div className="zoom-img position-relative d-inline-block z-1" style={{ height: '480px', width: '100%' }}>
 												<div className="rounded-3 fix" style={{ height: '480px', overflow: 'hidden' }}>
@@ -123,10 +123,10 @@ export default function Project2({ previewData }: Project2Props) {
 												</div>
 												<Link href={`/${slugify(project.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
 													<p className="fs-7 text-primary mb-1">{project.company}</p>
-													<h6>{project.subtitle}</h6>
-													<p className="text-900">{project.fullDescription}</p>
+													<h6>{project.subtitle || ''}</h6>
+													<p className="text-900">{project.fullDescription || project.description}</p>
 												</Link>
-												<Link href={`/${slugify(project.title)}`} className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag}</Link>
+												<Link href={`/${slugify(project.title)}`} className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag || 'Project'}</Link>
 											</div>
 										</div>
 									</SwiperSlide>

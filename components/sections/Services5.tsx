@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useRef, useState, useCallback } from 'react';
-import projectsData from '@/data/projects.json';
 import Link from 'next/link';
 
 interface Services5Props {
 	previewData?: any;
+	services?: any[];
+	categories?: any[];
 }
 
 // Function to convert title to slug
@@ -19,7 +20,7 @@ const slugify = (text: string) => {
 		.replace(/-+$/, '');         // Trim - from end of text
 };
 
-export default function Services5({ previewData }: Services5Props) {
+export default function Services5({ previewData, services = [], categories = [] }: Services5Props) {
 	const isotope = useRef<any>(null);
 	const [filterKey, setFilterKey] = useState<string>('*');
 	const editorData = previewData?.services5 || {};
@@ -78,6 +79,17 @@ export default function Services5({ previewData }: Services5Props) {
 		backgroundColor: buttonColor,
 		borderColor: buttonColor
 	};
+	
+	// Format categories for filter buttons if available from props
+	const filterCategories = categories.length > 0
+		? [{ id: "all", name: "All" }, ...categories]
+		: [
+			{ id: "all", name: "All" },
+			{ id: "design", name: "Design" },
+			{ id: "branding", name: "Branding" },
+			{ id: "illustration", name: "Illustration" },
+			{ id: "motion", name: "Motion" }
+		];
 
 	return (
 		<>
@@ -96,7 +108,7 @@ export default function Services5({ previewData }: Services5Props) {
 					</div>
 					<div className="text-center mt-6">
 						<div className="button-group filter-button-group filter-menu-active">
-							{projectsData.categories.map((category) => (
+							{filterCategories.map((category) => (
 								<button key={category.id} className={activeBtn(category.id === "all" ? "*" : category.id)} onClick={handleFilterKeyChange(category.id === "all" ? "*" : category.id)}>
 									{category.name}
 								</button>
@@ -107,18 +119,18 @@ export default function Services5({ previewData }: Services5Props) {
 				<div className="container mt-6">
 					<div className="masonary-active justify-content-between row">
 						<div className="grid-sizer" />
-						{projectsData.projects.map((project) => (
-							<div key={project.id} className={`filter-item col-12 col-md-4 ${project.categories.join(' ')}`}>
+						{services.map((service) => (
+							<div key={service._id || service.id} className={`filter-item col-12 col-md-4 ${service.categories?.join(' ') || ''}`}>
 								<div className="project-item zoom-img rounded-2 fix position-relative">
 									<div style={{ height: '300px', overflow: 'hidden' }}>
 										<img 
 											className="rounded-2 w-100 h-100" 
-											src={project.image} 
+											src={service.image} 
 											alt="infinia" 
 											style={{ objectFit: 'cover', objectPosition: 'center' }}
 										/>
 									</div>
-									<Link href={`/${slugify(project.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
+									<Link href={`/${slugify(service.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
 										<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
 											<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
 											<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
@@ -127,10 +139,10 @@ export default function Services5({ previewData }: Services5Props) {
 												<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
 											</svg>
 										</span>
-										<h5 className="text-700">{project.title}</h5>
-										<p className="fs-7 mb-0">{project.description}</p>
+										<h5 className="text-700">{service.title}</h5>
+										<p className="fs-7 mb-0">{service.description}</p>
 									</Link>
-									<Link href={`/${slugify(project.title)}`} className="position-absolute w-100 h-100 top-0 start-0" aria-label={project.title} />
+									<Link href={`/${slugify(service.title)}`} className="position-absolute w-100 h-100 top-0 start-0" aria-label={service.title} />
 								</div>
 							</div>
 						))}

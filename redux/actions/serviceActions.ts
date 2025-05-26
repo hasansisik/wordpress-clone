@@ -128,14 +128,52 @@ export const updateService = createAsyncThunk(
   "service/updateService",
   async ({ id, ...serviceData }: UpdateServicePayload, thunkAPI) => {
     try {
-      const token = localStorage.getItem("accessToken");
-      const { data } = await axios.put(`${server}/services/${id}`, serviceData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return data.service;
+      // ID kontrolü yapılıyor
+      if (!id) {
+        return thunkAPI.rejectWithValue("Servis ID'si geçersiz");
+      }
+      
+      // MongoDB ObjectId formatı için kontrol (24 karakter hexadecimal)
+      const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+      if (!isValidObjectId) {
+        console.warn(`Geçersiz MongoDB ObjectId formatı: ${id}`);
+      }
+      
+      console.log(`Servis güncelleniyor ID: ${id}, Data:`, JSON.stringify(serviceData));
+      
+      // Token kontrolü
+      let token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("Token bulunamadı, kullanıcı oturumu geçersiz olabilir");
+        return thunkAPI.rejectWithValue("Oturum süresi dolmuş. Lütfen tekrar giriş yapın.");
+      }
+      
+      try {
+        const { data } = await axios.put(`${server}/services/${id}`, serviceData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        console.log("Güncelleme başarılı, sunucu yanıtı:", data);
+        return data.service;
+      } catch (error: any) {
+        // 403 Forbidden hatası için özel mesaj
+        if (error.response?.status === 403) {
+          console.error("Yetki hatası:", error.response.data);
+          return thunkAPI.rejectWithValue("Bu işlemi yapmak için yetkiniz yok. Servis başka bir şirkete ait olabilir veya yeterli yetkiniz olmayabilir.");
+        }
+        
+        // 401 Unauthorized hatası için token yenileme denemesi yapılabilir
+        if (error.response?.status === 401) {
+          console.error("Oturum hatası:", error.response.data);
+          return thunkAPI.rejectWithValue("Oturum süresi dolmuş. Lütfen tekrar giriş yapın.");
+        }
+        
+        throw error; // Diğer hataları yukarı taşı
+      }
     } catch (error: any) {
+      console.error("Servis güncelleme hatası:", error.response?.data || error.message);
       const message = error.response?.data?.message || 'Servis güncellenemedi';
       return thunkAPI.rejectWithValue(message);
     }

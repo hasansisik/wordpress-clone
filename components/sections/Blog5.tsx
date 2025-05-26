@@ -2,10 +2,10 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import otherData from "@/data/other.json"
-import blogData from "@/data/blog.json"
 
 interface Blog5Props {
 	previewData?: any;
+	blogs?: any[];
 }
 
 // Function to convert title to slug
@@ -20,12 +20,10 @@ const slugify = (text: string) => {
 		.replace(/-+$/, '');         // Trim - from end of text
 };
 
-export default function Blog5({ previewData }: Blog5Props = {}) {
+export default function Blog5({ previewData, blogs = [] }: Blog5Props) {
 	const [data, setData] = useState<any>(null)
-	const [posts, setPosts] = useState<any[]>([])
 
 	useEffect(() => {
-		
 		// If preview data is provided, use it, otherwise load from the file
 		if (previewData && previewData.blog5) {
 			setData(previewData.blog5);
@@ -34,9 +32,6 @@ export default function Blog5({ previewData }: Blog5Props = {}) {
 		} else {
 			console.error("No blog data available in Blog5 component");
 		}
-
-		// Set posts from blog.json
-		setPosts(blogData.slice(3, 6));
 	}, [previewData])
 
 	if (!data) {
@@ -54,13 +49,13 @@ export default function Blog5({ previewData }: Blog5Props = {}) {
 						</div>
 					</div>
 					<div className="row">
-						{posts.map((post, index) => (
+						{blogs.map((post, index) => (
 							<div key={index} className="col-lg-4 col-md-6 text-start">
 								<div className="card border-0 rounded-3 mt-4 position-relative d-inline-flex">
 									<img className="rounded-top-3" src={post.image} alt="blog post" />
 									<div className="card-body bg-white p-0">
 										<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
-											<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category}</span>
+											<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category[0]}</span>
 										</Link>
 										<h6 className="my-3">{post.title}</h6>
 										<p>{post.description}</p>

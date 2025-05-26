@@ -39,11 +39,32 @@ import {
     PaginationNext,
     PaginationPrevious,
   } from "@/components/ui/pagination";
-  import projectsData from "@/data/projects.json";
   import Link from "next/link";
   import { uploadImageToCloudinary } from "@/utils/cloudinary";
   import Image from "next/image";
   import RichTextEditor from "@/components/RichTextEditor";
+  import { useDispatch, useSelector } from "react-redux";
+  import { AppDispatch, RootState } from "@/redux/store";
+  import { 
+    getAllServices, 
+    getAllCategories,
+    createService, 
+    updateService, 
+    deleteService 
+  } from "@/redux/actions/serviceActions";
+  import { Loader2 } from "lucide-react";
+
+// Function to convert title to slug
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')        // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+    .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+    .replace(/^-+/, '')          // Trim - from start of text
+    .replace(/-+$/, '');         // Trim - from end of text
+};
 
 interface Author {
   name: string;
@@ -61,6 +82,7 @@ interface Content {
 
 interface Project {
   id: number;
+  _id?: string;
   title: string;
   description: string;
   image: string;
@@ -73,11 +95,15 @@ interface Project {
 }
 
 export default function ProjectEditor() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
+  const { services, categories, loading, error, success, message } = useSelector(
+    (state: RootState) => state.service
+  );
+  
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [notification, setNotification] = useState<{ type: string; message: string } | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
+  const [editingProjectId, setEditingProjectId] = useState<string | number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const projectsPerPage = 5;
@@ -113,41 +139,80 @@ export default function ProjectEditor() {
   const [formData, setFormData] = useState(initialFormState);
   const [activeTab, setActiveTab] = useState("all");
 
-  // Load projects from data
+  // Load projects from Redux store
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        // For now we'll use the local JSON data, but in a real app you would fetch from an API
-        setProjects(projectsData.projects);
-        setFilteredProjects(projectsData.projects);
-      } catch (error) {
-        console.error('Error loading projects:', error);
-        setNotification({
-          type: 'error',
-          message: 'Failed to load projects. Please try again later.'
-        });
-      }
-    };
+    dispatch(getAllServices());
+    dispatch(getAllCategories());
+  }, [dispatch]);
+
+  // Başlangıçta URL parametrelerine göre edit/new mod seçimi
+  useEffect(() => {
+    // URL'den mode ve id değerlerini al
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const id = urlParams.get('id');
     
-    fetchProjects();
-  }, []);
+    if (mode === 'edit' && id) {
+      // Edit modu ve ID varsa, projeyi düzenleme moduna geç
+      const projectId = parseInt(id);
+      const projectToEdit = services.find((project: any) => 
+        project._id === id || project.id === projectId
+      );
+      
+      if (projectToEdit) {
+        handleEditProject(projectId);
+      }
+    } else if (mode === 'new') {
+      // Yeni oluşturma modu ise, formu sıfırla ve add tabına geç
+      resetForm();
+      setIsEditMode(false);
+      setEditingProjectId(null);
+      setActiveTab("add");
+    }
+  }, [services]); // services değiştiğinde tekrar kontrol et
+
+  // Show notifications when Redux state changes
+  useEffect(() => {
+    if (success && message) {
+      setNotification({
+        type: "success",
+        message: message
+      });
+      
+      // Auto-hide notification after 5 seconds
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+    
+    if (error) {
+      setNotification({
+        type: "error",
+        message: error
+      });
+    }
+  }, [success, message, error]);
 
   // Filter projects when search term changes
   useEffect(() => {
+    if (!services) return;
+    
     if (searchTerm.trim() === "") {
-      setFilteredProjects(projects);
+      setFilteredProjects(services);
     } else {
       const lowercasedFilter = searchTerm.toLowerCase();
-      const filtered = projects.filter(project => 
+      const filtered = services.filter((project: any) => 
         project.title.toLowerCase().includes(lowercasedFilter) ||
-        project.categories.some(cat => cat.toLowerCase().includes(lowercasedFilter)) ||
-        project.company.toLowerCase().includes(lowercasedFilter) ||
-        project.tag.toLowerCase().includes(lowercasedFilter)
+        project.categories?.some((cat: string) => cat.toLowerCase().includes(lowercasedFilter)) ||
+        project.company?.toLowerCase().includes(lowercasedFilter) ||
+        project.tag?.toLowerCase().includes(lowercasedFilter)
       );
       setFilteredProjects(filtered);
     }
     setCurrentPage(1); // Reset to first page when filtering
-  }, [searchTerm, projects]);
+  }, [searchTerm, services]);
 
   // Handle image uploads
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,6 +271,33 @@ export default function ProjectEditor() {
     });
   };
 
+  // Tab değiştiğinde form durumunu güncelle
+  const handleTabChange = (value: string) => {
+    if (value === "all" && isEditMode) {
+      // All tabına geçerken edit modundan çıkıyorsak, edit durumunu temizle
+      setIsEditMode(false);
+      setEditingProjectId(null);
+      // URL'yi temizle
+      window.history.pushState({}, '', window.location.pathname);
+    }
+    
+    setActiveTab(value);
+  };
+  
+  // URL'yi güncelle
+  const updateURL = (mode: string, id?: number) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('mode', mode);
+    
+    if (id) {
+      url.searchParams.set('id', id.toString());
+    } else {
+      url.searchParams.delete('id');
+    }
+    
+    window.history.pushState({}, '', url);
+  };
+
   // Reset form to initial state
   const resetForm = () => {
     setFormData(initialFormState);
@@ -213,7 +305,6 @@ export default function ProjectEditor() {
       thumbnail: false,
       mainImage: false
     });
-    setActiveTab("all");
   };
 
   // Handle form submit
@@ -226,10 +317,7 @@ export default function ProjectEditor() {
       !formData.description ||
       !formData.image ||
       formData.categories.length === 0 ||
-      !formData.company ||
-      !formData.subtitle ||
-      !formData.fullDescription ||
-      !formData.tag
+      !formData.company
     ) {
       setNotification({
         type: "error",
@@ -239,89 +327,87 @@ export default function ProjectEditor() {
     }
 
     try {
-      // Prepare content object if details are provided
-      const contentObject = formData.intro || formData.mainImage || formData.fullContent ? {
-        intro: formData.intro,
-        readTime: formData.readTime,
+      // Prepare content object
+      const contentObject = {
+        intro: formData.intro || "",
+        readTime: formData.readTime || "5 mins",
         author: {
           name: formData.author || "Admin",
-          avatar: formData.authorAvatar,
+          avatar: formData.authorAvatar || "/assets/imgs/blog-4/avatar-1.png",
           date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
         },
         mainImage: formData.mainImage || formData.image,
-        fullContent: formData.fullContent
-      } : undefined;
+        fullContent: formData.fullContent || ""
+      };
 
       if (isEditMode && editingProjectId) {
+        // İd'nin string olduğundan emin olalım
+        const idString = String(editingProjectId);
+        
+        // MongoDB Object ID formatını kontrol edelim (24 karakter hexadecimal)
+        const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(idString);
+        
         // Update existing project
-        const updatedProject: Project = {
-          id: editingProjectId,
+        const serviceData = {
+          id: idString,
           title: formData.title,
           description: formData.description,
           image: formData.image,
           categories: formData.categories,
           company: formData.company,
-          subtitle: formData.subtitle,
-          fullDescription: formData.fullDescription,
-          tag: formData.tag,
-          ...(contentObject && { content: contentObject })
+          subtitle: formData.subtitle || "",
+          fullDescription: formData.fullDescription || "",
+          tag: formData.tag || "",
+          content: contentObject
         };
         
-        // In a real application, you would save this to an API
-        // For now, we'll just update the local state
-        const updatedProjects = projects.map(project => 
-          project.id === editingProjectId ? updatedProject : project
-        );
+        console.log("Updating service with data:", JSON.stringify(serviceData));
         
-        setProjects(updatedProjects);
-        
-        setNotification({
-          type: "success",
-          message: "Project updated successfully!",
-        });
+        // Dispatch update action
+        await dispatch(updateService(serviceData)).unwrap();
         
         // Reset edit mode
         setIsEditMode(false);
         setEditingProjectId(null);
       } else {
-        // Create new project with next available ID
-        const maxId = projects.length > 0 
-          ? Math.max(...projects.map(project => project.id)) 
-          : 0;
-          
-        const newProject: Project = {
-          id: maxId + 1,
+        // Create new project
+        const serviceData = {
           title: formData.title,
           description: formData.description,
           image: formData.image,
           categories: formData.categories,
           company: formData.company,
-          subtitle: formData.subtitle,
-          fullDescription: formData.fullDescription,
-          tag: formData.tag,
-          ...(contentObject && { content: contentObject })
+          subtitle: formData.subtitle || "",
+          fullDescription: formData.fullDescription || "",
+          tag: formData.tag || "",
+          content: contentObject
         };
         
-        // In a real application, you would save this to an API
-        // For now, we'll just update the local state
-        const updatedProjects = [...projects, newProject];
-        setProjects(updatedProjects);
+        console.log("Creating service with data:", JSON.stringify(serviceData));
         
-        // Success notification
-        setNotification({
-          type: "success",
-          message: "Project created successfully!",
-        });
+        // Dispatch create action
+        await dispatch(createService(serviceData)).unwrap();
       }
       
       // Reset form
       resetForm();
       setActiveTab("all");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving project:', error);
+      
+      // Özel hata mesajları için kontrol
+      let errorMessage = error?.message || "Failed to save project. Please try again.";
+      
+      // Yetki hatası mesajları için daha kullanıcı dostu açıklamalar
+      if (errorMessage.includes("yetkiniz yok") || errorMessage.includes("Bu işlemi yapmak için yetkiniz yok")) {
+        errorMessage = "You don't have permission to edit this project. It may belong to another company or require admin/editor role.";
+      } else if (errorMessage.includes("Oturum süresi dolmuş") || errorMessage.includes("token")) {
+        errorMessage = "Your session has expired. Please log out and log in again.";
+      }
+      
       setNotification({
         type: "error",
-        message: "Failed to save project. Please try again.",
+        message: errorMessage
       });
     }
   };
@@ -330,7 +416,7 @@ export default function ProjectEditor() {
   const generateJsonDownload = (updatedProjects: Project[]) => {
     // Create a full projects object including categories
     const fullProjectsData = {
-      categories: projectsData.categories,
+      categories: categories,
       projects: updatedProjects
     };
     
@@ -371,7 +457,8 @@ export default function ProjectEditor() {
           throw new Error('Failed to import project posts');
         }
         
-        setProjects(importedProjects);
+        // Fetch services again instead of trying to pass data to action
+        dispatch(getAllServices());
         setFilteredProjects(importedProjects);
         setNotification({
           type: "success",
@@ -389,21 +476,42 @@ export default function ProjectEditor() {
   };
 
   // Edit project handler
-  const handleEditProject = (projectId: number) => {
-    const projectToEdit = projects.find(project => project.id === projectId);
-    if (!projectToEdit) return;
+  const handleEditProject = (projectId: string | number) => {
+    // projectId'yi string'e çevirelim ve konsola yazdıralım
+    const projectIdStr = String(projectId);
+    console.log(`Edit işlemi başlatılıyor, ID: ${projectIdStr}, Tip: ${typeof projectId}`);
+    
+    const projectToEdit = services.find((project: any) => {
+      // _id veya id eşleşmesini kontrol edelim ve konsola yazdıralım
+      const idMatch = project._id === projectIdStr || project._id === projectId || project.id === projectId;
+      if (idMatch) {
+        console.log(`Eşleşen proje bulundu:`, project);
+      }
+      return idMatch;
+    });
+    
+    if (!projectToEdit) {
+      console.error(`ID: ${projectIdStr} ile eşleşen proje bulunamadı`);
+      setNotification({
+        type: "error",
+        message: `Project with ID ${projectIdStr} not found`
+      });
+      return;
+    }
+    
+    console.log(`Düzenlenecek proje:`, projectToEdit);
     
     // Set form data
     setFormData({
-      title: projectToEdit.title,
-      description: projectToEdit.description,
-      image: projectToEdit.image,
-      categories: projectToEdit.categories,
+      title: projectToEdit.title || "",
+      description: projectToEdit.description || "",
+      image: projectToEdit.image || "",
+      categories: Array.isArray(projectToEdit.categories) ? projectToEdit.categories : [],
       category: "",
-      company: projectToEdit.company,
-      subtitle: projectToEdit.subtitle,
-      fullDescription: projectToEdit.fullDescription,
-      tag: projectToEdit.tag,
+      company: projectToEdit.company || "",
+      subtitle: projectToEdit.subtitle || "",
+      fullDescription: projectToEdit.fullDescription || "",
+      tag: projectToEdit.tag || "",
       intro: projectToEdit.content?.intro || "",
       fullContent: projectToEdit.content?.fullContent || "",
       mainImage: projectToEdit.content?.mainImage || "",
@@ -412,10 +520,19 @@ export default function ProjectEditor() {
       readTime: projectToEdit.content?.readTime || "10 mins",
     });
     
+    // MongoDB ObjectId değerini öncelikli olarak kullan
+    const editId = projectToEdit._id || projectId;
+    console.log(`Edit modu için kullanılacak ID: ${editId}`);
+    
     // Set edit mode
     setIsEditMode(true);
-    setEditingProjectId(projectId);
+    setEditingProjectId(editId);
     setActiveTab("add");
+    
+    // URL'yi güncelle - URL için sayısal ID kullanmaya devam ediyoruz
+    const urlId = typeof projectId === "number" ? projectId : 
+                 !isNaN(parseInt(String(projectId))) ? parseInt(String(projectId)) : 0;
+    updateURL('edit', urlId);
     
     // Reset uploading states
     setIsUploading({
@@ -424,22 +541,27 @@ export default function ProjectEditor() {
     });
   };
 
+  // New project handler
+  const handleNewProject = () => {
+    resetForm();
+    setIsEditMode(false);
+    setEditingProjectId(null);
+    setActiveTab("add");
+    
+    // URL'yi güncelle
+    updateURL('new');
+  };
+
   // Delete project handler
-  const handleDeleteProject = (projectId: number) => {
+  const handleDeleteProject = async (projectId: string | number) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
       try {
-        const updatedProjects = projects.filter(project => project.id !== projectId);
-        setProjects(updatedProjects);
-        
-        setNotification({
-          type: "success",
-          message: "Project deleted successfully!",
-        });
-      } catch (error) {
+        await dispatch(deleteService(projectId.toString())).unwrap();
+      } catch (error: any) {
         console.error('Error deleting project:', error);
         setNotification({
           type: "error",
-          message: "Failed to delete project. Please try again.",
+          message: error?.message || "Failed to delete project. Please try again.",
         });
       }
     }
@@ -534,6 +656,12 @@ export default function ProjectEditor() {
         </div>
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        {loading && activeTab === "all" && (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+        
         {notification && (
           <div className={`p-4 mb-4 rounded-lg ${notification.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
             <div className="flex items-center">
@@ -550,433 +678,486 @@ export default function ProjectEditor() {
           </div>
         )}
         
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-            <TabsList>
-              <TabsTrigger value="all">All Projects</TabsTrigger>
-              <TabsTrigger value="add">{isEditMode ? "Edit Project" : "Add New Project"}</TabsTrigger>
-            </TabsList>
-            
-            <div className="flex gap-2 items-center">
-              <div className="w-full md:w-auto">
-                <Input
-                  placeholder="Search projects by title, category, or company..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="max-w-sm"
-                />
-              </div>
+        {activeTab === "all" ? (
+          <>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+              <h2 className="text-xl font-bold">All Projects</h2>
               
+              <div className="flex gap-2 items-center">
+                <div className="w-full md:w-auto">
+                  <Input
+                    placeholder="Search projects by title, category, or company..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="max-w-sm"
+                  />
+                </div>
+                
+                <Button 
+                  variant="outline" 
+                  onClick={() => generateJsonDownload(services)} 
+                  title="Export current projects"
+                >
+                  Export
+                </Button>
+                
+                <Button 
+                  variant="default" 
+                  onClick={handleNewProject} 
+                  title="Create a new project"
+                >
+                  New Project
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {!loading ? (
+                <Table>
+                  <TableCaption>A list of your projects.</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Categories</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Tag</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredProjects.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-4">
+                          No projects found. {searchTerm && "Try a different search term."}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      currentProjects.map((project) => (
+                        <TableRow key={project._id || project.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              {project.image && (
+                                <div className="relative w-10 h-10 rounded-md overflow-hidden">
+                                  <img 
+                                    src={project.image} 
+                                    alt={project.title}
+                                    className="object-cover w-full h-full"
+                                  />
+                                </div>
+                              )}
+                              <span className="line-clamp-1">{project.title}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {Array.isArray(project.categories) && project.categories.map((cat: string, i: number) => (
+                                <Badge key={i} variant="outline">{cat}</Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>{project.company}</TableCell>
+                          <TableCell>
+                            <Badge>{project.tag || 'Project'}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Link href={`/${slugify(project.title)}`} target="_blank">
+                                <Button variant="outline" size="sm">View</Button>
+                              </Link>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleEditProject(project._id || project.id)}
+                              >
+                                Edit
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                size="sm"
+                                onClick={() => handleDeleteProject(project._id || project.id)}
+                                disabled={loading}
+                              >
+                                {loading ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  "Delete"
+                                )}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              ) : null}
+              {!loading && renderPagination()}
+            </div>
+          </>
+        ) : (
+          <div className="mt-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">
+                {isEditMode ? `Edit Project: ${formData.title}` : "Create New Project"}
+              </h2>
               <Button 
                 variant="outline" 
-                onClick={() => generateJsonDownload(projects)} 
-                title="Export current projects"
+                onClick={() => {
+                  if (isEditMode) {
+                    setIsEditMode(false);
+                    setEditingProjectId(null);
+                    // URL'yi temizle
+                    window.history.pushState({}, '', window.location.pathname);
+                  }
+                  resetForm();
+                  setActiveTab("all");
+                }}
+                disabled={loading}
               >
-                Export
+                Back to Projects
               </Button>
             </div>
-          </div>
-          
-          <TabsContent value="all" className="space-y-4">
-            <Table>
-              <TableCaption>A list of your projects.</TableCaption>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[80px]">ID</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Categories</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Tag</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentProjects.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-4">
-                      No projects found. {searchTerm && "Try a different search term."}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  currentProjects.map((project) => (
-                    <TableRow key={project.id}>
-                      <TableCell className="font-medium">{project.id}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          {project.image && (
-                            <div className="relative w-10 h-10 rounded-md overflow-hidden">
-                              <img 
-                                src={project.image} 
-                                alt={project.title}
-                                className="object-cover w-full h-full"
-                              />
-                            </div>
-                          )}
-                          <span className="line-clamp-1">{project.title}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {project.categories.map((cat, i) => (
-                            <Badge key={i} variant="outline">{cat}</Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>{project.company}</TableCell>
-                      <TableCell>
-                        <Badge>{project.tag}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link href={`/project/${project.id}`} target="_blank">
-                            <Button variant="outline" size="sm">View</Button>
-                          </Link>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleEditProject(project.id)}
-                          >
-                            Edit
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            size="sm"
-                            onClick={() => handleDeleteProject(project.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-            {renderPagination()}
-          </TabsContent>
-          
-          <TabsContent value="add">
-            <div className="grid grid-cols-1 gap-6">
-              <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div className="lg:col-span-2 space-y-4">
-                    <Card className="shadow-sm">
-                      <CardHeader className="pb-2 ">
-                        <CardTitle className="text-base font-medium">{isEditMode ? "Edit Project" : "Basic Information"}</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2 ">
+            
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2 space-y-4">
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base font-medium">
+                        Basic Information
+                      </CardTitle>
+                      {isEditMode && (
+                        <p className="text-sm text-muted-foreground">
+                          Editing project ID: {editingProjectId}
+                        </p>
+                      )}
+                    </CardHeader>
+                    <CardContent className="space-y-2 ">
+                      <div className="space-y-1">
+                        <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+                        <Input 
+                          id="title" 
+                          placeholder="Enter project title" 
+                          value={formData.title}
+                          onChange={(e) => setFormData({...formData, title: e.target.value})}
+                          className="h-9"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <Label htmlFor="description" className="text-sm font-medium">Short Description</Label>
+                        <Textarea 
+                          id="description" 
+                          placeholder="Brief description of the project"
+                          value={formData.description}
+                          onChange={(e) => setFormData({...formData, description: e.target.value})}
+                          className="min-h-[70px]"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+                          <Label htmlFor="company" className="text-sm font-medium">Company</Label>
                           <Input 
-                            id="title" 
-                            placeholder="Enter project title" 
-                            value={formData.title}
-                            onChange={(e) => setFormData({...formData, title: e.target.value})}
+                            id="company" 
+                            placeholder="Company name" 
+                            value={formData.company}
+                            onChange={(e) => setFormData({...formData, company: e.target.value})}
                             className="h-9"
                           />
                         </div>
                         
                         <div className="space-y-1">
-                          <Label htmlFor="description" className="text-sm font-medium">Short Description</Label>
+                          <Label htmlFor="tag" className="text-sm font-medium">Tag</Label>
+                          <Input 
+                            id="tag" 
+                            placeholder="e.g. Software Development" 
+                            value={formData.tag}
+                            onChange={(e) => setFormData({...formData, tag: e.target.value})}
+                            className="h-9"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="subtitle" className="text-sm font-medium">Subtitle</Label>
+                          <Input 
+                            id="subtitle" 
+                            placeholder="Project subtitle" 
+                            value={formData.subtitle}
+                            onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                            className="h-9"
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor="fullDescription" className="text-sm font-medium">Full Description</Label>
                           <Textarea 
-                            id="description" 
-                            placeholder="Brief description of the project"
-                            value={formData.description}
-                            onChange={(e) => setFormData({...formData, description: e.target.value})}
+                            id="fullDescription" 
+                            placeholder="Detailed description" 
+                            value={formData.fullDescription}
+                            onChange={(e) => setFormData({...formData, fullDescription: e.target.value})}
                             className="min-h-[70px]"
                           />
                         </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <Label htmlFor="company" className="text-sm font-medium">Company</Label>
-                            <Input 
-                              id="company" 
-                              placeholder="Company name" 
-                              value={formData.company}
-                              onChange={(e) => setFormData({...formData, company: e.target.value})}
-                              className="h-9"
-                            />
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <Label htmlFor="tag" className="text-sm font-medium">Tag</Label>
-                            <Input 
-                              id="tag" 
-                              placeholder="e.g. Software Development" 
-                              value={formData.tag}
-                              onChange={(e) => setFormData({...formData, tag: e.target.value})}
-                              className="h-9"
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <Label htmlFor="subtitle" className="text-sm font-medium">Subtitle</Label>
-                            <Input 
-                              id="subtitle" 
-                              placeholder="Project subtitle" 
-                              value={formData.subtitle}
-                              onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
-                              className="h-9"
-                            />
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <Label htmlFor="fullDescription" className="text-sm font-medium">Full Description</Label>
-                            <Textarea 
-                              id="fullDescription" 
-                              placeholder="Detailed description" 
-                              value={formData.fullDescription}
-                              onChange={(e) => setFormData({...formData, fullDescription: e.target.value})}
-                              className="min-h-[70px]"
-                            />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="shadow-sm">
-                      <CardHeader className="">
-                        <CardTitle className="text-base font-medium">Additional Content (Optional)</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2 ">
-                        <div className="space-y-1">
-                          <Label htmlFor="intro" className="text-sm font-medium">Introduction</Label>
-                          <RichTextEditor
-                            content={formData.intro}
-                            onChange={(html) => setFormData({ ...formData, intro: html })}
-                            className="min-h-[150px]"
-                          />
-                        </div>
-                        
-                        <div className="space-y-1">
-                          <Label htmlFor="fullContent" className="text-sm font-medium">Main Content</Label>
-                          <RichTextEditor
-                            content={formData.fullContent}
-                            onChange={(html) => setFormData({ ...formData, fullContent: html })}
-                            className="min-h-[350px]"
-                          />
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="space-y-1">
-                            <Label htmlFor="author" className="text-sm font-medium">Author (Optional)</Label>
-                            <Input 
-                              id="author" 
-                              placeholder="Author name" 
-                              value={formData.author}
-                              onChange={(e) => setFormData({...formData, author: e.target.value})}
-                              className="h-9"
-                            />
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <Label htmlFor="readTime" className="text-sm font-medium">Read Time</Label>
-                            <Input 
-                              id="readTime" 
-                              placeholder="10 mins" 
-                              value={formData.readTime}
-                              onChange={(e) => setFormData({...formData, readTime: e.target.value})}
-                              className="h-9"
-                            />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                   
-                  <div className="space-y-4">
-                    <Card className="shadow-sm">
-                      <CardContent className="">
-                        <div className="flex justify-between gap-3">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => {
-                              resetForm();
-                              if (isEditMode) {
-                                setIsEditMode(false);
-                                setEditingProjectId(null);
-                              }
-                              setActiveTab("all");
-                            }}
-                            className="w-1/2 h-9"
-                          >
-                            Cancel
-                          </Button>
-                          <Button type="submit" className="w-1/2 h-9">
-                            {isEditMode ? "Update" : "Create"}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="shadow-sm">
-                      <CardHeader className="pb-2 pt-3">
-                        <CardTitle className="text-base font-medium">Thumbnail Image</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
+                  <Card className="shadow-sm">
+                    <CardHeader className="">
+                      <CardTitle className="text-base font-medium">Additional Content (Optional)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 ">
+                      <div className="space-y-1">
+                        <Label htmlFor="intro" className="text-sm font-medium">Introduction</Label>
+                        <RichTextEditor
+                          content={formData.intro}
+                          onChange={(html) => setFormData({ ...formData, intro: html })}
+                          className="min-h-[150px]"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <Label htmlFor="fullContent" className="text-sm font-medium">Main Content</Label>
+                        <RichTextEditor
+                          content={formData.fullContent}
+                          onChange={(html) => setFormData({ ...formData, fullContent: html })}
+                          className="min-h-[350px]"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <div className="flex gap-2">
-                            <div className="flex-1">
-                              <Input 
-                                id="image" 
-                                placeholder="/assets/imgs/project-2/img-1.png" 
-                                value={formData.image}
-                                onChange={(e) => setFormData({...formData, image: e.target.value})}
-                                className="h-9"
-                              />
-                            </div>
-                            <div>
-                              <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleThumbnailUpload}
-                                className="hidden"
-                                accept="image/*"
-                              />
-                              <Button 
-                                type="button" 
-                                variant="outline"
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={isUploading.thumbnail}
-                                size="sm"
-                                className="h-9"
-                              >
-                                {isUploading.thumbnail ? "Uploading..." : "Upload"}
-                              </Button>
-                            </div>
-                          </div>
-                          {formData.image && (
-                            <div className="mt-3 relative w-full aspect-video rounded-md overflow-hidden border">
-                              <img 
-                                src={formData.image} 
-                                alt="Thumbnail preview" 
-                                className="object-cover w-full h-full"
-                              />
-                            </div>
-                          )}
+                          <Label htmlFor="author" className="text-sm font-medium">Author (Optional)</Label>
+                          <Input 
+                            id="author" 
+                            placeholder="Author name" 
+                            value={formData.author}
+                            onChange={(e) => setFormData({...formData, author: e.target.value})}
+                            className="h-9"
+                          />
                         </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="shadow-sm">
-                      <CardHeader className="">
-                        <CardTitle className="text-base font-medium">Main Banner Image (Optional)</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2 pt-0 ">
+                        
                         <div className="space-y-1">
-                          <div className="flex gap-2">
-                            <div className="flex-1">
-                              <Input 
-                                id="mainImage" 
-                                placeholder="/assets/imgs/blog-details/img-1.png" 
-                                value={formData.mainImage}
-                                onChange={(e) => setFormData({...formData, mainImage: e.target.value})}
-                                className="h-9"
-                              />
-                            </div>
-                            <div>
-                              <input
-                                type="file"
-                                ref={mainImageFileInputRef}
-                                onChange={handleMainImageUpload}
-                                className="hidden"
-                                accept="image/*"
-                              />
-                              <Button 
-                                type="button" 
-                                variant="outline"
-                                onClick={() => mainImageFileInputRef.current?.click()}
-                                disabled={isUploading.mainImage}
-                                size="sm"
-                                className="h-9"
-                              >
-                                {isUploading.mainImage ? "Uploading..." : "Upload"}
-                              </Button>
-                            </div>
-                          </div>
-                          {formData.mainImage && (
-                            <div className="mt-3 relative w-full aspect-video rounded-md overflow-hidden border">
-                              <img 
-                                src={formData.mainImage} 
-                                alt="Main image preview" 
-                                className="object-cover w-full h-full"
-                              />
-                            </div>
-                          )}
+                          <Label htmlFor="readTime" className="text-sm font-medium">Read Time</Label>
+                          <Input 
+                            id="readTime" 
+                            placeholder="10 mins" 
+                            value={formData.readTime}
+                            onChange={(e) => setFormData({...formData, readTime: e.target.value})}
+                            className="h-9"
+                          />
                         </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="shadow-sm">
-                      <CardHeader className="">
-                        <CardTitle className="text-base font-medium">Categories</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2 ">
-                        <div className="space-y-2">
-                          <div className="flex flex-wrap gap-1 min-h-[36px]">
-                            {formData.categories.map((cat, index) => (
-                              <Badge key={index} variant="secondary" className="px-2 py-1 text-xs">
-                                {cat}
-                                <button 
-                                  type="button"
-                                  className="ml-1 text-xs hover:text-destructive"
-                                  onClick={() => removeCategory(cat)}
-                                >
-                                  ✕
-                                </button>
-                              </Badge>
-                            ))}
-                          </div>
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="Add category"
-                              value={formData.category}
-                              onChange={(e) => setFormData({...formData, category: e.target.value})}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <div className="space-y-4">
+                  <Card className="shadow-sm">
+                    <CardContent className="">
+                      <div className="flex justify-between gap-3">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => {
+                            if (isEditMode) {
+                              setIsEditMode(false);
+                              setEditingProjectId(null);
+                              // URL'yi temizle
+                              window.history.pushState({}, '', window.location.pathname);
+                            }
+                            resetForm();
+                            setActiveTab("all");
+                          }}
+                          className="w-1/2 h-9"
+                          disabled={loading}
+                        >
+                          Cancel
+                        </Button>
+                        <Button 
+                          type="submit" 
+                          className="w-1/2 h-9"
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <span className="flex items-center">
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              {isEditMode ? "Updating..." : "Creating..."}
+                            </span>
+                          ) : (
+                            isEditMode ? "Update Project" : "Create Project"
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-2 pt-3">
+                      <CardTitle className="text-base font-medium">Thumbnail Image</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="space-y-1">
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <Input 
+                              id="image" 
+                              placeholder="/assets/imgs/project-2/img-1.png" 
+                              value={formData.image}
+                              onChange={(e) => setFormData({...formData, image: e.target.value})}
                               className="h-9"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' && formData.category.trim()) {
-                                  e.preventDefault();
-                                  if (!formData.categories.includes(formData.category.trim())) {
-                                    setFormData({
-                                      ...formData,
-                                      categories: [...formData.categories, formData.category.trim()],
-                                      category: ''
-                                    });
-                                  }
-                                }
-                              }}
+                            />
+                          </div>
+                          <div>
+                            <input
+                              type="file"
+                              ref={fileInputRef}
+                              onChange={handleThumbnailUpload}
+                              className="hidden"
+                              accept="image/*"
                             />
                             <Button 
                               type="button" 
+                              variant="outline"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={isUploading.thumbnail}
                               size="sm"
                               className="h-9"
-                              onClick={() => {
-                                if (formData.category.trim() && !formData.categories.includes(formData.category.trim())) {
+                            >
+                              {isUploading.thumbnail ? "Uploading..." : "Upload"}
+                            </Button>
+                          </div>
+                        </div>
+                        {formData.image && (
+                          <div className="mt-3 relative w-full aspect-video rounded-md overflow-hidden border">
+                            <img 
+                              src={formData.image} 
+                              alt="Thumbnail preview" 
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="shadow-sm">
+                    <CardHeader className="">
+                      <CardTitle className="text-base font-medium">Main Banner Image (Optional)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 pt-0 ">
+                      <div className="space-y-1">
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <Input 
+                              id="mainImage" 
+                              placeholder="/assets/imgs/blog-details/img-1.png" 
+                              value={formData.mainImage}
+                              onChange={(e) => setFormData({...formData, mainImage: e.target.value})}
+                              className="h-9"
+                            />
+                          </div>
+                          <div>
+                            <input
+                              type="file"
+                              ref={mainImageFileInputRef}
+                              onChange={handleMainImageUpload}
+                              className="hidden"
+                              accept="image/*"
+                            />
+                            <Button 
+                              type="button" 
+                              variant="outline"
+                              onClick={() => mainImageFileInputRef.current?.click()}
+                              disabled={isUploading.mainImage}
+                              size="sm"
+                              className="h-9"
+                            >
+                              {isUploading.mainImage ? "Uploading..." : "Upload"}
+                            </Button>
+                          </div>
+                        </div>
+                        {formData.mainImage && (
+                          <div className="mt-3 relative w-full aspect-video rounded-md overflow-hidden border">
+                            <img 
+                              src={formData.mainImage} 
+                              alt="Main image preview" 
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="shadow-sm">
+                    <CardHeader className="">
+                      <CardTitle className="text-base font-medium">Categories</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 ">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1 min-h-[36px]">
+                          {formData.categories.map((cat, index) => (
+                            <Badge key={index} variant="secondary" className="px-2 py-1 text-xs">
+                              {cat}
+                              <button 
+                                type="button"
+                                className="ml-1 text-xs hover:text-destructive"
+                                onClick={() => removeCategory(cat)}
+                              >
+                                ✕
+                              </button>
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Add category"
+                            value={formData.category}
+                            onChange={(e) => setFormData({...formData, category: e.target.value})}
+                            className="h-9"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && formData.category.trim()) {
+                                e.preventDefault();
+                                if (!formData.categories.includes(formData.category.trim())) {
                                   setFormData({
                                     ...formData,
                                     categories: [...formData.categories, formData.category.trim()],
                                     category: ''
                                   });
                                 }
-                              }}
-                            >
-                              Add
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground">Press Enter or click Add to add a category</p>
+                              }
+                            }}
+                          />
+                          <Button 
+                            type="button" 
+                            size="sm"
+                            className="h-9"
+                            onClick={() => {
+                              if (formData.category.trim() && !formData.categories.includes(formData.category.trim())) {
+                                setFormData({
+                                  ...formData,
+                                  categories: [...formData.categories, formData.category.trim()],
+                                  category: ''
+                                });
+                              }
+                            }}
+                          >
+                            Add
+                          </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                        <p className="text-xs text-muted-foreground">Press Enter or click Add to add a category</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-              </form>
-            </div>
-          </TabsContent>
-        </Tabs>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </>
   );
