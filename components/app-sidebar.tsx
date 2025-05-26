@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import {
   BookOpen,
   Bot,
@@ -174,6 +175,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -187,28 +189,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           const data = await response.json();
           setUserRole(data.user.role);
         } else {
-          // Default to editor if not authenticated
-          setUserRole('editor');
+          // If not authenticated, redirect to login page
+          router.push('/login');
+          return;
         }
       } catch (error) {
         console.error('Error fetching user role:', error);
-        setUserRole('editor'); // Fallback to editor on error
+        // Don't set a default role on error
+        setIsLoading(false);
       } finally {
         setIsLoading(false);
       }
     }
     
     fetchUserRole();
-  }, []);
+  }, [router]);
 
   // Filter navMain items based on user role
   const filteredNavMain = data.navMain.filter(item => 
-    item.roles && item.roles.includes(userRole as string)
+    userRole && item.roles && item.roles.includes(userRole as string)
   );
   
   // Filter navSecondary items based on user role
   const filteredNavSecondary = data.navSecondary.filter(item => 
-    item.roles && item.roles.includes(userRole as string)
+    userRole && item.roles && item.roles.includes(userRole as string)
   );
 
   return (

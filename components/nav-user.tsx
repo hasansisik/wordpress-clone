@@ -44,11 +44,7 @@ export function NavUser() {
   const { isMobile } = useSidebar();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [user, setUser] = useState<UserWithAvatar>({
-    name: 'Loading...',
-    email: '',
-    role: ''
-  });
+  const [user, setUser] = useState<UserWithAvatar | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   // Fetch the current user on component mount
@@ -67,15 +63,13 @@ export function NavUser() {
             avatar: undefined
           });
         } else {
-          // If user is not authenticated, use a default guest user
-          setUser({
-            name: 'Guest User',
-            email: 'guest@example.com',
-            role: 'editor'
-          });
+          // Do not set a default user on authentication failure
+          // The parent components will handle the redirect
+          setUser(null);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -106,7 +100,31 @@ export function NavUser() {
   };
 
   // Get the first letter of the name for the avatar fallback
-  const nameInitial = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+  const nameInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
+
+  if (isLoading) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg">
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarFallback className="rounded-lg">
+                <Loader2 className="h-4 w-4 animate-spin" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">Loading...</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
+  // If no user, don't render the dropdown
+  if (!user) {
+    return null;
+  }
 
   return (
     <SidebarMenu>
@@ -124,8 +142,8 @@ export function NavUser() {
                 <AvatarFallback className="rounded-lg">{nameInitial}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{isLoading ? 'Loading...' : user.name}</span>
-                <span className="truncate text-xs">{isLoading ? '' : user.email}</span>
+                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>

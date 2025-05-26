@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import {
@@ -20,6 +21,7 @@ type User = {
 };
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,13 +36,9 @@ export default function DashboardPage() {
           const data = await response.json();
           setUser(data.user);
         } else {
-          // If user is not authenticated, set a default guest user with editor role
-          setUser({
-            id: 'guest',
-            name: 'Guest User',
-            email: 'guest@example.com',
-            role: 'editor'
-          });
+          // If not authenticated, redirect to login
+          router.push('/login');
+          return;
         }
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -51,7 +49,7 @@ export default function DashboardPage() {
     }
     
     fetchUser();
-  }, []);
+  }, [router]);
 
   if (isLoading) {
     return (
@@ -70,6 +68,18 @@ export default function DashboardPage() {
         <div className="bg-muted/50 p-8 rounded-xl text-center">
           <h2 className="text-2xl font-bold mb-2">Error</h2>
           <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Add a safety check here to prevent rendering if user is null
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="mt-2">Checking authentication...</p>
         </div>
       </div>
     );
@@ -97,19 +107,19 @@ export default function DashboardPage() {
         <div className="bg-white rounded-xl shadow p-6">
           <div className="flex items-center mb-6">
             <div className="flex-shrink-0 h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center text-xl font-bold text-primary">
-              {user?.name.charAt(0).toUpperCase()}
+              {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="ml-6">
-              <h2 className="text-xl font-semibold">Welcome, {user?.name}!</h2>
+              <h2 className="text-xl font-semibold">Welcome, {user.name}!</h2>
               <p className="text-gray-500">
-                You are logged in as: <span className="capitalize">{user?.role}</span>
+                You are logged in as: <span className="capitalize">{user.role}</span>
               </p>
             </div>
           </div>
 
           <h3 className="text-lg font-semibold mb-4">Activity Overview</h3>
           <div className="bg-gray-50 p-6 rounded-lg">
-            {user?.role === 'admin' ? (
+            {user.role === 'admin' ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-medium text-gray-500 mb-2">Total Users</h4>
@@ -124,7 +134,7 @@ export default function DashboardPage() {
                   <p className="text-2xl font-bold">0</p>
                 </div>
               </div>
-            ) : user?.role === 'editor' ? (
+            ) : user.role === 'editor' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h4 className="font-medium text-gray-500 mb-2">Total Posts</h4>
