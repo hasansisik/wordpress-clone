@@ -3,6 +3,9 @@
 import * as React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useSelector, useDispatch } from "react-redux"
+import { RootState, AppDispatch } from "@/redux/store"
+import { getMyProfile } from "@/redux/actions/userActions"
 import {
   BookOpen,
   Bot,
@@ -45,11 +48,6 @@ import {
 import { UserRole } from "@/lib/types"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Section Editor",
@@ -176,34 +174,21 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { user, isAuthenticated, loading, error } = useSelector((state: RootState) => state.user);
+  const userRole = user?.role || null;
 
   useEffect(() => {
-    async function fetchUserRole() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/me');
-        
-        if (response.ok) {
-          const data = await response.json();
-          setUserRole(data.user.role);
-        } else {
-          // If not authenticated, redirect to login page
+    // If not authenticated, get user profile
+    if (!isAuthenticated && !loading) {
+      dispatch(getMyProfile())
+        .unwrap()
+        .catch(() => {
+          // If getting profile fails, redirect to login
           router.push('/login');
-          return;
-        }
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-        // Don't set a default role on error
-        setIsLoading(false);
-      } finally {
-        setIsLoading(false);
-      }
+        });
     }
-    
-    fetchUserRole();
-  }, [router]);
+  }, [isAuthenticated, loading, dispatch, router]);
 
   // Filter navMain items based on user role
   const filteredNavMain = data.navMain.filter(item => 
@@ -235,7 +220,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {isLoading ? (
+        {loading ? (
           <div className="flex justify-center items-center p-4">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
@@ -247,7 +232,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )

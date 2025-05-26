@@ -1,35 +1,20 @@
-import { cookies } from 'next/headers';
-import { getSession } from './db';
 import { User } from './types';
 
-// Get current user from custom session
-export async function getCurrentUser(): Promise<Omit<User, 'password'> | null> {
-  try {
-    // Get the cookie store
-    const cookieStore = await cookies();
-    
-    // Check for our custom session
-    const sessionId = cookieStore.get('test-session')?.value;
-    
-    if (sessionId) {
-      const customSession = getSession(sessionId);
-      if (customSession) {
-        return customSession.user;
-      }
-    }
-    
-    // If no custom session found, return null
-    return null;
-  } catch (error) {
-    console.error('Error getting current user:', error);
-    return null;
-  }
+// Get current user from session - always returns a demo user
+export async function getCurrentUser(): Promise<Omit<User, 'password'>> {
+  // Return a demo user
+  return {
+    id: "1",
+    name: "Demo User",
+    email: "user@example.com",
+    role: "admin",
+    createdAt: new Date("2023-01-01")
+  };
 }
 
-// Check if user is authenticated
+// Check if user is authenticated - always returns true
 export async function isAuthenticated() {
-  const user = await getCurrentUser();
-  return user !== null;
+  return true;
 }
 
 // Check if user has required role

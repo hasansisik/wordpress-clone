@@ -19,19 +19,23 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
+export interface NavMainItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  isActive?: boolean;
+  roles?: string[];
+  items?: {
+    title: string;
+    url: string;
+    description?: string;
+  }[];
+}
+
 export function NavMain({
   items,
 }: {
-  items: {
-    title: string
-    url: string
-    icon: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
+  items: NavMainItem[];
 }) {
   return (
     <SidebarGroup>

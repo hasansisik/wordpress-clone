@@ -44,9 +44,9 @@
   ],
   "socialLinks": [],
   "topBarItems": [],
-  "showDarkModeToggle": true,
+  "showDarkModeToggle": false,
   "showActionButton": true,
-  "actionButtonText": "Join For Free",
-  "actionButtonLink": "#",
+  "actionButtonText": "Giris",
+  "actionButtonLink": "/login",
   "headerComponent": "Header1"
 }

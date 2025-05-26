@@ -8,22 +8,17 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { getCurrentUser } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 
-export default async function ProfilePage() {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="bg-muted/50 p-8 rounded-xl text-center">
-          <h2 className="text-2xl font-bold mb-2">Not Authenticated</h2>
-          <p>Please log in to view your profile.</p>
-        </div>
-      </div>
-    );
-  }
+export default function ProfilePage() {
+  // Default user data - no authentication
+  const user = {
+    id: "1",
+    name: "Demo User",
+    email: "user@example.com",
+    role: "admin",
+    createdAt: "2023-01-01T00:00:00.000Z"
+  };
 
   return (
     <>

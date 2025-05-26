@@ -1,26 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
 
 export async function GET() {
-  try {
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: 'Not authenticated' },
-        { status: 401 }
-      );
+  // Return a demo user without authentication
+  return NextResponse.json({
+    success: true,
+    user: {
+      id: "1",
+      name: "Demo User",
+      email: "user@example.com",
+      role: "admin",
+      createdAt: "2023-01-01T00:00:00.000Z"
     }
-    
-    return NextResponse.json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    console.error('Error fetching current user:', error);
-    return NextResponse.json(
-      { success: false, message: 'An error occurred' },
-      { status: 500 }
-    );
-  }
+  });
 } 

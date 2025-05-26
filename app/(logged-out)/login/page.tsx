@@ -1,53 +1,49 @@
 'use client';
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState } from "react";
+import { useDispatch } from "react-redux";
+import { login } from "@/redux/actions/userActions";
+import { AppDispatch } from "@/redux/store";
 
 export default function PageLogin() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const redirect = searchParams.get('redirect') || '/dashboard';
-	const [error, setError] = useState<string | null>(null);
+	const dispatch = useDispatch<AppDispatch>();
+	const [formData, setFormData] = useState({
+		email: '',
+		password: ''
+	});
 	const [loading, setLoading] = useState(false);
-	const [loginSuccess, setLoginSuccess] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target;
+		setFormData(prev => ({
+			...prev,
+			[name]: value
+		}));
+	};
 
 	async function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		
-		// If already logged in, don't submit again
-		if (loginSuccess) return;
-		
-		setError(null);
 		setLoading(true);
-
-		const formData = new FormData(e.currentTarget);
-		const email = formData.get('email') as string;
-		const password = formData.get('password') as string;
-
+		setError(null);
+		
 		try {
-			// Use our custom login API instead of NextAuth
-			const response = await fetch('/api/test-login', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ email, password }),
-			});
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				setLoading(false);
-				setError(data.message || "Invalid username or password");
-				return;
+			const resultAction = await dispatch(login(formData));
+			if (login.fulfilled.match(resultAction)) {
+				console.log("Login successful:", resultAction.payload);
+				router.push(redirect);
+			} else if (login.rejected.match(resultAction)) {
+				console.error("Login failed:", resultAction.payload);
+				setError(resultAction.payload as string);
 			}
-
-			// Mark login as successful but don't redirect yet
-			setLoginSuccess(true);
-			setLoading(false);
-		} catch (err) {
-			setError('An error occurred during login');
-			console.error(err);
+		} catch (error) {
+			console.error("Login error:", error);
+			setError("An unexpected error occurred");
+		} finally {
 			setLoading(false);
 		}
 	}
@@ -71,12 +67,6 @@ export default function PageLogin() {
 									{error}
 								</div>
 							)}
-							
-							{loginSuccess && (
-								<div className="alert alert-success" role="alert">
-									Login successful! Click the button below to go to dashboard.
-								</div>
-							)}
 
 							<form onSubmit={handleSubmit} id="loginForm">
 								<div className="col text-start">
@@ -96,7 +86,8 @@ export default function PageLogin() {
 											id="email" 
 											aria-label="email" 
 											required 
-											disabled={loginSuccess}
+											value={formData.email}
+											onChange={handleChange}
 										/>
 									</div>
 								</div>
@@ -119,24 +110,25 @@ export default function PageLogin() {
 											id="password" 
 											aria-label="password" 
 											required 
-											disabled={loginSuccess}
+											value={formData.password}
+											onChange={handleChange}
 										/>
 									</div>
 								</div>
 								<div className="col-12 mt-2 d-flex justify-content-end">
 									<div className="form-check text-start">
-										<input className="form-check-input" type="checkbox" id="remember" name="remember" disabled={loginSuccess} />
+										<input className="form-check-input" type="checkbox" id="remember" name="remember" />
 										<label className="form-check-label text-500 fs-7" htmlFor="remember"> Remember me </label>
 									</div>
 								</div>
 								<div className="col-12 mt-5">
-									{!loginSuccess ? (
-										<button 
-											type="submit" 
-											className="btn btn-primary w-100 d-flex align-items-center justify-content-center" 
-											disabled={loading}
-										>
-											{loading ? 'Logging in...' : 'Login'}
+									<button 
+										type="submit" 
+										className="btn btn-primary w-100 d-flex align-items-center justify-content-center"
+										disabled={loading}
+									>
+										{loading ? 'Logging in...' : 'Login'}
+										{!loading && (
 											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={25} height={24} viewBox="0 0 25 24" fill="none">
 												<g clipPath="url(#clip0_741_28206)">
 													<path d="M21.6059 12.256H1V11.744H21.6059H22.813L21.9594 10.8905L17.5558 6.4868L17.9177 6.12484L23.7929 12L17.9177 17.8751L17.5558 17.5132L21.9594 13.1095L22.813 12.256H21.6059Z" stroke="white" />
@@ -147,25 +139,8 @@ export default function PageLogin() {
 													</clipPath>
 												</defs>
 											</svg>
-										</button>
-									) : (
-										<a 
-											href="/dashboard"
-											className="btn btn-primary w-100 d-flex align-items-center justify-content-center text-white text-decoration-none"
-										>
-											Go to Dashboard
-											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={25} height={24} viewBox="0 0 25 24" fill="none">
-												<g clipPath="url(#clip0_741_28206)">
-													<path d="M21.6059 12.256H1V11.744H21.6059H22.813L21.9594 10.8905L17.5558 6.4868L17.9177 6.12484L23.7929 12L17.9177 17.8751L17.5558 17.5132L21.9594 13.1095L22.813 12.256H21.6059Z" stroke="white" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={24} height={24} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</a>
-									)}
+										)}
+									</button>
 								</div>
 							</form>
 						</div>

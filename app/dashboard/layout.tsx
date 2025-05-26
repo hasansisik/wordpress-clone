@@ -1,20 +1,45 @@
+'use client';
+
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Site Editör',
-  description: 'Sistemi'
-};
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getMyProfile } from "@/redux/actions/userActions";
+import { RootState, AppDispatch } from "@/redux/store";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const { user, isAuthenticated, loading, error } = useSelector((state: RootState) => state.user);
+  
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const resultAction = await dispatch(getMyProfile());
+        if (getMyProfile.fulfilled.match(resultAction)) {
+          console.log("User profile:", resultAction.payload);
+        } else if (getMyProfile.rejected.match(resultAction)) {
+          console.error("Failed to fetch profile:", resultAction.payload);
+          // Redirect to login if not authenticated
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        router.push('/login');
+      }
+    };
+
+    fetchUserProfile();
+  }, [dispatch, router]);
+
   return (
     <SidebarProvider>
       <AppSidebar />

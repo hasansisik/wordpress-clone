@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ReduxProvider } from '../components/ui/ReduxProvider';
 
 export const metadata: Metadata = {
   title: "WordPress Clone",
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <Providers>
-          {children}
-        </Providers>
+        <ReduxProvider>
+          <Providers>
+            {children}
+          </Providers>
+        </ReduxProvider>
       </body>
     </html>
   );

@@ -1,39 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-
 export default function LogoutButton() {
-  const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      // Use our custom logout API
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-      });
-      
-      if (response.ok) {
-        router.push('/login');
-      } else {
-        console.error('Logout failed');
-        setIsLoggingOut(false);
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
-      setIsLoggingOut(false);
-    }
-  };
-
   return (
     <button
-      onClick={handleLogout}
-      disabled={isLoggingOut}
+      onClick={() => {}}
       className="flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-900"
     >
-      {isLoggingOut ? 'Logging out...' : 'Logout'}
+      Logout
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20"

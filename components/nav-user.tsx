@@ -1,17 +1,9 @@
 "use client"
 
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-  Loader2,
-} from "lucide-react"
-
+import { useRouter } from "next/navigation"
+import { useDispatch } from "react-redux"
+import { logout } from "@/redux/actions/userActions"
+import { AppDispatch } from "@/redux/store"
 import {
   Avatar,
   AvatarFallback,
@@ -32,99 +24,44 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { ChevronsUpDown, LogOut, User } from "lucide-react"
 
 type UserWithAvatar = {
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   role?: string;
-  avatar?: string;
+  profile?: {
+    picture?: string;
+  };
 }
 
-export function NavUser() {
+interface NavUserProps {
+  user?: UserWithAvatar;
+}
+
+export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
   const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [user, setUser] = useState<UserWithAvatar | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
   
-  // Fetch the current user on component mount
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/me');
-        
-        if (response.ok) {
-          const data = await response.json();
-          setUser({
-            name: data.user.name,
-            email: data.user.email,
-            role: data.user.role,
-            avatar: undefined
-          });
-        } else {
-          // Do not set a default user on authentication failure
-          // The parent components will handle the redirect
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    fetchUser();
-  }, []);
-
+  // Fallback user data if not provided
+  const userData = user || {
+    name: "Demo User",
+    email: "user@example.com",
+    role: "user"
+  };
+  
+  // Get the first letter of the name for the avatar fallback
+  const nameInitial = userData.name ? userData.name.charAt(0).toUpperCase() : 'U';
+  
   const handleLogout = async () => {
     try {
-      setIsLoggingOut(true);
-      // Use our custom logout endpoint
-      const response = await fetch('/api/logout', {
-        method: 'POST'
-      });
-      
-      if (response.ok) {
-        // Redirect to login page
-        router.push('/login');
-      } else {
-        console.error('Logout failed');
-        setIsLoggingOut(false);
-      }
+      await dispatch(logout()).unwrap();
+      router.push('/login');
     } catch (error) {
-      console.error('Logout error:', error);
-      setIsLoggingOut(false);
+      console.error('Logout failed:', error);
     }
   };
-
-  // Get the first letter of the name for the avatar fallback
-  const nameInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
-
-  if (isLoading) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg">
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarFallback className="rounded-lg">
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">Loading...</span>
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
-  }
-
-  // If no user, don't render the dropdown
-  if (!user) {
-    return null;
-  }
 
   return (
     <SidebarMenu>
@@ -136,14 +73,14 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                {user.avatar ? (
-                <AvatarImage src={user.avatar} alt={user.name} />
+                {userData.profile?.picture ? (
+                <AvatarImage src={userData.profile.picture} alt={userData.name} />
                 ) : null}
                 <AvatarFallback className="rounded-lg">{nameInitial}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{userData.name}</span>
+                <span className="truncate text-xs">{userData.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -157,29 +94,31 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {user.avatar ? (
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  {userData.profile?.picture ? (
+                  <AvatarImage src={userData.profile.picture} alt={userData.name} />
                   ) : null}
                   <AvatarFallback className="rounded-lg">{nameInitial}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
-                  {user.role && (
-                    <span className="truncate text-xs text-muted-foreground capitalize">{user.role}</span>
+                  <span className="truncate font-medium">{userData.name}</span>
+                  <span className="truncate text-xs">{userData.email}</span>
+                  {userData.role && (
+                    <span className="truncate text-xs text-muted-foreground capitalize">{userData.role}</span>
                   )}
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
-              {isLoggingOut ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
-              )}
-              {isLoggingOut ? "Logging out..." : "Log out"}
-            </DropdownMenuItem>
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

@@ -1,9 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,77 +10,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-};
-
 export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/me');
-        
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        } else {
-          // If not authenticated, redirect to login
-          router.push('/login');
-          return;
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        setError('Failed to load user data');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    fetchUser();
-  }, [router]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="mt-2">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="bg-muted/50 p-8 rounded-xl text-center">
-          <h2 className="text-2xl font-bold mb-2">Error</h2>
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Add a safety check here to prevent rendering if user is null
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="mt-2">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
+  // Default user data - no authentication
+  const user = {
+    id: "1",
+    name: "Demo User",
+    email: "user@example.com",
+    role: "admin"
+  };
 
   return (
     <>

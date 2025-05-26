@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { 
+  getAllUsers, 
+  register, 
+  editUser, 
+  deleteUser 
+} from "@/redux/actions/userActions";
+import { AppDispatch, RootState } from "@/redux/store";
 import {
   Plus,
   X,
@@ -10,7 +18,9 @@ import {
   Trash2,
   Lock,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Building,
+  Pencil
 } from "lucide-react";
 
 import {
@@ -68,22 +78,26 @@ import {
 } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { User, UserRole } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function UsersPage() {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { users, loading, error, success, message, user: currentUser } = useSelector(
+    (state: RootState) => state.user
+  );
   
   // Form states
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("user");
+  const [companyId, setCompanyId] = useState("");
+  const [status, setStatus] = useState<string>("active");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
@@ -92,33 +106,21 @@ export default function UsersPage() {
 
   // Fetch users
   useEffect(() => {
-    async function fetchUsers() {
-      try {
-        setIsLoading(true);
-        const response = await fetch('/api/users');
-        
-        if (!response.ok) {
-          if (response.status === 403) {
-            setIsAdmin(false);
-            setError("You don't have permission to view this page");
-            return;
-          }
-          throw new Error("Failed to fetch users");
-        }
-        
-        const data = await response.json();
-        setUsers(data.users || []);
-        setIsAdmin(true);
-      } catch (err) {
-        setError("Error loading users. Please try again.");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
+    dispatch(getAllUsers());
+  }, [dispatch]);
+
+  // Handle success or error message
+  useEffect(() => {
+    if (success && message) {
+      setFormSuccess(message);
+      setTimeout(() => setFormSuccess(null), 5000);
     }
     
-    fetchUsers();
-  }, []);
+    if (error) {
+      setFormError(error);
+      setTimeout(() => setFormError(null), 5000);
+    }
+  }, [success, message, error]);
 
   // Add new user handler
   const handleAddUser = async (e: React.FormEvent) => {
@@ -134,24 +136,17 @@ export default function UsersPage() {
     }
     
     try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password, role }),
-      });
+      // Use current user's company ID if not specified
+      const userCompanyId = companyId || currentUser?.companyId;
       
-      const data = await response.json();
+      await dispatch(register({
+        name,
+        email,
+        password,
+        role,
+        companyId: userCompanyId
+      })).unwrap();
       
-      if (!response.ok) {
-        setFormError(data.message || "Failed to add user");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Add new user to the list
-      setUsers(prev => [...prev, data.user]);
       setFormSuccess("User added successfully");
       
       // Reset form
@@ -159,10 +154,48 @@ export default function UsersPage() {
       setEmail("");
       setPassword("");
       setRole("user");
+      setCompanyId("");
       setAddUserDialogOpen(false);
-    } catch (err) {
-      setFormError("An error occurred. Please try again.");
-      console.error(err);
+    } catch (err: any) {
+      setFormError(err || "An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Edit user handler
+  const handleEditUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    setFormSuccess(null);
+    setIsSubmitting(true);
+    
+    if (!selectedUser) {
+      setFormError("No user selected");
+      setIsSubmitting(false);
+      return;
+    }
+    
+    try {
+      await dispatch(editUser({
+        userId: selectedUser._id,
+        name,
+        email,
+        role,
+        status,
+        companyId: companyId || selectedUser.companyId
+      })).unwrap();
+      
+      setFormSuccess("User updated successfully");
+      
+      // Reset form
+      setEditUserDialogOpen(false);
+      setSelectedUser(null);
+      
+      // Refresh user list
+      dispatch(getAllUsers());
+    } catch (err: any) {
+      setFormError(err || "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -194,21 +227,10 @@ export default function UsersPage() {
     }
     
     try {
-      const response = await fetch(`/api/users/${selectedUser.id}/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password: newPassword }),
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        setFormError(data.message || "Failed to change password");
-        setIsSubmitting(false);
-        return;
-      }
+      await dispatch(editUser({
+        userId: selectedUser._id,
+        password: newPassword
+      })).unwrap();
       
       setFormSuccess("Password changed successfully");
       
@@ -217,9 +239,8 @@ export default function UsersPage() {
       setConfirmPassword("");
       setChangePasswordDialogOpen(false);
       setSelectedUser(null);
-    } catch (err) {
-      setFormError("An error occurred. Please try again.");
-      console.error(err);
+    } catch (err: any) {
+      setFormError(err || "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -233,29 +254,16 @@ export default function UsersPage() {
     
     try {
       setIsSubmitting(true);
-      const response = await fetch(`/api/users/${userId}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.message || "Failed to delete user");
-        setIsSubmitting(false);
-        return;
-      }
-      
-      // Remove deleted user from the list
-      setUsers(prev => prev.filter(user => user.id !== userId));
-      setFormSuccess("User deleted successfully");
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-      console.error(err);
+      await dispatch(deleteUser(userId)).unwrap();
+      toast.success("User deleted successfully");
+    } catch (err: any) {
+      toast.error(err || "Failed to delete user");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getRoleBadgeStyles = (role: UserRole) => {
+  const getRoleBadgeStyles = (role: string) => {
     switch (role) {
       case 'admin':
         return 'bg-destructive/20 text-destructive hover:bg-destructive/30';
@@ -265,6 +273,9 @@ export default function UsersPage() {
         return 'bg-primary/20 text-primary hover:bg-primary/30';
     }
   };
+
+  // Check if user is admin
+  const isAdmin = currentUser?.role === 'admin';
 
   return (
     <>
@@ -289,7 +300,7 @@ export default function UsersPage() {
         </div>
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        {isLoading ? (
+        {loading ? (
           <div className="flex justify-center items-center h-full">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
@@ -310,17 +321,28 @@ export default function UsersPage() {
             
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold">User Management</h1>
-              <Button 
-                onClick={() => {
-                  setAddUserDialogOpen(true);
-                  setFormError(null);
-                  setFormSuccess(null);
-                }}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add New User
-              </Button>
+              {isAdmin && (
+                <Button 
+                  onClick={() => {
+                    setAddUserDialogOpen(true);
+                    setFormError(null);
+                    setFormSuccess(null);
+                  }}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add New User
+                </Button>
+              )}
             </div>
+
+            {currentUser && (
+              <Alert className="mb-4">
+                <Building className="h-4 w-4" />
+                <AlertDescription>
+                  You are managing users for company: <strong>{currentUser.companyId}</strong>
+                </AlertDescription>
+              </Alert>
+            )}
             
             {/* Add User Dialog */}
             <Dialog open={addUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
@@ -396,6 +418,20 @@ export default function UsersPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                    {isAdmin && (
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label htmlFor="companyId" className="text-right text-sm font-medium">
+                          Company ID
+                        </label>
+                        <Input
+                          id="companyId"
+                          value={companyId}
+                          onChange={(e) => setCompanyId(e.target.value)}
+                          className="col-span-3"
+                          placeholder={`Default: ${currentUser?.companyId}`}
+                        />
+                      </div>
+                    )}
                   </div>
                   <DialogFooter>
                     <Button type="submit" disabled={isSubmitting}>
@@ -406,6 +442,116 @@ export default function UsersPage() {
                         </>
                       ) : (
                         'Add User'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            
+            {/* Edit User Dialog */}
+            <Dialog open={editUserDialogOpen} onOpenChange={setEditUserDialogOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>
+                    Edit User: {selectedUser?.name}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Update the user account information.
+                  </DialogDescription>
+                </DialogHeader>
+                {formError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{formError}</AlertDescription>
+                  </Alert>
+                )}
+                <form onSubmit={handleEditUser}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="edit-name" className="text-right text-sm font-medium">
+                        Name
+                      </label>
+                      <Input
+                        id="edit-name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="edit-email" className="text-right text-sm font-medium">
+                        Email
+                      </label>
+                      <Input
+                        id="edit-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="col-span-3"
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="edit-role" className="text-right text-sm font-medium">
+                        Role
+                      </label>
+                      <Select
+                        value={role}
+                        onValueChange={(value) => setRole(value as UserRole)}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="editor">Editor</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <label htmlFor="edit-status" className="text-right text-sm font-medium">
+                        Status
+                      </label>
+                      <Select
+                        value={status}
+                        onValueChange={(value) => setStatus(value)}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {isAdmin && (
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label htmlFor="edit-companyId" className="text-right text-sm font-medium">
+                          Company ID
+                        </label>
+                        <Input
+                          id="edit-companyId"
+                          value={companyId}
+                          onChange={(e) => setCompanyId(e.target.value)}
+                          className="col-span-3"
+                          placeholder={`Current: ${selectedUser?.companyId || currentUser?.companyId}`}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Updating...
+                        </>
+                      ) : (
+                        'Update User'
                       )}
                     </Button>
                   </DialogFooter>
@@ -486,61 +632,90 @@ export default function UsersPage() {
                       <TableHead>Name</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead>Company ID</TableHead>
                       <TableHead>Created</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <span className="font-medium">{user.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                        <TableCell>
-                          <Badge className={getRoleBadgeStyles(user.role as UserRole)}>
-                            {user.role}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {new Date(user.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedUser(user);
-                              setChangePasswordDialogOpen(true);
-                              setFormError(null);
-                              setFormSuccess(null);
-                            }}
-                            className="mr-1"
-                          >
-                            <Lock className="h-4 w-4 mr-1" />
-                            Password
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteUser(user.id)}
-                            className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Delete
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    
-                    {users.length === 0 && (
+                    {users && users.length > 0 ? (
+                      users.map((user: any) => (
+                        <TableRow key={user._id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium">{user.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                          <TableCell>
+                            <Badge className={getRoleBadgeStyles(user.role)}>
+                              {user.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {user.companyId}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {isAdmin && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedUser(user);
+                                    // Populate form fields with user data
+                                    setName(user.name || "");
+                                    setEmail(user.email || "");
+                                    setRole(user.role || "user");
+                                    setStatus(user.status || "active");
+                                    setCompanyId(user.companyId || "");
+                                    setEditUserDialogOpen(true);
+                                    setFormError(null);
+                                    setFormSuccess(null);
+                                  }}
+                                  className="mr-1"
+                                >
+                                  <Pencil className="h-4 w-4 mr-1" />
+                                  Edit
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedUser(user);
+                                    setChangePasswordDialogOpen(true);
+                                    setFormError(null);
+                                    setFormSuccess(null);
+                                  }}
+                                  className="mr-1"
+                                >
+                                  <Lock className="h-4 w-4 mr-1" />
+                                  Password
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteUser(user._id)}
+                                  className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                                  disabled={user._id === currentUser?._id}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-1" />
+                                  Delete
+                                </Button>
+                              </>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                           No users found
                         </TableCell>
                       </TableRow>
