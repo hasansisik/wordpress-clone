@@ -10,6 +10,12 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
 	const handleAccordion = (key: any) => {
 		setIsAccordion(prevState => prevState === key ? null : key)
 	}
+
+	const handleMenuItemClick = () => {
+		// Close the mobile menu when a menu item is clicked
+		handleMobileMenu()
+	}
+
 	return (
 		<>
 			{/* Offcanvas search */}
@@ -33,7 +39,7 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
 									<ul className="mobile-menu font-heading ps-0">
 										{headerData.mainMenu.map((item, index) => (
 											<li key={item._id}>
-												<Link href={item.link}>{item.name}</Link>
+												<Link href={item.link} onClick={handleMenuItemClick}>{item.name}</Link>
 											</li>
 										))}
 									</ul>

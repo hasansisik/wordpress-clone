@@ -21,6 +21,12 @@ const WhatsAppButton = () => {
   if (!whatsappConfig.enabled) return null
 
   const handleWhatsAppClick = () => {
+    // Close mobile menu if open
+    const mobileMenu = document.querySelector('.mobile-header-active')
+    if (mobileMenu && mobileMenu.classList.contains('sidebar-visible')) {
+      mobileMenu.classList.remove('sidebar-visible')
+    }
+
     const encodedMessage = encodeURIComponent(whatsappConfig.message)
     const whatsappUrl = `https://wa.me/${whatsappConfig.phoneNumber.replace(/\+/g, '')}?text=${encodedMessage}`
     window.open(whatsappUrl, '_blank')
