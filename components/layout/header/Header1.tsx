@@ -7,7 +7,7 @@ import Menu from '../Menu'
 import { useEffect, useState } from 'react'
 import headerData from '@/data/header.json'
 
-export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
+export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
 	const [data, setData] = useState<any>(headerData || {})
 
 	useEffect(() => {
@@ -17,7 +17,14 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 	return (
 		<>
 			<header>
-				<nav className={`navbar navbar-expand-lg navbar-light w-100 z-999 ${scroll ? 'navbar-stick' : ''}`} style={{ position: `${scroll? "fixed" : "relative"}`, top: `${scroll? "0" : "auto"}` }}>
+				<nav 
+					className={`navbar navbar-expand-lg navbar-light w-100 z-999 ${scroll ? 'navbar-stick' : ''}`} 
+					style={{ 
+						position: `${scroll ? "fixed" : "relative"}`, 
+						top: `${scroll ? (hideHeader ? "-100px" : "0") : "auto"}`,
+						transition: "top 0.3s ease-in-out"
+					}}
+				>
 					<div className="container">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
 							<img 
@@ -35,11 +42,6 @@ export default function Header1({ scroll, isMobileMenu, handleMobileMenu, isSear
 						</Link>
 						<Menu menuItems={data?.mainMenu || []} />
 						<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
-							<div data-bs-toggle="offcanvas" data-bs-target=".offcanvasTop" onClick={handleSearch} className='cursor-pointer'>
-								<svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-									<path className="stroke-dark" d="M19.25 19.25L15.5 15.5M4.75 11C4.75 7.54822 7.54822 4.75 11 4.75C14.4518 4.75 17.25 7.54822 17.25 11C17.25 14.4518 14.4518 17.25 11 17.25C7.54822 17.25 4.75 14.4518 4.75 11Z" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-								</svg>
-							</div>
 							{data?.showDarkModeToggle && <ThemeSwitch />}
 							{data?.showActionButton && (
 								<Link href={data?.links?.freeTrialLink?.href || "#"} className="btn btn-gradient d-none d-md-block">

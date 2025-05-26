@@ -2,10 +2,13 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import otherData from "@/data/other.json"
+import { useDispatch, useSelector } from "react-redux"
+import { getAllBlogs } from "@/redux/actions/blogActions"
+import { AppDispatch, RootState } from "@/redux/store"
+import { Loader2 } from "lucide-react"
 
 interface Blog5Props {
 	previewData?: any;
-	blogs?: any[];
 }
 
 // Function to convert title to slug
@@ -20,8 +23,14 @@ const slugify = (text: string) => {
 		.replace(/-+$/, '');         // Trim - from end of text
 };
 
-export default function Blog5({ previewData, blogs = [] }: Blog5Props) {
+export default function Blog5({ previewData }: Blog5Props) {
 	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { blogs, loading, error } = useSelector((state: RootState) => state.blog)
+
+	useEffect(() => {
+		dispatch(getAllBlogs())
+	}, [dispatch])
 
 	useEffect(() => {
 		// If preview data is provided, use it, otherwise load from the file
@@ -34,9 +43,27 @@ export default function Blog5({ previewData, blogs = [] }: Blog5Props) {
 		}
 	}, [previewData])
 
-	if (!data) {
-		return <section>Loading Blog5...</section>
+	if (loading) {
+		return (
+			<div className="flex justify-center items-center min-h-[200px]">
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+			</div>
+		)
 	}
+
+	if (error) {
+		return (
+			<div className="flex justify-center items-center min-h-[200px]">
+				<p className="text-red-500">Error: {error}</p>
+			</div>
+		)
+	}
+
+	if (!data || !blogs || blogs.length === 0) {
+		return null
+	}
+
+	const blogPosts = blogs.slice(3, 6)
 
 	return (
 		<>
@@ -49,7 +76,7 @@ export default function Blog5({ previewData, blogs = [] }: Blog5Props) {
 						</div>
 					</div>
 					<div className="row">
-						{blogs.map((post, index) => (
+						{blogPosts.map((post, index) => (
 							<div key={index} className="col-lg-4 col-md-6 text-start">
 								<div className="card border-0 rounded-3 mt-4 position-relative d-inline-flex">
 									<img className="rounded-top-3" src={post.image} alt="blog post" />

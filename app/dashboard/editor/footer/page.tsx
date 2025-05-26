@@ -90,6 +90,7 @@ interface FooterData {
   showAppLinks: boolean;
   showInstagram: boolean;
   showPrivacyLinks: boolean;
+  showSocialLinks: boolean;
   privacyLinks: LinkItem[];
 }
 
@@ -257,6 +258,28 @@ function FooterEditorContent({
             </select>
           </div>
           
+          {/* Social Links Display Toggle */}
+          <div className="mt-6 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="showSocialLinks" className="text-sm">
+                Social Media Icons
+              </Label>
+              <Switch
+                id="showSocialLinks"
+                checked={data.showSocialLinks !== false}
+                onCheckedChange={(checked) => {
+                  const updatedData = {
+                    ...data,
+                    showSocialLinks: checked
+                  };
+                  setFooterData(updatedData);
+                  saveChangesToAPI(updatedData);
+                }}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1 mb-3">Show social media icons in the footer.</p>
+          </div>
+
           {/* Footer Columns Management */}
           <div className="mt-6 border-t pt-4">
             <div className="flex items-center justify-between mb-4">
@@ -868,6 +891,7 @@ export default function FooterEditor() {
     showAppLinks: false,
     showInstagram: false,
     showPrivacyLinks: true,
+    showSocialLinks: true,
     privacyLinks: []
   });
 
@@ -1997,9 +2021,8 @@ export default function FooterEditor() {
                               <option value="Instagram">Instagram</option>
                               <option value="YouTube">YouTube</option>
                               <option value="Pinterest">Pinterest</option>
-                              <option value="Behance">Behance</option>
-                              <option value="Dribbble">Dribbble</option>
                               <option value="TikTok">TikTok</option>
+                              <option value="Dribbble">Dribbble</option>
                             </select>
                           </div>
                           <div className="space-y-2">

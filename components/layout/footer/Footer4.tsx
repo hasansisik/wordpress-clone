@@ -24,6 +24,7 @@ interface FooterProps {
 	showAppLinks?: boolean;
 	appLinks?: any[];
 	showInstagram?: boolean;
+	showSocialLinks?: boolean;
 	instagramPosts?: any[];
 }
 
@@ -60,7 +61,8 @@ export default function Footer4(props: FooterProps = {}) {
 		privacyLinks: Array.isArray(data.privacyLinks) ? data.privacyLinks : [],
 		appLinks: Array.isArray(data.appLinks) ? data.appLinks : [],
 		showPrivacyLinks: data.showPrivacyLinks || false,
-		showAppLinks: data.showAppLinks || false
+		showAppLinks: data.showAppLinks || false,
+		showSocialLinks: data.showSocialLinks !== false
 	};
 
 	return (
@@ -113,23 +115,24 @@ export default function Footer4(props: FooterProps = {}) {
 								<div className="col-lg-4 pe-10">
 									<Link href="/"><img src={safeData.logo.src} alt={safeData.logo.alt} /></Link>
 									<p className="text-white fw-medium mt-3 mb-6 opacity-50">{safeData.description}</p>
-									<div className="d-flex social-icons">
-										{safeData.socialLinks.map((social: any, index: number) => (
-											<Link key={social._id || `social-${index}`} href={social.link || "#"} className="text-white border border-end-0 border-light border-opacity-10 icon-shape icon-md">
-												{social.name === "Facebook" && (
-													<svg xmlns="http://www.w3.org/2000/svg" width={10} height={17} viewBox="0 0 10 17" fill="none">
-														<path d="M8.84863 9.20312H6.5415V16.0938H3.46533V9.20312H0.942871V6.37305H3.46533V4.18896C3.46533 1.72803 4.94189 0.34375 7.1875 0.34375C8.26416 0.34375 9.40234 0.559082 9.40234 0.559082V2.98926H8.14111C6.91064 2.98926 6.5415 3.72754 6.5415 4.52734V6.37305H9.2793L8.84863 9.20312Z" fill="white" />
-													</svg>
-												)}
-												{social.name === "Twitter" && <i className="bi bi-twitter-x" />}
-												{social.name === "LinkedIn" && <i className="bi bi-linkedin" />}
-												{social.name === "Behance" && <i className="bi bi-behance" />}
-												{social.name === "Instagram" && <i className="bi bi-instagram" />}
-												{social.name === "YouTube" && <i className="bi bi-youtube" />}
-												{social.name === "Pinterest" && <i className="bi bi-pinterest" />}
-											</Link>
-										))}
-									</div>
+									{safeData.showSocialLinks && safeData.socialLinks.length > 0 && (
+										<div className="d-flex social-icons">
+											{safeData.socialLinks.map((social: any, index: number) => (
+												<Link key={social._id || `social-${index}`} href={social.link || "#"} className="text-white border border-end-0 border-light border-opacity-10 icon-shape icon-md">
+													{social.name === "Facebook" && (
+														<svg xmlns="http://www.w3.org/2000/svg" width={10} height={17} viewBox="0 0 10 17" fill="none">
+															<path d="M8.84863 9.20312H6.5415V16.0938H3.46533V9.20312H0.942871V6.37305H3.46533V4.18896C3.46533 1.72803 4.94189 0.34375 7.1875 0.34375C8.26416 0.34375 9.40234 0.559082 9.40234 0.559082V2.98926H8.14111C6.91064 2.98926 6.5415 3.72754 6.5415 4.52734V6.37305H9.2793L8.84863 9.20312Z" fill="white" />
+														</svg>
+													)}
+													{social.name === "Twitter" && <i className="bi bi-twitter-x" />}
+													{social.name === "LinkedIn" && <i className="bi bi-linkedin" />}
+													{social.name === "Instagram" && <i className="bi bi-instagram" />}
+													{social.name === "YouTube" && <i className="bi bi-youtube" />}
+													{social.name === "Pinterest" && <i className="bi bi-pinterest" />}
+												</Link>
+											))}
+										</div>
+									)}
 								</div>
 								<div className="col-lg-8">
 									<div className="row">

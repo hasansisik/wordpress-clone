@@ -32,6 +32,8 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 	const footerStyle = useGlobalTheme ? globalFooterStyle : propFooterStyle
 
 	const [scroll, setScroll] = useState<boolean>(false)
+	const [hideHeader, setHideHeader] = useState<boolean>(false)
+	const [lastScrollY, setLastScrollY] = useState<number>(0)
 	// Mobile Menu
 	const [isMobileMenu, setMobileMenu] = useState<boolean>(false)
 	const handleMobileMenu = (): void => {
@@ -59,10 +61,22 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 		AOS.init()
 
 		const handleScroll = (): void => {
-			const scrollCheck: boolean = window.scrollY > 100
+			const currentScrollY = window.scrollY
+			const scrollCheck: boolean = currentScrollY > 100
+			
+			// Set scroll state for navbar-stick class
 			if (scrollCheck !== scroll) {
 				setScroll(scrollCheck)
 			}
+			
+			// Hide header when scrolling down, show when scrolling up
+			if (currentScrollY > lastScrollY && currentScrollY > 150) {
+				setHideHeader(true) // Hide when scrolling down
+			} else {
+				setHideHeader(false) // Show when scrolling up or at top
+			}
+			
+			setLastScrollY(currentScrollY)
 		}
 
 		document.addEventListener("scroll", handleScroll)
@@ -70,15 +84,15 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 		return () => {
 			document.removeEventListener("scroll", handleScroll)
 		}
-	}, [])
+	}, [scroll, lastScrollY])
 	return (
 		<><div id="top" />
-			{!headerStyle && <Header5 scroll={scroll} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} />}
-			{headerStyle == 1 ? <Header1 scroll={scroll} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 2 ? <Header2 scroll={scroll} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 3 ? <Header3 scroll={scroll} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 4 ? <Header4 scroll={scroll} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 5 ? <Header5 scroll={scroll} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{!headerStyle && <Header5 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} />}
+			{headerStyle == 1 ? <Header1 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{headerStyle == 2 ? <Header2 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{headerStyle == 3 ? <Header3 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{headerStyle == 4 ? <Header4 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{headerStyle == 5 ? <Header5 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
 
 
 			<main>

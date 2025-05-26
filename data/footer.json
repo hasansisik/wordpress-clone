@@ -27,8 +27,8 @@
     },
     {
       "_id": "4",
-      "name": "Behance",
-      "link": "https://www.behance.net/",
+      "name": "Instagram",
+      "link": "https://www.instagram.com/",
       "order": 3
     }
   ],
@@ -126,6 +126,7 @@
   "showAppLinks": false,
   "showInstagram": false,
   "showPrivacyLinks": true,
+  "showSocialLinks": true,
   "privacyLinks": [
     {
       "_id": "1",

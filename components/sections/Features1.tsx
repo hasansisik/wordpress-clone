@@ -18,7 +18,7 @@ export default function Features1() {
 								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
 								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">Our Features</span>
 							</div>
-							<h2 className="fw-medium mt-4 lh-sm">Together, we are creating a
+							<h2 className="fw-medium mt-4 lh-sm">1, we are creating a
 								<span className="fw-black">Bright Future.</span>
 								<span className="text-primary fst-italic" data-aos="fade-zoom-in" data-aos-delay={400}>Join us.</span>
 							</h2>
