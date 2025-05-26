@@ -24,7 +24,8 @@ import {
   Globe,
   Save,
   Moon,
-  Sun
+  Sun,
+  MessageCircle
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -63,6 +64,11 @@ export default function SiteSettingsPage() {
       cloudName: "",
       apiKey: "",
       apiSecret: ""
+    },
+    whatsapp: {
+      enabled: true,
+      phoneNumber: "+905555555555",
+      message: "Merhaba, size nasıl yardımcı olabilirim?"
     }
   });
 
@@ -97,6 +103,15 @@ export default function SiteSettingsPage() {
           [cloudinaryField]: value
         }
       });
+    } else if (name.startsWith("whatsapp.")) {
+      const whatsappField = name.split(".")[1];
+      setSiteSettings({
+        ...siteSettings,
+        whatsapp: {
+          ...siteSettings.whatsapp,
+          [whatsappField]: value
+        }
+      });
     } else {
       setSiteSettings({
         ...siteSettings,
@@ -126,12 +141,25 @@ export default function SiteSettingsPage() {
     }
   };
 
+  const handleWhatsappToggle = (enabled: boolean) => {
+    setSiteSettings({
+      ...siteSettings,
+      whatsapp: {
+        ...siteSettings.whatsapp,
+        enabled
+      }
+    });
+  };
+
   const handleSaveSettings = async () => {
     setIsLoading(true);
     
     try {
       // For demo, we'll save to localStorage, in real app you'd save to API
       localStorage.setItem("siteSettings", JSON.stringify(siteSettings));
+      
+      // Save WhatsApp config separately for the WhatsAppButton component to access
+      localStorage.setItem("whatsappConfig", JSON.stringify(siteSettings.whatsapp));
       
       // Update Cloudinary settings in real-time
       // In a real app, you'd update these server-side securely
@@ -232,7 +260,7 @@ export default function SiteSettingsPage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid grid-cols-4 mb-8">
+              <TabsList className="grid grid-cols-5 mb-8">
                 <TabsTrigger value="general" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   <span className="hidden sm:inline">General</span>
@@ -248,6 +276,10 @@ export default function SiteSettingsPage() {
                 <TabsTrigger value="integrations" className="flex items-center gap-2">
                   <CloudCog className="h-4 w-4" />
                   <span className="hidden sm:inline">Integrations</span>
+                </TabsTrigger>
+                <TabsTrigger value="whatsapp" className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  <span className="hidden sm:inline">WhatsApp</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -587,6 +619,83 @@ export default function SiteSettingsPage() {
                       <p className="text-sm">
                         API credentials are stored securely in our database. Never expose these values in client-side code.
                       </p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* WhatsApp Settings */}
+              <TabsContent value="whatsapp" className="space-y-6">
+                <div className="border rounded-md p-4">
+                  <h3 className="text-lg font-medium mb-4">WhatsApp Support Button</h3>
+                  <p className="text-sm mb-4">
+                    Configure the WhatsApp support button that appears on your website
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="whatsapp-enabled" className="text-base">Enable WhatsApp Support</Label>
+                        <p className="text-sm text-muted-foreground">Show a WhatsApp support button on your website</p>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="whatsapp-enabled"
+                          checked={siteSettings.whatsapp.enabled}
+                          onChange={(e) => handleWhatsappToggle(e.target.checked)}
+                          className="mr-2 h-4 w-4"
+                        />
+                        <Label htmlFor="whatsapp-enabled" className="cursor-pointer">
+                          {siteSettings.whatsapp.enabled ? "Enabled" : "Disabled"}
+                        </Label>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="whatsappPhone">WhatsApp Phone Number</Label>
+                      <Input
+                        id="whatsappPhone"
+                        name="whatsapp.phoneNumber"
+                        placeholder="Enter phone number with country code (e.g. +905555555555)"
+                        value={siteSettings.whatsapp.phoneNumber}
+                        onChange={handleInputChange}
+                      />
+                      <p className="text-xs text-muted-foreground">Include the country code with + symbol</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="whatsappMessage">Default Message</Label>
+                      <Textarea
+                        id="whatsappMessage"
+                        name="whatsapp.message"
+                        placeholder="Enter default message"
+                        rows={3}
+                        value={siteSettings.whatsapp.message}
+                        onChange={handleInputChange}
+                      />
+                      <p className="text-xs text-muted-foreground">This message will be pre-filled when users click the WhatsApp button</p>
+                    </div>
+                    
+                    <div className="bg-green-50 border-green-200 border p-4 rounded-md mt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MessageCircle className="h-5 w-5 text-green-600" />
+                        <h4 className="font-medium text-green-700">Preview</h4>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                          <MessageCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium">WhatsApp Support</p>
+                          <p className="text-sm text-muted-foreground">{siteSettings.whatsapp.phoneNumber}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white p-3 rounded-md mt-3 text-sm border">
+                        {siteSettings.whatsapp.message}
+                      </div>
                     </div>
                   </div>
                 </div>

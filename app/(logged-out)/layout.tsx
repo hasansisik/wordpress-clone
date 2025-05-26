@@ -14,6 +14,7 @@ import "@/node_modules/react-modal-video/css/modal-video.css"
 import type { Metadata } from "next"
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo"
 import Layout from "@/components/layout/Layout"
+import WhatsAppButton from "@/components/common/WhatsAppButton"
 
 export const metadata: Metadata = generateSeoMetadata("general")
 
@@ -25,6 +26,7 @@ export default function LogoutLayout({
     return (
       <Layout useGlobalTheme={true}>
         {children}
+        <WhatsAppButton />
       </Layout>
     );
   }
