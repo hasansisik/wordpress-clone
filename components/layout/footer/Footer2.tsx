@@ -72,14 +72,12 @@ export default function Footer2(props: FooterProps = {}) {
 											src={safeData.logo.src} 
 											alt={safeData.logo.alt}
 											style={{ 
-												maxWidth: '40px', 
-												maxHeight: '40px', 
-												width: 'auto', 
-												height: 'auto', 
+												width: '120px', 
+												height: '40px', 
 												objectFit: 'contain' 
 											}} 
 										/>
-										<span>{safeData.logo.text}</span>
+										<span className="ms-2">{safeData.logo.text}</span>
 									</Link>
 									<p className="text-900 fw-medium mt-3 mb-6 opacity-50">{safeData.description}</p>
 									{safeData.showSocialLinks && safeData.socialLinks.length > 0 && (

@@ -67,7 +67,17 @@ export default function Footer3(props: FooterProps = {}) {
 						<div className=" container position-relative z-2">
 							<div className="d-flex py-4 border-bottom border-white border-opacity-10 justify-content-between align-items-center">
 								<div>
-									<Link href="/"><img src={safeData.logo.src} alt={safeData.logo.alt} /></Link>
+									<Link href="/">
+										<img 
+											src={safeData.logo.src} 
+											alt={safeData.logo.alt} 
+											style={{ 
+												width: '120px', 
+												height: '40px', 
+												objectFit: 'contain'
+											}} 
+										/>
+									</Link>
 								</div>
 								{safeData.showSocialLinks && safeData.socialLinks.length > 0 && (
 									<div>

@@ -11,7 +11,9 @@ import {
   Phone,
   User,
   CalendarClock,
-  Heading1
+  Heading1,
+  Trash2,
+  AlertCircle
 } from 'lucide-react'
 import {
   Card,
@@ -50,6 +52,8 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 
+import { toast } from "sonner"
+
 interface FormSubmission {
   id: string
   name: string
@@ -66,6 +70,9 @@ export default function ContactFormSubmissions() {
   const [loading, setLoading] = useState(true)
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     const fetchSubmissions = async () => {
@@ -87,6 +94,38 @@ export default function ContactFormSubmissions() {
   const viewMessage = (submission: FormSubmission) => {
     setSelectedSubmission(submission)
     setDialogOpen(true)
+  }
+
+  const handleDelete = (id: string) => {
+    setDeletingId(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingId) return
+    
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/contact-form?id=${deletingId}`, {
+        method: 'DELETE',
+      })
+      
+      if (response.ok) {
+        // Remove the deleted submission from the state
+        setSubmissions(prev => prev.filter(sub => sub.id !== deletingId))
+        toast.success('Submission deleted successfully')
+      } else {
+        const data = await response.json()
+        toast.error(data.error || 'Failed to delete submission')
+      }
+    } catch (error) {
+      console.error('Error deleting submission:', error)
+      toast.error('Failed to delete submission')
+    } finally {
+      setIsDeleting(false)
+      setDeleteDialogOpen(false)
+      setDeletingId(null)
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -181,14 +220,25 @@ export default function ContactFormSubmissions() {
                       </TableCell>
                       <TableCell>{formatDate(submission.createdAt)}</TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => viewMessage(submission)}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => viewMessage(submission)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDelete(submission.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -270,6 +320,49 @@ export default function ContactFormSubmissions() {
               onClick={() => setDialogOpen(false)}
             >
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              <div className="flex items-center gap-2 text-red-500">
+                <AlertCircle className="h-5 w-5" />
+                Confirm Deletion
+              </div>
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this contact form submission? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

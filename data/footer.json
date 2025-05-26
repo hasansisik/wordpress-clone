@@ -1,10 +1,10 @@
 {
   "logo": {
-    "src": "/assets/imgs/logo/logo-white.svg",
-    "alt": "infinia",
-    "text": "Infinia"
+    "src": "https://res.cloudinary.com/dbw3ozdoh/image/upload/v1748291692/ro8udanuutdbhlwbyv0b.webp",
+    "alt": "infini",
+    "text": "Infini"
   },
-  "copyright": "Copyright © 2024 Infinia. All Rights Reserved",
+  "copyright": "Copyright © 2024 Infinia. All Rights Reserve",
   "description": "You may also realize cost savings from your energy efficient choices in your custom home. Federal tax credits for some green materials can allow you to deduct as much.",
   "socialLinks": [
     {
@@ -35,7 +35,7 @@
   "columns": [
     {
       "_id": "1",
-      "title": "Company1",
+      "title": "Company2",
       "order": 0,
       "links": [
         {

@@ -45,6 +45,26 @@ const saveSubmission = (submission: any) => {
   }
 }
 
+// Function to delete a submission
+const deleteSubmission = (id: string) => {
+  ensureDirectoryExists()
+  try {
+    const submissions = getSubmissions()
+    const filteredSubmissions = submissions.filter((sub: any) => sub.id !== id)
+    
+    // If no submissions were removed, return false
+    if (submissions.length === filteredSubmissions.length) {
+      return false
+    }
+    
+    fs.writeFileSync(dataFilePath, JSON.stringify(filteredSubmissions, null, 2), 'utf8')
+    return true
+  } catch (error) {
+    console.error('Error deleting submission:', error)
+    return false
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
@@ -97,6 +117,40 @@ export async function GET() {
     console.error('Error retrieving submissions:', error)
     return NextResponse.json(
       { error: 'Failed to retrieve submissions' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Submission ID is required' },
+        { status: 400 }
+      )
+    }
+    
+    const success = deleteSubmission(id)
+    
+    if (success) {
+      return NextResponse.json(
+        { message: 'Submission deleted successfully' },
+        { status: 200 }
+      )
+    } else {
+      return NextResponse.json(
+        { error: 'Submission not found' },
+        { status: 404 }
+      )
+    }
+  } catch (error) {
+    console.error('Error deleting submission:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }

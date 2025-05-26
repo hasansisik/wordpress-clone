@@ -63,7 +63,17 @@ export default function Footer1(props: FooterProps = {}) {
 						<div className="container position-relative z-2">
 							<div className="row py-90">
 								<div className="col-lg-4 pe-10" data-aos="fade-zoom-in" data-aos-delay={100}>
-									<Link href="/"><img src={safeData.logo.src} alt={safeData.logo.alt} /></Link>
+									<Link href="/">
+										<img 
+											src={safeData.logo.src} 
+											alt={safeData.logo.alt} 
+											style={{ 
+												width: '120px', 
+												height: '40px', 
+												objectFit: 'contain'
+											}} 
+										/>
+									</Link>
 									<p className="text-white fw-medium mt-3 mb-6 opacity-50">{safeData.description}</p>
 									{safeData.showSocialLinks && safeData.socialLinks.length > 0 && (
 										<div className="d-flex social-icons">
