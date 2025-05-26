@@ -321,18 +321,27 @@ export default function UsersPage() {
             
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold">User Management</h1>
-              {isAdmin && (
-                <Button 
-                  onClick={() => {
-                    setAddUserDialogOpen(true);
-                    setFormError(null);
-                    setFormSuccess(null);
-                  }}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/dashboard/users/form')}
                 >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add New User
+                  <Building className="mr-2 h-4 w-4" />
+                  Contact Forms
                 </Button>
-              )}
+                {isAdmin && (
+                  <Button 
+                    onClick={() => {
+                      setAddUserDialogOpen(true);
+                      setFormError(null);
+                      setFormSuccess(null);
+                    }}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New User
+                  </Button>
+                )}
+              </div>
             </div>
 
             {currentUser && (

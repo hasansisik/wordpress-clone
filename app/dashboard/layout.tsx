@@ -29,11 +29,11 @@ export default function DashboardLayout({
         } else if (getMyProfile.rejected.match(resultAction)) {
           console.error("Failed to fetch profile:", resultAction.payload);
           // Redirect to login if not authenticated
-          router.push('/login');
+          router.push('/');
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
-        router.push('/login');
+        router.push('/');
       }
     };
 

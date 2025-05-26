@@ -47,6 +47,6 @@
   "showDarkModeToggle": false,
   "showActionButton": true,
   "actionButtonText": "Giris",
-  "actionButtonLink": "/login",
+  "actionButtonLink": "/",
   "headerComponent": "Header1"
 }

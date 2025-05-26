@@ -78,7 +78,7 @@ export function NavUser({ user }: NavUserProps) {
   const handleLogout = async () => {
     try {
       await dispatch(logout()).unwrap();
-      router.push('/login');
+      router.push('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }

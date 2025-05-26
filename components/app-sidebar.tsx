@@ -120,7 +120,12 @@ const data = {
         {
           title: "Users",
           url: "/dashboard/users",
-        }
+        },
+        {
+          title: "Form",
+          url: "/dashboard/users/form",
+        },
+
       ],
     },
     {
@@ -185,7 +190,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         .unwrap()
         .catch(() => {
           // If getting profile fails, redirect to login
-          router.push('/login');
+          router.push('/');
         });
     }
   }, [isAuthenticated, loading, dispatch, router]);
