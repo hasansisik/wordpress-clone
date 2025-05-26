@@ -84,6 +84,8 @@ interface HeaderData {
   showActionButton: boolean;
   actionButtonText: string;
   actionButtonLink: string;
+  buttonColor: string;
+  buttonTextColor: string;
   headerComponent: string;
 }
 
@@ -170,6 +172,8 @@ export default function HeaderEditor() {
     showActionButton: true,
     actionButtonText: "Join For Free Trial",
     actionButtonLink: "/contact",
+    buttonColor: "#3b71fe",
+    buttonTextColor: "#ffffff",
     headerComponent: "Header1",
   });
 
@@ -304,6 +308,8 @@ export default function HeaderEditor() {
       showActionButton: header.buttonText !== "",
       actionButtonText: header.buttonText,
       actionButtonLink: "/contact",
+      buttonColor: "#3b71fe",
+      buttonTextColor: "#ffffff",
       headerComponent: header.component
     };
 
@@ -731,6 +737,10 @@ export default function HeaderEditor() {
           actionButtonText: freshData.actionButtonText || freshData.links?.freeTrialLink?.text || header.buttonText,
           actionButtonLink: freshData.actionButtonLink || freshData.links?.freeTrialLink?.href || "/contact",
           
+          // Button colors from API or defaults
+          buttonColor: freshData.buttonColor || "#3b71fe",
+          buttonTextColor: freshData.buttonTextColor || "#ffffff",
+          
           // Component type from API or fall back to the header's component
           headerComponent: freshData.headerComponent || header.component
         };
@@ -785,6 +795,8 @@ export default function HeaderEditor() {
         // Add these properties explicitly
         actionButtonText: data.actionButtonText || headerData.actionButtonText,
         actionButtonLink: data.actionButtonLink || headerData.actionButtonLink,
+        buttonColor: data.buttonColor || headerData.buttonColor || "#3b71fe",
+        buttonTextColor: data.buttonTextColor || headerData.buttonTextColor || "#ffffff",
         headerComponent: data.headerComponent || headerData.headerComponent || "Header1"
       };
 
@@ -819,7 +831,6 @@ export default function HeaderEditor() {
     }
   };
 
-  // Handler for the "Save Changes" button click
   const handleSaveChanges = async () => {
     try {
       await saveChangesToAPI(headerData);
@@ -1388,6 +1399,74 @@ function HeaderEditorContent({
                       placeholder="/contact"
                       className="h-9 text-sm"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="buttonColor"
+                      className="text-sm"
+                    >
+                      Button Color
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-8 h-8 rounded border"
+                        style={{ backgroundColor: headerData.buttonColor || "#3b71fe" }}
+                      />
+                      <Input
+                        id="buttonColor"
+                        type="color"
+                        value={headerData.buttonColor || "#3b71fe"}
+                        onChange={(e) => {
+                          const updatedData = {
+                            ...headerData,
+                            buttonColor: e.target.value,
+                          };
+                          setHeaderData(updatedData);
+                        }}
+                        onBlur={(e) => {
+                          // Save changes on blur
+                          saveChangesToAPI({
+                            ...headerData,
+                            buttonColor: e.target.value
+                          });
+                        }}
+                        className="w-full h-9 p-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="buttonTextColor"
+                      className="text-sm"
+                    >
+                      Button Text Color
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="w-8 h-8 rounded border"
+                        style={{ backgroundColor: headerData.buttonTextColor || "#ffffff" }}
+                      />
+                      <Input
+                        id="buttonTextColor"
+                        type="color"
+                        value={headerData.buttonTextColor || "#ffffff"}
+                        onChange={(e) => {
+                          const updatedData = {
+                            ...headerData,
+                            buttonTextColor: e.target.value,
+                          };
+                          setHeaderData(updatedData);
+                        }}
+                        onBlur={(e) => {
+                          // Save changes on blur
+                          saveChangesToAPI({
+                            ...headerData,
+                            buttonTextColor: e.target.value
+                          });
+                        }}
+                        className="w-full h-9 p-1"
+                      />
+                    </div>
                   </div>
                 </div>
               )}

@@ -6,8 +6,8 @@
   },
   "links": {
     "freeTrialLink": {
-      "href": "#",
-      "text": "Join For Free Trial"
+      "href": "/",
+      "text": "Giris"
     }
   },
   "mainMenu": [
@@ -45,7 +45,7 @@
   "socialLinks": [],
   "topBarItems": [],
   "showDarkModeToggle": false,
-  "showActionButton": true,
+  "showActionButton": false,
   "actionButtonText": "Giris",
   "actionButtonLink": "/",
   "headerComponent": "Header1"

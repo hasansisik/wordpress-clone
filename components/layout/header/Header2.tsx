@@ -49,7 +49,14 @@ export default function Header2({ scroll, hideHeader, isMobileMenu, handleMobile
 						<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
 							{data.showDarkModeToggle && <ThemeSwitch />}
 							{data.showActionButton && (
-								<Link href={data.links.freeTrialLink.href} className="btn btn-gradient d-none d-md-block">
+								<Link 
+									href={data.links.freeTrialLink.href} 
+									className="btn d-none d-md-block"
+									style={{
+										backgroundColor: data.buttonColor || "#3b71fe",
+										color: data.buttonTextColor || "#ffffff"
+									}}
+								>
 									{data.links.freeTrialLink.text}
 								</Link>
 							)}
