@@ -7,14 +7,6 @@ import { useSelector, useDispatch } from "react-redux"
 import { RootState, AppDispatch } from "@/redux/store"
 import { getMyProfile } from "@/redux/actions/userActions"
 import {
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
   Settings2,
   SquareTerminal,
   FilePenLine,
@@ -33,7 +25,6 @@ import {
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import {
@@ -67,10 +58,6 @@ const data = {
         {
           title: "Cta",
           url: "/dashboard/editor/cta",
-        },
-        {
-          title: "Project",
-          url: "/dashboard/editor/project",
         },
         {
           title: "Faq",

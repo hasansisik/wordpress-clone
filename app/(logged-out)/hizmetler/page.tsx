@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllServices, getAllCategories } from "@/redux/actions/serviceActions";
+import { getAllServices } from "@/redux/actions/serviceActions";
 import { AppDispatch, RootState } from "@/redux/store";
 import { Loader2 } from "lucide-react";
 
@@ -15,11 +15,19 @@ const Services5 = dynamic(() => import("@/components/sections/Services5"), {
 
 export default function SectionProjects() {
   const dispatch = useDispatch<AppDispatch>();
-  const { services, categories, loading, error } = useSelector((state: RootState) => state.service);
+  const { services, loading, error } = useSelector((state: RootState) => state.service);
+  
+  // Extract unique categories from services
+  const extractedCategories = services ? 
+    [...new Set(services.flatMap(service => service.categories || []))]
+      .filter(category => category)
+      .map(category => ({ id: category, name: category })) 
+    : [];
+  
+  console.log("Extracted categories from services:", extractedCategories);
 
   useEffect(() => {
     dispatch(getAllServices());
-    dispatch(getAllCategories());
   }, [dispatch]);
 
   if (loading) {
@@ -41,7 +49,7 @@ export default function SectionProjects() {
   return (
     <>
       {/*Services 5*/}
-      <Services5 services={services} categories={categories} />
+      <Services5 services={services} categories={extractedCategories} />
       {/*Project 2*/}
       <Project2 projects={services} />
     </>

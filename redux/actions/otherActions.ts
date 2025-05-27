@@ -72,6 +72,26 @@ export interface OtherPayload {
     phoneNumber?: string;
     services?: string[];
   };
+  services5?: {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    buttonText?: string;
+    buttonLink?: string;
+    linkText?: string;
+    linkUrl?: string;
+    backgroundColor?: string;
+    titleColor?: string;
+    buttonColor?: string;
+  };
+  project2?: {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    backgroundColor?: string;
+    titleColor?: string;
+    badgeColor?: string;
+  };
 }
 
 // Get other data

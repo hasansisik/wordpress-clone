@@ -7,6 +7,8 @@ import Blog3 from "@/components/sections/Blog3";
 import Blog5 from "@/components/sections/Blog5";
 import Contact1 from "@/components/sections/Contact1";
 import Services2 from "@/components/sections/Services2";
+import Services5 from "@/components/sections/Services5";
+import Project2 from "@/components/sections/Project2";
 import Script from "next/script";
 
 // Common Styles
@@ -1114,6 +1116,10 @@ export default function OtherPreview() {
         return <Blog5 previewData={otherData} />;
       case "services2":
         return <Services2 previewData={otherData} />;
+      case "services5":
+        return <Services5 previewData={otherData} />;
+      case "project2":
+        return <Project2 previewData={otherData} />;
       case "contact1":
         return <Contact1 previewData={otherData} />;
       default:

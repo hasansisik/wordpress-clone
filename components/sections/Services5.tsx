@@ -5,7 +5,7 @@ import Link from 'next/link';
 interface Services5Props {
 	previewData?: any;
 	services?: any[];
-	categories?: any[];
+	categories?: { id: string; name: string }[];
 }
 
 // Function to convert title to slug
@@ -79,17 +79,6 @@ export default function Services5({ previewData, services = [], categories = [] 
 		backgroundColor: buttonColor,
 		borderColor: buttonColor
 	};
-	
-	// Format categories for filter buttons if available from props
-	const filterCategories = categories.length > 0
-		? [{ id: "all", name: "All" }, ...categories]
-		: [
-			{ id: "all", name: "All" },
-			{ id: "design", name: "Design" },
-			{ id: "branding", name: "Branding" },
-			{ id: "illustration", name: "Illustration" },
-			{ id: "motion", name: "Motion" }
-		];
 
 	return (
 		<>
@@ -108,8 +97,15 @@ export default function Services5({ previewData, services = [], categories = [] 
 					</div>
 					<div className="text-center mt-6">
 						<div className="button-group filter-button-group filter-menu-active">
-							{filterCategories.map((category) => (
-								<button key={category.id} className={activeBtn(category.id === "all" ? "*" : category.id)} onClick={handleFilterKeyChange(category.id === "all" ? "*" : category.id)}>
+							<button className={activeBtn("*")} onClick={handleFilterKeyChange("*")}>
+								Hepsi
+							</button>
+							{Array.isArray(categories) && categories.length > 0 && categories.map((category) => (
+								<button 
+									key={category.id} 
+									className={activeBtn(category.id)} 
+									onClick={handleFilterKeyChange(category.id)}
+								>
 									{category.name}
 								</button>
 							))}
@@ -120,7 +116,14 @@ export default function Services5({ previewData, services = [], categories = [] 
 					<div className="masonary-active justify-content-between row">
 						<div className="grid-sizer" />
 						{services.map((service) => (
-							<div key={service._id || service.id} className={`filter-item col-12 col-md-4 ${service.categories?.join(' ') || ''}`}>
+							<div 
+								key={service._id || service.id} 
+								className={`filter-item col-12 col-md-4 ${
+									Array.isArray(service.categories) 
+										? service.categories.map((cat: any) => typeof cat === 'string' ? cat : '').join(' ') 
+										: ''
+								}`}
+							>
 								<div className="project-item zoom-img rounded-2 fix position-relative">
 									<div style={{ height: '300px', overflow: 'hidden' }}>
 										<img 
@@ -146,22 +149,6 @@ export default function Services5({ previewData, services = [], categories = [] 
 								</div>
 							</div>
 						))}
-					</div>
-				</div>
-				<div className="container">
-					<div className="row mt-6">
-						<div className="col-lg-7">
-							<div className="d-flex align-items-center justify-content-lg-end justify-content-center">
-								<a href={buttonLink} className="btn btn-gradient" style={buttonStyle}>
-									{buttonText}
-									<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-										<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-										<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-									</svg>
-								</a>
-								<a href={linkUrl} className="ms-5 text-decoration-underline fw-bold">{linkText}</a>
-							</div>
-						</div>
 					</div>
 				</div>
 				<div className="position-absolute top-0 start-50 translate-middle-x z-0">

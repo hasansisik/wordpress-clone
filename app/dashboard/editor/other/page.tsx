@@ -23,6 +23,8 @@ import Blog3 from "@/components/sections/Blog3";
 import Blog5 from "@/components/sections/Blog5";
 import Contact1 from "@/components/sections/Contact1";
 import Services2 from "@/components/sections/Services2";
+import Services5 from "@/components/sections/Services5";
+import Project2 from "@/components/sections/Project2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { getOther, updateOther } from "@/redux/actions/otherActions";
@@ -35,6 +37,8 @@ const otherTypes = [
   { value: "blog3", label: "Blog 3" },
   { value: "blog5", label: "Blog 5" },
   { value: "services2", label: "Services 2" },
+  { value: "services5", label: "Services 5" },
+  { value: "project2", label: "Project 2" },
   { value: "contact1", label: "Contact 1" },
 ];
 
@@ -81,6 +85,10 @@ const DirectPreview = ({ data }: { data: any }) => {
         <Blog5 previewData={data} />
       ) : activeComponent === "services2" ? (
         <Services2 previewData={data} />
+      ) : activeComponent === "services5" ? (
+        <Services5 previewData={data} />
+      ) : activeComponent === "project2" ? (
+        <Project2 previewData={data} />
       ) : (
         <Contact1 previewData={data} />
       )}
@@ -210,6 +218,10 @@ export default function OtherEditor() {
             <Blog5ContentForm data={data.blog5 || {}} />
           ) : activeOther === "services2" ? (
             <Services2ContentForm data={data.services2 || {}} />
+          ) : activeOther === "services5" ? (
+            <Services5ContentForm data={data.services5 || {}} />
+          ) : activeOther === "project2" ? (
+            <Project2ContentForm data={data.project2 || {}} />
           ) : (
             <Contact1ContentForm data={data.contact1 || {}} />
           )}
@@ -234,6 +246,10 @@ export default function OtherEditor() {
             <Blog5MediaForm data={data.blog5 || {}} />
           ) : activeOther === "services2" ? (
             <Services2MediaForm data={data.services2 || {}} />
+          ) : activeOther === "services5" ? (
+            <Services5MediaForm data={data.services5 || {}} />
+          ) : activeOther === "project2" ? (
+            <Project2MediaForm data={data.project2 || {}} />
           ) : (
             <Contact1MediaForm data={data.contact1 || {}} />
           )}
@@ -681,6 +697,152 @@ function Contact1MediaForm({ data }: { data: any }) {
           </div>
         ))}
       </FormGroup>
+    </div>
+  );
+}
+
+// Services 5 Content Form
+function Services5ContentForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <TextField
+        label="Title"
+        value={data?.title || ""}
+        path="services5.title"
+        placeholder="Enter section title"
+      />
+
+      <TextField
+        label="Subtitle"
+        value={data?.subtitle || ""}
+        path="services5.subtitle"
+        placeholder="Enter section subtitle"
+      />
+
+      <TextAreaField
+        label="Description"
+        value={data?.description || ""}
+        path="services5.description"
+        placeholder="Enter section description"
+      />
+
+      <TextField
+        label="Button Text"
+        value={data?.buttonText || ""}
+        path="services5.buttonText"
+        placeholder="e.g. Get Free Quote"
+      />
+
+      <LinkField
+        label="Button Link"
+        value={data?.buttonLink || ""}
+        path="services5.buttonLink"
+      />
+
+      <TextField
+        label="Link Text"
+        value={data?.linkText || ""}
+        path="services5.linkText"
+        placeholder="e.g. How We Work"
+      />
+
+      <LinkField
+        label="Link URL"
+        value={data?.linkUrl || ""}
+        path="services5.linkUrl"
+      />
+
+      <TextField
+        label="Background Color"
+        value={data?.backgroundColor || ""}
+        path="services5.backgroundColor"
+        placeholder="e.g. #ffffff"
+      />
+
+      <TextField
+        label="Title Color"
+        value={data?.titleColor || ""}
+        path="services5.titleColor"
+        placeholder="e.g. #333333"
+      />
+
+      <TextField
+        label="Button Color"
+        value={data?.buttonColor || ""}
+        path="services5.buttonColor"
+        placeholder="e.g. #6342EC"
+      />
+    </div>
+  );
+}
+
+// Project 2 Content Form
+function Project2ContentForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <TextField
+        label="Title"
+        value={data?.title || ""}
+        path="project2.title"
+        placeholder="Enter section title"
+      />
+
+      <TextField
+        label="Subtitle"
+        value={data?.subtitle || ""}
+        path="project2.subtitle"
+        placeholder="Enter section subtitle"
+      />
+
+      <TextAreaField
+        label="Description"
+        value={data?.description || ""}
+        path="project2.description"
+        placeholder="Enter section description"
+      />
+
+      <TextField
+        label="Background Color"
+        value={data?.backgroundColor || ""}
+        path="project2.backgroundColor"
+        placeholder="e.g. #f8f9fa"
+      />
+
+      <TextField
+        label="Title Color"
+        value={data?.titleColor || ""}
+        path="project2.titleColor"
+        placeholder="e.g. #333333"
+      />
+
+      <TextField
+        label="Badge Color"
+        value={data?.badgeColor || ""}
+        path="project2.badgeColor"
+        placeholder="e.g. rgba(99, 66, 236, 0.1)"
+      />
+    </div>
+  );
+}
+
+// Services 5 Media Form
+function Services5MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <div className="text-xs text-gray-500 mb-2">
+        Services images are managed from a separate source.
+      </div>
+    </div>
+  );
+}
+
+// Project 2 Media Form
+function Project2MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <div className="text-xs text-gray-500 mb-2">
+        Project images are managed from a separate source.
+      </div>
     </div>
   );
 }
