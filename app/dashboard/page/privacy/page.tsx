@@ -150,7 +150,7 @@ export default function PrivacyPolicyPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => router.push('/privacy-policy')} className="flex items-center gap-2 text-xs h-8">
+            <Button variant="outline" onClick={() => router.push('/gizlilik-politikasi')} className="flex items-center gap-2 text-xs h-8">
               <Eye className="h-3.5 w-3.5" />
               <span>Preview</span>
             </Button>

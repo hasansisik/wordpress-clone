@@ -63,7 +63,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useThemeConfig } from '@/lib/store/themeConfig';
 
 // Define Section Type
 interface Section {
@@ -118,6 +117,13 @@ const availableSections = [
     icon: Briefcase
   },
   { 
+    id: "services5", 
+    name: "Services 5", 
+    type: "Services5",
+    description: "Services grid with icons",
+    icon: Briefcase
+  },
+  { 
     id: "faqs2", 
     name: "FAQs 2", 
     type: "Faqs2",
@@ -132,25 +138,46 @@ const availableSections = [
     icon: MessageCircle
   },
   { 
-    id: "features1", 
-    name: "Features 1", 
-    type: "Features1",
-    description: "Features with icons grid",
-    icon: Sparkles
+    id: "contact1", 
+    name: "Contact 1", 
+    type: "Contact1",
+    description: "Contact form with background",
+    icon: MessageCircle
   },
   { 
-    id: "features2", 
-    name: "Features 2", 
-    type: "Features2",
-    description: "Features with alternating layout",
-    icon: Sparkles
+    id: "project2",
+    name: "Project 2",
+    type: "Project2",
+    description: "Project grid with images",
+    icon: Layout
   },
   { 
-    id: "features3", 
-    name: "Features 3", 
-    type: "Features3",
-    description: "Features with statistics",
-    icon: BookOpen
+    id: "blog1",
+    name: "Blog 1",
+    type: "Blog1",
+    description: "Blog grid with images",
+    icon: Layout
+  },
+  { 
+    id: "blog2",
+    name: "Blog 2",
+    type: "Blog2",
+    description: "Blog grid with images",
+    icon: Layout
+  },
+  { 
+    id: "blog3",
+    name: "Blog 3",
+    type: "Blog3",
+    description: "Blog grid with images",
+    icon: Layout
+  },
+  { 
+    id: "blog5",
+    name: "Blog 5",
+    type: "Blog5",
+    description: "Blog grid with images",
+    icon: Layout
   }
 ];
 
@@ -253,11 +280,8 @@ function SortableSectionItem({ id, section, handleRemove }: { id: string, sectio
 
 export default function HomePageEditor() {
   const router = useRouter();
-  const { setHeaderStyle, setFooterStyle } = useThemeConfig();
   const [pageData, setPageData] = useState<any>({
-    sections: [],
-    headerStyle: 1,
-    footerStyle: 1
+    sections: []
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
@@ -293,18 +317,12 @@ export default function HomePageEditor() {
           
           // Update pageData with the fetched data
           setPageData(data);
-          
-          // Also update the global theme config
-          setHeaderStyle(data.headerStyle || 1);
-          setFooterStyle(data.footerStyle || 1);
         }
       } catch (error) {
         console.error('Error fetching homepage data:', error);
         // Set default data if fetch fails
         setPageData({
-          sections: [],
-          headerStyle: 1,
-          footerStyle: 1
+          sections: []
         });
       } finally {
         setIsLoading(false);
@@ -312,7 +330,7 @@ export default function HomePageEditor() {
     };
 
     fetchData();
-  }, [setHeaderStyle, setFooterStyle]);
+  }, []);
 
   // Add a section to the page
   const addSection = (sectionType: string) => {
@@ -379,35 +397,10 @@ export default function HomePageEditor() {
     }
   };
 
-  // Handle header/footer style change
-  const handleStyleChange = (type: 'headerStyle' | 'footerStyle', value: number) => {
-    setPageData({
-      ...pageData,
-      [type]: value
-    });
-    
-    // Update global theme config
-    if (type === 'headerStyle') {
-      setHeaderStyle(value);
-    } else if (type === 'footerStyle') {
-      setFooterStyle(value);
-    }
-    
-    toast.success(`${type === 'headerStyle' ? 'Header' : 'Footer'} style updated`, {
-      description: `Style changed to option ${value} (applied globally)`
-    });
-    
-    setIsSaved(false);
-  };
-
   // Save the page data
   const savePageData = async () => {
     try {
       setIsLoading(true);
-      
-      // Update global theme config before saving
-      setHeaderStyle(pageData.headerStyle);
-      setFooterStyle(pageData.footerStyle);
       
       const response = await fetch('/api/homepage', {
         method: 'POST',
@@ -420,7 +413,7 @@ export default function HomePageEditor() {
       if (response.ok) {
         setIsSaved(true);
         toast.success("Page saved successfully", {
-          description: "Your changes have been applied to the live site and global theme settings"
+          description: "Your changes have been applied to the live site"
         });
       } else {
         toast.error("Error saving page", {
@@ -439,7 +432,7 @@ export default function HomePageEditor() {
 
   // Generate the code for the page
   const generatePageCode = () => {
-    let imports = `import Layout from "@/components/layout/Layout"\n`;
+    let imports = ``;
     
     // Add imports for sections
     const usedSections = new Set<string>();
@@ -453,16 +446,14 @@ export default function HomePageEditor() {
     });
     
     let sectionsJSX = pageData.sections.map((section: any) => {
-      return `\t\t\t\t<${section.type} />`;
+      return `\t\t<${section.type} />`;
     }).join('\n');
     
     const code = `${imports}
 export default function Home() {
 \treturn (
 \t\t<>
-\t\t\t<Layout headerStyle={${pageData.headerStyle}} footerStyle={${pageData.footerStyle}}>
 ${sectionsJSX}
-\t\t\t</Layout>
 \t\t</>
 \t)
 }`;
@@ -516,7 +507,7 @@ ${sectionsJSX}
         <TabsList className="w-full mb-4 grid grid-cols-2">
           <TabsTrigger value="layout" className="flex items-center gap-2 h-9 text-xs">
             <Layout className="h-3.5 w-3.5" />
-            Page Layout
+            Sections
           </TabsTrigger>
           <TabsTrigger value="code" className="flex items-center gap-2 h-9 text-xs">
             <Code className="h-3.5 w-3.5" />
@@ -596,48 +587,6 @@ ${sectionsJSX}
           
           <div className="grid grid-cols-1 gap-4">
             <div className="bg-card rounded-lg border shadow-sm p-4">                 
-              <div className="mb-4">
-                <h3 className="text-sm font-medium mb-2">Layout Options</h3>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-xs font-medium text-foreground/80 mb-1">
-                      Header Style
-                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5">
-                        Global
-                      </span>
-                    </label>
-                    <select 
-                      className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      value={pageData.headerStyle}
-                      onChange={(e) => handleStyleChange('headerStyle', parseInt(e.target.value))}
-                    >
-                      {[1, 2, 3, 4, 5].map(num => (
-                        <option key={`header-${num}`} value={num}>Header Style {num}</option>
-                      ))}
-                    </select>
-                    <p className="text-[10px] text-muted-foreground mt-1">This setting applies globally to all pages</p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-foreground/80 mb-1">
-                      Footer Style
-                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 rounded-full px-2 py-0.5">
-                        Global
-                      </span>
-                    </label>
-                    <select 
-                      className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      value={pageData.footerStyle}
-                      onChange={(e) => handleStyleChange('footerStyle', parseInt(e.target.value))}
-                    >
-                      {[1, 2, 3, 4].map(num => (
-                        <option key={`footer-${num}`} value={num}>Footer Style {num}</option>
-                      ))}
-                    </select>
-                    <p className="text-[10px] text-muted-foreground mt-1">This setting applies globally to all pages</p>
-                  </div>
-                </div>
-              </div>
-              
               <div className="mb-3">
                 <h3 className="text-sm font-medium mb-2 flex items-center">
                   <Layers className="h-3.5 w-3.5 mr-2 text-primary" />

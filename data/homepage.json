@@ -23,14 +23,6 @@
       "name": "FAQs 2",
       "type": "Faqs2",
       "description": "Two-column FAQ accordion"
-    },
-    {
-      "id": "features1-1748264664475",
-      "name": "Features 1",
-      "type": "Features1",
-      "description": "Features with icons grid"
     }
-  ],
-  "headerStyle": 1,
-  "footerStyle": 1
+  ]
 }

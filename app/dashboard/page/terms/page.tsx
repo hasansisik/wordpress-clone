@@ -150,7 +150,7 @@ export default function TermsAndConditionsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => router.push('/terms-conditions')} className="flex items-center gap-2 text-xs h-8">
+            <Button variant="outline" onClick={() => router.push('/sartlar-politikasi')} className="flex items-center gap-2 text-xs h-8">
               <Eye className="h-3.5 w-3.5" />
               <span>Preview</span>
             </Button>

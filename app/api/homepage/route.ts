@@ -54,9 +54,7 @@ const defaultData = {
       name: "Services 2",
       type: "Services2"
     }
-  ],
-  headerStyle: 1,
-  footerStyle: 1
+  ]
 };
 
 // GET handler for fetching homepage data
@@ -108,7 +106,7 @@ export async function POST(request: Request) {
 async function updateHomePage(data: any) {
   try {
     // Create imports
-    let imports = `import Layout from "@/components/layout/Layout"\n`;
+    let imports = ``;
     
     // Add imports for sections
     const usedSections = new Set();
@@ -123,7 +121,7 @@ async function updateHomePage(data: any) {
     
     // Create sections JSX
     let sectionsJSX = data.sections.map((section: any) => {
-      return `\t\t\t\t<${section.type} />`;
+      return `\t\t<${section.type} />`;
     }).join('\n');
     
     // Create the full page code
@@ -131,9 +129,7 @@ async function updateHomePage(data: any) {
 export default function Home() {
 \treturn (
 \t\t<>
-\t\t\t<Layout headerStyle={${data.headerStyle}} footerStyle={${data.footerStyle}}>
 ${sectionsJSX}
-\t\t\t</Layout>
 \t\t</>
 \t)
 }`;
