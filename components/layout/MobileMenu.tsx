@@ -1,7 +1,6 @@
 'use client'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import PerfectScrollbar from 'react-perfect-scrollbar'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import { getHeader } from '@/redux/actions/headerActions'

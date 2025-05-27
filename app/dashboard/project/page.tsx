@@ -46,17 +46,25 @@ import {
   import { useDispatch, useSelector } from "react-redux";
   import { AppDispatch, RootState } from "@/redux/store";
   import { 
-    getAllBlogs, 
-    createBlog, 
-    updateBlog, 
-    deleteBlog 
-  } from "@/redux/actions/blogActions";
+    getAllServices, 
+    getAllCategories,
+    createService, 
+    updateService, 
+    deleteService 
+  } from "@/redux/actions/serviceActions";
   import { Loader2, Trash2, Pencil, Eye, Plus, FileJson, Download } from "lucide-react";
 
-interface Section {
-  title: string;
-  content: string;
-}
+// Function to convert title to slug
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')        // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
+    .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+    .replace(/^-+/, '')          // Trim - from start of text
+    .replace(/-+$/, '');         // Trim - from end of text
+};
 
 interface Author {
   name: string;
@@ -72,44 +80,33 @@ interface Content {
   fullContent: string;
 }
 
-interface Post {
+interface Project {
   id: number;
   _id?: string;
   title: string;
-  image: string;
-  category: string[] | string;
   description: string;
-  content: Content;
-  link: string;
-  author: string;
-  date: string;
+  image: string;
+  categories: string[];
+  company: string;
+  subtitle: string;
+  fullDescription: string;
+  tag: string;
+  content?: Content;
 }
 
-// Function to convert title to slug
-const slugify = (text: string) => {
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/\s+/g, '-')        // Replace spaces with -
-    .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
-    .replace(/\-\-+/g, '-')      // Replace multiple - with single -
-    .replace(/^-+/, '')          // Trim - from start of text
-    .replace(/-+$/, '');         // Trim - from end of text
-};
-
-export default function BlogEditor() {
+export default function ProjectEditor() {
   const dispatch = useDispatch<AppDispatch>();
-  const { blogs, loading, error, success, message } = useSelector(
-    (state: RootState) => state.blog
+  const { services, categories, loading, error, success, message } = useSelector(
+    (state: RootState) => state.service
   );
   
-  const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [notification, setNotification] = useState<{ type: string; message: string } | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editingPostId, setEditingPostId] = useState<number | null>(null);
+  const [editingProjectId, setEditingProjectId] = useState<string | number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 5;
+  const projectsPerPage = 5;
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const mainImageFileInputRef = useRef<HTMLInputElement>(null);
@@ -125,43 +122,54 @@ export default function BlogEditor() {
     title: "",
     description: "",
     image: "",
-    category: "",
+    company: "",
+    subtitle: "",
+    fullDescription: "",
+    tag: "",
     categories: [] as string[],
-    author: "",
-    authorAvatar: "/assets/imgs/blog-4/avatar-1.png",
-    readTime: "3 dakika",
+    category: "",
     intro: "",
     fullContent: "",
     mainImage: "",
+    author: "",
+    authorAvatar: "/assets/imgs/blog-4/avatar-1.png",
+    readTime: "10 mins",
   };
 
   const [formData, setFormData] = useState(initialFormState);
   const [activeTab, setActiveTab] = useState("all");
 
-  // Load blogs from Redux store
+  // Load projects from Redux store
   useEffect(() => {
-    dispatch(getAllBlogs());
+    dispatch(getAllServices());
+    dispatch(getAllCategories());
   }, [dispatch]);
 
-  // Update filtered posts when blogs or search term changes
+  // Başlangıçta URL parametrelerine göre edit/new mod seçimi
   useEffect(() => {
-    if (!blogs) return;
+    // URL'den mode ve id değerlerini al
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const id = urlParams.get('id');
     
-    if (searchTerm.trim() === "") {
-      setFilteredPosts(blogs);
-    } else {
-      const lowercasedFilter = searchTerm.toLowerCase();
-      const filtered = blogs.filter((post: any) => 
-        post.title.toLowerCase().includes(lowercasedFilter) ||
-        (typeof post.category === 'string' 
-          ? post.category.toLowerCase().includes(lowercasedFilter)
-          : post.category.some((cat: string) => cat.toLowerCase().includes(lowercasedFilter))) ||
-        post.author.toLowerCase().includes(lowercasedFilter)
+    if (mode === 'edit' && id) {
+      // Edit modu ve ID varsa, projeyi düzenleme moduna geç
+      const projectId = parseInt(id);
+      const projectToEdit = services.find((project: any) => 
+        project._id === id || project.id === projectId
       );
-      setFilteredPosts(filtered);
+      
+      if (projectToEdit) {
+        handleEditProject(projectId);
+      }
+    } else if (mode === 'new') {
+      // Yeni oluşturma modu ise, formu sıfırla ve add tabına geç
+      resetForm();
+      setIsEditMode(false);
+      setEditingProjectId(null);
+      setActiveTab("add");
     }
-    setCurrentPage(1); // Reset to first page when filtering
-  }, [searchTerm, blogs]);
+  }, [services]); // services değiştiğinde tekrar kontrol et
 
   // Show notifications when Redux state changes
   useEffect(() => {
@@ -186,6 +194,25 @@ export default function BlogEditor() {
       });
     }
   }, [success, message, error]);
+
+  // Filter projects when search term changes
+  useEffect(() => {
+    if (!services) return;
+    
+    if (searchTerm.trim() === "") {
+      setFilteredProjects(services);
+    } else {
+      const lowercasedFilter = searchTerm.toLowerCase();
+      const filtered = services.filter((project: any) => 
+        project.title.toLowerCase().includes(lowercasedFilter) ||
+        project.categories?.some((cat: string) => cat.toLowerCase().includes(lowercasedFilter)) ||
+        project.company?.toLowerCase().includes(lowercasedFilter) ||
+        project.tag?.toLowerCase().includes(lowercasedFilter)
+      );
+      setFilteredProjects(filtered);
+    }
+    setCurrentPage(1); // Reset to first page when filtering
+  }, [searchTerm, services]);
 
   // Handle image uploads
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,6 +271,33 @@ export default function BlogEditor() {
     });
   };
 
+  // Tab değiştiğinde form durumunu güncelle
+  const handleTabChange = (value: string) => {
+    if (value === "all" && isEditMode) {
+      // All tabına geçerken edit modundan çıkıyorsak, edit durumunu temizle
+      setIsEditMode(false);
+      setEditingProjectId(null);
+      // URL'yi temizle
+      window.history.pushState({}, '', window.location.pathname);
+    }
+    
+    setActiveTab(value);
+  };
+  
+  // URL'yi güncelle
+  const updateURL = (mode: string, id?: number) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('mode', mode);
+    
+    if (id) {
+      url.searchParams.set('id', id.toString());
+    } else {
+      url.searchParams.delete('id');
+    }
+    
+    window.history.pushState({}, '', url);
+  };
+
   // Reset form to initial state
   const resetForm = () => {
     setFormData(initialFormState);
@@ -251,7 +305,6 @@ export default function BlogEditor() {
       thumbnail: false,
       mainImage: false
     });
-    setActiveTab("all");
   };
 
   // Handle form submit
@@ -264,9 +317,7 @@ export default function BlogEditor() {
       !formData.description ||
       !formData.image ||
       formData.categories.length === 0 ||
-      !formData.author ||
-      !formData.intro ||
-      !formData.mainImage
+      !formData.company
     ) {
       setNotification({
         type: "error",
@@ -276,82 +327,106 @@ export default function BlogEditor() {
     }
 
     try {
-      if (isEditMode && editingPostId) {
-        // Update existing post
-        const updatedPost = {
+      // Prepare content object
+      const contentObject = {
+        intro: formData.intro || "",
+        readTime: formData.readTime || "5 mins",
+        author: {
+          name: formData.author || "Admin",
+          avatar: formData.authorAvatar || "/assets/imgs/blog-4/avatar-1.png",
+          date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+        },
+        mainImage: formData.mainImage || formData.image,
+        fullContent: formData.fullContent || ""
+      };
+
+      if (isEditMode && editingProjectId) {
+        // İd'nin string olduğundan emin olalım
+        const idString = String(editingProjectId);
+        
+        // MongoDB Object ID formatını kontrol edelim (24 karakter hexadecimal)
+        const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(idString);
+        
+        // Update existing project
+        const serviceData = {
+          id: idString,
           title: formData.title,
-          image: formData.image,
           description: formData.description,
-          category: formData.categories,
-          author: formData.author,
-          content: {
-            intro: formData.intro,
-            readTime: formData.readTime,
-            author: {
-              name: formData.author,
-              avatar: formData.authorAvatar,
-              date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
-            },
-            mainImage: formData.mainImage,
-            fullContent: formData.fullContent || '',
-          },
+          image: formData.image,
+          categories: formData.categories,
+          company: formData.company,
+          subtitle: formData.subtitle || "",
+          fullDescription: formData.fullDescription || "",
+          tag: formData.tag || "",
+          content: contentObject
         };
         
+        console.log("Updating service with data:", JSON.stringify(serviceData));
+        
         // Dispatch update action
-        await dispatch(updateBlog({
-          id: editingPostId.toString(),
-          ...updatedPost
-        })).unwrap();
+        await dispatch(updateService(serviceData)).unwrap();
         
         // Reset edit mode
         setIsEditMode(false);
-        setEditingPostId(null);
+        setEditingProjectId(null);
       } else {
-        // Create new post
-        const newPostData = {
+        // Create new project
+        const serviceData = {
           title: formData.title,
-          image: formData.image,
           description: formData.description,
-          category: formData.categories,
-          author: formData.author,
-          content: {
-            intro: formData.intro,
-            readTime: formData.readTime,
-            author: {
-              name: formData.author,
-              avatar: formData.authorAvatar,
-              date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
-            },
-            mainImage: formData.mainImage,
-            fullContent: formData.fullContent || '',
-          },
+          image: formData.image,
+          categories: formData.categories,
+          company: formData.company,
+          subtitle: formData.subtitle || "",
+          fullDescription: formData.fullDescription || "",
+          tag: formData.tag || "",
+          content: contentObject
         };
         
+        console.log("Creating service with data:", JSON.stringify(serviceData));
+        
         // Dispatch create action
-        await dispatch(createBlog(newPostData)).unwrap();
+        await dispatch(createService(serviceData)).unwrap();
       }
       
       // Reset form
       resetForm();
       setActiveTab("all");
     } catch (error: any) {
-      console.error('Error saving blog post:', error);
+      console.error('Error saving project:', error);
+      
+      // Özel hata mesajları için kontrol
+      let errorMessage = error?.message || "Failed to save project. Please try again.";
+      
+      // Yetki hatası mesajları için daha kullanıcı dostu açıklamalar
+      if (errorMessage.includes("yetkiniz yok") || errorMessage.includes("Bu işlemi yapmak için yetkiniz yok")) {
+        errorMessage = "You don't have permission to edit this project. It may belong to another company or require admin/editor role.";
+      } else if (errorMessage.includes("Oturum süresi dolmuş") || errorMessage.includes("token")) {
+        errorMessage = "Your session has expired. Please log out and log in again.";
+      }
+      
       setNotification({
         type: "error",
-        message: error?.message || "Failed to save blog post. Please try again.",
+        message: errorMessage
       });
     }
   };
 
   // Add function to generate and trigger download of JSON file
-  const generateJsonDownload = (updatedPosts: Post[]) => {
-    const jsonString = JSON.stringify(updatedPosts, null, 2);
+  const generateJsonDownload = (updatedProjects: Project[]) => {
+    // Create a full projects object including categories
+    const fullProjectsData = {
+      categories: categories,
+      projects: updatedProjects
+    };
+    
+    const jsonString = JSON.stringify(fullProjectsData, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'updated_blog.json';
+    link.download = 'updated_projects.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -359,7 +434,7 @@ export default function BlogEditor() {
     URL.revokeObjectURL(url);
   };
 
-  // Add function to handle blog.json import
+  // Add function to handle project.json import
   const handleImportJson = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -367,65 +442,97 @@ export default function BlogEditor() {
     try {
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const importedPosts = JSON.parse(event.target?.result as string) as Post[];
+        const importedProjects = JSON.parse(event.target?.result as string) as Project[];
         
         // Save to server using our API
-        const response = await fetch('/api/blog/import', {
+        const response = await fetch('/api/projects/import', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(importedPosts),
+          body: JSON.stringify(importedProjects),
         });
         
         if (!response.ok) {
-          throw new Error('Failed to import blog posts');
+          throw new Error('Failed to import project posts');
         }
         
-        // Fetch blogs again
-        dispatch(getAllBlogs());
-        setFilteredPosts(importedPosts);
+        // Fetch services again instead of trying to pass data to action
+        dispatch(getAllServices());
+        setFilteredProjects(importedProjects);
         setNotification({
           type: "success",
-          message: "Blog posts imported successfully!",
+          message: "Project posts imported successfully!",
         });
       };
       reader.readAsText(file);
     } catch (error) {
-      console.error('Error importing blog posts:', error);
+      console.error('Error importing project posts:', error);
       setNotification({
         type: "error",
-        message: "Failed to import blog posts. Invalid JSON format.",
+        message: "Failed to import project posts. Invalid JSON format.",
       });
     }
   };
 
-  // Edit post handler
-  const handleEditPost = (postId: number) => {
-    const postToEdit = blogs.find((post: any) => post._id === postId || post.id === postId);
-    if (!postToEdit) return;
+  // Edit project handler
+  const handleEditProject = (projectId: string | number) => {
+    // projectId'yi string'e çevirelim ve konsola yazdıralım
+    const projectIdStr = String(projectId);
+    console.log(`Edit işlemi başlatılıyor, ID: ${projectIdStr}, Tip: ${typeof projectId}`);
+    
+    const projectToEdit = services.find((project: any) => {
+      // _id veya id eşleşmesini kontrol edelim ve konsola yazdıralım
+      const idMatch = project._id === projectIdStr || project._id === projectId || project.id === projectId;
+      if (idMatch) {
+        console.log(`Eşleşen proje bulundu:`, project);
+      }
+      return idMatch;
+    });
+    
+    if (!projectToEdit) {
+      console.error(`ID: ${projectIdStr} ile eşleşen proje bulunamadı`);
+      setNotification({
+        type: "error",
+        message: `Project with ID ${projectIdStr} not found`
+      });
+      return;
+    }
+    
+    console.log(`Düzenlenecek proje:`, projectToEdit);
     
     // Set form data
     setFormData({
-      title: postToEdit.title,
-      description: postToEdit.description,
-      image: postToEdit.image,
+      title: projectToEdit.title || "",
+      description: projectToEdit.description || "",
+      image: projectToEdit.image || "",
+      categories: Array.isArray(projectToEdit.categories) ? projectToEdit.categories : [],
       category: "",
-      categories: Array.isArray(postToEdit.category) 
-        ? postToEdit.category 
-        : [postToEdit.category],
-      author: postToEdit.author,
-      authorAvatar: postToEdit.content.author.avatar,
-      readTime: postToEdit.content.readTime,
-      intro: postToEdit.content.intro,
-      fullContent: postToEdit.content.fullContent || '',
-      mainImage: postToEdit.content.mainImage,
+      company: projectToEdit.company || "",
+      subtitle: projectToEdit.subtitle || "",
+      fullDescription: projectToEdit.fullDescription || "",
+      tag: projectToEdit.tag || "",
+      intro: projectToEdit.content?.intro || "",
+      fullContent: projectToEdit.content?.fullContent || "",
+      mainImage: projectToEdit.content?.mainImage || "",
+      author: projectToEdit.content?.author?.name || "",
+      authorAvatar: projectToEdit.content?.author?.avatar || "/assets/imgs/blog-4/avatar-1.png",
+      readTime: projectToEdit.content?.readTime || "10 mins",
     });
+    
+    // MongoDB ObjectId değerini öncelikli olarak kullan
+    const editId = projectToEdit._id || projectId;
+    console.log(`Edit modu için kullanılacak ID: ${editId}`);
     
     // Set edit mode
     setIsEditMode(true);
-    setEditingPostId(postId);
+    setEditingProjectId(editId);
     setActiveTab("add");
+    
+    // URL'yi güncelle - URL için sayısal ID kullanmaya devam ediyoruz
+    const urlId = typeof projectId === "number" ? projectId : 
+                 !isNaN(parseInt(String(projectId))) ? parseInt(String(projectId)) : 0;
+    updateURL('edit', urlId);
     
     // Reset uploading states
     setIsUploading({
@@ -434,27 +541,37 @@ export default function BlogEditor() {
     });
   };
 
-  // Delete post handler
-  const handleDeletePost = async (postId: number | string) => {
-    if (window.confirm("Are you sure you want to delete this blog post?")) {
+  // New project handler
+  const handleNewProject = () => {
+    resetForm();
+    setIsEditMode(false);
+    setEditingProjectId(null);
+    setActiveTab("add");
+    
+    // URL'yi güncelle
+    updateURL('new');
+  };
+
+  // Delete project handler
+  const handleDeleteProject = async (projectId: string | number) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
       try {
-        // Convert to string if it's not already
-        const idToDelete = String(postId);
-        await dispatch(deleteBlog(idToDelete)).unwrap();
+        await dispatch(deleteService(projectId.toString())).unwrap();
       } catch (error: any) {
+        console.error('Error deleting project:', error);
         setNotification({
           type: "error",
-          message: error?.message || "Failed to delete blog post. Please try again.",
+          message: error?.message || "Failed to delete project. Please try again.",
         });
       }
     }
   };
 
   // Pagination logic
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+  const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+  const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -516,20 +633,6 @@ export default function BlogEditor() {
     );
   };
 
-  // New blog handler ekleyelim
-  const handleNewBlog = () => {
-    resetForm();
-    setIsEditMode(false);
-    setEditingPostId(null);
-    setActiveTab("add");
-    
-    // URL'yi güncelle (URL parametreleri kullanılıyorsa)
-    const url = new URL(window.location.href);
-    url.searchParams.set('mode', 'new');
-    url.searchParams.delete('id');
-    window.history.pushState({}, '', url);
-  };
-
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -546,7 +649,7 @@ export default function BlogEditor() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Blog Management</BreadcrumbPage>
+                <BreadcrumbPage>Project Management</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -578,134 +681,106 @@ export default function BlogEditor() {
         {activeTab === "all" ? (
           <>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-              <h2 className="text-xl font-bold">All Blogs</h2>
+              <h2 className="text-xl font-bold">All Projects</h2>
               
               <div className="flex gap-2 items-center">
                 <div className="w-full md:w-auto">
                   <Input
-                    placeholder="Search blogs by title, category, or author..."
+                    placeholder="Search projects by title, category, or company..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="max-w-sm"
                   />
                 </div>
                 
-                <input 
-                  type="file" 
-                  id="import-json" 
-                  className="hidden" 
-                  accept=".json" 
-                  onChange={handleImportJson}
-                  ref={jsonFileInputRef}
-                />
                 <Button 
                   variant="outline" 
-                  onClick={() => jsonFileInputRef.current?.click()} 
-                  title="Import blog.json"
-                  size="sm"
+                  onClick={() => generateJsonDownload(services)} 
+                  title="Export current projects"
                 >
-                  <FileJson className="h-4 w-4 mr-1" />
-                  Import
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={() => generateJsonDownload(blogs)} 
-                  title="Export current blog posts"
-                  size="sm"
-                >
-                  <Download className="h-4 w-4 mr-1" />
                   Export
                 </Button>
                 
                 <Button 
                   variant="default" 
-                  onClick={handleNewBlog} 
-                  title="Create a new blog post"
-                  size="sm"
+                  onClick={handleNewProject} 
+                  title="Create a new project"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  New Blog
+                  New Project
                 </Button>
               </div>
             </div>
             
             <div className="space-y-4">
-              {!loading && (
+              {!loading ? (
                 <Table>
-                  <TableCaption>A list of your blogs.</TableCaption>
+                  <TableCaption>A list of your projects.</TableCaption>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Title</TableHead>
                       <TableHead>Categories</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Tag</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredPosts.length === 0 ? (
+                    {filteredProjects.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center py-4">
-                          No blog posts found. {searchTerm && "Try a different search term."}
+                          No projects found. {searchTerm && "Try a different search term."}
                         </TableCell>
                       </TableRow>
                     ) : (
-                      currentPosts.map((post) => (
-                        <TableRow key={post.id}>
+                      currentProjects.map((project) => (
+                        <TableRow key={project._id || project.id}>
                           <TableCell>
                             <div className="flex items-center gap-3">
-                              {post.image && (
+                              {project.image && (
                                 <div className="relative w-10 h-10 rounded-md overflow-hidden">
                                   <img 
-                                    src={post.image} 
-                                    alt={post.title}
+                                    src={project.image} 
+                                    alt={project.title}
                                     className="object-cover w-full h-full"
                                   />
                                 </div>
                               )}
-                              <span className="line-clamp-1">{post.title}</span>
+                              <span className="line-clamp-1">{project.title}</span>
                             </div>
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-wrap gap-1">
-                              {Array.isArray(post.category) ? (
-                                post.category.map((cat, i) => (
-                                  <Badge key={i} variant="outline">{cat}</Badge>
-                                ))
-                              ) : (
-                                <Badge variant="outline">{post.category}</Badge>
-                              )}
+                              {Array.isArray(project.categories) && project.categories.map((cat: string, i: number) => (
+                                <Badge key={i} variant="outline">{cat}</Badge>
+                              ))}
                             </div>
                           </TableCell>
-                          <TableCell>{post.author}</TableCell>
-                          <TableCell>{post.date}</TableCell>
+                          <TableCell>{project.company}</TableCell>
+                          <TableCell>
+                            <Badge>{project.tag || 'Project'}</Badge>
+                          </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Link href={`/${slugify(post.title)}`} target="_blank">
-                                <Button variant="outline" size="icon" title="View Blog">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
+                              <Link href={`/${slugify(project.title)}`} target="_blank">
+                                <Button variant="outline" size="sm">View</Button>
                               </Link>
                               <Button 
                                 variant="outline" 
-                                size="icon" 
-                                onClick={() => handleEditPost(post.id)}
-                                title="Edit Blog"
+                                size="sm" 
+                                onClick={() => handleEditProject(project._id || project.id)}
                               >
-                                <Pencil className="h-4 w-4" />
+                                Edit
                               </Button>
                               <Button 
                                 variant="destructive" 
-                                size="icon"
-                                onClick={() => handleDeletePost(post._id || post.id)}
+                                size="sm"
+                                onClick={() => handleDeleteProject(project._id || project.id)}
                                 disabled={loading}
-                                title="Delete Blog"
                               >
                                 {loading ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                  <Trash2 className="h-4 w-4" />
+                                  "Delete"
                                 )}
                               </Button>
                             </div>
@@ -715,7 +790,7 @@ export default function BlogEditor() {
                     )}
                   </TableBody>
                 </Table>
-              )}
+              ) : null}
               {!loading && renderPagination()}
             </div>
           </>
@@ -723,14 +798,14 @@ export default function BlogEditor() {
           <div className="mt-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">
-                {isEditMode ? `Edit Blog: ${formData.title}` : "Create New Blog"}
+                {isEditMode ? `Edit Project: ${formData.title}` : "Create New Project"}
               </h2>
               <Button 
                 variant="outline" 
                 onClick={() => {
                   if (isEditMode) {
                     setIsEditMode(false);
-                    setEditingPostId(null);
+                    setEditingProjectId(null);
                     // URL'yi temizle
                     window.history.pushState({}, '', window.location.pathname);
                   }
@@ -739,7 +814,7 @@ export default function BlogEditor() {
                 }}
                 disabled={loading}
               >
-                Back to Blogs
+                Back to Projects
               </Button>
             </div>
             
@@ -751,9 +826,9 @@ export default function BlogEditor() {
                       <CardTitle className="text-base font-medium">
                         Basic Information
                       </CardTitle>
-                      {isEditMode && editingPostId && (
+                      {isEditMode && (
                         <p className="text-sm text-muted-foreground">
-                          Editing blog ID: {editingPostId}
+                          Editing project ID: {editingProjectId}
                         </p>
                       )}
                     </CardHeader>
@@ -762,7 +837,7 @@ export default function BlogEditor() {
                         <Label htmlFor="title" className="text-sm font-medium">Title</Label>
                         <Input 
                           id="title" 
-                          placeholder="Enter blog title" 
+                          placeholder="Enter project title" 
                           value={formData.title}
                           onChange={(e) => setFormData({...formData, title: e.target.value})}
                           className="h-9"
@@ -773,7 +848,7 @@ export default function BlogEditor() {
                         <Label htmlFor="description" className="text-sm font-medium">Short Description</Label>
                         <Textarea 
                           id="description" 
-                          placeholder="Brief description of the blog post"
+                          placeholder="Brief description of the project"
                           value={formData.description}
                           onChange={(e) => setFormData({...formData, description: e.target.value})}
                           className="min-h-[70px]"
@@ -782,24 +857,48 @@ export default function BlogEditor() {
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <Label htmlFor="author" className="text-sm font-medium">Author</Label>
+                          <Label htmlFor="company" className="text-sm font-medium">Company</Label>
                           <Input 
-                            id="author" 
-                            placeholder="Author name" 
-                            value={formData.author}
-                            onChange={(e) => setFormData({...formData, author: e.target.value})}
+                            id="company" 
+                            placeholder="Company name" 
+                            value={formData.company}
+                            onChange={(e) => setFormData({...formData, company: e.target.value})}
                             className="h-9"
                           />
                         </div>
                         
                         <div className="space-y-1">
-                          <Label htmlFor="readTime" className="text-sm font-medium">Read Time</Label>
+                          <Label htmlFor="tag" className="text-sm font-medium">Tag</Label>
                           <Input 
-                            id="readTime" 
-                            placeholder="3 dakika" 
-                            value={formData.readTime}
-                            onChange={(e) => setFormData({...formData, readTime: e.target.value})}
+                            id="tag" 
+                            placeholder="e.g. Software Development" 
+                            value={formData.tag}
+                            onChange={(e) => setFormData({...formData, tag: e.target.value})}
                             className="h-9"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="subtitle" className="text-sm font-medium">Subtitle</Label>
+                          <Input 
+                            id="subtitle" 
+                            placeholder="Project subtitle" 
+                            value={formData.subtitle}
+                            onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                            className="h-9"
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor="fullDescription" className="text-sm font-medium">Full Description</Label>
+                          <Textarea 
+                            id="fullDescription" 
+                            placeholder="Detailed description" 
+                            value={formData.fullDescription}
+                            onChange={(e) => setFormData({...formData, fullDescription: e.target.value})}
+                            className="min-h-[70px]"
                           />
                         </div>
                       </div>
@@ -808,7 +907,7 @@ export default function BlogEditor() {
                   
                   <Card className="shadow-sm">
                     <CardHeader className="">
-                      <CardTitle className="text-base font-medium">Blog Content</CardTitle>
+                      <CardTitle className="text-base font-medium">Additional Content (Optional)</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2 ">
                       <div className="space-y-1">
@@ -827,10 +926,30 @@ export default function BlogEditor() {
                           onChange={(html) => setFormData({ ...formData, fullContent: html })}
                           className="min-h-[350px]"
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          <strong>Tip:</strong> Use the editor's formatting tools to structure your content. 
-                          Click "HTML" to edit the raw HTML directly.
-                        </p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="author" className="text-sm font-medium">Author (Optional)</Label>
+                          <Input 
+                            id="author" 
+                            placeholder="Author name" 
+                            value={formData.author}
+                            onChange={(e) => setFormData({...formData, author: e.target.value})}
+                            className="h-9"
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor="readTime" className="text-sm font-medium">Read Time</Label>
+                          <Input 
+                            id="readTime" 
+                            placeholder="10 mins" 
+                            value={formData.readTime}
+                            onChange={(e) => setFormData({...formData, readTime: e.target.value})}
+                            className="h-9"
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -844,13 +963,13 @@ export default function BlogEditor() {
                           type="button" 
                           variant="outline" 
                           onClick={() => {
-                            resetForm();
                             if (isEditMode) {
                               setIsEditMode(false);
-                              setEditingPostId(null);
+                              setEditingProjectId(null);
                               // URL'yi temizle
                               window.history.pushState({}, '', window.location.pathname);
                             }
+                            resetForm();
                             setActiveTab("all");
                           }}
                           className="w-1/2 h-9"
@@ -869,7 +988,7 @@ export default function BlogEditor() {
                               {isEditMode ? "Updating..." : "Creating..."}
                             </span>
                           ) : (
-                            isEditMode ? "Update Blog" : "Create Blog"
+                            isEditMode ? "Update Project" : "Create Project"
                           )}
                         </Button>
                       </div>
@@ -886,7 +1005,7 @@ export default function BlogEditor() {
                           <div className="flex-1">
                             <Input 
                               id="image" 
-                              placeholder="/assets/imgs/blog-1/card-img-1.png" 
+                              placeholder="/assets/imgs/project-2/img-1.png" 
                               value={formData.image}
                               onChange={(e) => setFormData({...formData, image: e.target.value})}
                               className="h-9"
@@ -927,7 +1046,7 @@ export default function BlogEditor() {
                   
                   <Card className="shadow-sm">
                     <CardHeader className="">
-                      <CardTitle className="text-base font-medium">Main Banner Image</CardTitle>
+                      <CardTitle className="text-base font-medium">Main Banner Image (Optional)</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-2 pt-0 ">
                       <div className="space-y-1">
