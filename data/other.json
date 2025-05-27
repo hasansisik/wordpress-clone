@@ -1,5 +1,5 @@
 {
-  "activeOther": "blog1",
+  "activeOther": "contact1",
   "blog1": {
     "badge": "From Blog",
     "title": "Our Latest Articles",
@@ -22,29 +22,29 @@
     "subtitle": "Explore the insights and trends shaping our industry"
   },
   "contact1": {
-    "badge": "Get in Touch",
-    "title": "Contact Our Team",
-    "description": "We are a comprehensive service agency with specialists prepared to assist. <br />We will contact you within 24 hours.",
-    "formTitle": "Leave a message",
-    "chatTitle": "Chat with us",
-    "chatDescription": "The support team is always available 24/7",
+    "badge": "İletişime Geçin",
+    "title": "Ekibimiz İle İletişime Geçin",
+    "description": "Yardıma hazır uzmanlarımızla kapsamlı bir hizmet ajansıyız. <br />24 saat içinde sizinle iletişime geçeceğiz.",
+    "formTitle": "Mesaj Bırakın",
+    "chatTitle": "Bizimle sohbet edin",
+    "chatDescription": "Destek ekibimiz 7/24 hizmetinizdedir",
     "whatsappLink": "#",
     "viberLink": "#",
     "messengerLink": "#",
-    "emailTitle": "Send us an email",
-    "emailDescription": "Our team will respond promptly to your inquiries",
-    "supportEmail": "support@infinia.com",
-    "salesEmail": "sale@infinia.com",
-    "inquiryTitle": "For more inquiry",
-    "inquiryDescription": "Reach out for immediate assistance",
+    "emailTitle": "Bize e-posta gönderin",
+    "emailDescription": "Ekibimiz sorularınıza hızlı bir şekilde yanıt verecektir",
+    "supportEmail": "destek@infinia.com",
+    "salesEmail": "satis@infinia.com",
+    "inquiryTitle": "Daha fazla bilgi için",
+    "inquiryDescription": "Anında yardım için bize ulaşın",
     "phoneNumber": "+01 (24) 568 900",
     "services": [
-      "Research planning",
-      "Finance Advisory",
-      "Business promotion",
-      "Business Consultancy",
-      "Finance Advisory",
-      "Business promotion"
+      "Araştırma planlaması",
+      "Finans Danışmanlığı",
+      "İş promosyonu",
+      "İş Danışmanlığı",
+      "Finans Danışmanlığı",
+      "İş promosyonu"
     ]
   }
-} 
+}
