@@ -72,9 +72,9 @@ export default function SiteSettingsPage() {
       apiSecret: ""
     },
     whatsapp: {
-      enabled: true,
-      phoneNumber: "+905555555555",
-      message: "Merhaba, size nasıl yardımcı olabilirim?"
+      enabled: false,
+      phoneNumber: "",
+      message: ""
     }
   });
 
@@ -697,7 +697,7 @@ export default function SiteSettingsPage() {
                       <Input
                         id="whatsappPhone"
                         name="whatsapp.phoneNumber"
-                        placeholder="Enter phone number with country code (e.g. +905555555555)"
+                        placeholder="Enter phone number with country code (e.g. +1234567890)"
                         value={siteSettings.whatsapp.phoneNumber}
                         onChange={handleInputChange}
                       />
@@ -709,7 +709,7 @@ export default function SiteSettingsPage() {
                       <Textarea
                         id="whatsappMessage"
                         name="whatsapp.message"
-                        placeholder="Enter default message"
+                        placeholder="Hello, I would like to inquire about your services."
                         rows={3}
                         value={siteSettings.whatsapp.message}
                         onChange={handleInputChange}

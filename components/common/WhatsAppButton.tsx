@@ -2,23 +2,40 @@
 
 import { useEffect, useState } from 'react'
 import { MessageCircle } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getGeneral } from '@/redux/actions/generalActions'
 
 const WhatsAppButton = () => {
+  const dispatch = useDispatch()
   const [whatsappConfig, setWhatsappConfig] = useState({
-    enabled: true,
-    phoneNumber: '+905555555555',
-    message: 'Merhaba, size nasıl yardımcı olabilirim?'
+    enabled: false,
+    phoneNumber: '',
+    message: ''
   })
 
-  useEffect(() => {
-    // Load WhatsApp config from localStorage
-    const savedConfig = localStorage.getItem('whatsappConfig')
-    if (savedConfig) {
-      setWhatsappConfig(JSON.parse(savedConfig))
-    }
-  }, [])
+  // Get general settings from Redux store
+  const { general, loading } = useSelector((state: RootState) => state.general)
 
-  if (!whatsappConfig.enabled) return null
+  // Fetch general settings if not already loaded
+  useEffect(() => {
+    if (!general && !loading) {
+      dispatch(getGeneral() as any)
+    }
+  }, [dispatch, general, loading])
+
+  useEffect(() => {
+    if (general && general.whatsapp) {
+      setWhatsappConfig({
+        enabled: general.whatsapp.enabled !== undefined ? general.whatsapp.enabled : false,
+        phoneNumber: general.whatsapp.phoneNumber || '',
+        message: general.whatsapp.message || ''
+      })
+    }
+  }, [general])
+
+  // Don't render anything if disabled or no phone number
+  if (!whatsappConfig.enabled || !whatsappConfig.phoneNumber) return null
 
   const handleWhatsAppClick = () => {
     // Close mobile menu if open

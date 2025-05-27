@@ -1297,9 +1297,12 @@ export default function FooterEditor() {
     // Save changes to API
     saveChangesToAPI(updatedData);
 
+    // Reset form
     setNewItem({
-      ...newItem,
-      title: ""
+      name: "",
+      link: "",
+      title: "",
+      type: "column"
     });
 
     // Close dialog
@@ -1845,9 +1848,8 @@ export default function FooterEditor() {
                       <option value="Instagram">Instagram</option>
                       <option value="YouTube">YouTube</option>
                       <option value="Pinterest">Pinterest</option>
-                      <option value="Behance">Behance</option>
-                      <option value="Dribbble">Dribbble</option>
                       <option value="TikTok">TikTok</option>
+                      <option value="Dribbble">Dribbble</option>
                     </select>
                   ) : (
                     <Input
@@ -2060,7 +2062,7 @@ export default function FooterEditor() {
                             Add a new column category to your footer.
                           </DialogDescription>
                         </DialogHeader>
-          <form onSubmit={handleItemAdd} className="space-y-4 mt-3">
+          <form onSubmit={handleColumnAdd} className="space-y-4 mt-3">
                           <div className="space-y-2">
                             <Label htmlFor="columnTitle" className="text-sm">
                               Column Title
