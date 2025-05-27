@@ -1,14 +1,20 @@
 "use client"
 import Link from "next/link"
 import { useState, useEffect } from "react";
-import faqData from "@/data/faq.json"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getFaq } from "@/redux/actions/faqActions"
+import { AppDispatch } from "@/redux/store"
 
 interface Faqs3Props {
 	previewData?: any;
 }
 
 export default function Faqs3({ previewData }: Faqs3Props = {}) {
-	const [data, setData] = useState<any>(faqData.faqs3 || {})
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { faq, loading } = useSelector((state: RootState) => state.faq)
+	
 	const [activeItem, setActiveItem] = useState(1);
 	const [key, setKey] = useState(0);
 
@@ -16,20 +22,38 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 		setActiveItem(activeItem === index ? 0 : index);
 	};
 
+	// Always fetch FAQ data when component mounts
+	useEffect(() => {
+		dispatch(getFaq())
+	}, [dispatch])
+
 	useEffect(() => {
 		setKey(prevKey => prevKey + 1);
 	}, [previewData]);
 
 	useEffect(() => {
-		
+		// If preview data is provided, use it
 		if (previewData && previewData.faqs3) {
 			setData(previewData.faqs3);
-		} else if (faqData.faqs3) {
-			setData(faqData.faqs3);
-		} else {
-			console.error("No FAQ data available in Faqs3 component");
+		} 
+		// Otherwise use Redux data
+		else if (faq && faq.faqs3) {
+			setData(faq.faqs3);
 		}
-	}, [previewData, key])
+	}, [previewData, faq, key])
+
+	// If data is still loading or not available, show a loading indicator
+	if (!data) {
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
+	}
 
 	return (
 		<>
@@ -45,7 +69,7 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 					<div className="row">
 						<div className="col-lg-10 mx-auto">
 							<div className="content-one accordion-list-one pe-lg-8 pe-md-0">
-								{data?.items?.map((item: any, index: number) => (
+								{data?.questions?.map((item: any, index: number) => (
 									<div key={index} className={`accordion-item bg-white rounded-4 border-0 mb-4 shadow-1 ${activeItem === index + 1 ? 'active' : ''}`}>
 										<h2 className="accordion-header" onClick={() => handleActiveItem(index + 1)}>
 											<button className="accordion-button">

@@ -1,33 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { server } from '@/config';
+import axios from 'axios';
 
-// GET handler to retrieve FAQ data
-export async function GET() {
+// Function to get FAQ data from server API
+export async function GET(req: NextRequest) {
   try {
-    const filePath = path.join(process.cwd(), 'data', 'faq.json');
-    const fileData = await fs.readFile(filePath, 'utf8');
-    const data = JSON.parse(fileData);
-    
-    return NextResponse.json(data);
+    // Fetch from MongoDB API
+    const { data } = await axios.get(`${server}/faq`);
+    return NextResponse.json(data.faq);
   } catch (error) {
-    console.error('Error reading FAQ data:', error);
-    return NextResponse.json({ error: 'Failed to read FAQ data' }, { status: 500 });
+    console.error("Error fetching FAQ data:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch FAQ data from server" },
+      { status: 500 }
+    );
   }
 }
 
-// POST handler to save FAQ data
-export async function POST(request: NextRequest) {
+// Function to update FAQ data on server API
+export async function POST(req: NextRequest) {
   try {
-    const data = await request.json();
-    const filePath = path.join(process.cwd(), 'data', 'faq.json');
+    // Get FAQ data from request
+    const faqData = await req.json();
     
-    // Save the updated data to the file
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-    
-    return NextResponse.json({ success: true });
+    try {
+      // Auth bypass için options
+      const options = {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Special-Auth': 'development-bypass-auth'
+        }
+      };
+      
+      const { data } = await axios.put(
+        `${server}/faq`,
+        faqData,
+        options
+      );
+      return NextResponse.json(data.faq);
+    } catch (mongoError: any) {
+      console.error("Error updating FAQ data on server:", mongoError);
+      return NextResponse.json(
+        { error: "Failed to update FAQ data on server" },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('Error saving FAQ data:', error);
-    return NextResponse.json({ error: 'Failed to save FAQ data' }, { status: 500 });
+    console.error("Error in FAQ update request:", error);
+    return NextResponse.json(
+      { error: "Failed to process FAQ update request" },
+      { status: 500 }
+    );
   }
 } 

@@ -7,6 +7,7 @@ import headerReducer from "./reducers/headerReducer";
 import footerReducer from "./reducers/footerReducer";
 import heroReducer from "./reducers/heroReducer";
 import { ctaReducer } from './reducers/ctaReducer';
+import faqReducer from './reducers/faqReducer';
 
 export const store = configureStore({
   reducer: {
@@ -17,8 +18,13 @@ export const store = configureStore({
     footer: footerReducer,
     hero: heroReducer,
     cta: ctaReducer,
+    faq: faqReducer,
   },
   devTools: process.env.NODE_ENV !== 'production',
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

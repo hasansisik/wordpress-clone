@@ -7,10 +7,10 @@ import { server } from '@/config';
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    
+
     // Path to footer.json file (for backward compatibility)
     const filePath = path.join(process.cwd(), 'data', 'footer.json');
-    
+
     // Ensure all required properties exist
     const safeData = {
       logo: {

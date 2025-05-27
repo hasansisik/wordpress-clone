@@ -1,14 +1,20 @@
 'use client'
 import { useState, useEffect } from 'react';
 import Link from "next/link"
-import faqData from "@/data/faq.json"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getFaq } from "@/redux/actions/faqActions"
+import { AppDispatch } from "@/redux/store"
 
 interface Faqs2Props {
 	previewData?: any;
 }
 
 export default function Faqs2({ previewData }: Faqs2Props = {}) {
-	const [data, setData] = useState<any>(faqData.faqs2 || {})
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { faq, loading } = useSelector((state: RootState) => state.faq)
+	
 	// Accordion
 	const [activeItem, setActiveItem] = useState(1);
 	const [key, setKey] = useState(0); // Add a key to force re-render
@@ -17,6 +23,11 @@ export default function Faqs2({ previewData }: Faqs2Props = {}) {
 		setActiveItem(activeItem === index ? 0 : index);
 	};
 
+	// Always fetch FAQ data when component mounts
+	useEffect(() => {
+		dispatch(getFaq())
+	}, [dispatch])
+
 	// Force refresh when data changes
 	useEffect(() => {
 		// Increment key to force component re-render when data changes
@@ -24,16 +35,28 @@ export default function Faqs2({ previewData }: Faqs2Props = {}) {
 	}, [previewData]);
 
 	useEffect(() => {
-		
-		// If preview data is provided, use it, otherwise load from the file
+		// If preview data is provided, use it
 		if (previewData && previewData.faqs2) {
 			setData(previewData.faqs2);
-		} else if (faqData.faqs2) {
-			setData(faqData.faqs2);
-		} else {
-			console.error("No FAQ data available in Faqs2 component");
+		} 
+		// Otherwise use Redux data
+		else if (faq && faq.faqs2) {
+			setData(faq.faqs2);
 		}
-	}, [previewData, key])
+	}, [previewData, faq, key])
+
+	// If data is still loading or not available, show a loading indicator
+	if (!data) {
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
+	}
 
 	// Calculate how to split the questions between two columns evenly
 	const questions = data?.questions || [];

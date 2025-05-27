@@ -181,24 +181,38 @@ export default function FaqEditor() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const timestamp = new Date().getTime();
         const response = await fetch(`/api/faq?t=${timestamp}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
           }
-      });
-      
-      if (response.ok) {
+        });
+        
+        if (response.ok) {
           const data = await response.json();
           setFaqData(data);
-      } else {
+        } else {
           console.error('Error fetching FAQ data:', await response.text());
-      }
-    } catch (error) {
+          // Use initial data if API request fails
+          const dispatch = require('@/redux/store').default.dispatch;
+          const { getFaq } = require('@/redux/actions/faqActions');
+          
+          try {
+            await dispatch(getFaq());
+            const state = require('@/redux/store').default.getState();
+            if (state.faq && state.faq.faq) {
+              setFaqData(state.faq.faq);
+            }
+          } catch (reduxError) {
+            console.error('Failed to get FAQ data from Redux:', reduxError);
+          }
+        }
+      } catch (error) {
         console.error('Error fetching FAQ data:', error);
-    } finally {
+      } finally {
         setIsLoading(false);
       }
     };
@@ -322,6 +336,15 @@ export default function FaqEditor() {
       
       if (!response.ok) {
         console.error('Failed to save FAQ data');
+      } else {
+        // Update Redux store if available
+        try {
+          const dispatch = require('@/redux/store').default.dispatch;
+          const { updateFaq } = require('@/redux/actions/faqActions');
+          await dispatch(updateFaq(data));
+        } catch (reduxError) {
+          console.error('Failed to update Redux state:', reduxError);
+        }
       }
     } catch (error) {
       console.error('Error saving FAQ data:', error);

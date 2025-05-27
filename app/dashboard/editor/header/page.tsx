@@ -341,8 +341,8 @@ export default function HeaderEditor() {
       };
       setHeaderData(updatedData);
     } else {
-      // Set initial data while waiting for API response
-      setHeaderData(initialData);
+    // Set initial data while waiting for API response
+    setHeaderData(initialData);
     }
   }, [selectedHeader, header]);
 
@@ -732,41 +732,41 @@ export default function HeaderEditor() {
     if (!headerTemplate) return;
 
     // Create updated header data with values from the Redux store
-    const updatedHeaderData = {
+        const updatedHeaderData = {
       // These should come from the API via Redux
       mainMenu: Array.isArray(header.mainMenu) ? header.mainMenu : [],
       socialLinks: Array.isArray(header.socialLinks) ? header.socialLinks : [],
       topBarItems: Array.isArray(header.topBarItems) ? header.topBarItems : [],
-      
-      // Logo data should always come from the API
+          
+          // Logo data should always come from the API
       logoText: header.logo?.text || "Infinia",
       logoUrl: header.logo?.src || "/assets/imgs/template/favicon.svg",
-      
-      // Settings from API
+          
+          // Settings from API
       showDarkModeToggle: header.showDarkModeToggle !== undefined ? header.showDarkModeToggle : true,
       showActionButton: header.showActionButton !== undefined ? header.showActionButton : headerTemplate.buttonText !== "",
-      
-      // Button settings - get from API if available, otherwise use defaults
+          
+          // Button settings - get from API if available, otherwise use defaults
       actionButtonText: header.actionButtonText || header.links?.freeTrialLink?.text || headerTemplate.buttonText,
       actionButtonLink: header.actionButtonLink || header.links?.freeTrialLink?.href || "/contact",
-      
-      // Button colors from API or defaults
+          
+          // Button colors from API or defaults
       buttonColor: header.buttonColor || "#3b71fe",
       buttonTextColor: header.buttonTextColor || "#ffffff",
-      
-      // Component type from API or fall back to the header's component
+          
+          // Component type from API or fall back to the header's component
       headerComponent: header.headerComponent || headerTemplate.component
-    };
+        };
 
-    // Use functional state update to ensure we're working with the latest state
-    setHeaderData(prevData => {
-      // If the data is the same, don't trigger a re-render
-      if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
-        return prevData;
-      }
-      
-      return updatedHeaderData;
-    });
+        // Use functional state update to ensure we're working with the latest state
+        setHeaderData(prevData => {
+          // If the data is the same, don't trigger a re-render
+          if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
+            return prevData;
+          }
+          
+          return updatedHeaderData;
+        });
   };
 
   // Call refreshHeaderData when the selected header changes

@@ -97,9 +97,9 @@ export default function CtaEditor() {
       try {
         // Use Redux to fetch CTA data
         await dispatch(getCta());
-      } catch (error) {
+    } catch (error) {
         console.error("Error fetching CTA data:", error);
-      } finally {
+    } finally {
         setIsLoading(false);
       }
     };
