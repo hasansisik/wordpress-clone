@@ -22,6 +22,7 @@ import Blog2 from "@/components/sections/Blog2";
 import Blog3 from "@/components/sections/Blog3";
 import Blog5 from "@/components/sections/Blog5";
 import Contact1 from "@/components/sections/Contact1";
+import Services2 from "@/components/sections/Services2";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { getOther, updateOther } from "@/redux/actions/otherActions";
@@ -33,6 +34,7 @@ const otherTypes = [
   { value: "blog2", label: "Blog 2" },
   { value: "blog3", label: "Blog 3" },
   { value: "blog5", label: "Blog 5" },
+  { value: "services2", label: "Services 2" },
   { value: "contact1", label: "Contact 1" },
 ];
 
@@ -77,6 +79,8 @@ const DirectPreview = ({ data }: { data: any }) => {
         <Blog3 previewData={data} />
       ) : activeComponent === "blog5" ? (
         <Blog5 previewData={data} />
+      ) : activeComponent === "services2" ? (
+        <Services2 previewData={data} />
       ) : (
         <Contact1 previewData={data} />
       )}
@@ -204,6 +208,8 @@ export default function OtherEditor() {
             <Blog3ContentForm data={data.blog3 || {}} />
           ) : activeOther === "blog5" ? (
             <Blog5ContentForm data={data.blog5 || {}} />
+          ) : activeOther === "services2" ? (
+            <Services2ContentForm data={data.services2 || {}} />
           ) : (
             <Contact1ContentForm data={data.contact1 || {}} />
           )}
@@ -226,6 +232,8 @@ export default function OtherEditor() {
             <Blog3MediaForm data={data.blog3 || {}} />
           ) : activeOther === "blog5" ? (
             <Blog5MediaForm data={data.blog5 || {}} />
+          ) : activeOther === "services2" ? (
+            <Services2MediaForm data={data.services2 || {}} />
           ) : (
             <Contact1MediaForm data={data.contact1 || {}} />
           )}
@@ -369,6 +377,99 @@ function Blog5ContentForm({ data }: { data: any }) {
         path="blog5.subtitle"
         placeholder="Enter section subtitle"
       />
+    </div>
+  );
+}
+
+// Services 2 Content Form
+function Services2ContentForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Heading">
+        <TextField
+          label="Tag"
+          value={data?.heading?.tag || ""}
+          path="services2.heading.tag"
+          placeholder="e.g. What we offer"
+        />
+        
+        <TextAreaField
+          label="Title"
+          value={data?.heading?.title || ""}
+          path="services2.heading.title"
+          placeholder="Enter section title with HTML formatting if needed"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Buttons">
+        <TextField
+          label="Primary Button Text"
+          value={data?.buttons?.primary?.text || ""}
+          path="services2.buttons.primary.text"
+          placeholder="e.g. Explore Now"
+        />
+        
+        <LinkField
+          label="Primary Button Link"
+          value={data?.buttons?.primary?.link || ""}
+          path="services2.buttons.primary.link"
+        />
+        
+        <TextField
+          label="Primary Button Class"
+          value={data?.buttons?.primary?.btnClass || ""}
+          path="services2.buttons.primary.btnClass"
+          placeholder="e.g. btn-gradient"
+        />
+        
+        <TextField
+          label="Secondary Button Text"
+          value={data?.buttons?.secondary?.text || ""}
+          path="services2.buttons.secondary.text"
+          placeholder="e.g. Contact Us"
+        />
+        
+        <LinkField
+          label="Secondary Button Link"
+          value={data?.buttons?.secondary?.link || ""}
+          path="services2.buttons.secondary.link"
+        />
+        
+        <TextField
+          label="Secondary Button Class"
+          value={data?.buttons?.secondary?.btnClass || ""}
+          path="services2.buttons.secondary.btnClass"
+          placeholder="e.g. btn-outline-secondary"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Services">
+        {(data?.services || []).map((service: any, index: number) => (
+          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4">
+            <div className="text-xs font-medium text-gray-700 mb-2">
+              Service {index + 1}
+            </div>
+            <TextField
+              label="Title"
+              value={service.title || ""}
+              path={`services2.services.${index}.title`}
+              placeholder="e.g. Business Analytics"
+            />
+            <TextAreaField
+              label="Description"
+              value={service.description || ""}
+              path={`services2.services.${index}.description`}
+              placeholder="Enter service description"
+            />
+            <TextField
+              label="Icon Background Color"
+              value={service.iconBgColor || ""}
+              path={`services2.services.${index}.iconBgColor`}
+              placeholder="e.g. bg-primary-soft"
+            />
+          </div>
+        ))}
+      </FormGroup>
     </div>
   );
 }
@@ -529,6 +630,37 @@ function Blog5MediaForm({ data }: { data: any }) {
       <div className="text-xs text-gray-500 mb-2">
         Blog images are managed from a separate source.
       </div>
+    </div>
+  );
+}
+
+// Services 2 Media Form
+function Services2MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <ImageUploadField
+        label="Tag Image"
+        value={data?.tagImage || ""}
+        path="services2.tagImage"
+      />
+      
+      <ImageUploadField
+        label="Background Image"
+        value={data?.backgroundImage || ""}
+        path="services2.backgroundImage"
+      />
+      
+      <FormGroup title="Service Icons">
+        {(data?.services || []).map((service: any, index: number) => (
+          <div key={index} className="mb-3">
+            <ImageUploadField
+              label={`Service ${index + 1} Icon`}
+              value={service.icon || ""}
+              path={`services2.services.${index}.icon`}
+            />
+          </div>
+        ))}
+      </FormGroup>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import Blog2 from "@/components/sections/Blog2";
 import Blog3 from "@/components/sections/Blog3";
 import Blog5 from "@/components/sections/Blog5";
 import Contact1 from "@/components/sections/Contact1";
+import Services2 from "@/components/sections/Services2";
 import Script from "next/script";
 
 // Common Styles
@@ -888,6 +889,155 @@ const CommonStyles = () => (
     .section-contact-3 .ms-8 {
       margin-left: 2rem;
     }
+    
+    /* Services2 specific styles */
+    .section-team-1 {
+      width: 100%;
+      padding: 80px 0;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card-service {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .icon-flip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 20px;
+    }
+    
+    .icon-shape {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .icon-xxl {
+      width: 70px;
+      height: 70px;
+    }
+    
+    .rounded-3 {
+      border-radius: 0.5rem;
+    }
+    
+    .shadow-1 {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .rounded-4 {
+      border-radius: 1rem;
+    }
+    
+    .mt-6 {
+      margin-top: 2.5rem;
+    }
+    
+    .p-2 {
+      padding: 0.5rem;
+    }
+    
+    .p-6 {
+      padding: 1.5rem;
+    }
+    
+    .hover-up {
+      transition: all 0.3s ease;
+    }
+    
+    .hover-up:hover {
+      transform: translateY(-5px);
+    }
+    
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+    
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+    
+    .me-5 {
+      margin-right: 1.25rem;
+    }
+    
+    .my-3 {
+      margin-top: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .bg-primary-soft {
+      background-color: rgba(99, 66, 236, 0.1);
+    }
+    
+    .bg-success-soft {
+      background-color: rgba(40, 167, 69, 0.1);
+    }
+    
+    .bg-warning-soft {
+      background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .bg-info-soft {
+      background-color: rgba(23, 162, 184, 0.1);
+    }
+    
+    .bg-danger-soft {
+      background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    .bg-secondary-soft {
+      background-color: rgba(108, 117, 125, 0.1);
+    }
+    
+    .fill-primary-soft {
+      fill: rgba(99, 66, 236, 0.1);
+    }
+    
+    .btn-gradient {
+      background: linear-gradient(90deg, #6342EC 0%, #BA3FDA 100%);
+      color: white;
+      border: none;
+    }
+    
+    .btn-outline-secondary {
+      color: #6c757d;
+      border-color: #6c757d;
+      background: transparent;
+    }
+    
+    .gap-3 {
+      gap: 1rem;
+    }
+    
+    .stroke-white {
+      stroke: white;
+    }
+    
+    .stroke-dark {
+      stroke: #111827;
+    }
+    
+    .top-0 {
+      top: 0;
+    }
+    
+    .start-50 {
+      left: 50%;
+    }
+    
+    .translate-middle-x {
+      transform: translateX(-50%);
+    }
   `}</style>
 );
 
@@ -962,6 +1112,8 @@ export default function OtherPreview() {
         return <Blog3 previewData={otherData} />;
       case "blog5":
         return <Blog5 previewData={otherData} />;
+      case "services2":
+        return <Services2 previewData={otherData} />;
       case "contact1":
         return <Contact1 previewData={otherData} />;
       default:

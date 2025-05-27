@@ -69,10 +69,6 @@ const data = {
           url: "/dashboard/editor/cta",
         },
         {
-          title: "Services",
-          url: "/dashboard/editor/services",
-        },
-        {
           title: "Project",
           url: "/dashboard/editor/project",
         },

@@ -1,7 +1,9 @@
 'use client'
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import servicesData from "@/data/services.json"
+import { useDispatch, useSelector } from "react-redux"
+import { getOther } from "@/redux/actions/otherActions"
+import { AppDispatch, RootState } from "@/redux/store"
 
 interface Services2Props {
 	previewData?: any;
@@ -9,20 +11,28 @@ interface Services2Props {
 
 export default function Services2({ previewData }: Services2Props = {}) {
 	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { other, loading } = useSelector((state: RootState) => state.other)
 
 	useEffect(() => {
-		
-		// If preview data is provided, use it, otherwise load from the file
+		// Fetch other data if not provided in preview
+		if (!previewData) {
+			dispatch(getOther())
+		}
+	}, [dispatch, previewData])
+
+	useEffect(() => {
+		// If preview data is provided, use it
 		if (previewData && previewData.services2) {
 			setData(previewData.services2);
-		} else if (servicesData.services2) {
-			setData(servicesData.services2);
-		} else {
-			console.error("No services data available in Services2 component");
+		} 
+		// Otherwise use Redux data
+		else if (other && other.services2) {
+			setData(other.services2);
 		}
-	}, [previewData])
+	}, [previewData, other])
 
-	if (!data) {
+	if (!data || loading) {
 		return <section>Loading Services2...</section>
 	}
 

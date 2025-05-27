@@ -25,6 +25,34 @@ export interface OtherPayload {
     title?: string;
     subtitle?: string;
   };
+  services2?: {
+    heading?: {
+      tag?: string;
+      title?: string;
+    };
+    tagImage?: string;
+    services?: Array<{
+      icon: string;
+      title: string;
+      description: string;
+      iconBgColor?: string;
+    }>;
+    backgroundImage?: string;
+    buttons?: {
+      primary?: {
+        text?: string;
+        link?: string;
+        btnClass?: string;
+        iconClass?: string;
+      };
+      secondary?: {
+        text?: string;
+        link?: string;
+        btnClass?: string;
+        iconClass?: string;
+      };
+    };
+  };
   contact1?: {
     badge?: string;
     title?: string;
