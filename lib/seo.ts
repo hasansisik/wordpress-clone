@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { store } from '@/redux/store';
 
 export interface SeoData {
   title: string;
@@ -8,6 +9,19 @@ export interface SeoData {
   ogDescription?: string;
   ogImage?: string;
   canonicalUrl?: string;
+}
+
+export interface SeoPageConfig {
+  id: string;
+  name: string;
+  url: string;
+  title: string;
+  description: string;
+  lastUpdated: string;
+  keywords: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
 }
 
 const defaultSeoData: Record<string, SeoData> = {
@@ -61,9 +75,39 @@ const defaultSeoData: Record<string, SeoData> = {
   },
 };
 
-// Storage might be upgraded to a database or API call in the future
+// Replace the getSeoData function with a new implementation that uses the Redux store
 export function getSeoData(page: string): SeoData {
-  return defaultSeoData[page] || defaultSeoData.general;
+  const state = store.getState();
+  
+  // Check if we have data in the Redux store
+  if (state.general.general?.seo) {
+    // For general page settings
+    if (page === 'general') {
+      return state.general.general.seo.general;
+    }
+    
+    // For specific pages
+    const pageData = state.general.general.seo.pages?.find((p: SeoPageConfig) => p.id === page);
+    if (pageData) {
+      return {
+        title: pageData.title,
+        description: pageData.description,
+        keywords: pageData.keywords,
+        ogTitle: pageData.ogTitle,
+        ogDescription: pageData.ogDescription,
+        ogImage: pageData.ogImage
+      };
+    }
+    
+    // If specific page not found, return general seo data
+    return state.general.general.seo.general;
+  }
+  
+  // Return empty SEO data object if nothing found in store
+  return {
+    title: "",
+    description: ""
+  };
 }
 
 export function generateMetadata(page: string): Metadata {
@@ -86,7 +130,60 @@ export function generateMetadata(page: string): Metadata {
   };
 }
 
-// Get general site-wide SEO settings
-export function getGeneralSeoData(): SeoData {
-  return defaultSeoData.general;
-} 
+/**
+ * Get general SEO data from the Redux store
+ */
+export const getGeneralSeoData = () => {
+  const state = store.getState();
+  if (!state.general.general || !state.general.general.seo) {
+    // Return empty object if general data is not yet loaded
+    return {
+      title: "",
+      description: ""
+    };
+  } 
+  
+  const generalSeo = state.general.general.seo.general;
+  return generalSeo;
+};
+
+/**
+ * Get all SEO pages data from the Redux store
+ */
+export const getAllSeoPages = (): SeoPageConfig[] => {
+  const state = store.getState();
+  if (!state.general.general || !state.general.general.seo) {
+    return [];
+  }
+  
+  const pages = state.general.general.seo.pages || [];
+  return pages;
+};
+
+/**
+ * Get SEO data for a specific page by ID
+ * @param pageId The ID of the page to retrieve SEO data for
+ */
+export const getSeoPageById = (pageId: string): SeoPageConfig | null => {
+  const state = store.getState();
+  if (!state.general.general || !state.general.general.seo) {
+    return null;
+  }
+  
+  const pages = state.general.general.seo.pages || [];
+  return pages.find((page: SeoPageConfig) => page.id === pageId) || null;
+};
+
+/**
+ * Get SEO data for a page by URL
+ * @param url The URL of the page to retrieve SEO data for
+ */
+export const getSeoPageByUrl = (url: string): SeoPageConfig | null => {
+  const state = store.getState();
+  if (!state.general.general || !state.general.general.seo) {
+    return null;
+  }
+  
+  const pages = state.general.general.seo.pages || [];
+  return pages.find((page: SeoPageConfig) => page.url === url) || null;
+}; 

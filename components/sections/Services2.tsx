@@ -20,7 +20,7 @@ export default function Services2({ previewData }: Services2Props = {}) {
 			dispatch(getOther())
 		}
 	}, [dispatch, previewData])
-
+		
 	useEffect(() => {
 		// If preview data is provided, use it
 		if (previewData && previewData.services2) {

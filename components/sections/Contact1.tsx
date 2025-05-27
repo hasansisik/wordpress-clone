@@ -21,7 +21,7 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 			dispatch(getOther())
 		}
 	}, [dispatch, previewData])
-
+		
 	useEffect(() => {
 		// If preview data is provided, use it
 		if (previewData && previewData.contact1) {

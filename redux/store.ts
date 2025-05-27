@@ -9,6 +9,7 @@ import heroReducer from "./reducers/heroReducer";
 import { ctaReducer } from './reducers/ctaReducer';
 import faqReducer from './reducers/faqReducer';
 import otherReducer from './reducers/otherReducer';
+import generalReducer from "./reducers/generalReducer";
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     cta: ctaReducer,
     faq: faqReducer,
     other: otherReducer,
+    general: generalReducer,
   },
   devTools: process.env.NODE_ENV !== 'production',
   middleware: (getDefaultMiddleware) =>

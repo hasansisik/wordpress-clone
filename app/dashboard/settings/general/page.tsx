@@ -40,12 +40,18 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 import { uploadImageToCloudinary } from "@/utils/cloudinary";
 import { useThemeConfig } from "@/lib/store/themeConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getGeneral, updateGeneral } from "@/redux/actions/generalActions";
+import { AppDispatch } from "@/redux/store";
 
 export default function SiteSettingsPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [faviconUploading, setFaviconUploading] = useState(false);
   const { headerStyle, footerStyle, setHeaderStyle, setFooterStyle } = useThemeConfig();
+  const dispatch = useDispatch<AppDispatch>();
+  const { general, loading, success } = useSelector((state: RootState) => state.general);
 
   // Site settings state
   const [siteSettings, setSiteSettings] = useState({
@@ -72,24 +78,39 @@ export default function SiteSettingsPage() {
     }
   });
 
-  // Load site settings from API or localStorage on component mount
+  // Load general settings from API on component mount
   useEffect(() => {
-    // For demo, we'll load from localStorage, in real app you'd fetch from API
-    const savedSettings = localStorage.getItem("siteSettings");
-    if (savedSettings) {
-      setSiteSettings(JSON.parse(savedSettings));
-    } else {
-      // If no settings found, use values from the cloudinary.ts file
-      setSiteSettings(prevSettings => ({
-        ...prevSettings,
+    dispatch(getGeneral());
+  }, [dispatch]);
+
+  // Update local state when general settings are loaded
+  useEffect(() => {
+    if (general) {
+      setSiteSettings({
+        siteName: general.siteName || siteSettings.siteName,
+        siteDescription: general.siteDescription || siteSettings.siteDescription,
+        favicon: general.favicon || siteSettings.favicon,
+        primaryColor: general.colors?.primaryColor || siteSettings.primaryColor,
+        secondaryColor: general.colors?.secondaryColor || siteSettings.secondaryColor,
+        accentColor: general.colors?.accentColor || siteSettings.accentColor,
+        textColor: general.colors?.textColor || siteSettings.textColor,
+        darkPrimaryColor: general.colors?.darkPrimaryColor || siteSettings.darkPrimaryColor,
+        darkSecondaryColor: general.colors?.darkSecondaryColor || siteSettings.darkSecondaryColor,
+        darkAccentColor: general.colors?.darkAccentColor || siteSettings.darkAccentColor,
+        darkTextColor: general.colors?.darkTextColor || siteSettings.darkTextColor,
         cloudinary: {
-          cloudName: "dbw3ozdoh",
-          apiKey: "742373231915158",
-          apiSecret: "rlJxEB-nHt5b6dIywf57q_fc0iE"
+          cloudName: general.cloudinary?.cloudName || siteSettings.cloudinary.cloudName,
+          apiKey: general.cloudinary?.apiKey || siteSettings.cloudinary.apiKey,
+          apiSecret: general.cloudinary?.apiSecret || siteSettings.cloudinary.apiSecret
+        },
+        whatsapp: {
+          enabled: general.whatsapp?.enabled !== undefined ? general.whatsapp.enabled : siteSettings.whatsapp.enabled,
+          phoneNumber: general.whatsapp?.phoneNumber || siteSettings.whatsapp.phoneNumber,
+          message: general.whatsapp?.message || siteSettings.whatsapp.message
         }
-      }));
+      });
     }
-  }, []);
+  }, [general]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -155,21 +176,37 @@ export default function SiteSettingsPage() {
     setIsLoading(true);
     
     try {
-      // For demo, we'll save to localStorage, in real app you'd save to API
-      localStorage.setItem("siteSettings", JSON.stringify(siteSettings));
+      // Convert the site settings to the format expected by the API
+      const payload = {
+        siteName: siteSettings.siteName,
+        siteDescription: siteSettings.siteDescription,
+        favicon: siteSettings.favicon,
+        cloudinary: {
+          cloudName: siteSettings.cloudinary.cloudName,
+          apiKey: siteSettings.cloudinary.apiKey,
+          apiSecret: siteSettings.cloudinary.apiSecret
+        },
+        whatsapp: {
+          enabled: siteSettings.whatsapp.enabled,
+          phoneNumber: siteSettings.whatsapp.phoneNumber,
+          message: siteSettings.whatsapp.message
+        },
+        colors: {
+          primaryColor: siteSettings.primaryColor,
+          secondaryColor: siteSettings.secondaryColor,
+          accentColor: siteSettings.accentColor,
+          textColor: siteSettings.textColor,
+          darkPrimaryColor: siteSettings.darkPrimaryColor,
+          darkSecondaryColor: siteSettings.darkSecondaryColor,
+          darkAccentColor: siteSettings.darkAccentColor,
+          darkTextColor: siteSettings.darkTextColor
+        }
+      };
+
+      // Update the settings using Redux
+      await dispatch(updateGeneral(payload));
       
-      // Save WhatsApp config separately for the WhatsAppButton component to access
-      localStorage.setItem("whatsappConfig", JSON.stringify(siteSettings.whatsapp));
-      
-      // Update Cloudinary settings in real-time
-      // In a real app, you'd update these server-side securely
-      
-      toast.success("Site settings saved successfully!", {
-        description: "Your settings have been updated."
-      });
-      
-      // In a real app, you would apply the theme changes site-wide here
-      // This could involve updating CSS variables or context state
+      // Apply the theme changes to the site
       document.documentElement.style.setProperty('--primary-color', siteSettings.primaryColor);
       document.documentElement.style.setProperty('--secondary-color', siteSettings.secondaryColor);
       document.documentElement.style.setProperty('--accent-color', siteSettings.accentColor);
@@ -179,6 +216,9 @@ export default function SiteSettingsPage() {
       document.documentElement.style.setProperty('--dark-accent-color', siteSettings.darkAccentColor);
       document.documentElement.style.setProperty('--dark-text-color', siteSettings.darkTextColor);
       
+      toast.success("Site settings saved successfully!", {
+        description: "Your settings have been updated."
+      });
     } catch (error) {
       toast.error("Failed to save settings. Please try again.", {
         description: "An error occurred while saving your changes."

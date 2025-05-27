@@ -9,10 +9,10 @@ export async function generateMetadata(): Promise<Metadata> {
   await store.dispatch(getGeneral())
   
   // SEO metadatasını oluştur
-  return generateSeoMetadata("service")
+  return generateSeoMetadata("blog")
 }
 
-export default function HizmetlerLayout({
+export default function BlogLayout({
   children,
 }: {
   children: React.ReactNode

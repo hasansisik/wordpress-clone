@@ -1,8 +1,31 @@
 import crypto from 'crypto';
+import axios from 'axios';
+import { server } from '@/config';
 
-const CLOUD_NAME = 'dbw3ozdoh';
-const API_KEY = '742373231915158';
-const API_SECRET = 'rlJxEB-nHt5b6dIywf57q_fc0iE';
+// Default values
+let CLOUD_NAME = 'dbw3ozdoh';
+let API_KEY = '742373231915158';
+let API_SECRET = 'rlJxEB-nHt5b6dIywf57q_fc0iE';
+
+// Function to fetch Cloudinary settings from the server
+export const fetchCloudinarySettings = async (): Promise<void> => {
+  try {
+    const response = await axios.get(`${server}/general`);
+    const { cloudinary } = response.data;
+    
+    if (cloudinary) {
+      CLOUD_NAME = cloudinary.cloudName || CLOUD_NAME;
+      API_KEY = cloudinary.apiKey || API_KEY;
+      API_SECRET = cloudinary.apiSecret || API_SECRET;
+    }
+  } catch (error) {
+    console.error('Error fetching Cloudinary settings:', error);
+    // If there's an error, use the default values
+  }
+};
+
+// Call this function early in your app's lifecycle
+fetchCloudinarySettings();
 
 function generateSignature(timestamp: number): string {
   const str = `timestamp=${timestamp}${API_SECRET}`;
@@ -16,7 +39,10 @@ interface UploadResult {
   };
 }
 
-export const uploadImageToCloudinary = (file: File): Promise<string> => {
+export const uploadImageToCloudinary = async (file: File): Promise<string> => {
+  // Refresh settings before upload to ensure we have the latest
+  await fetchCloudinarySettings();
+  
   return new Promise((resolve, reject) => {
     const timestamp = Math.round(new Date().getTime() / 1000);
     const signature = generateSignature(timestamp);

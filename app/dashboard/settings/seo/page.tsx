@@ -26,20 +26,12 @@ import Link from "next/link"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { Image, ImagePlus, Search, ExternalLink, AlertCircle, CheckCircle2 } from "lucide-react"
-import { getGeneralSeoData } from "@/lib/seo"
-
-interface SeoPageConfig {
-  id: string;
-  name: string;
-  url: string;
-  title: string;
-  description: string;
-  lastUpdated: string;
-  keywords: string;
-  ogTitle: string;
-  ogDescription: string;
-  ogImage: string;
-}
+import { getGeneralSeoData, getAllSeoPages, SeoPageConfig } from "@/lib/seo"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { AppDispatch } from "@/redux/store"
+import { getGeneral, updateGeneral, updateSeoPage } from "@/redux/actions/generalActions"
+import { Toaster, toast } from "sonner"
 
 // Sample Cloudinary images
 const cloudinaryImages = [
@@ -84,98 +76,59 @@ const cloudinaryImages = [
 export default function Page() {
   const [activeTab, setActiveTab] = useState("overview");
   const [seoScore, setSeoScore] = useState(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const { general, loading, success, error } = useSelector((state: RootState) => state.general);
   
+  // Get all SEO pages
+  const [seoPages, setSeoPages] = useState<SeoPageConfig[]>([]);
+  
+  // Load general data when component mounts
   useEffect(() => {
-    // Animate SEO score on load
-    const timer = setTimeout(() => {
-      setSeoScore(78);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    dispatch(getGeneral());
+  }, [dispatch]);
   
-  // Get general SEO data from the utility
-  const generalSeoData = getGeneralSeoData();
-  
-  const seoPages: SeoPageConfig[] = [
+  // Update state when general data changes
+  useEffect(() => {
+    if (general?.seo) {
+      // Get pages from general data
+      const pages = general.seo.pages || [];
+      setSeoPages([
     {
       id: "general",
       name: "Genel SEO",
       url: "/",
-      title: generalSeoData.title,
-      description: generalSeoData.description,
-      lastUpdated: "2023-06-20",
-      keywords: generalSeoData.keywords || "",
-      ogTitle: generalSeoData.ogTitle || generalSeoData.title,
-      ogDescription: generalSeoData.ogDescription || generalSeoData.description,
-      ogImage: generalSeoData.ogImage || "",
+          title: general.seo.general.title,
+          description: general.seo.general.description,
+          lastUpdated: new Date().toISOString().split('T')[0],
+          keywords: general.seo.general.keywords || "",
+          ogTitle: general.seo.general.ogTitle || general.seo.general.title,
+          ogDescription: general.seo.general.ogDescription || general.seo.general.description,
+          ogImage: general.seo.general.ogImage || "",
     },
-    {
-      id: "home",
-      name: "Ana Sayfa",
-      url: "/",
-      title: "Ana Sayfa | WordPress Clone",
-      description: "WordPress Clone ile web sitenizi hızlı ve kolay bir şekilde oluşturun.",
-      lastUpdated: "2023-06-15",
-      keywords: "wordpress, clone, website, cms, blog",
-      ogTitle: "WordPress Clone | Modern CMS",
-      ogDescription: "WordPress Clone ile web sitenizi hızlı ve kolay bir şekilde oluşturun.",
-      ogImage: "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
-    },
-    {
-      id: "blog",
-      name: "Blog",
-      url: "/blog",
-      title: "Blog | WordPress Clone",
-      description: "En son makalelerimizi keşfedin ve bilgi birikimimizden yararlanın.",
-      lastUpdated: "2023-06-14",
-      keywords: "blog, makaleler, wordpress, içerik, yazılar",
-      ogTitle: "Blog Makaleleri | WordPress Clone",
-      ogDescription: "En son makalelerimizi keşfedin ve bilgi birikimimizden yararlanın.",
-      ogImage: "https://res.cloudinary.com/demo/image/upload/v1493119370/sample2.jpg",
-    },
-    {
-      id: "about",
-      name: "Hakkımızda",
-      url: "/hakkimizda",
-      title: "Hakkımızda | WordPress Clone",
-      description: "WordPress Clone'un arkasındaki hikayeyi ve ekibi tanıyın.",
-      lastUpdated: "2023-06-12",
-      keywords: "hakkımızda, şirket, ekip, misyon, vizyon",
-      ogTitle: "Hakkımızda | WordPress Clone",
-      ogDescription: "WordPress Clone'un arkasındaki hikayeyi ve ekibi tanıyın.",
-      ogImage: "https://res.cloudinary.com/demo/image/upload/v1493119383/sample3.jpg",
-    },
-    {
-      id: "contact",
-      name: "İletişim",
-      url: "/iletisim",
-      title: "İletişim | WordPress Clone",
-      description: "Bizimle iletişime geçin. Sorularınızı yanıtlamaktan memnuniyet duyarız.",
-      lastUpdated: "2023-06-10",
-      keywords: "iletişim, bize ulaşın, adres, telefon, email",
-      ogTitle: "İletişim | WordPress Clone",
-      ogDescription: "Bizimle iletişime geçin. Sorularınızı yanıtlamaktan memnuniyet duyarız.",
-      ogImage: "https://res.cloudinary.com/demo/image/upload/v1493118464/sample4.jpg",
-    },
-    {
-      id: "service",
-      name: "Hizmetler",
-      url: "/hizmetler",
-      title: "Hizmetlerimiz | WordPress Clone",
-      description: "Sunduğumuz profesyonel hizmetleri keşfedin ve ihtiyaçlarınıza uygun çözümleri bulun.",
-      lastUpdated: "2023-06-08",
-      keywords: "hizmetler, çözümler, servisler, örnekler, işler",
-      ogTitle: "Hizmetlerimiz | WordPress Clone",
-      ogDescription: "Sunduğumuz profesyonel hizmetleri keşfedin ve ihtiyaçlarınıza uygun çözümleri bulun.",
-      ogImage: "https://res.cloudinary.com/demo/image/upload/v1493118555/sample5.jpg",
-    },
-  ];
+        ...pages
+      ]);
+      
+      // Update the SEO score based on pages
+      const calculateScore = Math.floor(Math.random() * 20) + 60; // Replace with real calculation
+      setSeoScore(calculateScore);
+    } else {
+      // Reset state if no data is available
+      setSeoPages([]);
+      setSeoScore(0);
+    }
+  }, [general]);
 
-  const [selectedPage, setSelectedPage] = useState<SeoPageConfig>(seoPages[0]);
+  const [selectedPage, setSelectedPage] = useState<SeoPageConfig | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedImage, setSelectedImage] = useState("");
+
+  // Select the first page when pages are loaded
+  useEffect(() => {
+    if (seoPages.length > 0 && !selectedPage) {
+      setSelectedPage(seoPages[0]);
+    }
+  }, [seoPages, selectedPage]);
 
   // Filter images based on search term
   const filteredImages = cloudinaryImages.filter(img => 
@@ -183,6 +136,8 @@ export default function Page() {
   );
 
   const handleChange = (field: keyof SeoPageConfig, value: string) => {
+    if (!selectedPage) return;
+    
     setSelectedPage({
       ...selectedPage,
       [field]: value,
@@ -194,14 +149,58 @@ export default function Page() {
     setSelectedImage(imageUrl);
   };
 
-  const handleSave = () => {
-    // In a real application, this would save to a database or API
-    alert("SEO settings saved! In a real application, this would update the lib/seo.ts file or save to a database.");
+  const handleSave = async () => {
+    if (!selectedPage) return;
+    
+    try {
+      if (selectedPage.id === "general") {
+        // Update general SEO settings
+        await dispatch(updateGeneral({
+          seo: {
+            general: {
+              title: selectedPage.title,
+              description: selectedPage.description,
+              keywords: selectedPage.keywords,
+              ogTitle: selectedPage.ogTitle,
+              ogDescription: selectedPage.ogDescription,
+              ogImage: selectedPage.ogImage
+            }
+          }
+        }));
+      } else {
+        // Update specific page SEO settings
+        await dispatch(updateSeoPage({
+          id: selectedPage.id,
+          data: {
+            title: selectedPage.title,
+            description: selectedPage.description,
+            keywords: selectedPage.keywords,
+            ogTitle: selectedPage.ogTitle,
+            ogDescription: selectedPage.ogDescription,
+            ogImage: selectedPage.ogImage,
+            lastUpdated: new Date().toISOString().split('T')[0]
+          }
+        }));
+      }
+      
+      // Show success message with Sonner toast
+      toast.success("SEO settings saved successfully!", {
+        description: "Your SEO changes have been updated."
+      });
     setEditMode(false);
+    } catch (err) {
+      console.error("Error saving SEO settings:", err);
+      toast.error("Error saving SEO settings", {
+        description: "Please try again or contact support if the problem persists."
+      });
+    }
   };
   
-  // SEO Performance Metrics
-  const seoMetrics = [
+  // Calculate SEO metrics for the selected page
+  const getSeoMetrics = () => {
+    if (!selectedPage) return [];
+    
+    return [
     { 
       name: "Title Length", 
       score: selectedPage.title.length >= 40 && selectedPage.title.length <= 60 ? 100 : 70,
@@ -227,11 +226,24 @@ export default function Page() {
       recommendation: "Include an Open Graph image for social sharing"
     },
   ];
+  };
+  
+  const seoMetrics = selectedPage ? getSeoMetrics() : [];
   
   // Calculate overall SEO score
-  const overallScore = Math.round(
+  const overallScore = selectedPage ? Math.round(
     seoMetrics.reduce((total, metric) => total + metric.score, 0) / seoMetrics.length
+  ) : 0;
+
+  // Show loading state
+  if (loading && !general) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
+        <span className="ml-3">Loading SEO settings...</span>
+      </div>
   );
+  }
   
   return (
    <>
@@ -258,6 +270,8 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <Toaster richColors position="top-right" />
+          
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -285,7 +299,8 @@ export default function Page() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {seoPages.map((page) => (
+                      {seoPages.length > 0 ? (
+                        seoPages.map((page) => (
                         <TableRow key={page.id}>
                           <TableCell className="font-medium">{page.name}</TableCell>
                           <TableCell>{page.url}</TableCell>
@@ -315,7 +330,14 @@ export default function Page() {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-4">
+                            {loading ? "Loading SEO pages..." : "No SEO pages configured yet."}
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>
@@ -332,17 +354,17 @@ export default function Page() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-sm font-medium mb-2">Site Title</h3>
-                      <p className="text-sm text-muted-foreground mb-4">{seoPages[0].title}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{seoPages.length > 0 ? seoPages[0].title : "Loading..."}</p>
                       
                       <h3 className="text-sm font-medium mb-2">Site Description</h3>
-                      <p className="text-sm text-muted-foreground mb-4">{seoPages[0].description}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{seoPages.length > 0 ? seoPages[0].description : "Loading..."}</p>
                       
                       <h3 className="text-sm font-medium mb-2">Global Keywords</h3>
-                      <p className="text-sm text-muted-foreground">{seoPages[0].keywords}</p>
+                      <p className="text-sm text-muted-foreground">{seoPages.length > 0 ? seoPages[0].keywords : "Loading..."}</p>
                     </div>
                     
                     <div className="flex flex-col items-center justify-center">
-                      {seoPages[0].ogImage && (
+                      {seoPages.length > 0 && seoPages[0].ogImage && (
                         <div className="relative mb-4">
                           <h3 className="text-sm font-medium mb-2 text-center">Default OG Image</h3>
                           <div className="relative w-full max-w-[250px] rounded-md overflow-hidden border">
@@ -360,9 +382,12 @@ export default function Page() {
                       
                       <Button 
                         onClick={() => {
+                          if (seoPages.length > 0) {
                           setSelectedPage(seoPages[0]);
                           setActiveTab("editor");
+                          }
                         }}
+                        disabled={seoPages.length === 0}
                       >
                         Edit General SEO
                       </Button>
@@ -415,7 +440,7 @@ export default function Page() {
                     
                     {/* SEO Metrics */}
                     <Card className="col-span-1 md:col-span-2 p-6">
-                      <h3 className="text-lg font-medium mb-4">SEO Metrics for {selectedPage.name}</h3>
+                      <h3 className="text-lg font-medium mb-4">SEO Metrics for {selectedPage?.name}</h3>
                       <div className="space-y-6">
                         {seoMetrics.map((metric, index) => (
                           <div key={index} className="space-y-2">
@@ -464,7 +489,8 @@ export default function Page() {
                     <div className="w-64 border-r pr-4">
                       <h3 className="text-sm font-semibold mb-2">Pages</h3>
                       <div className="space-y-1">
-                        {seoPages.map((page) => (
+                        {seoPages.length > 0 ? (
+                          seoPages.map((page) => (
                           <Button
                             key={page.id}
                             variant={selectedPage?.id === page.id ? "secondary" : "ghost"}
@@ -473,12 +499,15 @@ export default function Page() {
                           >
                             {page.name}
                           </Button>
-                        ))}
+                          ))
+                        ) : (
+                          <div className="text-sm text-muted-foreground p-2">No pages configured</div>
+                        )}
                       </div>
                     </div>
                     
                     {/* Form */}
-                    {selectedPage && (
+                    {selectedPage ? (
                       <div className="flex-1">
                         <h3 className="text-sm font-semibold mb-4">
                           Editing SEO for: <span className="text-primary">{selectedPage.name}</span>
@@ -678,6 +707,10 @@ export default function Page() {
                             </Button>
                           </div>
                         </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-center">
+                        <p className="text-muted-foreground">Select a page to edit SEO settings</p>
                       </div>
                     )}
                   </div>

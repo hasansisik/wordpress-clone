@@ -12,11 +12,20 @@ import "@/public/assets/css/main.css"
 import "@/node_modules/react-modal-video/css/modal-video.css"
 
 import type { Metadata } from "next"
+import { store } from "@/redux/store"
+import { getGeneral } from "@/redux/actions/generalActions"
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo"
 import Layout from "@/components/layout/Layout"
 import WhatsAppButton from "@/components/common/WhatsAppButton"
 
-export const metadata: Metadata = generateSeoMetadata("general")
+// Dinamik metadata oluşturma
+export async function generateMetadata(): Promise<Metadata> {
+  // Redux store'a genel verileri yükle
+  await store.dispatch(getGeneral())
+  
+  // SEO metadatasını oluştur
+  return generateSeoMetadata("general")
+}
 
 export default function LogoutLayout({
     children,
