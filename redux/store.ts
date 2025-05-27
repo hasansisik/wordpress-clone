@@ -11,6 +11,7 @@ import faqReducer from './reducers/faqReducer';
 import otherReducer from './reducers/otherReducer';
 import generalReducer from "./reducers/generalReducer";
 import contactFormReducer from "./reducers/contactFormReducer";
+import pageReducer from "./reducers/pageReducer";
 
 export const store = configureStore({
   reducer: {
@@ -25,6 +26,7 @@ export const store = configureStore({
     other: otherReducer,
     general: generalReducer,
     contactForm: contactFormReducer,
+    page: pageReducer,
   },
   devTools: process.env.NODE_ENV !== 'production',
   middleware: (getDefaultMiddleware) =>

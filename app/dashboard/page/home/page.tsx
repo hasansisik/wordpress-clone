@@ -63,6 +63,10 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { useDispatch, useSelector } from "react-redux";
+import { getPage, updatePage } from "@/redux/actions/pageActions";
+import { RootState } from "@/redux/store";
+import { AppDispatch } from "@/redux/store";
 
 // Define Section Type
 interface Section {
@@ -280,176 +284,129 @@ function SortableSectionItem({ id, section, handleRemove }: { id: string, sectio
 
 export default function HomePageEditor() {
   const router = useRouter();
-  const [pageData, setPageData] = useState<any>({
-    sections: []
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { pages, loading } = useSelector((state: RootState) => state.page);
+
+  console.log("pages",pages);
+  
+  const [sections, setSections] = useState<Section[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [activeTab, setActiveTab] = useState("layout");
 
-  // Set up DnD sensors
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
-
-  // Fetch initial data if available
+  
+  // Get the homepage data from Redux store
+  useEffect(() => {
+    if (pages && pages.home) {
+      setSections(pages.home.sections || []);
+    }
+  }, [pages]);
+  
+  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/homepage', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Update pageData with the fetched data
-          setPageData(data);
-        }
+        // Use Redux to fetch page data
+        await dispatch(getPage('home'));
       } catch (error) {
-        console.error('Error fetching homepage data:', error);
-        // Set default data if fetch fails
-        setPageData({
-          sections: []
-        });
+        console.error('Error fetching home page data:', error);
+        toast.error("Failed to load page data");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
-
+  }, [dispatch]);
+  
   // Add a section to the page
   const addSection = (sectionType: string) => {
-    const sectionToAdd = availableSections.find(s => s.id === sectionType);
-    if (!sectionToAdd) return;
+    const section = availableSections.find(s => s.id === sectionType);
+    if (!section) return;
     
-    const newSection = {
-      id: `${sectionType}-${Date.now()}`, // Generate a unique ID
-      name: sectionToAdd.name,
-      type: sectionToAdd.type,
-      description: sectionToAdd.description
+    const newSection: Section = {
+      id: `${sectionType}-${Date.now()}`,
+      name: section.name,
+      type: section.type,
+      description: section.description
     };
     
-    setPageData({
-      ...pageData,
-      sections: [...pageData.sections, newSection]
-    });
-    
-    // Show notification
-    toast.success("Section added", {
-      description: `${sectionToAdd.name} has been added to your page`
-    });
-    
+    setSections([...sections, newSection]);
     setIsSaved(false);
   };
-
+  
   // Remove a section from the page
   const removeSection = (sectionId: string) => {
-    const sectionToRemove = pageData.sections.find((s: any) => s.id === sectionId);
-    
-    setPageData({
-      ...pageData,
-      sections: pageData.sections.filter((section: any) => section.id !== sectionId)
-    });
-    
-    // Show notification
-    if (sectionToRemove) {
-      toast.success("Section removed", {
-        description: `${sectionToRemove.name} has been removed from your page`
-      });
-    }
-    
+    setSections(sections.filter(section => section.id !== sectionId));
     setIsSaved(false);
   };
-
-  // Handle drag end event
+  
+  // Handle the drag end event for sorting sections
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
-    if (over && active.id !== over.id) {
-      const oldIndex = pageData.sections.findIndex((section: any) => section.id === active.id);
-      const newIndex = pageData.sections.findIndex((section: any) => section.id === over.id);
+    if (active.id !== over?.id) {
+      const oldIndex = sections.findIndex(section => section.id === active.id);
+      const newIndex = sections.findIndex(section => section.id === over?.id);
       
-      setPageData({
-        ...pageData,
-        sections: arrayMove(pageData.sections, oldIndex, newIndex)
-      });
-      
-      toast.success("Order updated", {
-        description: "Section order has been rearranged"
-      });
-      
+      const newSections = arrayMove(sections, oldIndex, newIndex);
+      setSections(newSections);
       setIsSaved(false);
     }
   };
-
+  
   // Save the page data
   const savePageData = async () => {
     try {
-      setIsLoading(true);
+      setIsSaving(true);
+
+      // Use Redux to update page data
+      await dispatch(updatePage({
+        pageType: 'home',
+        pageData: { sections }
+      }));
       
-      const response = await fetch('/api/homepage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(pageData)
+      toast.success("Page saved successfully", {
+        description: "Your changes will be reflected on the site"
       });
+      setIsSaved(true);
       
-      if (response.ok) {
-        setIsSaved(true);
-        toast.success("Page saved successfully", {
-          description: "Your changes have been applied to the live site"
-        });
-      } else {
-        toast.error("Error saving page", {
-          description: "There was a problem saving your changes"
-        });
-      }
+      // Generate and update the actual page file
+      await updatePageFile();
     } catch (error) {
-      console.error('Error saving homepage data:', error);
-      toast.error("Error saving page", {
-        description: "There was a problem saving your changes"
-      });
+      console.error('Error saving page data:', error);
+      toast.error("Failed to save page data");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
-
-  // Generate the code for the page
+  
+  // Generate the page code
   const generatePageCode = () => {
     let imports = ``;
     
     // Add imports for sections
     const usedSections = new Set<string>();
-    pageData.sections.forEach((section: Section) => {
+    sections.forEach((section: Section) => {
       usedSections.add(section.type);
     });
     
     // Add each import only once
-    usedSections.forEach((type: string) => {
+    Array.from(usedSections).forEach((type: string) => {
       imports += `import ${type} from "@/components/sections/${type}"\n`;
     });
     
-    let sectionsJSX = pageData.sections.map((section: any) => {
+    let sectionsJSX = sections.map((section: any) => {
       return `\t\t<${section.type} />`;
     }).join('\n');
     
-    const code = `${imports}
+    return `${imports}
 export default function Home() {
 \treturn (
 \t\t<>
@@ -457,9 +414,32 @@ ${sectionsJSX}
 \t\t</>
 \t)
 }`;
-    
-    return code;
   };
+
+  // Add a separate function to handle the API call for code generation
+  const updatePageFile = async () => {
+    try {
+      const response = await fetch('/api/homepage/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ sections })
+      });
+      
+      if (!response.ok) {
+        console.error('Error generating page code');
+        // Don't show error to user, this is a background process
+      }
+    } catch (error) {
+      console.error('Error generating page code:', error);
+    }
+  };
+  
+  // If data is still loading, show loading spinner
+  if (isLoading || loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   const PageContent = (
     <>
@@ -479,10 +459,10 @@ ${sectionsJSX}
           </Button>
           <Button 
             onClick={savePageData} 
-            disabled={isLoading} 
+            disabled={isSaving} 
             className={`${isSaved ? 'bg-green-600 hover:bg-green-700' : ''} flex items-center gap-2 text-xs h-8`}
           >
-            {isLoading ? (
+            {isSaving ? (
               <>
                 <span className="animate-spin h-3.5 w-3.5 border-2 border-t-transparent rounded-full mr-1" />
                 <span>Saving...</span>
@@ -531,7 +511,8 @@ ${sectionsJSX}
                 size="sm" 
                 className="h-7 text-xs"
                 onClick={() => {
-                  navigator.clipboard.writeText(generatePageCode());
+                  const code = generatePageCode();
+                  navigator.clipboard.writeText(code);
                   toast.success("Code copied to clipboard");
                 }}
               >
@@ -592,7 +573,7 @@ ${sectionsJSX}
                   <Layers className="h-3.5 w-3.5 mr-2 text-primary" />
                   Page Sections
                   <span className="ml-2 text-xs bg-muted rounded-full px-2 py-0.5">
-                    {pageData.sections.length} {pageData.sections.length === 1 ? 'section' : 'sections'}
+                    {sections.length} {sections.length === 1 ? 'section' : 'sections'}
                   </span>
                 </h3>
                 <div 
@@ -614,7 +595,7 @@ ${sectionsJSX}
                     }
                   }}
                 >
-                  {pageData.sections.length === 0 ? (
+                  {sections.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                       <Layers className="h-12 w-12 mb-3 text-muted" />
                       <p className="mb-1 text-sm font-medium">No sections added yet</p>
@@ -629,10 +610,10 @@ ${sectionsJSX}
                       onDragEnd={handleDragEnd}
                     >
                       <SortableContext 
-                        items={pageData.sections.map((s: any) => s.id)}
+                        items={sections.map((s: any) => s.id)}
                         strategy={verticalListSortingStrategy}
                       >
-                        {pageData.sections.map((section: any) => (
+                        {sections.map((section: any) => (
                           <SortableSectionItem
                             key={section.id}
                             id={section.id}

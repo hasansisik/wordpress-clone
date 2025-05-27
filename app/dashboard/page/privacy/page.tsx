@@ -21,9 +21,16 @@ import { Input } from "@/components/ui/input";
 import { Toaster, toast } from "sonner";
 import { Save, CheckCircle2, Eye } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
+import { useDispatch, useSelector } from "react-redux";
+import { getPage, updatePage } from "@/redux/actions/pageActions";
+import { RootState } from "@/redux/store";
+import { AppDispatch } from "@/redux/store";
 
 export default function PrivacyPolicyPage() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { pages, loading } = useSelector((state: RootState) => state.page);
+  
   const [pageData, setPageData] = useState({
     hero: {
       title: "",
@@ -31,26 +38,30 @@ export default function PrivacyPolicyPage() {
     },
     content: ""
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Get the privacy page data from Redux store
+  useEffect(() => {
+    if (pages && pages.privacy) {
+      setPageData({
+        hero: {
+          title: pages.privacy.hero?.title || "",
+          description: pages.privacy.hero?.description || ""
+        },
+        content: pages.privacy.content || ""
+      });
+    }
+  }, [pages]);
 
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/privacy-policy', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setPageData(data);
-        }
+        // Use Redux to fetch page data
+        await dispatch(getPage('privacy'));
       } catch (error) {
         console.error('Error fetching privacy policy data:', error);
         toast.error("Failed to load privacy policy data");
@@ -60,38 +71,34 @@ export default function PrivacyPolicyPage() {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
 
   // Save the page data
   const savePageData = async () => {
     try {
-      setIsLoading(true);
-      const response = await fetch('/api/privacy-policy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(pageData)
-      });
+      setIsSaving(true);
       
-      if (response.ok) {
-        setIsSaved(true);
-        toast.success("Privacy policy saved successfully", {
-          description: "Your changes have been applied"
-        });
-      } else {
-        toast.error("Error saving privacy policy", {
-          description: "There was a problem saving your changes"
-        });
-      }
+      // Use Redux to update page data
+      await dispatch(updatePage({
+        pageType: 'privacy',
+        pageData: {
+          hero: pageData.hero,
+          content: pageData.content
+        }
+      }));
+      
+      setIsSaved(true);
+      toast.success("Privacy policy saved successfully", {
+        description: "Your changes have been applied"
+      });
     } catch (error) {
       console.error('Error saving privacy policy data:', error);
       toast.error("Error saving privacy policy", {
         description: "There was a problem saving your changes"
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -115,6 +122,10 @@ export default function PrivacyPolicyPage() {
     });
     setIsSaved(false);
   };
+
+  if (isLoading || loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   return (
     <>
@@ -156,10 +167,10 @@ export default function PrivacyPolicyPage() {
             </Button>
             <Button 
               onClick={savePageData} 
-              disabled={isLoading} 
+              disabled={isSaving} 
               className={`${isSaved ? 'bg-green-600 hover:bg-green-700' : ''} flex items-center gap-2 text-xs h-8`}
             >
-              {isLoading ? (
+              {isSaving ? (
                 <>
                   <span className="animate-spin h-3.5 w-3.5 border-2 border-t-transparent rounded-full mr-1" />
                   <span>Saving...</span>

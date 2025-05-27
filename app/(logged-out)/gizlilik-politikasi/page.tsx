@@ -1,30 +1,44 @@
 "use client"
-import privacyData from "@/data/privacy.json"
 
-export default function PagePrivacyPolicy() {
-	const { hero, content } = privacyData;
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getPage } from "@/redux/actions/pageActions";
+import { RootState } from "@/redux/store";
+import { AppDispatch } from "@/redux/store";
+
+export default function PrivacyPolicyPage() {
+	const dispatch = useDispatch<AppDispatch>();
+	const { pages, loading } = useSelector((state: RootState) => state.page);
+	const [isLoading, setIsLoading] = useState(true);
+	
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				await dispatch(getPage('privacy'));
+				setIsLoading(false);
+			} catch (error) {
+				console.error('Error fetching privacy policy:', error);
+				setIsLoading(false);
+			}
+		};
+		
+		fetchData();
+	}, [dispatch]);
+	
+	if (isLoading || loading || !pages.privacy) {
+		return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+	}
+	
+	const { hero, content } = pages.privacy;
 
 	return (
-		<>
-			<section className="section-privacy-policy section-padding">
-					<div className="container">
-						<div className="text-center">
-							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{hero.title}</span>
-							</div>
-							<h3 className="ds-3 my-3">{hero.title}</h3>
-							<p className="fs-5">
-								{hero.description}
-							</p>
-						</div>
-						<div className="row pt-110">
-							<div className="col-lg-8 col-md-10 mx-md-auto">
-								<div dangerouslySetInnerHTML={{ __html: content }} />
-							</div>
-						</div>
-					</div>
-				</section>
-		</>
-	)
+		<div className="container mx-auto px-4 py-16 md:py-24">
+			<div className="max-w-4xl mx-auto">
+				<h1 className="text-3xl md:text-4xl font-bold mb-4">{hero.title}</h1>
+				<p className="text-gray-600 mb-12">{hero.description}</p>
+				
+				<div className="prose prose-gray max-w-none" dangerouslySetInnerHTML={{ __html: content }} />
+			</div>
+		</div>
+	);
 }

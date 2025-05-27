@@ -21,9 +21,16 @@ import { Input } from "@/components/ui/input";
 import { Toaster, toast } from "sonner";
 import { Save, CheckCircle2, Eye } from "lucide-react";
 import RichTextEditor from "@/components/RichTextEditor";
+import { useDispatch, useSelector } from "react-redux";
+import { getPage, updatePage } from "@/redux/actions/pageActions";
+import { RootState } from "@/redux/store";
+import { AppDispatch } from "@/redux/store";
 
-export default function TermsAndConditionsPage() {
+export default function TermsConditionsPage() {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { pages, loading } = useSelector((state: RootState) => state.page);
+  
   const [pageData, setPageData] = useState({
     hero: {
       title: "",
@@ -31,26 +38,30 @@ export default function TermsAndConditionsPage() {
     },
     content: ""
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Get the terms page data from Redux store
+  useEffect(() => {
+    if (pages && pages.terms) {
+      setPageData({
+        hero: {
+          title: pages.terms.hero?.title || "",
+          description: pages.terms.hero?.description || ""
+        },
+        content: pages.terms.content || ""
+      });
+    }
+  }, [pages]);
 
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/terms-conditions', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setPageData(data);
-        }
+        // Use Redux to fetch page data
+        await dispatch(getPage('terms'));
       } catch (error) {
         console.error('Error fetching terms and conditions data:', error);
         toast.error("Failed to load terms and conditions data");
@@ -60,38 +71,34 @@ export default function TermsAndConditionsPage() {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
 
 
   // Save the page data
   const savePageData = async () => {
     try {
-      setIsLoading(true);
-      const response = await fetch('/api/terms-conditions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(pageData)
-      });
+      setIsSaving(true);
       
-      if (response.ok) {
-        setIsSaved(true);
-        toast.success("Terms and conditions saved successfully", {
-          description: "Your changes have been applied"
-        });
-      } else {
-        toast.error("Error saving terms and conditions", {
-          description: "There was a problem saving your changes"
-        });
-      }
+      // Use Redux to update page data
+      await dispatch(updatePage({
+        pageType: 'terms',
+        pageData: {
+          hero: pageData.hero,
+          content: pageData.content
+        }
+      }));
+      
+      setIsSaved(true);
+      toast.success("Terms and conditions saved successfully", {
+        description: "Your changes have been applied"
+      });
     } catch (error) {
       console.error('Error saving terms and conditions data:', error);
       toast.error("Error saving terms and conditions", {
         description: "There was a problem saving your changes"
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -116,6 +123,10 @@ export default function TermsAndConditionsPage() {
     setIsSaved(false);
   };
 
+  if (isLoading || loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -134,7 +145,7 @@ export default function TermsAndConditionsPage() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Terms and Conditions</BreadcrumbPage>
+                <BreadcrumbPage>Terms & Conditions</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -144,22 +155,22 @@ export default function TermsAndConditionsPage() {
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold">Terms and Conditions Editor</h2>
+            <h2 className="text-xl font-bold">Terms & Conditions Editor</h2>
             <p className="text-xs text-muted-foreground mt-1">
               Edit your site's terms and conditions content
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => router.push('/sartlar-politikasi')} className="flex items-center gap-2 text-xs h-8">
+            <Button variant="outline" onClick={() => router.push('/kullanim-kosullari')} className="flex items-center gap-2 text-xs h-8">
               <Eye className="h-3.5 w-3.5" />
               <span>Preview</span>
             </Button>
             <Button 
               onClick={savePageData} 
-              disabled={isLoading} 
+              disabled={isSaving} 
               className={`${isSaved ? 'bg-green-600 hover:bg-green-700' : ''} flex items-center gap-2 text-xs h-8`}
             >
-              {isLoading ? (
+              {isSaving ? (
                 <>
                   <span className="animate-spin h-3.5 w-3.5 border-2 border-t-transparent rounded-full mr-1" />
                   <span>Saving...</span>
@@ -207,7 +218,7 @@ export default function TermsAndConditionsPage() {
 
           {/* Main Content */}
           <div className="border rounded-lg p-4 bg-card shadow-sm">
-            <h3 className="text-lg font-medium mb-4">Terms and Conditions Content</h3>
+            <h3 className="text-lg font-medium mb-4">Terms & Conditions Content</h3>
             {pageData.content && (
               <RichTextEditor 
                 content={pageData.content} 
