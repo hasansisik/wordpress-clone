@@ -66,11 +66,14 @@ export interface OtherPayload {
     emailTitle?: string;
     emailDescription?: string;
     supportEmail?: string;
-    salesEmail?: string;
+    showEmail?: boolean;
     inquiryTitle?: string;
     inquiryDescription?: string;
     phoneNumber?: string;
+    showPhone?: boolean;
     services?: string[];
+    buttonColor?: string;
+    badgeColor?: string;
   };
   services5?: {
     title?: string;

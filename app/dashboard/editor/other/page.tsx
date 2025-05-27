@@ -30,6 +30,25 @@ import { RootState } from "@/redux/store";
 import { getOther, updateOther } from "@/redux/actions/otherActions";
 import { AppDispatch } from "@/redux/store";
 
+// Add CSS styles for toggle switches
+const toggleStyles = `
+  .toggle-checkbox:checked {
+    right: 0;
+    border-color: #6342EC;
+  }
+  .toggle-checkbox:checked + .toggle-label {
+    background-color: #6342EC;
+  }
+  .toggle-checkbox {
+    right: 0;
+    transition: all 0.3s;
+    left: 0;
+  }
+  .toggle-label {
+    transition: all 0.3s;
+  }
+`;
+
 // Other component type options
 const otherTypes = [
   { value: "blog1", label: "Blog 1" },
@@ -280,6 +299,7 @@ export default function OtherEditor() {
         }
       }}
     >
+      <style dangerouslySetInnerHTML={{ __html: toggleStyles }} />
       <EditorLayout
         title="Other Components Editor"
         sidebarContent={<EditorSidebar>{renderSidebarContent}</EditorSidebar>}
@@ -554,54 +574,163 @@ function Contact1ContentForm({ data }: { data: any }) {
         path="contact1.messengerLink"
       />
 
-      <TextField
-        label="Email Title"
-        value={data?.emailTitle || ""}
-        path="contact1.emailTitle"
-        placeholder="e.g. Send us an email"
-      />
+      <FormGroup title="Email Section">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-medium">Show Email Section</label>
+          <div className="relative inline-block w-10 mr-2 align-middle select-none">
+            <input 
+              type="checkbox" 
+              name="showEmail" 
+              id="showEmail"
+              className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+              checked={data?.showEmail !== false}
+              onChange={(e) => {
+                // Use the EditorContext to update the value
+                const editorContext = (window as any).editorContext;
+                if (editorContext?.updateValue) {
+                  editorContext.updateValue('contact1.showEmail', e.target.checked);
+                }
+              }}
+            />
+            <label 
+              htmlFor="showEmail" 
+              className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+            ></label>
+          </div>
+        </div>
 
-      <TextField
-        label="Email Description"
-        value={data?.emailDescription || ""}
-        path="contact1.emailDescription"
-        placeholder="Email description text"
-      />
+        <TextField
+          label="Email Title"
+          value={data?.emailTitle || ""}
+          path="contact1.emailTitle"
+          placeholder="e.g. Send us an email"
+        />
 
-      <TextField
-        label="Support Email"
-        value={data?.supportEmail || ""}
-        path="contact1.supportEmail"
-        placeholder="e.g. support@example.com"
-      />
+        <TextField
+          label="Email Description"
+          value={data?.emailDescription || ""}
+          path="contact1.emailDescription"
+          placeholder="Email description text"
+        />
 
-      <TextField
-        label="Sales Email"
-        value={data?.salesEmail || ""}
-        path="contact1.salesEmail"
-        placeholder="e.g. sales@example.com"
-      />
+        <TextField
+          label="Support Email"
+          value={data?.supportEmail || ""}
+          path="contact1.supportEmail"
+          placeholder="e.g. support@example.com"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Inquiry Title"
-        value={data?.inquiryTitle || ""}
-        path="contact1.inquiryTitle"
-        placeholder="e.g. For more inquiry"
-      />
+      <FormGroup title="Phone Section">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-medium">Show Phone Section</label>
+          <div className="relative inline-block w-10 mr-2 align-middle select-none">
+            <input 
+              type="checkbox" 
+              name="showPhone" 
+              id="showPhone"
+              className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+              checked={data?.showPhone !== false}
+              onChange={(e) => {
+                // Use the EditorContext to update the value
+                const editorContext = (window as any).editorContext;
+                if (editorContext?.updateValue) {
+                  editorContext.updateValue('contact1.showPhone', e.target.checked);
+                }
+              }}
+            />
+            <label 
+              htmlFor="showPhone" 
+              className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+            ></label>
+          </div>
+        </div>
 
-      <TextField
-        label="Inquiry Description"
-        value={data?.inquiryDescription || ""}
-        path="contact1.inquiryDescription"
-        placeholder="Inquiry description text"
-      />
+        <TextField
+          label="Inquiry Title"
+          value={data?.inquiryTitle || ""}
+          path="contact1.inquiryTitle"
+          placeholder="e.g. For more inquiry"
+        />
 
-      <TextField
-        label="Phone Number"
-        value={data?.phoneNumber || ""}
-        path="contact1.phoneNumber"
-        placeholder="e.g. +1 234 567 890"
-      />
+        <TextField
+          label="Inquiry Description"
+          value={data?.inquiryDescription || ""}
+          path="contact1.inquiryDescription"
+          placeholder="Inquiry description text"
+        />
+
+        <TextField
+          label="Phone Number"
+          value={data?.phoneNumber || ""}
+          path="contact1.phoneNumber"
+          placeholder="e.g. +1 234 567 890"
+        />
+      </FormGroup>
+
+      <FormGroup title="Colors">
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">
+            Button Color
+          </label>
+          <div className="flex items-center">
+            <input
+              type="color"
+              value={data?.buttonColor || "#6342EC"}
+              onChange={(e) => {
+                const editorContext = (window as any).editorContext;
+                if (editorContext?.updateValue) {
+                  editorContext.updateValue('contact1.buttonColor', e.target.value);
+                }
+              }}
+              className="h-8 w-8 rounded border p-0"
+            />
+            <input
+              type="text"
+              value={data?.buttonColor || "#6342EC"}
+              onChange={(e) => {
+                const editorContext = (window as any).editorContext;
+                if (editorContext?.updateValue) {
+                  editorContext.updateValue('contact1.buttonColor', e.target.value);
+                }
+              }}
+              className="ml-2 h-8 w-full border rounded px-2"
+              placeholder="#6342EC"
+            />
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">
+            Badge Background Color
+          </label>
+          <div className="flex items-center">
+            <input
+              type="color"
+              value={data?.badgeColor || "rgba(99, 66, 236, 0.1)"}
+              onChange={(e) => {
+                const editorContext = (window as any).editorContext;
+                if (editorContext?.updateValue) {
+                  editorContext.updateValue('contact1.badgeColor', e.target.value);
+                }
+              }}
+              className="h-8 w-8 rounded border p-0"
+            />
+            <input
+              type="text"
+              value={data?.badgeColor || "rgba(99, 66, 236, 0.1)"}
+              onChange={(e) => {
+                const editorContext = (window as any).editorContext;
+                if (editorContext?.updateValue) {
+                  editorContext.updateValue('contact1.badgeColor', e.target.value);
+                }
+              }}
+              className="ml-2 h-8 w-full border rounded px-2"
+              placeholder="rgba(99, 66, 236, 0.1)"
+            />
+          </div>
+        </div>
+      </FormGroup>
     </div>
   );
 }

@@ -134,14 +134,6 @@ export default function Services5({ previewData, services = [], categories = [] 
 										/>
 									</div>
 									<Link href={`/${slugify(service.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-										<span className="shadow-sm d-flex align-items-center bg-white-keep d-inline-flex rounded-pill px-2 py-1 mb-3">
-											<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">Get</span>
-											<span className="fs-7 fw-medium text-primary mx-2">Free Update</span>
-											<svg xmlns="http://www.w3.org/2000/svg" width={18} height={19} viewBox="0 0 18 19" fill="none">
-												<path d="M10.3125 5.5625L14.4375 9.5L10.3125 13.4375" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-												<path d="M14.25 9.5H3.5625" stroke="#6D4DF2" strokeWidth="1.125" strokeLinecap="round" strokeLinejoin="round" />
-											</svg>
-										</span>
 										<h5 className="text-700">{service.title}</h5>
 										<p className="fs-7 mb-0">{service.description}</p>
 									</Link>

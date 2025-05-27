@@ -106,10 +106,11 @@ const initialState: OtherState = {
       emailTitle: "Bize e-posta gönderin",
       emailDescription: "Ekibimiz sorularınıza hızlı bir şekilde yanıt verecektir",
       supportEmail: "destek@infinia.com",
-      salesEmail: "satis@infinia.com",
+      showEmail: true,
       inquiryTitle: "Daha fazla bilgi için",
       inquiryDescription: "Anında yardım için bize ulaşın",
       phoneNumber: "+01 (24) 568 900",
+      showPhone: true,
       services: [
         "Araştırma planlaması",
         "Finans Danışmanlığı",
@@ -117,7 +118,9 @@ const initialState: OtherState = {
         "İş Danışmanlığı",
         "Finans Danışmanlığı",
         "İş promosyonu"
-      ]
+      ],
+      buttonColor: "#6342EC",
+      badgeColor: "rgba(99, 66, 236, 0.1)"
     },
     services5: {
       title: "Explore Our Projects",

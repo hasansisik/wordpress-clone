@@ -126,7 +126,7 @@ export default function Project2({ previewData, projects = [] }: Project2Props) 
 													<h6>{project.subtitle || ''}</h6>
 													<p className="text-900">{project.fullDescription || project.description}</p>
 												</Link>
-												<Link href={`/${slugify(project.title)}`} className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag || 'Project'}</Link>
+												<Link href={`/${slugify(project.title)}`} className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag || 'Hizmetler'}</Link>
 											</div>
 										</div>
 									</SwiperSlide>
