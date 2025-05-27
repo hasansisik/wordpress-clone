@@ -25,7 +25,6 @@ export default function DashboardLayout({
       try {
         const resultAction = await dispatch(getMyProfile());
         if (getMyProfile.fulfilled.match(resultAction)) {
-          console.log("User profile:", resultAction.payload);
         } else if (getMyProfile.rejected.match(resultAction)) {
           console.error("Failed to fetch profile:", resultAction.payload);
           // Redirect to login if not authenticated

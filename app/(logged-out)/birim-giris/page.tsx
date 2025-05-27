@@ -34,7 +34,6 @@ export default function PageLogin() {
 		try {
 			const resultAction = await dispatch(login(formData));
 			if (login.fulfilled.match(resultAction)) {
-				console.log("Login successful:", resultAction.payload);
 				router.push(redirect);
 			} else if (login.rejected.match(resultAction)) {
 				console.error("Login failed:", resultAction.payload);

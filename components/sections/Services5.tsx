@@ -1,6 +1,11 @@
 'use client'
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllServices } from '@/redux/actions/serviceActions';
+import { getOther } from '@/redux/actions/otherActions';
+import { AppDispatch, RootState } from '@/redux/store';
+import { Loader2 } from 'lucide-react';
 
 interface Services5Props {
 	previewData?: any;
@@ -20,33 +25,105 @@ const slugify = (text: string) => {
 		.replace(/-+$/, '');         // Trim - from end of text
 };
 
-export default function Services5({ previewData, services = [], categories = [] }: Services5Props) {
+export default function Services5({ previewData }: Services5Props) {
 	const isotope = useRef<any>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 	const [filterKey, setFilterKey] = useState<string>('*');
-	const editorData = previewData?.services5 || {};
+	const [data, setData] = useState<any>(null);
+	const [isotopeReady, setIsotopeReady] = useState(false);
+	const dispatch = useDispatch<AppDispatch>();
+	const { services, loading: servicesLoading, error } = useSelector((state: RootState) => state.service);
+	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
+
+	// Extract unique categories from services
+	const categories = services ? 
+		[...new Set(services.flatMap(service => service.categories || []))]
+			.filter(category => category)
+			.map(category => ({ id: category, name: category })) 
+		: [];
 
 	useEffect(() => {
+		// Fetch services if not provided
+		dispatch(getAllServices());
+		
+		// Also fetch other data if not provided in preview
+		if (!previewData) {
+			dispatch(getOther());
+		}
+	}, [dispatch, previewData]);
+
+	useEffect(() => {
+		// If preview data is provided, use it
+		if (previewData && previewData.services5) {
+			setData(previewData.services5);
+		} 
+		// Otherwise use Redux data
+		else if (other && other.services5) {
+			setData(other.services5);
+		}
+	}, [previewData, other]);
+
+	// Initialize Isotope when services and container are ready
+	useEffect(() => {
+		// Check if we have services data and the container is rendered
+		if (!services || services.length === 0 || !containerRef.current) {
+			return;
+		}
+
 		// Import Isotope dynamically only on the client side
 		if (typeof window !== 'undefined') {
-			// Dynamic import
-			import('isotope-layout').then(({ default: Isotope }) => {
-				// Initialize isotope after the component is mounted
-				isotope.current = new Isotope('.masonary-active', {
-					itemSelector: '.filter-item',
-					percentPosition: true,
-					masonry: {
-						columnWidth: '.filter-item',
-					},
-				});
-			});
-		}
-	}, []);
+			const initializeIsotope = async () => {
+				try {
+					// Clean up existing instance if it exists
+					if (isotope.current) {
+						isotope.current.destroy();
+						isotope.current = null;
+					}
 
+					const { default: Isotope } = await import('isotope-layout');
+					
+					// Make sure container still exists after async import
+					if (containerRef.current) {
+						isotope.current = new Isotope(containerRef.current, {
+							itemSelector: '.filter-item',
+							percentPosition: true,
+							masonry: {
+								columnWidth: '.filter-item',
+							},
+						});
+						setIsotopeReady(true);
+						
+						// Arrange items based on current filter
+						if (filterKey !== '*') {
+							isotope.current.arrange({ filter: `.${filterKey}` });
+						}
+					}
+				} catch (error) {
+					console.error('Error initializing Isotope:', error);
+				}
+			};
+
+			// Initialize with a slight delay to ensure DOM is ready
+			const timer = setTimeout(() => {
+				initializeIsotope();
+			}, 100);
+
+			return () => {
+				clearTimeout(timer);
+				// Cleanup on unmount
+				if (isotope.current) {
+					isotope.current.destroy();
+				}
+			};
+		}
+	}, [services]); // Re-run when services change
+
+	// Apply filter when filterKey changes
 	useEffect(() => {
-		if (isotope.current) {
+		if (isotope.current && isotopeReady) {
 			isotope.current.arrange({ filter: filterKey === '*' ? '*' : `.${filterKey}` });
 		}
-	}, [filterKey]);
+	}, [filterKey, isotopeReady]);
 
 	const handleFilterKeyChange = useCallback((key: string) => () => {
 		setFilterKey(key)
@@ -54,17 +131,33 @@ export default function Services5({ previewData, services = [], categories = [] 
 
 	const activeBtn = (value: string) => (value === filterKey ? "active btn btn-md btn-filter mb-2 me-2" : "btn btn-md btn-filter mb-2 me-2")
 
+	if (servicesLoading || otherLoading || !data) {
+		return (
+			<div className="flex justify-center items-center min-h-[400px]">
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="flex justify-center items-center min-h-[400px]">
+				<p className="text-red-500">Error: {error}</p>
+			</div>
+		);
+	}
+
 	// Use editor data if available, otherwise use the default data
-	const title = editorData.title || "Explore Our Projects";
-	const subtitle = editorData.subtitle || "What we offers";
-	const description = editorData.description || "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.";
-	const buttonText = editorData.buttonText || "Get Free Quote";
-	const buttonLink = editorData.buttonLink || "#";
-	const linkText = editorData.linkText || "How We Work";
-	const linkUrl = editorData.linkUrl || "#";
-	const backgroundColor = editorData.backgroundColor || "#ffffff";
-	const titleColor = editorData.titleColor || "#333333";
-	const buttonColor = editorData.buttonColor || "#6342EC";
+	const title = data.title || "Explore Our Projects";
+	const subtitle = data.subtitle || "What we offers";
+	const description = data.description || "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.";
+	const buttonText = data.buttonText || "Get Free Quote";
+	const buttonLink = data.buttonLink || "#";
+	const linkText = data.linkText || "How We Work";
+	const linkUrl = data.linkUrl || "#";
+	const backgroundColor = data.backgroundColor || "#ffffff";
+	const titleColor = data.titleColor || "#333333";
+	const buttonColor = data.buttonColor || "#6342EC";
 
 	// Style objects for dynamic styling
 	const sectionStyle = {
@@ -113,9 +206,9 @@ export default function Services5({ previewData, services = [], categories = [] 
 					</div>
 				</div>
 				<div className="container mt-6">
-					<div className="masonary-active justify-content-between row">
+					<div ref={containerRef} className="masonary-active justify-content-between row">
 						<div className="grid-sizer" />
-						{services.map((service) => (
+						{services && services.map((service) => (
 							<div 
 								key={service._id || service.id} 
 								className={`filter-item col-12 col-md-4 ${

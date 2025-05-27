@@ -286,8 +286,6 @@ export default function HomePageEditor() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { pages, loading } = useSelector((state: RootState) => state.page);
-
-  console.log("pages",pages);
   
   const [sections, setSections] = useState<Section[]>([]);
   const [isLoading, setIsLoading] = useState(true);

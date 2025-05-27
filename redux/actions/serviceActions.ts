@@ -139,7 +139,6 @@ export const updateService = createAsyncThunk(
         console.warn(`Geçersiz MongoDB ObjectId formatı: ${id}`);
       }
       
-      console.log(`Servis güncelleniyor ID: ${id}, Data:`, JSON.stringify(serviceData));
       
       // Token kontrolü
       let token = localStorage.getItem("accessToken");
@@ -155,7 +154,6 @@ export const updateService = createAsyncThunk(
           },
         });
         
-        console.log("Güncelleme başarılı, sunucu yanıtı:", data);
         return data.service;
       } catch (error: any) {
         // 403 Forbidden hatası için özel mesaj

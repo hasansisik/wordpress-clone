@@ -2,10 +2,15 @@
 import Link from "next/link"
 import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { getAllServices } from "@/redux/actions/serviceActions"
+import { getOther } from "@/redux/actions/otherActions"
+import { AppDispatch, RootState } from "@/redux/store"
+import { Loader2 } from "lucide-react"
 
 interface Project2Props {
 	previewData?: any;
-	projects?: any[];
 }
 
 // Function to convert title to slug
@@ -20,16 +25,56 @@ const slugify = (text: string) => {
 		.replace(/-+$/, '');         // Trim - from end of text
 };
 
-export default function Project2({ previewData, projects = [] }: Project2Props) {
-	const editorData = previewData?.project2 || {};
+export default function Project2({ previewData }: Project2Props) {
+	const [data, setData] = useState<any>(null);
+	const dispatch = useDispatch<AppDispatch>();
+	const { services, loading: servicesLoading, error } = useSelector((state: RootState) => state.service);
+	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
+
+	useEffect(() => {
+		// Fetch services if not provided
+		dispatch(getAllServices());
+		
+		// Also fetch other data if not provided in preview
+		if (!previewData) {
+			dispatch(getOther());
+		}
+	}, [dispatch, previewData]);
+
+	useEffect(() => {
+		// If preview data is provided, use it
+		if (previewData && previewData.project2) {
+			setData(previewData.project2);
+		} 
+		// Otherwise use Redux data
+		else if (other && other.project2) {
+			setData(other.project2);
+		}
+	}, [previewData, other]);
+	
+	if (servicesLoading || otherLoading || !data) {
+		return (
+			<div className="flex justify-center items-center min-h-[400px]">
+				<Loader2 className="h-8 w-8 animate-spin text-primary" />
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="flex justify-center items-center min-h-[400px]">
+				<p className="text-red-500">Error: {error}</p>
+			</div>
+		);
+	}
 
 	// Use editor data if available, otherwise use the default data
-	const title = editorData.title || "Our featured projects";
-	const subtitle = editorData.subtitle || "Recent work";
-	const description = editorData.description || "⚡Don't miss any contact. Stay connected.";
-	const backgroundColor = editorData.backgroundColor || "#f8f9fa";
-	const titleColor = editorData.titleColor || "#333333";
-	const badgeColor = editorData.badgeColor || "rgba(99, 66, 236, 0.1)";
+	const title = data.title || "Our featured projects";
+	const subtitle = data.subtitle || "Recent work";
+	const description = data.description || "⚡Don't miss any contact. Stay connected.";
+	const backgroundColor = data.backgroundColor || "#f8f9fa";
+	const titleColor = data.titleColor || "#333333";
+	const badgeColor = data.badgeColor || "rgba(99, 66, 236, 0.1)";
 
 	// Style objects for dynamic styling
 	const sectionStyle = {
@@ -109,7 +154,7 @@ export default function Project2({ previewData, projects = [] }: Project2Props) 
 							modules={[Keyboard, Autoplay, Pagination, Navigation]}
 						>
 							<div className="swiper-wrapper">
-								{projects.map((project) => (
+								{services && services.map((project) => (
 									<SwiperSlide key={project._id || project.id} className="swiper-slide">
 										<div className="text-center">
 											<div className="zoom-img position-relative d-inline-block z-1" style={{ height: '480px', width: '100%' }}>

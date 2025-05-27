@@ -52,6 +52,15 @@ import {
     deleteBlog 
   } from "@/redux/actions/blogActions";
   import { Loader2, Trash2, Pencil, Eye, Plus, FileJson, Download } from "lucide-react";
+  import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+  } from "@/components/ui/dialog";
+  import { AlertCircle } from "lucide-react";
 
 interface Section {
   title: string;
@@ -137,6 +146,8 @@ export default function BlogEditor() {
 
   const [formData, setFormData] = useState(initialFormState);
   const [activeTab, setActiveTab] = useState("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
 
   // Load blogs from Redux store
   useEffect(() => {
@@ -246,12 +257,12 @@ export default function BlogEditor() {
 
   // Reset form to initial state
   const resetForm = () => {
+    // Don't reset edit mode state here - let the caller handle it
     setFormData(initialFormState);
     setIsUploading({
       thumbnail: false,
       mainImage: false
     });
-    setActiveTab("all");
   };
 
   // Handle form submit
@@ -275,8 +286,14 @@ export default function BlogEditor() {
       return;
     }
 
+    console.log('Form submission - isEditMode:', isEditMode);
+    console.log('Form submission - editingPostId:', editingPostId);
+    console.log('Form submission - editingPostId type:', typeof editingPostId);
+
     try {
       if (isEditMode && editingPostId) {
+        console.log('Mode: UPDATE - Using editingPostId:', editingPostId);
+        
         // Update existing post
         const updatedPost = {
           title: formData.title,
@@ -297,16 +314,31 @@ export default function BlogEditor() {
           },
         };
         
-        // Dispatch update action
+        // Log the ID being used for update to debug
+        console.log('Updating blog with ID:', editingPostId);
+        
+        // Ensure we're using a string ID for MongoDB
+        const mongoId = String(editingPostId);
+        console.log('MongoDB ID for update:', mongoId);
+        
+        // Dispatch update action with the correct ID format
         await dispatch(updateBlog({
-          id: editingPostId.toString(),
+          id: mongoId,
           ...updatedPost
         })).unwrap();
         
         // Reset edit mode
         setIsEditMode(false);
         setEditingPostId(null);
+        
+        // Show success notification
+        setNotification({
+          type: "success",
+          message: "Blog post updated successfully!"
+        });
       } else {
+        console.log('Mode: CREATE - Creating new blog post');
+        
         // Create new post
         const newPostData = {
           title: formData.title,
@@ -329,10 +361,18 @@ export default function BlogEditor() {
         
         // Dispatch create action
         await dispatch(createBlog(newPostData)).unwrap();
+        
+        // Show success notification
+        setNotification({
+          type: "success",
+          message: "Blog post created successfully!"
+        });
       }
       
       // Reset form
       resetForm();
+      
+      // Explicitly set the active tab to "all" to return to the list view
       setActiveTab("all");
     } catch (error: any) {
       console.error('Error saving blog post:', error);
@@ -401,9 +441,18 @@ export default function BlogEditor() {
   };
 
   // Edit post handler
-  const handleEditPost = (postId: number) => {
+  const handleEditPost = (postId: number | string) => {
+    console.log('handleEditPost - postId received:', postId);
+    
     const postToEdit = blogs.find((post: any) => post._id === postId || post.id === postId);
-    if (!postToEdit) return;
+    if (!postToEdit) {
+      console.error('Post not found with ID:', postId);
+      return;
+    }
+    
+    console.log('Found post to edit:', postToEdit);
+    console.log('Post _id:', postToEdit._id);
+    console.log('Post id:', postToEdit.id);
     
     // Set form data
     setFormData({
@@ -422,9 +471,12 @@ export default function BlogEditor() {
       mainImage: postToEdit.content.mainImage,
     });
     
-    // Set edit mode
+    // Set edit mode with the correct MongoDB ID
     setIsEditMode(true);
-    setEditingPostId(postId);
+    // Always use _id for MongoDB operations if available
+    const idToEdit = postToEdit._id || postId;
+    console.log('Setting editingPostId to:', idToEdit);
+    setEditingPostId(idToEdit);
     setActiveTab("add");
     
     // Reset uploading states
@@ -436,17 +488,29 @@ export default function BlogEditor() {
 
   // Delete post handler
   const handleDeletePost = async (postId: number | string) => {
-    if (window.confirm("Are you sure you want to delete this blog post?")) {
-      try {
-        // Convert to string if it's not already
-        const idToDelete = String(postId);
-        await dispatch(deleteBlog(idToDelete)).unwrap();
-      } catch (error: any) {
-        setNotification({
-          type: "error",
-          message: error?.message || "Failed to delete blog post. Please try again.",
-        });
-      }
+    // Ensure we're using the MongoDB _id if available
+    const idToDelete = typeof postId === 'object' && postId !== null ? 
+      (postId as any)._id || postId : 
+      postId;
+    
+    setPostToDelete(String(idToDelete));
+    setDeleteDialogOpen(true);
+  };
+
+  // Confirm delete post
+  const confirmDelete = async () => {
+    if (!postToDelete) return;
+    
+    try {
+      console.log('Deleting blog with ID:', postToDelete);
+      await dispatch(deleteBlog(postToDelete)).unwrap();
+      setDeleteDialogOpen(false);
+      setPostToDelete(null);
+    } catch (error: any) {
+      setNotification({
+        type: "error",
+        message: error?.message || "Failed to delete blog post. Please try again.",
+      });
     }
   };
 
@@ -690,7 +754,7 @@ export default function BlogEditor() {
                               <Button 
                                 variant="outline" 
                                 size="icon" 
-                                onClick={() => handleEditPost(post.id)}
+                                onClick={() => handleEditPost(post._id || post.id)}
                                 title="Edit Blog"
                               >
                                 <Pencil className="h-4 w-4" />
@@ -728,18 +792,26 @@ export default function BlogEditor() {
               <Button 
                 variant="outline" 
                 onClick={() => {
-                  if (isEditMode) {
-                    setIsEditMode(false);
-                    setEditingPostId(null);
-                    // URL'yi temizle
-                    window.history.pushState({}, '', window.location.pathname);
-                  }
+                  console.log('Cancel button clicked');
+                  console.log('Before reset - isEditMode:', isEditMode);
+                  console.log('Before reset - editingPostId:', editingPostId);
+                  
+                  // Reset form first
                   resetForm();
+                  
+                  // Then explicitly reset edit mode
+                  setIsEditMode(false);
+                  setEditingPostId(null);
+                  
+                  // Go back to list view
                   setActiveTab("all");
+                  
+                  console.log('After reset - isEditMode:', false);
                 }}
+                className="ml-2"
                 disabled={loading}
               >
-                Back to Blogs
+                Cancel
               </Button>
             </div>
             
@@ -844,13 +916,10 @@ export default function BlogEditor() {
                           type="button" 
                           variant="outline" 
                           onClick={() => {
+                            console.log('Form Cancel button clicked');
                             resetForm();
-                            if (isEditMode) {
-                              setIsEditMode(false);
-                              setEditingPostId(null);
-                              // URL'yi temizle
-                              window.history.pushState({}, '', window.location.pathname);
-                            }
+                            setIsEditMode(false);
+                            setEditingPostId(null);
                             setActiveTab("all");
                           }}
                           className="w-1/2 h-9"
@@ -1040,6 +1109,51 @@ export default function BlogEditor() {
           </div>
         )}
       </div>
+      
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              <div className="flex items-center gap-2 text-red-500">
+                <AlertCircle className="h-5 w-5" />
+                Confirm Deletion
+              </div>
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this blog post? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setPostToDelete(null);
+              }}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -122,7 +122,7 @@ const data = {
           url: "/dashboard/blog",
         },
         {
-          title: "Project",
+          title: "Service",
           url: "/dashboard/project",
         }
       ],
@@ -152,7 +152,7 @@ const data = {
       roles: ["admin", "editor"],
     },
     {
-      title: "Project",
+      title: "Service",
       url: "/dashboard/project",
       icon: FolderGit2,
       roles: ["admin", "editor"],

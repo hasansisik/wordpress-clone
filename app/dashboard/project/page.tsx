@@ -53,6 +53,15 @@ import {
     deleteService 
   } from "@/redux/actions/serviceActions";
   import { Loader2, Trash2, Pencil, Eye, Plus, FileJson, Download } from "lucide-react";
+  import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+  } from "@/components/ui/dialog";
+  import { AlertCircle } from "lucide-react";
 
 // Function to convert title to slug
 const slugify = (text: string) => {
@@ -138,6 +147,8 @@ export default function ProjectEditor() {
 
   const [formData, setFormData] = useState(initialFormState);
   const [activeTab, setActiveTab] = useState("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   // Load projects from Redux store
   useEffect(() => {
@@ -326,6 +337,10 @@ export default function ProjectEditor() {
       return;
     }
 
+    console.log('Form submission - isEditMode:', isEditMode);
+    console.log('Form submission - editingProjectId:', editingProjectId);
+    console.log('Form submission - editingProjectId type:', typeof editingProjectId);
+
     try {
       // Prepare content object
       const contentObject = {
@@ -341,11 +356,14 @@ export default function ProjectEditor() {
       };
 
       if (isEditMode && editingProjectId) {
+        console.log('Mode: UPDATE - Using editingProjectId:', editingProjectId);
+        
         // İd'nin string olduğundan emin olalım
         const idString = String(editingProjectId);
         
         // MongoDB Object ID formatını kontrol edelim (24 karakter hexadecimal)
         const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(idString);
+        console.log('Is valid MongoDB ObjectId:', isValidObjectId);
         
         // Update existing project
         const serviceData = {
@@ -361,7 +379,7 @@ export default function ProjectEditor() {
           content: contentObject
         };
         
-        console.log("Updating service with data:", JSON.stringify(serviceData));
+        console.log('Updating project with data:', serviceData);
         
         // Dispatch update action
         await dispatch(updateService(serviceData)).unwrap();
@@ -369,7 +387,15 @@ export default function ProjectEditor() {
         // Reset edit mode
         setIsEditMode(false);
         setEditingProjectId(null);
+        
+        // Show success notification
+        setNotification({
+          type: "success",
+          message: "Project updated successfully!"
+        });
       } else {
+        console.log('Mode: CREATE - Creating new project');
+        
         // Create new project
         const serviceData = {
           title: formData.title,
@@ -383,10 +409,16 @@ export default function ProjectEditor() {
           content: contentObject
         };
         
-        console.log("Creating service with data:", JSON.stringify(serviceData));
+        console.log('Creating project with data:', serviceData);
         
         // Dispatch create action
         await dispatch(createService(serviceData)).unwrap();
+        
+        // Show success notification
+        setNotification({
+          type: "success",
+          message: "Project created successfully!"
+        });
       }
       
       // Reset form
@@ -475,18 +507,46 @@ export default function ProjectEditor() {
     }
   };
 
+  // Delete project handler
+  const handleDeleteProject = async (projectId: string | number) => {
+    // Ensure we're using the MongoDB _id if available
+    const idToDelete = typeof projectId === 'object' && projectId !== null ? 
+      (projectId as any)._id || projectId : 
+      projectId;
+    
+    console.log('Delete project with ID:', idToDelete);
+    setProjectToDelete(String(idToDelete));
+    setDeleteDialogOpen(true);
+  };
+
+  // Confirm delete project
+  const confirmDelete = async () => {
+    if (!projectToDelete) return;
+    
+    try {
+      console.log('Confirming delete project with ID:', projectToDelete);
+      await dispatch(deleteService(projectToDelete)).unwrap();
+      setDeleteDialogOpen(false);
+      setProjectToDelete(null);
+    } catch (error: any) {
+      console.error('Error deleting project:', error);
+      setNotification({
+        type: "error",
+        message: error?.message || "Failed to delete project. Please try again.",
+      });
+    }
+  };
+
   // Edit project handler
   const handleEditProject = (projectId: string | number) => {
+    console.log('handleEditProject - projectId received:', projectId);
+    
     // projectId'yi string'e çevirelim ve konsola yazdıralım
     const projectIdStr = String(projectId);
-    console.log(`Edit işlemi başlatılıyor, ID: ${projectIdStr}, Tip: ${typeof projectId}`);
     
     const projectToEdit = services.find((project: any) => {
       // _id veya id eşleşmesini kontrol edelim ve konsola yazdıralım
       const idMatch = project._id === projectIdStr || project._id === projectId || project.id === projectId;
-      if (idMatch) {
-        console.log(`Eşleşen proje bulundu:`, project);
-      }
       return idMatch;
     });
     
@@ -499,7 +559,9 @@ export default function ProjectEditor() {
       return;
     }
     
-    console.log(`Düzenlenecek proje:`, projectToEdit);
+    console.log('Found project to edit:', projectToEdit);
+    console.log('Project _id:', projectToEdit._id);
+    console.log('Project id:', projectToEdit.id);
     
     // Set form data
     setFormData({
@@ -522,7 +584,7 @@ export default function ProjectEditor() {
     
     // MongoDB ObjectId değerini öncelikli olarak kullan
     const editId = projectToEdit._id || projectId;
-    console.log(`Edit modu için kullanılacak ID: ${editId}`);
+    console.log('Setting editingProjectId to:', editId);
     
     // Set edit mode
     setIsEditMode(true);
@@ -550,21 +612,6 @@ export default function ProjectEditor() {
     
     // URL'yi güncelle
     updateURL('new');
-  };
-
-  // Delete project handler
-  const handleDeleteProject = async (projectId: string | number) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      try {
-        await dispatch(deleteService(projectId.toString())).unwrap();
-      } catch (error: any) {
-        console.error('Error deleting project:', error);
-        setNotification({
-          type: "error",
-          message: error?.message || "Failed to delete project. Please try again.",
-        });
-      }
-    }
   };
 
   // Pagination logic
@@ -762,25 +809,29 @@ export default function ProjectEditor() {
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Link href={`/${slugify(project.title)}`} target="_blank">
-                                <Button variant="outline" size="sm">View</Button>
+                                <Button variant="outline" size="icon" title="View Project">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
                               </Link>
                               <Button 
                                 variant="outline" 
-                                size="sm" 
+                                size="icon" 
                                 onClick={() => handleEditProject(project._id || project.id)}
+                                title="Edit Project"
                               >
-                                Edit
+                                <Pencil className="h-4 w-4" />
                               </Button>
                               <Button 
                                 variant="destructive" 
-                                size="sm"
+                                size="icon"
                                 onClick={() => handleDeleteProject(project._id || project.id)}
                                 disabled={loading}
+                                title="Delete Project"
                               >
                                 {loading ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
-                                  "Delete"
+                                  <Trash2 className="h-4 w-4" />
                                 )}
                               </Button>
                             </div>
@@ -963,14 +1014,13 @@ export default function ProjectEditor() {
                           type="button" 
                           variant="outline" 
                           onClick={() => {
-                            if (isEditMode) {
-                              setIsEditMode(false);
-                              setEditingProjectId(null);
-                              // URL'yi temizle
-                              window.history.pushState({}, '', window.location.pathname);
-                            }
+                            console.log('Form Cancel button clicked');
                             resetForm();
+                            setIsEditMode(false);
+                            setEditingProjectId(null);
                             setActiveTab("all");
+                            // URL'yi temizle
+                            window.history.pushState({}, '', window.location.pathname);
                           }}
                           className="w-1/2 h-9"
                           disabled={loading}
@@ -1159,6 +1209,52 @@ export default function ProjectEditor() {
           </div>
         )}
       </div>
+      
+      {/* Add Dialog for delete confirmation */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              <div className="flex items-center gap-2 text-red-500">
+                <AlertCircle className="h-5 w-5" />
+                Confirm Deletion
+              </div>
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this project? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setProjectToDelete(null);
+              }}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

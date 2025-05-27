@@ -138,30 +138,24 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   useEffect(() => {
     if (!isLoading) {
       const findContent = async () => {
-        console.log("Looking for content with slug:", slug);
-        console.log("Redux blogs length:", blogs.length);
-        console.log("Redux services length:", services.length);
-        
+
         // First try to find in Redux
         const foundBlog = blogs.find(post => slugify(post.title) === slug);
         const foundProject = services.find(service => slugify(service.title) === slug);
         
         if (foundBlog) {
-          console.log("Found blog in Redux:", foundBlog.title);
           setBlogPost(foundBlog);
           setContentType('blog');
           return;
         } 
         
         if (foundProject) {
-          console.log("Found project in Redux:", foundProject.title);
           setProject(foundProject);
           setContentType('project');
           return;
         }
         
         // If not found in Redux, try local JSON as fallback
-        console.log("Content not found in Redux, trying local JSON...");
         setUsingFallback(true);
         
         try {
@@ -170,7 +164,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           const localBlog = localBlogs.find((post: BlogPost) => slugify(post.title) === slug);
           
           if (localBlog) {
-            console.log("Found blog in local JSON:", localBlog.title);
             setBlogPost(localBlog);
             setContentType('blog');
             return;
@@ -181,14 +174,12 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           const localProject = localProjects.find((proj: Project) => slugify(proj.title) === slug);
           
           if (localProject) {
-            console.log("Found project in local JSON:", localProject.title);
             setProject(localProject);
             setContentType('project');
             return;
           }
           
           // If still not found, show 404
-          console.log("Content not found in local JSON either, showing 404");
           notFound();
         } catch (error) {
           console.error("Error with fallback:", error);
