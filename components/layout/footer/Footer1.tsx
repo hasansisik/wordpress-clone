@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import footerData from '@/data/footer.json'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getFooter } from '@/redux/actions/footerActions'
 
 // Define the interface for component props
 interface FooterProps {
@@ -29,21 +31,33 @@ interface FooterProps {
 }
 
 export default function Footer1(props: FooterProps = {}) {
-	const [data, setData] = useState<any>(Object.keys(props).length > 0 ? props : footerData || {})
+	const dispatch = useDispatch();
+	const { footer } = useSelector((state: RootState) => state.footer);
+	const [data, setData] = useState<any>(null);
 
+	// Fetch footer data only once when component mounts if not provided via props
 	useEffect(() => {
-		// If props are provided, use them, otherwise load from the local data file
-		if (Object.keys(props).length > 0) {
-
-			if (props.columns) {
-				props.columns.forEach((col, i) => {
-				});
-			}
-			setData(props);
-		} else {
-			setData(footerData);
+		if (Object.keys(props).length === 0) {
+			dispatch(getFooter() as any);
 		}
-	}, [props])
+	}, []);
+
+	// Update local state when props or footer data from Redux change
+	useEffect(() => {
+		// If props are provided (from editor/preview), use them
+		if (Object.keys(props).length > 0) {
+			setData(props);
+		} 
+		// Otherwise use data from Redux store
+		else if (footer) {
+			setData(footer);
+		}
+	}, [props, footer]);
+
+	// Wait for data to be loaded
+	if (!data) {
+		return <footer className="loading">Loading footer...</footer>;
+	}
 
 	// Ensure data has all required properties with fallbacks
 	const safeData = {

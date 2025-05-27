@@ -6,21 +6,21 @@
   },
   "links": {
     "freeTrialLink": {
-      "href": "/",
-      "text": "Giris"
+      "href": "#",
+      "text": "Join For Free Trial"
     }
   },
   "mainMenu": [
     {
-      "_id": "1",
-      "name": "Anasayfa",
-      "link": "/",
-      "order": 0
-    },
-    {
       "_id": "3",
       "name": "Hizmetler",
       "link": "/hizmetler",
+      "order": 0
+    },
+    {
+      "_id": "1",
+      "name": "Anasayfa2",
+      "link": "/",
       "order": 1
     },
     {

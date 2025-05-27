@@ -4,17 +4,21 @@ import Search from '../Search'
 import OffCanvas from '../OffCanvas'
 import ThemeSwitch from '@/components/elements/ThemeSwitch'
 import Menu from '../Menu'
-import { useEffect, useState } from 'react'
-import headerData from '@/data/header.json'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getHeader } from '@/redux/actions/headerActions'
 
 export default function Header2({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
-	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch();
+	const { header, loading } = useSelector((state: RootState) => state.header);
 
+	// Fetch header data only once when component mounts
 	useEffect(() => {
-		setData(headerData)
-	}, [])
+		dispatch(getHeader() as any);
+	}, []) // Empty dependency array ensures this runs only once
 
-	if (!data) {
+	if (loading || !header) {
 		return <header>Loading...</header>
 	}
 
@@ -33,8 +37,8 @@ export default function Header2({ scroll, hideHeader, isMobileMenu, handleMobile
 					<div className="container-fluid px-md-8 px-2">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
 							<img 
-								src={data.logo.src} 
-								alt={data.logo.alt} 
+								src={header.logo.src} 
+								alt={header.logo.alt} 
 								style={{ 
 									maxWidth: '40px', 
 									maxHeight: '40px', 
@@ -43,21 +47,21 @@ export default function Header2({ scroll, hideHeader, isMobileMenu, handleMobile
 									objectFit: 'contain' 
 								}} 
 							/>
-							<span>{data.logo.text}</span>
+							<span>{header.logo.text}</span>
 						</Link>
-						<Menu menuItems={data.mainMenu} />
+						<Menu menuItems={header.mainMenu} />
 						<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
-							{data.showDarkModeToggle && <ThemeSwitch />}
-							{data.showActionButton && (
+							{header.showDarkModeToggle && <ThemeSwitch />}
+							{header.showActionButton && (
 								<Link 
-									href={data.links.freeTrialLink.href} 
+									href={header.links.freeTrialLink.href} 
 									className="btn d-none d-md-block"
 									style={{
-										backgroundColor: data.buttonColor || "#3b71fe",
-										color: data.buttonTextColor || "#ffffff"
+										backgroundColor: header.buttonColor || "#3b71fe",
+										color: header.buttonTextColor || "#ffffff"
 									}}
 								>
-									{data.links.freeTrialLink.text}
+									{header.links.freeTrialLink.text}
 								</Link>
 							)}
 							<div className="burger-icon burger-icon-white border rounded-3" onClick={handleMobileMenu}>
@@ -74,8 +78,8 @@ export default function Header2({ scroll, hideHeader, isMobileMenu, handleMobile
 				<MobileMenu 
 					handleMobileMenu={handleMobileMenu} 
 					isMobileMenu={isMobileMenu} 
-					menuItems={data.mainMenu}
-					socialLinks={data.socialLinks} 
+					menuItems={header.mainMenu}
+					socialLinks={header.socialLinks} 
 				/>
 			</header>
 

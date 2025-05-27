@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { getHeader, updateHeader } from "@/redux/actions/headerActions";
+import { RootState } from "@/redux/store";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -161,6 +164,8 @@ interface HeaderEditorContentProps {
 
 export default function HeaderEditor() {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { header, loading } = useSelector((state: RootState) => state.header);
   const [selectedHeader, setSelectedHeader] = useState<number | null>(null);
   const [headerData, setHeaderData] = useState<HeaderData>({
     mainMenu: [],
@@ -250,6 +255,11 @@ export default function HeaderEditor() {
     },
   ];
 
+    // Fetch header data once when component mounts
+  useEffect(() => {
+    dispatch(getHeader() as any);
+  }, []);
+
   // Initialize header data based on selection
   useEffect(() => {
     // Set default selected header if not already set
@@ -260,8 +270,8 @@ export default function HeaderEditor() {
     
     if (selectedHeader === null) return;
 
-    const header = headers.find((h) => h.id === selectedHeader);
-    if (!header) return;
+    const headerTemplate = headers.find((h) => h.id === selectedHeader);
+    if (!headerTemplate) return;
 
     // Initial default values while waiting for API data
     const initialData = {
@@ -292,7 +302,7 @@ export default function HeaderEditor() {
           order: 2,
         }
       ] : [],
-      topBarItems: header.hasTopBar ? [
+      topBarItems: headerTemplate.hasTopBar ? [
         { _id: "1", name: "Phone", content: "+01 (24) 568 900", order: 0 },
         { _id: "2", name: "Email", content: "contact@infinia.com", order: 1 },
         {
@@ -305,20 +315,36 @@ export default function HeaderEditor() {
       logoText: "Infinia",
       logoUrl: "/assets/imgs/template/favicon.svg",
       showDarkModeToggle: true,
-      showActionButton: header.buttonText !== "",
-      actionButtonText: header.buttonText,
+      showActionButton: headerTemplate.buttonText !== "",
+      actionButtonText: headerTemplate.buttonText,
       actionButtonLink: "/contact",
       buttonColor: "#3b71fe",
       buttonTextColor: "#ffffff",
-      headerComponent: header.component
+      headerComponent: headerTemplate.component
     };
 
-    // Set initial data while waiting for API response
-    setHeaderData(initialData);
-    
-    // Then fetch the latest data from API
-    refreshHeaderData();
-  }, [selectedHeader]);
+    // If we already have header data from Redux, use it
+    if (header) {
+      const updatedData = {
+        mainMenu: Array.isArray(header.mainMenu) ? header.mainMenu : initialData.mainMenu,
+        socialLinks: Array.isArray(header.socialLinks) ? header.socialLinks : initialData.socialLinks,
+        topBarItems: Array.isArray(header.topBarItems) ? header.topBarItems : initialData.topBarItems,
+        logoText: header.logo?.text || initialData.logoText,
+        logoUrl: header.logo?.src || initialData.logoUrl,
+        showDarkModeToggle: header.showDarkModeToggle !== undefined ? header.showDarkModeToggle : initialData.showDarkModeToggle,
+        showActionButton: header.showActionButton !== undefined ? header.showActionButton : initialData.showActionButton,
+        actionButtonText: header.actionButtonText || header.links?.freeTrialLink?.text || initialData.actionButtonText,
+        actionButtonLink: header.actionButtonLink || header.links?.freeTrialLink?.href || initialData.actionButtonLink,
+        buttonColor: header.buttonColor || initialData.buttonColor,
+        buttonTextColor: header.buttonTextColor || initialData.buttonTextColor,
+        headerComponent: header.headerComponent || initialData.headerComponent
+      };
+      setHeaderData(updatedData);
+    } else {
+      // Set initial data while waiting for API response
+      setHeaderData(initialData);
+    }
+  }, [selectedHeader, header]);
 
   const showSuccessAlert = (message: string) => {
     setAlertType("success");
@@ -698,69 +724,49 @@ export default function HeaderEditor() {
     setEditDialogOpen(false);
   };
 
-  // Function to refresh header data from API
-  const refreshHeaderData = async () => {
-    if (selectedHeader === null) return;
+  // Function to update the editor with the latest header data from Redux store
+  const refreshHeaderData = () => {
+    if (selectedHeader === null || !header) return;
+    
+    const headerTemplate = headers.find((h) => h.id === selectedHeader);
+    if (!headerTemplate) return;
 
-    try {
-      const response = await fetch('/api/header', {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        },
-        next: { revalidate: 0 }
-      });
+    // Create updated header data with values from the Redux store
+    const updatedHeaderData = {
+      // These should come from the API via Redux
+      mainMenu: Array.isArray(header.mainMenu) ? header.mainMenu : [],
+      socialLinks: Array.isArray(header.socialLinks) ? header.socialLinks : [],
+      topBarItems: Array.isArray(header.topBarItems) ? header.topBarItems : [],
       
-      if (response.ok) {
-        const freshData = await response.json();
-        
-        const header = headers.find((h) => h.id === selectedHeader);
-        if (!header) return;
+      // Logo data should always come from the API
+      logoText: header.logo?.text || "Infinia",
+      logoUrl: header.logo?.src || "/assets/imgs/template/favicon.svg",
+      
+      // Settings from API
+      showDarkModeToggle: header.showDarkModeToggle !== undefined ? header.showDarkModeToggle : true,
+      showActionButton: header.showActionButton !== undefined ? header.showActionButton : headerTemplate.buttonText !== "",
+      
+      // Button settings - get from API if available, otherwise use defaults
+      actionButtonText: header.actionButtonText || header.links?.freeTrialLink?.text || headerTemplate.buttonText,
+      actionButtonLink: header.actionButtonLink || header.links?.freeTrialLink?.href || "/contact",
+      
+      // Button colors from API or defaults
+      buttonColor: header.buttonColor || "#3b71fe",
+      buttonTextColor: header.buttonTextColor || "#ffffff",
+      
+      // Component type from API or fall back to the header's component
+      headerComponent: header.headerComponent || headerTemplate.component
+    };
 
-        // Create updated header data with values from the API while preserving active selections
-        const updatedHeaderData = {
-          // These should come from the API
-          mainMenu: Array.isArray(freshData.mainMenu) ? freshData.mainMenu : [],
-          socialLinks: Array.isArray(freshData.socialLinks) ? freshData.socialLinks : [],
-          topBarItems: Array.isArray(freshData.topBarItems) ? freshData.topBarItems : [],
-          
-          // Logo data should always come from the API
-          logoText: freshData.logo?.text || "Infinia",
-          logoUrl: freshData.logo?.src || "/assets/imgs/template/favicon.svg",
-          
-          // Settings from API
-          showDarkModeToggle: freshData.showDarkModeToggle !== undefined ? freshData.showDarkModeToggle : true,
-          showActionButton: freshData.showActionButton !== undefined ? freshData.showActionButton : header.buttonText !== "",
-          
-          // Button settings - get from API if available, otherwise use defaults
-          actionButtonText: freshData.actionButtonText || freshData.links?.freeTrialLink?.text || header.buttonText,
-          actionButtonLink: freshData.actionButtonLink || freshData.links?.freeTrialLink?.href || "/contact",
-          
-          // Button colors from API or defaults
-          buttonColor: freshData.buttonColor || "#3b71fe",
-          buttonTextColor: freshData.buttonTextColor || "#ffffff",
-          
-          // Component type from API or fall back to the header's component
-          headerComponent: freshData.headerComponent || header.component
-        };
-
-
-        // Use functional state update to ensure we're working with the latest state
-        setHeaderData(prevData => {
-          // If the data is the same, don't trigger a re-render
-          if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
-            return prevData;
-          }
-          
-          return updatedHeaderData;
-        });
-      } else {
-        console.error('Error refreshing header data:', await response.text());
+    // Use functional state update to ensure we're working with the latest state
+    setHeaderData(prevData => {
+      // If the data is the same, don't trigger a re-render
+      if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
+        return prevData;
       }
-    } catch (error) {
-      console.error('Error refreshing header data:', error);
-    }
+      
+      return updatedHeaderData;
+    });
   };
 
   // Call refreshHeaderData when the selected header changes
@@ -800,8 +806,10 @@ export default function HeaderEditor() {
         headerComponent: data.headerComponent || headerData.headerComponent || "Header1"
       };
 
+      // Use Redux to update header
+      await dispatch(updateHeader(dataToSave) as any);
 
-      // Send the data to the API
+      // Also update the API via the traditional endpoint for backward compatibility
       const response = await fetch('/api/header', {
         method: 'POST',
         headers: {
@@ -813,15 +821,18 @@ export default function HeaderEditor() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save changes');
+        throw new Error('Failed to save changes to API endpoint');
       }
 
-      // Get the response data
-      const result = await response.json();
-
       // Force refresh header data after successful API call
-      setTimeout(async () => {
-        await refreshHeaderData();
+      setTimeout(() => {
+        // Refresh Redux store with latest data from server
+        dispatch(getHeader() as any);
+        
+        // Then refresh the editor UI
+        setTimeout(() => {
+          refreshHeaderData();
+        }, 100);
       }, 300);
 
       // We don't show a success message here since the calling function will do it

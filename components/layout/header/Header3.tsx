@@ -4,17 +4,21 @@ import Search from '../Search'
 import OffCanvas from '../OffCanvas'
 import ThemeSwitch from '@/components/elements/ThemeSwitch'
 import Menu from '../Menu'
-import { useEffect, useState } from 'react'
-import headerData from '@/data/header.json'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getHeader } from '@/redux/actions/headerActions'
 
 export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
-	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch();
+	const { header, loading } = useSelector((state: RootState) => state.header);
 
+	// Fetch header data only once when component mounts
 	useEffect(() => {
-		setData(headerData)
-	}, [])
+		dispatch(getHeader() as any);
+	}, []) // Empty dependency array ensures this runs only once
 
-	if (!data) {
+	if (loading || !header) {
 		return <header>Loading...</header>
 	}
 

@@ -4,17 +4,21 @@ import Search from '../Search'
 import OffCanvas from '../OffCanvas'
 import ThemeSwitch from '@/components/elements/ThemeSwitch'
 import Menu from '../Menu'
-import { useEffect, useState } from 'react'
-import headerData from '@/data/header.json'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getHeader } from '@/redux/actions/headerActions'
 
 export default function Header4({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
-	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch();
+	const { header } = useSelector((state: RootState) => state.header);
 
+	// Fetch header data only once when component mounts
 	useEffect(() => {
-		setData(headerData)
-	}, [])
+		dispatch(getHeader() as any);
+	}, []) // Empty dependency array ensures this runs only once
 
-	if (!data) {
+	if (!header) {
 		return <header>Loading...</header>
 	}
 
@@ -33,8 +37,8 @@ export default function Header4({ scroll, hideHeader, isMobileMenu, handleMobile
 					<div className="container">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
 							<img 
-								src={data.logo.src} 
-								alt={data.logo.alt} 
+								src={header.logo.src} 
+								alt={header.logo.alt} 
 								style={{ 
 									maxWidth: '40px', 
 									maxHeight: '40px', 
@@ -43,11 +47,11 @@ export default function Header4({ scroll, hideHeader, isMobileMenu, handleMobile
 									objectFit: 'contain' 
 								}} 
 							/>
-							<span>{data.logo.text}</span>
+							<span>{header.logo.text}</span>
 						</Link>
-						<Menu menuItems={data.mainMenu} />
+						<Menu menuItems={header.mainMenu} />
 						<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
-							{data.showDarkModeToggle && <ThemeSwitch />}
+							{header.showDarkModeToggle && <ThemeSwitch />}
 							<a className="menu-tigger bg-primary icon-shape icon-md rounded-2 d-none d-md-flex cursor-pointer" onClick={handleOffCanvas}>
 								<img src="assets/imgs/logo/icon-menu.svg" alt="infinia" />
 							</a>
@@ -65,8 +69,8 @@ export default function Header4({ scroll, hideHeader, isMobileMenu, handleMobile
 				<MobileMenu 
 					handleMobileMenu={handleMobileMenu} 
 					isMobileMenu={isMobileMenu} 
-					menuItems={data.mainMenu}
-					socialLinks={data.socialLinks} 
+					menuItems={header.mainMenu}
+					socialLinks={header.socialLinks} 
 				/>
 			</header>
 

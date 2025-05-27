@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getFooter, updateFooter } from "@/redux/actions/footerActions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -869,6 +872,8 @@ function FooterEditorContent({
 
 export default function FooterEditor() {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { footer, loading } = useSelector((state: RootState) => state.footer);
   const [footerData, setFooterData] = useState<FooterData>({
     logo: {
       src: "/assets/imgs/logo/logo-white.svg",
@@ -926,34 +931,18 @@ export default function FooterEditor() {
     columnId: ""
   });
 
-  // Fetch initial data
+  // Fetch initial data using Redux
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const timestamp = new Date().getTime();
-        const response = await fetch(`/api/footer?t=${timestamp}`, {
-          cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache",
-          }
-        });
-      
-        if (response.ok) {
-          const data = await response.json();
-          setFooterData(data);
-        } else {
-          console.error("Error fetching footer data:", await response.text());
-        }
-      } catch (error) {
-        console.error("Error fetching footer data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    dispatch(getFooter() as any);
+  }, [dispatch]);
 
-    fetchData();
-  }, []);
+  // Update local state when Redux data changes
+  useEffect(() => {
+    if (footer) {
+      setFooterData(footer);
+      setIsLoading(false);
+    }
+  }, [footer]);
 
   // Function to monitor iframe connection
   useEffect(() => {
@@ -1118,7 +1107,10 @@ export default function FooterEditor() {
         footerComponent: data.footerComponent || "Footer1"
       };
 
-      // Send the data to the API
+      // Update Redux state first (this will call the API)
+      await dispatch(updateFooter(dataToSave) as any);
+      
+      // Also update local API for backward compatibility
       const response = await fetch('/api/footer', {
         method: 'POST',
         headers: {
@@ -1129,7 +1121,7 @@ export default function FooterEditor() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save changes');
+        throw new Error('Failed to save changes to local API');
       }
 
       const result = await response.json();
@@ -1718,7 +1710,10 @@ export default function FooterEditor() {
 
   const handleSaveChanges = async () => {
     try {
+      // Use both Redux action and local API for compatibility
+      await dispatch(updateFooter(footerData) as any);
       await saveChangesToAPI(footerData);
+      
       showSuccessAlert("Footer changes saved successfully!");
       
       // Redirect to dashboard after successful save

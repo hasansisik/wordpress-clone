@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import axios from 'axios';
+import { server } from '@/config';
 
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
     
-    // Path to header.json file
+    // Path to header.json file (for backward compatibility)
     const filePath = path.join(process.cwd(), 'data', 'header.json');
     
     // Ensure all required properties exist
@@ -47,8 +49,19 @@ export async function POST(req: NextRequest) {
       headerComponent: data.headerComponent || "Header1"
     };
     
+    // Update the server via API
+    try {
+      // Server-side API call - tokens need to be handled client-side in a different way
+      await axios.put(`${server}/header`, safeData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to update server via API, using local file instead:', error);
+    }
     
-    // Convert data to a JSON string
+    // Convert data to a JSON string for local file (backup)
     const jsonData = JSON.stringify(safeData, null, 2);
     
     // Use async fs for better compatibility with development server
@@ -70,6 +83,18 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
+    // Try to get data from server API first
+    try {
+      // Server-side API call
+      const response = await axios.get(`${server}/header`);
+      if (response.data && response.data.header) {
+        return NextResponse.json(response.data.header);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch header from server API, falling back to local file:', error);
+    }
+    
+    // Fallback to local file if server API fails
     // Path to header.json file
     const filePath = path.join(process.cwd(), 'data', 'header.json');
     

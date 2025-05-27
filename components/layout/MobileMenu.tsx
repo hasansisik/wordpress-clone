@@ -1,11 +1,22 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import headerData from '@/data/header.json'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getHeader } from '@/redux/actions/headerActions'
 
-export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
+export default function MobileMenu({ isMobileMenu, handleMobileMenu, menuItems = [], socialLinks = [] }: any) {
 	const [isAccordion, setIsAccordion] = useState(0)
+	const dispatch = useDispatch()
+	const { header } = useSelector((state: RootState) => state.header)
+
+	// Fetch header data once when component mounts if not already available
+	useEffect(() => {
+		if (!header || !header.mainMenu) {
+			dispatch(getHeader() as any)
+		}
+	}, [])
 
 	const handleAccordion = (key: any) => {
 		setIsAccordion(prevState => prevState === key ? null : key)
@@ -23,8 +34,8 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
 				<div className="mobile-header-wrapper-inner">
 					<div className="mobile-header-logo">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
-							<img src={headerData.logo.src} alt={headerData.logo.alt} />
-							<span>{headerData.logo.text}</span>
+							<img src={header?.logo?.src || "/assets/imgs/template/favicon.svg"} alt={header?.logo?.alt || "Logo"} />
+							<span>{header?.logo?.text || ""}</span>
 						</Link>
 						<div className={`burger-icon burger-icon-white border rounded-3 ${isMobileMenu ? 'burger-close' : ''}`} onClick={handleMobileMenu}>
 							<span className="burger-icon-top" />
@@ -37,8 +48,12 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu }: any) {
 							<div className="mobile-menu-wrap mobile-header-border">
 								<nav>
 									<ul className="mobile-menu font-heading ps-0">
-										{headerData.mainMenu.map((item, index) => (
-											<li key={item._id}>
+										{menuItems && menuItems.length > 0 ? menuItems.map((item: any, index: number) => (
+											<li key={item._id || index}>
+												<Link href={item.link} onClick={handleMenuItemClick}>{item.name}</Link>
+											</li>
+										)) : header?.mainMenu?.map((item: any, index: number) => (
+											<li key={item._id || index}>
 												<Link href={item.link} onClick={handleMenuItemClick}>{item.name}</Link>
 											</li>
 										))}
