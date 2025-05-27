@@ -71,6 +71,10 @@ export interface OtherPayload {
     inquiryDescription?: string;
     phoneNumber?: string;
     showPhone?: boolean;
+    addressTitle?: string;
+    addressDescription?: string;
+    address?: string;
+    showAddress?: boolean;
     services?: string[];
     buttonColor?: string;
     badgeColor?: string;

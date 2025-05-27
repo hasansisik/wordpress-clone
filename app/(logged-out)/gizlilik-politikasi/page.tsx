@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
 	}, [dispatch]);
 	
 	if (isLoading || loading || !pages.privacy) {
-		return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+		return;
 	}
 	
 	const { hero, content } = pages.privacy;

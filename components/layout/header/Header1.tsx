@@ -20,7 +20,7 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 
 	// Display loading state while header data is being fetched
 	if (loading || !header) {
-		return <header>Loading...</header>
+		return 
 	}
 
 	return (

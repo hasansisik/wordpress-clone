@@ -438,7 +438,8 @@ ${sectionsJSX}
   
   // If data is still loading, show loading spinner
   if (isLoading || loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+		return;
+
   }
 
   const PageContent = (

@@ -59,11 +59,11 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 	}, [blogs, dispatch, previewData]);
 
 	if (!data) {
-		return <section>Loading Blog2...</section>
+		return 
 	}
 
 	if (blogLoading || otherLoading) {
-		return <section>Loading Blogs...</section>
+		return 
 	}
 
 	return (

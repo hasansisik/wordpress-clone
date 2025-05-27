@@ -668,6 +668,53 @@ function Contact1ContentForm({ data }: { data: any }) {
         />
       </FormGroup>
 
+      <FormGroup title="Address Section">
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-medium">Show Address Section</label>
+          <div className="relative inline-block w-10 mr-2 align-middle select-none">
+            <input 
+              type="checkbox" 
+              name="showAddress" 
+              id="showAddress"
+              className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+              checked={data?.showAddress !== false}
+              onChange={(e) => {
+                // Use the EditorContext to update the value
+                const editorContext = (window as any).editorContext;
+                if (editorContext?.updateValue) {
+                  editorContext.updateValue('contact1.showAddress', e.target.checked);
+                }
+              }}
+            />
+            <label 
+              htmlFor="showAddress" 
+              className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+            ></label>
+          </div>
+        </div>
+
+        <TextField
+          label="Address Title"
+          value={data?.addressTitle || ""}
+          path="contact1.addressTitle"
+          placeholder="e.g. Our Address"
+        />
+
+        <TextField
+          label="Address Description"
+          value={data?.addressDescription || ""}
+          path="contact1.addressDescription"
+          placeholder="Address description text"
+        />
+
+        <TextField
+          label="Address"
+          value={data?.address || ""}
+          path="contact1.address"
+          placeholder="e.g. 123 Main St, City, Country"
+        />
+      </FormGroup>
+
       <FormGroup title="Colors">
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">

@@ -33,15 +33,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 
 	// If data is still loading, show a loading indicator
 	if (!data) {
-		return (
-			<section className="section-padding">
-				<div className="container text-center">
-					<div className="spinner-border" role="status">
-						<span className="visually-hidden">Loading...</span>
-					</div>
-				</div>
-			</section>
-		)
+		return 
 	}
 
 	return (

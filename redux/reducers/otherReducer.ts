@@ -111,6 +111,10 @@ const initialState: OtherState = {
       inquiryDescription: "Anında yardım için bize ulaşın",
       phoneNumber: "+01 (24) 568 900",
       showPhone: true,
+      addressTitle: "Adresimiz",
+      addressDescription: "Bizi ziyaret edin",
+      address: "Atatürk Cad. No:123, 34000 İstanbul, Türkiye",
+      showAddress: true,
       services: [
         "Araştırma planlaması",
         "Finans Danışmanlığı",
