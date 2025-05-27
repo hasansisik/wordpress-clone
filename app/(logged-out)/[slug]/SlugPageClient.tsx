@@ -256,15 +256,13 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                   )}
                 </div>
                 <h5 className="ds-5 mt-3 mb-4">{blogPost.title}</h5>
-                <p className="fs-5 text-900 mb-0">{blogPost.content.intro}</p>
+                <p className="fs-5 text-900 mb-0">{parse(blogPost.content.intro)}</p>
                 <div className="d-flex align-items-center justify-content-between mt-7 py-3 border-top border-bottom">
                   <div className="d-flex align-items-center position-relative z-1">
-                    <div className="icon-shape rounded-circle border border-2 border-white">
-                      <img
-                        className="rounded-circle"
-                        src={blogPost.content.author.avatar}
-                        alt={blogPost.content.author.name}
-                      />
+                    <div className="icon-shape rounded-circle border border-2 border-white bg-primary d-flex justify-content-center align-items-center" style={{ width: '40px', height: '40px' }}>
+                      <span className="text-white font-weight-bold">
+                        {blogPost.content.author.name.substring(0, 2).toUpperCase()}
+                      </span>
                     </div>
                     <div className="ms-3">
                       <h6 className="fs-7 m-0">{blogPost.content.author.name}</h6>
@@ -294,7 +292,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                         strokeWidth="1.5"
                       />
                     </svg>
-                    <span className="ms-2 fs-7 text-900">{blogPost.content.readTime} to read</span>
+                    <span className="ms-2 fs-7 text-900">{blogPost.content.readTime} okuma süresi</span>
                   </div>
                 </div>
               </div>

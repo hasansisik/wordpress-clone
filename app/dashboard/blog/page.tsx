@@ -128,7 +128,7 @@ export default function BlogEditor() {
     categories: [] as string[],
     author: "",
     authorAvatar: "/assets/imgs/blog-4/avatar-1.png",
-    readTime: "10 mins",
+    readTime: "3 dakika",
     intro: "",
     fullContent: "",
     mainImage: "",
@@ -783,7 +783,7 @@ export default function BlogEditor() {
                           <Label htmlFor="readTime" className="text-sm font-medium">Read Time</Label>
                           <Input 
                             id="readTime" 
-                            placeholder="10 mins" 
+                            placeholder="3 dakika" 
                             value={formData.readTime}
                             onChange={(e) => setFormData({...formData, readTime: e.target.value})}
                             className="h-9"

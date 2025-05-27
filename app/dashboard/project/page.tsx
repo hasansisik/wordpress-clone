@@ -133,7 +133,7 @@ export default function ProjectEditor() {
     mainImage: "",
     author: "",
     authorAvatar: "/assets/imgs/blog-4/avatar-1.png",
-    readTime: "10 mins",
+    readTime: "3 dakika",
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -517,7 +517,7 @@ export default function ProjectEditor() {
       mainImage: projectToEdit.content?.mainImage || "",
       author: projectToEdit.content?.author?.name || "",
       authorAvatar: projectToEdit.content?.author?.avatar || "/assets/imgs/blog-4/avatar-1.png",
-      readTime: projectToEdit.content?.readTime || "10 mins",
+      readTime: projectToEdit.content?.readTime || "3 dakika",
     });
     
     // MongoDB ObjectId değerini öncelikli olarak kullan
@@ -944,7 +944,7 @@ export default function ProjectEditor() {
                           <Label htmlFor="readTime" className="text-sm font-medium">Read Time</Label>
                           <Input 
                             id="readTime" 
-                            placeholder="10 mins" 
+                            placeholder="3 dakika" 
                             value={formData.readTime}
                             onChange={(e) => setFormData({...formData, readTime: e.target.value})}
                             className="h-9"
