@@ -24,21 +24,19 @@ export async function POST(req: NextRequest) {
     const faqData = await req.json();
     
     try {
-      // Auth bypass için options
-      const options = {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Special-Auth': 'development-bypass-auth'
-        }
-      };
-      
+      // Send to MongoDB API
+      const token = localStorage.getItem("accessToken");
       const { data } = await axios.put(
         `${server}/faq`,
         faqData,
-        options
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return NextResponse.json(data.faq);
-    } catch (mongoError: any) {
+    } catch (mongoError) {
       console.error("Error updating FAQ data on server:", mongoError);
       return NextResponse.json(
         { error: "Failed to update FAQ data on server" },
