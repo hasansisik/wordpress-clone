@@ -13,6 +13,7 @@ interface Contact1Props {
 export default function Contact1({ previewData }: Contact1Props = {}) {
 	const [data, setData] = useState<any>(null)
 	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [isSubmitted, setIsSubmitted] = useState(false)
 	const dispatch = useDispatch<AppDispatch>()
 	const { other, loading } = useSelector((state: RootState) => state.other)
 
@@ -70,6 +71,7 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 			toast.success('Mesajınız başarıyla gönderildi!');
 			// Reset the form
 			e.currentTarget.reset();
+			setIsSubmitted(true);
 		} catch (error: any) {
 			console.error('Form gönderiminde hata:', error);
 			toast.error(error.message || 'Form gönderilemedi. Lütfen tekrar deneyin.');
@@ -208,8 +210,8 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 												</div>
 											</div>
 											<div className="col-12">
-												<button type="submit" className="btn bg-primary text-white hover-up mt-4" disabled={isSubmitting}>
-													{isSubmitting ? 'Gönderiliyor...' : 'Mesaj Gönder'}
+												<button type="submit" className="btn bg-primary text-white hover-up mt-4" disabled={isSubmitting || isSubmitted}>
+													{isSubmitting ? 'Gönderiliyor...' : isSubmitted ? 'Gönderildi' : 'Mesaj Gönder'}
 													<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
 														<path className="stroke-white" d="M21.1059 12.2562H0.5V11.7443H21.1059H22.313L21.4594 10.8907L17.0558 6.48705L17.4177 6.12508L23.2929 12.0002L17.4177 17.8754L17.0558 17.5134L21.4594 13.1098L22.313 12.2562H21.1059Z" fill="black" stroke="white" />
 													</svg>

@@ -1,31 +1,32 @@
 import crypto from 'crypto';
-import axios from 'axios';
-import { server } from '@/config';
+import { store } from '@/redux/store';
+import { getGeneral } from '@/redux/actions/generalActions';
 
 // Default values
-let CLOUD_NAME = 'dbw3ozdoh';
-let API_KEY = '742373231915158';
-let API_SECRET = 'rlJxEB-nHt5b6dIywf57q_fc0iE';
+let CLOUD_NAME = '';
+let API_KEY = '';
+let API_SECRET = '';
 
-// Function to fetch Cloudinary settings from the server
-export const fetchCloudinarySettings = async (): Promise<void> => {
+// Function to get Cloudinary settings from Redux store
+export const getCloudinarySettings = async (): Promise<void> => {
   try {
-    const response = await axios.get(`${server}/general`);
-    const { cloudinary } = response.data;
+    // Dispatch getGeneral action to make sure we have the latest data
+    await store.dispatch(getGeneral());
     
-    if (cloudinary) {
-      CLOUD_NAME = cloudinary.cloudName || CLOUD_NAME;
-      API_KEY = cloudinary.apiKey || API_KEY;
-      API_SECRET = cloudinary.apiSecret || API_SECRET;
+    // Get the general state from the Redux store
+    const state = store.getState();
+    const { general } = state.general;
+    
+    if (general?.cloudinary) {
+      CLOUD_NAME = general.cloudinary.cloudName || '';
+      API_KEY = general.cloudinary.apiKey || '';
+      API_SECRET = general.cloudinary.apiSecret || '';
     }
   } catch (error) {
-    console.error('Error fetching Cloudinary settings:', error);
-    // If there's an error, use the default values
+    console.error('Error getting Cloudinary settings from Redux store:', error);
+    // If there's an error, keep the current values
   }
 };
-
-// Call this function early in your app's lifecycle
-fetchCloudinarySettings();
 
 function generateSignature(timestamp: number): string {
   const str = `timestamp=${timestamp}${API_SECRET}`;
@@ -41,7 +42,12 @@ interface UploadResult {
 
 export const uploadImageToCloudinary = async (file: File): Promise<string> => {
   // Refresh settings before upload to ensure we have the latest
-  await fetchCloudinarySettings();
+  await getCloudinarySettings();
+  
+  // Check if we have the required Cloudinary credentials
+  if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
+    throw new Error('Cloudinary credentials not found or invalid. Please check your settings.');
+  }
   
   return new Promise((resolve, reject) => {
     const timestamp = Math.round(new Date().getTime() / 1000);
