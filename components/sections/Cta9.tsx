@@ -1,76 +1,109 @@
 'use client'
 import Link from "next/link"
-import { useState, useEffect } from 'react'
-import ModalVideo from 'react-modal-video'
-import ctaData from "@/data/cta.json"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getCta } from "@/redux/actions/ctaActions"
+import { AppDispatch } from "@/redux/store"
 
 interface Cta9Props {
 	previewData?: any;
 }
 
 export default function Cta9({ previewData }: Cta9Props = {}) {
-	const [isOpen, setOpen] = useState(false)
-	const [data, setData] = useState<any>(ctaData.cta9 || {})
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { cta, loading } = useSelector((state: RootState) => state.cta)
 
 	useEffect(() => {
-		
-		// If preview data is provided, use it, otherwise load from the file
+		// Always trigger getCta() on component mount
+		dispatch(getCta())
+	}, [dispatch])
+
+	useEffect(() => {
+		// If preview data is provided, use it
 		if (previewData && previewData.cta9) {
-			setData(previewData.cta9);
-		} else if (ctaData.cta9) {
-			setData(ctaData.cta9);
-		} else {
-			console.error("No CTA data available in Cta9 component");
+			setData(previewData.cta9)
+		} 
+		// Otherwise use Redux data
+		else if (cta && cta.cta9) {
+			setData(cta.cta9)
 		}
-	}, [previewData])
+	}, [previewData, cta])
+
+	// If data is still loading, show a loading indicator
+	if (!data) {
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
+	}
 
 	return (
 		<>
-			<section className="section-cta-14 position-relative section-padding">
-				<div className="container position-relative z-2">
-					<div className="text-center">
-						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-							<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
-							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data?.heading?.tag || "CTA"}</span>
+			<section className="section-testimonial-9 position-relative py-110">
+				<div className="container">
+					<div className="row">
+						<div className="col-lg-6 col-md-12 mb-lg-0 mb-8 position-relative">
+							<div className="d-flex flex-column align-items-start position-relative">
+								<div className="d-flex align-items-center position-relative z-2 bg-linear-2 d-inline-flex rounded-pill px-2 py-1 mb-3">
+									<span className="bg-primary fs-9 fw-bold rounded-pill px-2 py-1 text-white">
+										{data?.badge?.prefix || ""}
+									</span>
+									<span className="fs-9 fw-bold text-primary mx-2">
+										{data?.badge?.text || ""}
+									</span>
+								</div>
+								<h3 className="mb-5" dangerouslySetInnerHTML={{ __html: data?.title || "Feedback from <span class='text-primary'>our users</span>" }}></h3>
+								<p className="mb-8">{data?.description || ""}</p>
+								<Link href={data?.button?.link || "#"} className="btn btn-gradient">
+									{data?.button?.text || ""}
+								</Link>
+							</div>
 						</div>
-						<h5 className="ds-5 my-3 fw-regular" dangerouslySetInnerHTML={{ __html: data?.heading?.title || "Watch Our Video" }}></h5>
-					</div>
-					<div className="row mt-8">
-						<div className="col-10 mx-auto">
-							<div className="position-relative">
-								<div className="zoom-img rounded-4 border-5 border-white border position-relative z-2">
-									<img className="rounded-3" src={data?.videoGuide?.image || "/assets/imgs/cta-14/img-1.png"} alt="infinia" />
-									<div className="position-absolute top-50 start-50 translate-middle z-2">
-										<Link href="#" scroll={false} onClick={() => setOpen(true)} className="d-inline-flex align-items-center rounded-4 text-nowrap backdrop-filter px-3 py-2 popup-video hover-up me-3 shadow-1">
-											<span className="backdrop-filter me-2 icon-shape icon-md rounded-circle">
-												<svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 16 16" fill="none">
-													<path className="stroke-dark" d="M5.0978 3.31244L12.0958 6.80342C13.077 7.29449 13.0767 8.69249 12.0954 9.18316L5.09734 12.6927C4.21074 13.136 3.16687 12.4925 3.16687 11.5027L3.16687 4.50219C3.16687 3.51217 4.2112 2.86872 5.0978 3.31244Z" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+						<div className="col-lg-6 col-md-12 testimonial-card-right">
+							<div className="testimonial-card-wrapper d-flex flex-wrap justify-content-center justify-content-md-end position-relative z-2">
+								{data.reviews && data.reviews.map((item: any, index: number) => (
+									<div 
+										key={index} 
+										className={`testimonial-card rounded-4 backdrop-filter ${index === 1 ? 'ms-0 ms-md-8 mt-0 mt-md-8' : ''}`}
+									>
+										<div className="testimonial-card-body">
+											<div className="d-flex align-items-center mb-5">
+												<img className="icon-shape icon-md rounded-circle" src={item.avatar} alt="infinia" />
+												<div className="ms-3">
+													<h6 className="mb-0">{item.name}</h6>
+													<p className="mb-0 text-600 fs-7">{item.role}</p>
+												</div>
+											</div>
+											<div className="mb-4">
+												<p className="text-dark fs-6">{item.comment}</p>
+											</div>
+											<div className="d-flex align-items-center">
+												<svg xmlns="http://www.w3.org/2000/svg" width={76} height={12} viewBox="0 0 76 12" fill="none">
+													<path d="M5.41071 0L7.13914 3.20469L10.8214 3.90446L8.28495 6.55937L8.86756 10.0954L5.41071 8.55L1.95386 10.0954L2.53647 6.55937L0 3.90446L3.68229 3.20469L5.41071 0Z" fill="#FFAD0F" />
+													<path d="M21.4107 0L23.1391 3.20469L26.8214 3.90446L24.285 6.55937L24.8676 10.0954L21.4107 8.55L17.9539 10.0954L18.5365 6.55937L16 3.90446L19.6823 3.20469L21.4107 0Z" fill="#FFAD0F" />
+													<path d="M37.4107 0L39.1391 3.20469L42.8214 3.90446L40.285 6.55937L40.8676 10.0954L37.4107 8.55L33.9539 10.0954L34.5365 6.55937L32 3.90446L35.6823 3.20469L37.4107 0Z" fill="#FFAD0F" />
+													<path d="M53.4107 0L55.1391 3.20469L58.8214 3.90446L56.285 6.55937L56.8676 10.0954L53.4107 8.55L49.9539 10.0954L50.5365 6.55937L48 3.90446L51.6823 3.20469L53.4107 0Z" fill="#FFAD0F" />
+													<path d="M69.4107 0L71.1391 3.20469L74.8214 3.90446L72.285 6.55937L72.8676 10.0954L69.4107 8.55L65.9539 10.0954L66.5365 6.55937L64 3.90446L67.6823 3.20469L69.4107 0Z" fill="#FFAD0F" />
 												</svg>
-											</span>
-											<span className="fw-bold fs-7 text-900">
-												{data?.videoGuide?.buttonText || "Watch Video"}
-											</span>
-										</Link>
+												<span className="text-primary ms-2 fw-medium">{item.rating}</span>
+											</div>
+										</div>
 									</div>
-								</div>
-								<div className="position-absolute top-100 start-0 translate-middle z-1">
-									<img className="alltuchtopdown" src={data?.vectors?.vector1 || "/assets/imgs/cta-14/vector-1.png"} alt="infinia" />
-								</div>
-								<div className="vector-2 position-absolute z-2">
-									<img className="alltuchtopdown" src={data?.vectors?.vector2 || "/assets/imgs/cta-14/vector-2.png"} alt="infinia" />
-								</div>
+								))}
 							</div>
 						</div>
 					</div>
 				</div>
-				<div className="position-absolute top-0 start-50 translate-middle-x z-0">
-					<img src={data?.vectors?.bgLine || "/assets/imgs/cta-14/bg-line.png"} alt="infinia" />
-				</div>
-				<div className="rotate-center ellipse-rotate-success position-absolute z-1" />
-				<div className="rotate-center-rev ellipse-rotate-primary position-absolute z-1" />
+				<div className="ellipse-rotate-primary-2 position-absolute z-0" />
+				<div className="ellipse-rotate-success-2 position-absolute z-0" />
 			</section>
-
-			<ModalVideo channel='youtube' isOpen={isOpen} videoId={data?.videoGuide?.videoId || "dQw4w9WgXcQ"} onClose={() => setOpen(false)} />
 		</>
 	)
 }

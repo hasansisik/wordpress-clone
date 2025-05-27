@@ -20,6 +20,10 @@ import {
 import { Layout, Type, Settings, Image } from "lucide-react";
 import Hero1 from "@/components/sections/Hero1";
 import Hero3 from "@/components/sections/Hero3";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getHero, updateHero } from "@/redux/actions/heroActions";
+import { AppDispatch } from "@/redux/store";
 
 // Hero type options
 const heroTypes = [
@@ -75,27 +79,16 @@ export default function HeroEditor() {
   const [isLoading, setIsLoading] = useState(true);
   const [useFallback, setUseFallback] = useState(false);
   const iframeLoadAttempts = useRef(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const { hero, loading } = useSelector((state: RootState) => state.hero);
 
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const timestamp = new Date().getTime();
-        const response = await fetch(`/api/hero?t=${timestamp}`, {
-          cache: "no-store",
-        headers: {
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-        },
-      });
-      
-      if (response.ok) {
-          const data = await response.json();
-          setHeroData(data);
-      } else {
-          console.error("Error fetching hero data:", await response.text());
-      }
-    } catch (error) {
+        // Use Redux to fetch hero data
+        await dispatch(getHero());
+      } catch (error) {
         console.error("Error fetching hero data:", error);
       } finally {
         setIsLoading(false);
@@ -103,7 +96,14 @@ export default function HeroEditor() {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
+
+  // Update local state when hero data changes in Redux
+  useEffect(() => {
+    if (hero) {
+      setHeroData(hero);
+    }
+  }, [hero]);
 
   // Handler for changing hero type
   const handleHeroTypeChange = (newType: string) => {
@@ -212,8 +212,8 @@ export default function HeroEditor() {
   };
 
   // If still loading, return empty div
-  if (isLoading) {
-    return <div></div>;
+  if (isLoading || loading) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -222,6 +222,16 @@ export default function HeroEditor() {
       sectionType="hero"
       uploadHandler={uploadImageToCloudinary}
       initialData={heroData}
+      saveHandler={async (data) => {
+        try {
+          // Use Redux to update hero data
+          await dispatch(updateHero(data));
+          return { success: true };
+        } catch (error) {
+          console.error("Error saving hero data:", error);
+          return { success: false, error: "Failed to save hero data" };
+        }
+      }}
     >
       <EditorLayout
         title="Hero Editor"

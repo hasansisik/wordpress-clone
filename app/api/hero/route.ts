@@ -1,45 +1,53 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { server } from '@/config';
+import axios from 'axios';
 
-// Path to the hero.json file
-const heroFilePath = path.join(process.cwd(), 'data', 'hero.json');
-
-export async function GET() {
+// Function to get hero data from server API
+export async function GET(req: NextRequest) {
   try {
-    // Add a small delay to ensure file system has time to update
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Read the hero data from the file
-    const data = await fs.readFile(heroFilePath, 'utf8');
-    const heroData = JSON.parse(data);
-    
-    return NextResponse.json(heroData, { status: 200 });
+    // Fetch from MongoDB API
+    const { data } = await axios.get(`${server}/hero`);
+    return NextResponse.json(data.hero);
   } catch (error) {
-    console.error('Error reading hero data:', error);
-    return NextResponse.json({ error: 'Failed to fetch hero data' }, { status: 500 });
+    console.error("Error fetching hero data:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch hero data from server" },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(request: Request) {
+// Function to update hero data on server API
+export async function POST(req: NextRequest) {
   try {
-    // Parse the incoming request body
-    const body = await request.json();
+    // Get hero data from request
+    const heroData = await req.json();
     
-    // Validate the incoming data
-    if (!body) {
-      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    try {
+      // Send to MongoDB API
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.put(
+        `${server}/hero`,
+        heroData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return NextResponse.json(data.hero);
+    } catch (mongoError) {
+      console.error("Error updating hero data on server:", mongoError);
+      return NextResponse.json(
+        { error: "Failed to update hero data on server" },
+        { status: 500 }
+      );
     }
-    
-    // Write the updated data to the hero.json file
-    await fs.writeFile(heroFilePath, JSON.stringify(body, null, 2), 'utf8');
-    
-    // Add a small delay to ensure file system has time to update
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    return NextResponse.json({ success: true, message: 'Hero data updated successfully' }, { status: 200 });
   } catch (error) {
-    console.error('Error updating hero data:', error);
-    return NextResponse.json({ error: 'Failed to update hero data' }, { status: 500 });
+    console.error("Error in hero update request:", error);
+    return NextResponse.json(
+      { error: "Failed to process hero update request" },
+      { status: 500 }
+    );
   }
 } 

@@ -2,26 +2,48 @@
 import Marquee from "react-fast-marquee";
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import heroData from "@/data/hero.json"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getHero } from "@/redux/actions/heroActions"
+import { AppDispatch } from "@/redux/store"
 
 interface Hero3Props {
 	previewData?: any;
 }
 
 export default function Hero3({ previewData }: Hero3Props = {}) {
-	const [data, setData] = useState<any>(heroData.hero3 || {})
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { hero, loading } = useSelector((state: RootState) => state.hero)
 
 	useEffect(() => {
-		
-		// If preview data is provided, use it, otherwise load from the file
+		// Always trigger getHero() on component mount
+		dispatch(getHero())
+	}, [dispatch])
+
+	useEffect(() => {
+		// If preview data is provided, use it
 		if (previewData && previewData.hero3) {
-			setData(previewData.hero3);
-		} else if (heroData.hero3) {
-			setData(heroData.hero3);
-		} else {
-			console.error("No hero data available in Hero3 component");
+			setData(previewData.hero3)
+		} 
+		// Otherwise use Redux data
+		else if (hero && hero.hero3) {
+			setData(hero.hero3)
 		}
-	}, [previewData])
+	}, [previewData, hero])
+
+	// If data is still loading, show a loading indicator
+	if (!data) {
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
+	}
 
 	return (
 		<>
@@ -58,8 +80,8 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 									{data?.description || ""}
 								</p>
 								<div className="d-flex flex-wrap gap-3">
-									<Link href={data?.buttons?.primary?.link || "#"} className="btn btn-gradient-1">
-										{data?.buttons?.primary?.text || ""}
+									<Link href={data?.button?.link || "#"} className="btn btn-gradient-1">
+										{data?.button?.text || ""}
 										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
 											<path d="M17.9199 12.79L14.1199 9L15.5299 7.59L21.9199 14L15.5299 20.41L14.1199 19L17.9199 15.21H2.91992V12.79H17.9199Z" fill="white" />
 										</svg>

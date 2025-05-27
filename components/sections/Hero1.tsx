@@ -1,25 +1,48 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import heroData from "@/data/hero.json"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getHero } from "@/redux/actions/heroActions"
+import { AppDispatch } from "@/redux/store"
 
 interface Hero1Props {
 	previewData?: any;
 }
 
 export default function Hero1({ previewData }: Hero1Props = {}) {
-	const [data, setData] = useState<any>(heroData.hero1 || {})
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { hero, loading } = useSelector((state: RootState) => state.hero)
 
 	useEffect(() => {
-		// If preview data is provided, use it, otherwise load from the file
+		// Always trigger getHero() on component mount
+		dispatch(getHero())
+	}, [dispatch])
+
+	useEffect(() => {
+		// If preview data is provided, use it
 		if (previewData && previewData.hero1) {
-			setData(previewData.hero1);
-		} else if (heroData.hero1) {
-			setData(heroData.hero1);
-		} else {
-			console.error("No hero data available in Hero1 component");
+			setData(previewData.hero1)
+		} 
+		// Otherwise use Redux data
+		else if (hero && hero.hero1) {
+			setData(hero.hero1)
 		}
-	}, [previewData])
+	}, [previewData, hero])
+
+	// If data is still loading, show a loading indicator
+	if (!data) {
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
+	}
 
 	return (
 		<>

@@ -26,6 +26,10 @@ import Cta4 from "@/components/sections/Cta4";
 import Cta9 from "@/components/sections/Cta9";
 import Cta1 from "@/components/sections/Cta1";
 import { Label } from "@/components/ui/label";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getCta, updateCta } from "@/redux/actions/ctaActions";
+import { AppDispatch } from "@/redux/store";
 
 // CTA type options
 const ctaTypes = [
@@ -84,39 +88,31 @@ export default function CtaEditor() {
   const [isLoading, setIsLoading] = useState(true);
   const [useFallback, setUseFallback] = useState(false);
   const iframeLoadAttempts = useRef(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const { cta, loading } = useSelector((state: RootState) => state.cta);
 
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const timestamp = new Date().getTime();
-        const response = await fetch(`/api/cta?t=${timestamp}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-          }
-      });
-      
-      if (response.ok) {
-          const data = await response.json();
-          setCtaData(data);
-      } else {
-          console.error('Error fetching CTA data:', await response.text());
-          // Use mock data if API request fails
-          setCtaData(require('@/data/cta.json'));
-      }
-    } catch (error) {
-        console.error('Error fetching CTA data:', error);
-        // Use mock data if API request fails
-        setCtaData(require('@/data/cta.json'));
-    } finally {
+        // Use Redux to fetch CTA data
+        await dispatch(getCta());
+      } catch (error) {
+        console.error("Error fetching CTA data:", error);
+      } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
+
+  // Update local state when CTA data changes in Redux
+  useEffect(() => {
+    if (cta) {
+      setCtaData(cta);
+    }
+  }, [cta]);
 
   // Handler for changing CTA type
   const handleCtaTypeChange = (newType: string) => {
@@ -226,8 +222,8 @@ export default function CtaEditor() {
   };
 
   // If still loading, return empty div
-  if (isLoading) {
-    return <div></div>;
+  if (isLoading || loading) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -236,6 +232,16 @@ export default function CtaEditor() {
       sectionType="cta"
       uploadHandler={uploadImageToCloudinary}
       initialData={ctaData}
+      saveHandler={async (data) => {
+        try {
+          // Use Redux to update CTA data
+          await dispatch(updateCta(data));
+          return { success: true };
+        } catch (error) {
+          console.error("Error saving CTA data:", error);
+          return { success: false, error: "Failed to save CTA data" };
+        }
+      }}
     >
       <EditorLayout
         title="CTA Editor"

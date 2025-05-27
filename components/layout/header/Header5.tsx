@@ -4,29 +4,22 @@ import Search from '../Search'
 import OffCanvas from '../OffCanvas'
 import ThemeSwitch from '@/components/elements/ThemeSwitch'
 import Menu from '../Menu'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import { getHeader } from '@/redux/actions/headerActions'
 
 export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
-	const [data, setData] = useState<any>(null)
 	const dispatch = useDispatch();
-	const { header } = useSelector((state: RootState) => state.header);
+	const { header, loading } = useSelector((state: RootState) => state.header);
 
-	// Fetch header data only once when component mounts
+	// Always fetch header data when component mounts
 	useEffect(() => {
 		dispatch(getHeader() as any);
-	}, []) // Empty dependency array ensures this runs only once
-	
-	// Update local state when header data changes
-	useEffect(() => {
-		if (header) {
-			setData(header);
-		}
-	}, [header])
+	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
 
-	if (!data) {
+	// Display loading state while header data is being fetched
+	if (loading || !header) {
 		return <header>Loading...</header>
 	}
 
@@ -37,7 +30,7 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 					<div className="container-fluid py-2 px-8">
 						<div className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
 							<div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-								{data.topBarItems && data.topBarItems.map((item: any, index: number) => {
+								{header.topBarItems && header.topBarItems.map((item: any, index: number) => {
 									if (item.name === "Email" && item.content) {
 										return (
 											<a href={`mailto:${item.content}`} className="pe-4 d-none d-md-flex" key={index}>
@@ -69,7 +62,7 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 									<path d="M10 7.16667V10.5L11.6667 12.1667" stroke="white" strokeWidth="1.5" />
 								</svg>
 								<span className="text-white pe-3 ps-1 fs-7">Mon-Fri: 10:00am - 09:00pm</span>
-								{data.socialLinks && data.socialLinks.map((item: any, index: number) => {
+								{header.socialLinks && header.socialLinks.map((item: any, index: number) => {
 									const socialIcons: { [key: string]: JSX.Element } = {
 										Facebook: (
 											<svg xmlns="http://www.w3.org/2000/svg" width={9} height={17} viewBox="0 0 9 17" fill="none">
@@ -128,8 +121,8 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 					<div className="container-fluid px-lg-8">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
 							<img 
-								src={data.logo.src} 
-								alt={data.logo.alt} 
+								src={header.logo.src} 
+								alt={header.logo.alt} 
 								style={{ 
 									maxWidth: '40px', 
 									maxHeight: '40px', 
@@ -138,12 +131,12 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 									objectFit: 'contain' 
 								}} 
 							/>
-							<span>{data.logo.text}</span>
+							<span>{header.logo.text}</span>
 						</Link>
-						<Menu menuItems={data.mainMenu} />
+						<Menu menuItems={header.mainMenu} />
 						<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
 							<div className="d-lg-flex align-items-center pe-8 d-none">
-								{data.topBarItems && data.topBarItems.map((item: any, index: number) => {
+								{header.topBarItems && header.topBarItems.map((item: any, index: number) => {
 									if (item.name === "Phone" && item.content) {
 										return (
 											<div key={index}>
@@ -162,20 +155,20 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 									return null;
 								})}
 							</div>
-							{data.showDarkModeToggle && <ThemeSwitch />}
-							{data.showActionButton && (
+							{header.showDarkModeToggle && <ThemeSwitch />}
+							{header.showActionButton && (
 								<Link 
-									href={data.links.freeTrialLink.href} 
+									href={header.links.freeTrialLink.href} 
 									className="btn d-none d-md-block"
 									style={{
-										backgroundColor: data.buttonColor || "#3b71fe",
-										color: data.buttonTextColor || "#ffffff"
+										backgroundColor: header.buttonColor || "#3b71fe",
+										color: header.buttonTextColor || "#ffffff"
 									}}
 								>
-									{data.links.freeTrialLink.text}
+									{header.links.freeTrialLink.text}
 									<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
 										<g clipPath="url(#clip0_474_2370)">
-											<path className="fill-white" d="M13.5633 4.06331L12.7615 4.86512L16.3294 8.43305H0.5V9.56699H16.3294L12.7615 13.1349L13.5633 13.9367L18.5 8.99998L13.5633 4.06331Z" fill={data.buttonTextColor || "white"} />
+											<path className="fill-white" d="M13.5633 4.06331L12.7615 4.86512L16.3294 8.43305H0.5V9.56699H16.3294L12.7615 13.1349L13.5633 13.9367L18.5 8.99998L13.5633 4.06331Z" fill={header.buttonTextColor || "white"} />
 										</g>
 										<defs>
 											<clipPath>
@@ -199,8 +192,8 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 				<MobileMenu 
 					handleMobileMenu={handleMobileMenu} 
 					isMobileMenu={isMobileMenu} 
-					menuItems={data.mainMenu}
-					socialLinks={data.socialLinks} 
+					menuItems={header.mainMenu}
+					socialLinks={header.socialLinks} 
 				/>
 			</header>
 

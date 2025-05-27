@@ -1,33 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { server } from '@/config';
+import axios from 'axios';
 
-// GET handler to retrieve CTA data
-export async function GET() {
+// Function to get CTA data from server API
+export async function GET(req: NextRequest) {
   try {
-    const filePath = path.join(process.cwd(), 'data', 'cta.json');
-    const fileData = await fs.readFile(filePath, 'utf8');
-    const data = JSON.parse(fileData);
-    
-    return NextResponse.json(data);
+    // Fetch from MongoDB API
+    const { data } = await axios.get(`${server}/cta`);
+    return NextResponse.json(data.cta);
   } catch (error) {
-    console.error('Error reading CTA data:', error);
-    return NextResponse.json({ error: 'Failed to read CTA data' }, { status: 500 });
+    console.error("Error fetching CTA data:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch CTA data from server" },
+      { status: 500 }
+    );
   }
 }
 
-// POST handler to save CTA data
-export async function POST(request: NextRequest) {
+// Function to update CTA data on server API
+export async function POST(req: NextRequest) {
   try {
-    const data = await request.json();
-    const filePath = path.join(process.cwd(), 'data', 'cta.json');
+    // Get CTA data from request
+    const ctaData = await req.json();
     
-    // Save the updated data to the file
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-    
-    return NextResponse.json({ success: true });
+    try {
+      // Send to MongoDB API
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.put(
+        `${server}/cta`,
+        ctaData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return NextResponse.json(data.cta);
+    } catch (mongoError) {
+      console.error("Error updating CTA data on server:", mongoError);
+      return NextResponse.json(
+        { error: "Failed to update CTA data on server" },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('Error saving CTA data:', error);
-    return NextResponse.json({ error: 'Failed to save CTA data' }, { status: 500 });
+    console.error("Error in CTA update request:", error);
+    return NextResponse.json(
+      { error: "Failed to process CTA update request" },
+      { status: 500 }
+    );
   }
 } 

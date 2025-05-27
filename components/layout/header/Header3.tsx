@@ -13,11 +13,12 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 	const dispatch = useDispatch();
 	const { header, loading } = useSelector((state: RootState) => state.header);
 
-	// Fetch header data only once when component mounts
+	// Always fetch header data when component mounts
 	useEffect(() => {
 		dispatch(getHeader() as any);
-	}, []) // Empty dependency array ensures this runs only once
+	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
 
+	// Display loading state while header data is being fetched
 	if (loading || !header) {
 		return <header>Loading...</header>
 	}
@@ -30,7 +31,7 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 						<div className="container py-2">
 							<div className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
 								<div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-									{data.topBarItems && data.topBarItems.length > 0 && data.topBarItems.map((item: any, index: number) => {
+									{header.topBarItems && header.topBarItems.length > 0 && header.topBarItems.map((item: any, index: number) => {
 										if (item.name === "Phone" && item.content) {
 											return (
 												<a href={`tel:${item.content.replace(/\s+/g, '')}`} className="pe-4" key={index}>
@@ -61,7 +62,7 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 										<path d="M10 7.16667V10.5L11.6667 12.1667" stroke="#6B7280" strokeWidth="1.5" />
 									</svg>
 									<span className="text-900 pe-3 ps-1 fs-7">Mon-Fri: 10:00am - 09:00pm</span>
-									{data.topBarItems && data.topBarItems.map((item: any, index: number) => {
+									{header.topBarItems && header.topBarItems.map((item: any, index: number) => {
 										if (item.name === "Email" && item.content) {
 											return (
 												<a href={`mailto:${item.content}`} className="ps-4" key={index}>
@@ -94,8 +95,8 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 						<div className="container">
 							<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
 								<img 
-									src={data.logo.src} 
-									alt={data.logo.alt} 
+									src={header.logo.src} 
+									alt={header.logo.alt} 
 									style={{ 
 										maxWidth: '40px', 
 										maxHeight: '40px', 
@@ -104,21 +105,21 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 										objectFit: 'contain' 
 									}} 
 								/>
-								<span>{data.logo.text}</span>
+								<span>{header.logo.text}</span>
 							</Link>
-							<Menu menuItems={data.mainMenu} />
+							<Menu menuItems={header.mainMenu} />
 							<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
-								{data.showDarkModeToggle && <ThemeSwitch />}
-								{data.showActionButton && (
+								{header.showDarkModeToggle && <ThemeSwitch />}
+								{header.showActionButton && (
 									<Link 
-										href={data.links.freeTrialLink.href} 
+										href={header.links.freeTrialLink.href} 
 										className="btn d-none d-md-block"
 										style={{
-											backgroundColor: data.buttonColor || "#3b71fe",
-											color: data.buttonTextColor || "#ffffff"
+											backgroundColor: header.buttonColor || "#3b71fe",
+											color: header.buttonTextColor || "#ffffff"
 										}}
 									>
-										{data.links.freeTrialLink.text}
+										{header.links.freeTrialLink.text}
 									</Link>
 								)}
 								<div className="burger-icon burger-icon-white border rounded-3" onClick={handleMobileMenu}>
@@ -135,8 +136,8 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 				<MobileMenu 
 					handleMobileMenu={handleMobileMenu} 
 					isMobileMenu={isMobileMenu} 
-					menuItems={data.mainMenu}
-					socialLinks={data.socialLinks} 
+					menuItems={header.mainMenu}
+					socialLinks={header.socialLinks} 
 				/>
 				</header>
 			</div>

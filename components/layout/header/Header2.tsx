@@ -13,11 +13,12 @@ export default function Header2({ scroll, hideHeader, isMobileMenu, handleMobile
 	const dispatch = useDispatch();
 	const { header, loading } = useSelector((state: RootState) => state.header);
 
-	// Fetch header data only once when component mounts
+	// Always fetch header data when component mounts
 	useEffect(() => {
 		dispatch(getHeader() as any);
-	}, []) // Empty dependency array ensures this runs only once
+	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
 
+	// Display loading state while header data is being fetched
 	if (loading || !header) {
 		return <header>Loading...</header>
 	}

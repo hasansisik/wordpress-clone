@@ -11,14 +11,15 @@ import { getHeader } from '@/redux/actions/headerActions'
 
 export default function Header4({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
 	const dispatch = useDispatch();
-	const { header } = useSelector((state: RootState) => state.header);
+	const { header, loading } = useSelector((state: RootState) => state.header);
 
-	// Fetch header data only once when component mounts
+	// Always fetch header data when component mounts
 	useEffect(() => {
 		dispatch(getHeader() as any);
-	}, []) // Empty dependency array ensures this runs only once
+	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
 
-	if (!header) {
+	// Display loading state while header data is being fetched
+	if (loading || !header) {
 		return <header>Loading...</header>
 	}
 

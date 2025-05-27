@@ -2,7 +2,10 @@
 import Link from "next/link"
 import { useState, useEffect } from 'react'
 import ModalVideo from 'react-modal-video'
-import ctaData from "@/data/cta.json"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getCta } from "@/redux/actions/ctaActions"
+import { AppDispatch } from "@/redux/store"
 
 interface Cta4Props {
 	previewData?: any;
@@ -11,21 +14,35 @@ interface Cta4Props {
 export default function Cta4({ previewData }: Cta4Props = {}) {
 	const [isOpen, setOpen] = useState(false)
 	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { cta, loading } = useSelector((state: RootState) => state.cta)
 
 	useEffect(() => {
-		
-		// If preview data is provided, use it, otherwise load from the file
+		// Always trigger getCta() on component mount
+		dispatch(getCta())
+	}, [dispatch])
+
+	useEffect(() => {
+		// If preview data is provided, use it
 		if (previewData && previewData.cta4) {
-			setData(previewData.cta4);
-		} else if (ctaData.cta4) {
-			setData(ctaData.cta4);
-		} else {
-			console.error("No CTA data available in Cta4 component");
+			setData(previewData.cta4)
+		} 
+		// Otherwise use Redux data
+		else if (cta && cta.cta4) {
+			setData(cta.cta4)
 		}
-	}, [previewData])
+	}, [previewData, cta])
 
 	if (!data) {
-		return <section>Loading Cta4...</section>
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
 	}
 
 	return (

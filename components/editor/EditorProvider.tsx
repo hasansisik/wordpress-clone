@@ -48,6 +48,7 @@ interface EditorProviderProps {
   defaultSection?: number | null;
   uploadHandler?: (file: File) => Promise<string>;
   initialData?: any;
+  saveHandler?: (data: any) => Promise<{success: boolean, error?: string}>;
 }
 
 export const EditorProvider = ({ 
@@ -56,7 +57,8 @@ export const EditorProvider = ({
   sectionType,
   defaultSection = null,
   uploadHandler,
-  initialData = null
+  initialData = null,
+  saveHandler
 }: EditorProviderProps) => {
   const [sectionData, setSectionData] = useState<any>(initialData);
   const [savedData, setSavedData] = useState<any>(initialData);
@@ -194,7 +196,7 @@ export const EditorProvider = ({
   // Handle text change with auto-save
   const handleTextChange = (value: string, path: string) => {
     // Update the correct path in the data
-    const newData = { ...sectionData };
+    const newData = JSON.parse(JSON.stringify(sectionData)); // Deep clone to ensure we're not modifying read-only props
     
     // Split the path by dots and use it to navigate and update the object
     const parts = path.split('.');
@@ -226,7 +228,7 @@ export const EditorProvider = ({
       const uploadedUrl = await uploadHandler(file);
 
       // Update the correct path in the data
-      const newData = { ...sectionData };
+      const newData = JSON.parse(JSON.stringify(sectionData)); // Deep clone to ensure we're not modifying read-only props
       
       // Split the path by dots and use it to navigate and update the object
       const parts = imagePath.split('.');
@@ -260,7 +262,20 @@ export const EditorProvider = ({
     try {
       setIsLoading(true);
 
-      // Send the data to the API
+      // If a custom saveHandler is provided, use it
+      if (saveHandler) {
+        const result = await saveHandler(data);
+        if (result.success) {
+          // Update saved data to match current data
+          setSavedData({...data});
+          showSuccessAlert(`${sectionType} changes saved successfully!`);
+        } else {
+          throw new Error(result.error || 'Failed to save changes');
+        }
+        return;
+      }
+
+      // Default API saving behavior
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {

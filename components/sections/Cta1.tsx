@@ -1,26 +1,48 @@
 'use client'
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import ctaData from "@/data/cta.json"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getCta } from "@/redux/actions/ctaActions"
+import { AppDispatch } from "@/redux/store"
 
 interface Cta1Props {
 	previewData?: any;
 }
 
 export default function Cta1({ previewData }: Cta1Props = {}) {
-	const [data, setData] = useState<any>(ctaData.cta1 || {})
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { cta, loading } = useSelector((state: RootState) => state.cta)
 
 	useEffect(() => {
-		
-		// If preview data is provided, use it, otherwise load from the file
+		// Always trigger getCta() on component mount
+		dispatch(getCta())
+	}, [dispatch])
+
+	useEffect(() => {
+		// If preview data is provided, use it
 		if (previewData && previewData.cta1) {
-			setData(previewData.cta1);
-		} else if (ctaData.cta1) {
-			setData(ctaData.cta1);
-		} else {
-			console.error("No CTA data available in Cta1 component");
+			setData(previewData.cta1)
+		} 
+		// Otherwise use Redux data
+		else if (cta && cta.cta1) {
+			setData(cta.cta1)
 		}
-	}, [previewData])
+	}, [previewData, cta])
+
+	// If data is still loading, show a loading indicator
+	if (!data) {
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
+	}
 
 	return (
 		<>
