@@ -24,16 +24,11 @@ export async function POST(req: NextRequest) {
     const faqData = await req.json();
     
     try {
-      // Send to MongoDB API
-      const token = localStorage.getItem("accessToken");
+      // Server-side'da localStorage kullanılamaz
+      // Token olmadan direkt istek gönder
       const { data } = await axios.put(
         `${server}/faq`,
-        faqData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        faqData
       );
       return NextResponse.json(data.faq);
     } catch (mongoError) {

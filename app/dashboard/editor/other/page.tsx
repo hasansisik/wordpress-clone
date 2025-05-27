@@ -22,6 +22,10 @@ import Blog2 from "@/components/sections/Blog2";
 import Blog3 from "@/components/sections/Blog3";
 import Blog5 from "@/components/sections/Blog5";
 import Contact1 from "@/components/sections/Contact1";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getOther, updateOther } from "@/redux/actions/otherActions";
+import { AppDispatch } from "@/redux/store";
 
 // Other component type options
 const otherTypes = [
@@ -86,26 +90,15 @@ export default function OtherEditor() {
   const [isLoading, setIsLoading] = useState(true);
   const [useFallback, setUseFallback] = useState(false);
   const iframeLoadAttempts = useRef(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const { other, loading } = useSelector((state: RootState) => state.other);
 
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const timestamp = new Date().getTime();
-        const response = await fetch(`/api/other?t=${timestamp}`, {
-          cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setOtherData(data);
-        } else {
-          console.error("Error fetching other data:", await response.text());
-        }
+        // Use Redux to fetch other data
+        await dispatch(getOther());
       } catch (error) {
         console.error("Error fetching other data:", error);
       } finally {
@@ -114,7 +107,14 @@ export default function OtherEditor() {
     };
 
     fetchData();
-  }, []);
+  }, [dispatch]);
+
+  // Update local state when other data changes in Redux
+  useEffect(() => {
+    if (other) {
+      setOtherData(other);
+    }
+  }, [other]);
 
   // Handler for changing component type
   const handleOtherTypeChange = (newType: string) => {
@@ -235,8 +235,8 @@ export default function OtherEditor() {
   };
 
   // If still loading, return empty div
-  if (isLoading) {
-    return <div></div>;
+  if (isLoading || loading) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -245,6 +245,16 @@ export default function OtherEditor() {
       sectionType="other"
       uploadHandler={uploadImageToCloudinary}
       initialData={otherData}
+      saveHandler={async (data) => {
+        try {
+          // Use Redux to update other data
+          await dispatch(updateOther(data));
+          return { success: true };
+        } catch (error) {
+          console.error("Error saving other data:", error);
+          return { success: false, error: "Failed to save other data" };
+        }
+      }}
     >
       <EditorLayout
         title="Other Components Editor"

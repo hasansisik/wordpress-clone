@@ -1,9 +1,9 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import otherData from "@/data/other.json"
 import { useDispatch, useSelector } from "react-redux"
 import { getAllBlogs } from "@/redux/actions/blogActions"
+import { getOther } from "@/redux/actions/otherActions"
 import { AppDispatch, RootState } from "@/redux/store"
 import { Loader2 } from "lucide-react"
 
@@ -26,24 +26,29 @@ const slugify = (text: string) => {
 export default function Blog5({ previewData }: Blog5Props) {
 	const [data, setData] = useState<any>(null)
 	const dispatch = useDispatch<AppDispatch>()
-	const { blogs, loading, error } = useSelector((state: RootState) => state.blog)
+	const { blogs, loading: blogLoading, error } = useSelector((state: RootState) => state.blog)
+	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other)
 
 	useEffect(() => {
 		dispatch(getAllBlogs())
-	}, [dispatch])
+		// Also fetch other data if not provided in preview
+		if (!previewData) {
+			dispatch(getOther())
+		}
+	}, [dispatch, previewData])
 
 	useEffect(() => {
-		// If preview data is provided, use it, otherwise load from the file
+		// If preview data is provided, use it
 		if (previewData && previewData.blog5) {
 			setData(previewData.blog5);
-		} else if (otherData.blog5) {
-			setData(otherData.blog5);
-		} else {
-			console.error("No blog data available in Blog5 component");
+		} 
+		// Otherwise use Redux data
+		else if (other && other.blog5) {
+			setData(other.blog5);
 		}
-	}, [previewData])
+	}, [previewData, other])
 
-	if (loading) {
+	if (blogLoading || otherLoading) {
 		return (
 			<div className="flex justify-center items-center min-h-[200px]">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />

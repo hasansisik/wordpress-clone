@@ -5,8 +5,8 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getAllBlogs } from "@/redux/actions/blogActions"
+import { getOther } from "@/redux/actions/otherActions"
 import { AppDispatch, RootState } from "@/redux/store"
-import otherData from "@/data/other.json"
 
 interface Blog2Props {
 	previewData?: any;
@@ -26,37 +26,43 @@ const slugify = (text: string) => {
 
 export default function Blog2({ previewData }: Blog2Props = {}) {
 	const dispatch = useDispatch<AppDispatch>();
-	const { blogs, loading } = useSelector((state: RootState) => state.blog);
+	const { blogs, loading: blogLoading } = useSelector((state: RootState) => state.blog);
+	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
 	
 	const [data, setData] = useState<any>(null)
 	const [posts, setPosts] = useState<any[]>([])
 
 	useEffect(() => {
-		// If preview data is provided, use it, otherwise load from the file
+		// If preview data is provided, use it
 		if (previewData && previewData.blog2) {
 			setData(previewData.blog2);
-		} else if (otherData.blog2) {
-			setData(otherData.blog2);
-		} else {
-			console.error("No blog data available in Blog2 component");
+		} 
+		// Otherwise use Redux data
+		else if (other && other.blog2) {
+			setData(other.blog2);
 		}
-	}, [previewData])
+	}, [previewData, other])
 
-	// Fetch blogs from Redux
+	// Fetch blogs and other data from Redux
 	useEffect(() => {
 		if (blogs.length === 0) {
 			dispatch(getAllBlogs());
 		} else {
-			// Use slice to get only the posts we need (similar to the previous slice(2, 5))
+			// Use slice to get only the posts we need
 			setPosts(blogs.slice(2, 5));
 		}
-	}, [blogs, dispatch]);
+
+		// Also fetch other data if not provided in preview
+		if (!previewData) {
+			dispatch(getOther());
+		}
+	}, [blogs, dispatch, previewData]);
 
 	if (!data) {
 		return <section>Loading Blog2...</section>
 	}
 
-	if (loading) {
+	if (blogLoading || otherLoading) {
 		return <section>Loading Blogs...</section>
 	}
 

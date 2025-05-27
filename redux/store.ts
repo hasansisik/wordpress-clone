@@ -8,6 +8,7 @@ import footerReducer from "./reducers/footerReducer";
 import heroReducer from "./reducers/heroReducer";
 import { ctaReducer } from './reducers/ctaReducer';
 import faqReducer from './reducers/faqReducer';
+import otherReducer from './reducers/otherReducer';
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ export const store = configureStore({
     hero: heroReducer,
     cta: ctaReducer,
     faq: faqReducer,
+    other: otherReducer,
   },
   devTools: process.env.NODE_ENV !== 'production',
   middleware: (getDefaultMiddleware) =>

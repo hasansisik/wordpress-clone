@@ -1,30 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { server } from '@/config';
+import axios from 'axios';
 
-export async function GET(request: NextRequest) {
+// Function to get other data from server API
+export async function GET(req: NextRequest) {
   try {
-    const dataFilePath = path.join(process.cwd(), 'data', 'other.json');
-    const fileContents = await fs.readFile(dataFilePath, 'utf8');
-    const data = JSON.parse(fileContents);
-
-    return NextResponse.json(data, { status: 200 });
+    // Fetch from MongoDB API
+    const { data } = await axios.get(`${server}/other`);
+    return NextResponse.json(data.other);
   } catch (error) {
-    console.error('Error reading other data:', error);
-    return NextResponse.json({ error: 'Failed to load other data' }, { status: 500 });
+    console.error("Error fetching other data:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch other data from server" },
+      { status: 500 }
+    );
   }
 }
 
-export async function POST(request: NextRequest) {
+// Function to update other data on server API
+export async function POST(req: NextRequest) {
   try {
-    const data = await request.json();
-    const dataFilePath = path.join(process.cwd(), 'data', 'other.json');
+    // Get other data from request
+    const otherData = await req.json();
     
-    await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2));
-
-    return NextResponse.json({ success: true }, { status: 200 });
+    try {
+      // Send to MongoDB API
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.put(
+        `${server}/other`,
+        otherData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return NextResponse.json(data.other);
+    } catch (mongoError) {
+      console.error("Error updating other data on server:", mongoError);
+      return NextResponse.json(
+        { error: "Failed to update other data on server" },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('Error updating other data:', error);
-    return NextResponse.json({ error: 'Failed to update other data' }, { status: 500 });
+    console.error("Error in other update request:", error);
+    return NextResponse.json(
+      { error: "Failed to process other update request" },
+      { status: 500 }
+    );
   }
 } 

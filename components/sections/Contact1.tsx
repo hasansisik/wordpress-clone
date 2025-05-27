@@ -1,7 +1,9 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import otherData from "@/data/other.json"
+import { useDispatch, useSelector } from "react-redux"
+import { getOther } from "@/redux/actions/otherActions"
+import { AppDispatch, RootState } from "@/redux/store"
 import { toast } from "sonner"
 
 interface Contact1Props {
@@ -10,20 +12,28 @@ interface Contact1Props {
 
 export default function Contact1({ previewData }: Contact1Props = {}) {
 	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { other, loading } = useSelector((state: RootState) => state.other)
 
 	useEffect(() => {
-		
-		// If preview data is provided, use it, otherwise load from the file
+		// Fetch other data if not provided in preview
+		if (!previewData) {
+			dispatch(getOther())
+		}
+	}, [dispatch, previewData])
+
+	useEffect(() => {
+		// If preview data is provided, use it
 		if (previewData && previewData.contact1) {
 			setData(previewData.contact1);
-		} else if (otherData.contact1) {
-			setData(otherData.contact1);
-		} else {
-			console.error("Contact1 bileşeninde erişilebilir bir veri bulunamadı");
+		} 
+		// Otherwise use Redux data
+		else if (other && other.contact1) {
+			setData(other.contact1);
 		}
-	}, [previewData])
+	}, [previewData, other])
 
-	if (!data) {
+	if (!data || loading) {
 		return <section>Contact1 Yükleniyor...</section>
 	}
 
