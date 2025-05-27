@@ -27,6 +27,10 @@ export interface HeaderPayload {
   actionButtonText?: string;
   actionButtonLink?: string;
   headerComponent?: string;
+  workingHours?: string;
+  topBarColor?: string;
+  topBarTextColor?: string;
+  mobileMenuButtonColor?: string;
 }
 
 // Get header data

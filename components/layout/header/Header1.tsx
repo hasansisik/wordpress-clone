@@ -64,7 +64,11 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 									{header?.links?.freeTrialLink?.text || "Get Started"}
 								</Link>
 							)}
-							<div className="burger-icon burger-icon-white border rounded-3" onClick={handleMobileMenu}>
+							<div 
+								className="burger-icon burger-icon-white border rounded-3" 
+								onClick={handleMobileMenu}
+								style={{ backgroundColor: header?.mobileMenuButtonColor || 'transparent' }}
+							>
 								<span className="burger-icon-top" />
 								<span className="burger-icon-mid" />
 								<span className="burger-icon-bottom" />

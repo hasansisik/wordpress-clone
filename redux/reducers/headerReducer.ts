@@ -60,7 +60,9 @@ const initialState: HeaderState = {
     showActionButton: false,
     actionButtonText: "Giris",
     actionButtonLink: "/",
-    headerComponent: "Header1"
+    headerComponent: "Header1",
+    workingHours: "Mon-Fri: 10:00am - 09:00pm",
+    topBarColor: "#3b71fe"
   },
   loading: false,
   error: null,

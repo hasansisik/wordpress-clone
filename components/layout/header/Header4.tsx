@@ -56,7 +56,11 @@ export default function Header4({ scroll, hideHeader, isMobileMenu, handleMobile
 							<a className="menu-tigger bg-primary icon-shape icon-md rounded-2 d-none d-md-flex cursor-pointer" onClick={handleOffCanvas}>
 								<img src="assets/imgs/logo/icon-menu.svg" alt="infinia" />
 							</a>
-							<div className="burger-icon burger-icon-white border rounded-3" onClick={handleMobileMenu}>
+							<div 
+								className="burger-icon burger-icon-white border rounded-3" 
+								onClick={handleMobileMenu}
+								style={{ backgroundColor: header.mobileMenuButtonColor || 'transparent' }}
+							>
 								<span className="burger-icon-top" />
 								<span className="burger-icon-mid" />
 								<span className="burger-icon-bottom" />

@@ -33,12 +33,6 @@ function generateSignature(timestamp: number): string {
   return crypto.createHash('sha1').update(str).digest('hex');
 }
 
-interface UploadResult {
-  info: {
-    public_id: string;
-    secure_url: string;
-  };
-}
 
 export const uploadImageToCloudinary = async (file: File): Promise<string> => {
   // Refresh settings before upload to ensure we have the latest

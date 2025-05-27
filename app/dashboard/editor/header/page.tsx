@@ -90,6 +90,10 @@ interface HeaderData {
   buttonColor: string;
   buttonTextColor: string;
   headerComponent: string;
+  workingHours: string;
+  topBarColor: string;
+  topBarTextColor: string;
+  mobileMenuButtonColor: string;
 }
 
 // Topbar item tipleri ve iconları için sabit listeler
@@ -180,6 +184,10 @@ export default function HeaderEditor() {
     buttonColor: "#3b71fe",
     buttonTextColor: "#ffffff",
     headerComponent: "Header1",
+    workingHours: "Mon-Fri: 10:00am - 09:00pm",
+    topBarColor: "#3b71fe",
+    topBarTextColor: "#ffffff",
+    mobileMenuButtonColor: "#3b71fe"
   });
 
   const [showAlert, setShowAlert] = useState(false);
@@ -245,14 +253,7 @@ export default function HeaderEditor() {
       buttonText: "Get a Quote",
       component: "Header5"
     },
-    {
-      id: 6,
-      name: "Header 6",
-      image: "/assets/imgs/headers/header5.png", // Using header5 image temporarily
-      hasTopBar: true,
-      buttonText: "Contact Us",
-      component: "Header5" // Using Header5 component temporarily
-    },
+
   ];
 
     // Fetch header data once when component mounts
@@ -320,7 +321,11 @@ export default function HeaderEditor() {
       actionButtonLink: "/contact",
       buttonColor: "#3b71fe",
       buttonTextColor: "#ffffff",
-      headerComponent: headerTemplate.component
+      headerComponent: headerTemplate.component,
+      workingHours: "Mon-Fri: 10:00am - 09:00pm",
+      topBarColor: "#3b71fe",
+      topBarTextColor: "#ffffff",
+      mobileMenuButtonColor: "#3b71fe"
     };
 
     // If we already have header data from Redux, use it
@@ -337,7 +342,11 @@ export default function HeaderEditor() {
         actionButtonLink: header.actionButtonLink || header.links?.freeTrialLink?.href || initialData.actionButtonLink,
         buttonColor: header.buttonColor || initialData.buttonColor,
         buttonTextColor: header.buttonTextColor || initialData.buttonTextColor,
-        headerComponent: header.headerComponent || initialData.headerComponent
+        headerComponent: header.headerComponent || initialData.headerComponent,
+        workingHours: header.workingHours || initialData.workingHours,
+        topBarColor: header.topBarColor || initialData.topBarColor,
+        topBarTextColor: header.topBarTextColor || initialData.topBarTextColor,
+        mobileMenuButtonColor: header.mobileMenuButtonColor || initialData.mobileMenuButtonColor
       };
       setHeaderData(updatedData);
     } else {
@@ -755,7 +764,11 @@ export default function HeaderEditor() {
       buttonTextColor: header.buttonTextColor || "#ffffff",
           
           // Component type from API or fall back to the header's component
-      headerComponent: header.headerComponent || headerTemplate.component
+      headerComponent: header.headerComponent || headerTemplate.component,
+      workingHours: header.workingHours || "Mon-Fri: 10:00am - 09:00pm",
+      topBarColor: header.topBarColor || "#3b71fe",
+      topBarTextColor: header.topBarTextColor || "#ffffff",
+      mobileMenuButtonColor: header.mobileMenuButtonColor || "#3b71fe"
         };
 
         // Use functional state update to ensure we're working with the latest state
@@ -803,7 +816,11 @@ export default function HeaderEditor() {
         actionButtonLink: data.actionButtonLink || headerData.actionButtonLink,
         buttonColor: data.buttonColor || headerData.buttonColor || "#3b71fe",
         buttonTextColor: data.buttonTextColor || headerData.buttonTextColor || "#ffffff",
-        headerComponent: data.headerComponent || headerData.headerComponent || "Header1"
+        headerComponent: data.headerComponent || headerData.headerComponent || "Header1",
+        workingHours: data.workingHours || headerData.workingHours,
+        topBarColor: data.topBarColor || headerData.topBarColor || "#3b71fe",
+        topBarTextColor: data.topBarTextColor || headerData.topBarTextColor || "#ffffff",
+        mobileMenuButtonColor: data.mobileMenuButtonColor || headerData.mobileMenuButtonColor || "#3b71fe"
       };
 
       // Use Redux to update header
@@ -1331,6 +1348,148 @@ function HeaderEditorContent({
               </div>
               <p className="text-xs text-gray-500">Show dark mode toggle in the header.</p>
             </div>
+
+            {/* Add TopBar Color section for Header3 and Header5 */}
+            {(headerData.headerComponent === "Header3" || headerData.headerComponent === "Header5") && (
+              <>
+                <div className="space-y-3 pt-3 border-t">
+                  <Label htmlFor="topBarColor" className="text-sm">
+                    Top Bar Background Color
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-8 h-8 rounded border"
+                      style={{ backgroundColor: headerData.topBarColor || "#3b71fe" }}
+                    />
+                    <Input
+                      id="topBarColor"
+                      type="color"
+                      value={headerData.topBarColor || "#3b71fe"}
+                      onChange={(e) => {
+                        const updatedData = {
+                          ...headerData,
+                          topBarColor: e.target.value,
+                        };
+                        setHeaderData(updatedData);
+                      }}
+                      onBlur={(e) => {
+                        // Save changes on blur
+                        saveChangesToAPI({
+                          ...headerData,
+                          topBarColor: e.target.value
+                        });
+                      }}
+                      className="w-full h-9 p-1"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set the background color of the top bar.
+                  </p>
+                </div>
+                
+                              <div className="space-y-3 pt-3 border-t">
+                <Label htmlFor="topBarTextColor" className="text-sm">
+                  Top Bar Text Color
+                </Label>
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-8 h-8 rounded border"
+                    style={{ backgroundColor: headerData.topBarTextColor || "#ffffff" }}
+                  />
+                  <Input
+                    id="topBarTextColor"
+                    type="color"
+                    value={headerData.topBarTextColor || "#ffffff"}
+                    onChange={(e) => {
+                      const updatedData = {
+                        ...headerData,
+                        topBarTextColor: e.target.value,
+                      };
+                      setHeaderData(updatedData);
+                    }}
+                    onBlur={(e) => {
+                      // Save changes on blur
+                      saveChangesToAPI({
+                        ...headerData,
+                        topBarTextColor: e.target.value
+                      });
+                    }}
+                    className="w-full h-9 p-1"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Set the text color for the top bar content.
+                </p>
+              </div>
+              
+              <div className="space-y-3 pt-3 border-t">
+                <Label htmlFor="mobileMenuButtonColor" className="text-sm">
+                  Mobile Menu Button Color
+                </Label>
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-8 h-8 rounded border"
+                    style={{ backgroundColor: headerData.mobileMenuButtonColor || "#3b71fe" }}
+                  />
+                  <Input
+                    id="mobileMenuButtonColor"
+                    type="color"
+                    value={headerData.mobileMenuButtonColor || "#3b71fe"}
+                    onChange={(e) => {
+                      const updatedData = {
+                        ...headerData,
+                        mobileMenuButtonColor: e.target.value,
+                      };
+                      setHeaderData(updatedData);
+                    }}
+                    onBlur={(e) => {
+                      // Save changes on blur
+                      saveChangesToAPI({
+                        ...headerData,
+                        mobileMenuButtonColor: e.target.value
+                      });
+                    }}
+                    className="w-full h-9 p-1"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Set the background color for the mobile menu toggle button.
+                </p>
+              </div>
+              </>
+            )}
+
+            {/* Add Working Hours section for Header3 and Header5 */}
+            {(headerData.headerComponent === "Header3" || headerData.headerComponent === "Header5") && (
+              <div className="space-y-3 pt-3 border-t">
+                <Label htmlFor="workingHours" className="text-sm">
+                  Working Hours
+                </Label>
+                <Input
+                  id="workingHours"
+                  value={headerData.workingHours || "Mon-Fri: 10:00am - 09:00pm"}
+                  onChange={(e) => {
+                    const updatedData = {
+                      ...headerData,
+                      workingHours: e.target.value,
+                    };
+                    setHeaderData(updatedData);
+                  }}
+                  onBlur={(e) => {
+                    // Save changes on blur
+                    saveChangesToAPI({
+                      ...headerData,
+                      workingHours: e.target.value
+                    });
+                  }}
+                  placeholder="Mon-Fri: 10:00am - 09:00pm"
+                  className="h-9 text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Set the working hours displayed in the top bar.
+                </p>
+              </div>
+            )}
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">

@@ -33,10 +33,26 @@ export default function MobileMenu({ isMobileMenu, handleMobileMenu, menuItems =
 				<div className="mobile-header-wrapper-inner">
 					<div className="mobile-header-logo">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
-							<img src={header?.logo?.src || "/assets/imgs/template/favicon.svg"} alt={header?.logo?.alt || "Logo"} />
+							<img 
+								src={header?.logo?.src || "/assets/imgs/template/favicon.svg"} 
+								alt={header?.logo?.alt || "Logo"}
+								style={{ 
+									maxWidth: '40px', 
+									maxHeight: '40px', 
+									width: 'auto', 
+									height: 'auto', 
+									objectFit: 'contain' 
+								}} 
+							/>
 							<span>{header?.logo?.text || ""}</span>
 						</Link>
-						<div className={`burger-icon burger-icon-white border rounded-3 ${isMobileMenu ? 'burger-close' : ''}`} onClick={handleMobileMenu}>
+						<div 
+							className={`burger-icon burger-icon-white border rounded-3 ${isMobileMenu ? 'burger-close' : ''}`} 
+							onClick={handleMobileMenu}
+							style={{ 
+								backgroundColor: header?.mobileMenuButtonColor || 'transparent' 
+							}}
+						>
 							<span className="burger-icon-top" />
 							<span className="burger-icon-mid" />
 							<span className="burger-icon-bottom" />
