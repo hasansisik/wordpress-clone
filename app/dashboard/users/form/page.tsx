@@ -3,6 +3,9 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useDispatch, useSelector } from 'react-redux'
+import { getAllContactForms, deleteContactForm } from '@/redux/actions/contactFormActions'
+import { AppDispatch, RootState } from '@/redux/store'
 import {
   ArrowLeft,
   Eye,
@@ -55,10 +58,10 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 
 interface FormSubmission {
-  id: string
+  _id: string
   name: string
   email: string
-  phone: string
+  phone?: string
   subject: string
   message: string
   createdAt: string
@@ -66,8 +69,8 @@ interface FormSubmission {
 
 export default function ContactFormSubmissions() {
   const router = useRouter()
-  const [submissions, setSubmissions] = useState<FormSubmission[]>([])
-  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch<AppDispatch>()
+  const { forms, loading, error } = useSelector((state: RootState) => state.contactForm)
   const [selectedSubmission, setSelectedSubmission] = useState<FormSubmission | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -75,21 +78,8 @@ export default function ContactFormSubmissions() {
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    const fetchSubmissions = async () => {
-      try {
-        const response = await fetch('/api/contact-form')
-        if (!response.ok) throw new Error('Failed to fetch submissions')
-        const data = await response.json()
-        setSubmissions(data)
-      } catch (error) {
-        console.error('Error fetching form submissions:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchSubmissions()
-  }, [])
+    dispatch(getAllContactForms())
+  }, [dispatch])
 
   const viewMessage = (submission: FormSubmission) => {
     setSelectedSubmission(submission)
@@ -106,21 +96,10 @@ export default function ContactFormSubmissions() {
     
     setIsDeleting(true)
     try {
-      const response = await fetch(`/api/contact-form?id=${deletingId}`, {
-        method: 'DELETE',
-      })
-      
-      if (response.ok) {
-        // Remove the deleted submission from the state
-        setSubmissions(prev => prev.filter(sub => sub.id !== deletingId))
-        toast.success('Submission deleted successfully')
-      } else {
-        const data = await response.json()
-        toast.error(data.error || 'Failed to delete submission')
-      }
-    } catch (error) {
-      console.error('Error deleting submission:', error)
-      toast.error('Failed to delete submission')
+      await dispatch(deleteContactForm(deletingId)).unwrap()
+      toast.success('Form başarıyla silindi')
+    } catch (error: any) {
+      toast.error(error || 'Form silinemedi')
     } finally {
       setIsDeleting(false)
       setDeleteDialogOpen(false)
@@ -129,7 +108,7 @@ export default function ContactFormSubmissions() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
+    return new Date(dateString).toLocaleString('tr-TR', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -180,7 +159,7 @@ export default function ContactFormSubmissions() {
           <div className="flex justify-center items-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : submissions.length === 0 ? (
+        ) : forms.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center h-64">
               <Mail className="h-12 w-12 text-muted-foreground mb-4" />
@@ -192,7 +171,7 @@ export default function ContactFormSubmissions() {
             <CardHeader>
               <CardTitle>All Submissions</CardTitle>
               <CardDescription>
-                You have {submissions.length} contact form {submissions.length === 1 ? 'submission' : 'submissions'} in total.
+                You have {forms.length} contact form {forms.length === 1 ? 'submission' : 'submissions'} in total.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -208,8 +187,8 @@ export default function ContactFormSubmissions() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {submissions.map((submission) => (
-                    <TableRow key={submission.id}>
+                  {forms.map((submission: FormSubmission) => (
+                    <TableRow key={submission._id}>
                       <TableCell className="font-medium">{submission.name}</TableCell>
                       <TableCell>{submission.email}</TableCell>
                       <TableCell>{submission.phone || "—"}</TableCell>
@@ -233,7 +212,7 @@ export default function ContactFormSubmissions() {
                             variant="outline" 
                             size="sm"
                             className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleDelete(submission.id)}
+                            onClick={() => handleDelete(submission._id)}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete

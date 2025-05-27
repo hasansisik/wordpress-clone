@@ -1,157 +1,105 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { v4 as uuidv4 } from 'uuid'
-import fs from 'fs'
-import path from 'path'
+import axios from 'axios'
+import { server } from '@/config'
 
-// Define the storage file path
-const dataFilePath = path.join(process.cwd(), 'data', 'contact-submissions.json')
-
-// Ensure the data directory exists
-const ensureDirectoryExists = () => {
-  const dir = path.join(process.cwd(), 'data')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-  
-  // Create empty array file if it doesn't exist
-  if (!fs.existsSync(dataFilePath)) {
-    fs.writeFileSync(dataFilePath, JSON.stringify([]), 'utf8')
-  }
-}
-
-// Function to read submissions
-const getSubmissions = () => {
-  ensureDirectoryExists()
+// POST - Create new contact form submission
+export async function POST(req: NextRequest) {
   try {
-    const fileContent = fs.readFileSync(dataFilePath, 'utf8')
-    return JSON.parse(fileContent)
-  } catch (error) {
-    console.error('Error reading submissions file:', error)
-    return []
-  }
-}
-
-// Function to save submissions
-const saveSubmission = (submission: any) => {
-  ensureDirectoryExists()
-  try {
-    const submissions = getSubmissions()
-    submissions.push(submission)
-    fs.writeFileSync(dataFilePath, JSON.stringify(submissions, null, 2), 'utf8')
-    return true
-  } catch (error) {
-    console.error('Error saving submission:', error)
-    return false
-  }
-}
-
-// Function to delete a submission
-const deleteSubmission = (id: string) => {
-  ensureDirectoryExists()
-  try {
-    const submissions = getSubmissions()
-    const filteredSubmissions = submissions.filter((sub: any) => sub.id !== id)
-    
-    // If no submissions were removed, return false
-    if (submissions.length === filteredSubmissions.length) {
-      return false
-    }
-    
-    fs.writeFileSync(dataFilePath, JSON.stringify(filteredSubmissions, null, 2), 'utf8')
-    return true
-  } catch (error) {
-    console.error('Error deleting submission:', error)
-    return false
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const data = await request.json()
+    const body = await req.json()
     
     // Validate required fields
-    if (!data.name || !data.email) {
+    if (!body.name || !body.email || !body.subject || !body.message) {
       return NextResponse.json(
-        { error: 'Name and email are required fields' },
+        { error: 'Lütfen tüm gerekli alanları doldurun' },
         { status: 400 }
       )
     }
     
-    const submission = {
-      id: uuidv4(),
-      name: data.name,
-      email: data.email,
-      phone: data.phone || '',
-      subject: data.subject || '',
-      message: data.message || '',
-      createdAt: new Date().toISOString()
-    }
+    // Send to backend - server already includes "/v1"
+    const response = await axios.post(`${server}/contact-form`, body)
     
-    const success = saveSubmission(submission)
-    
-    if (success) {
-      return NextResponse.json(
-        { message: 'Form submitted successfully', id: submission.id },
-        { status: 201 }
-      )
-    } else {
-      return NextResponse.json(
-        { error: 'Failed to save submission' },
-        { status: 500 }
-      )
-    }
-  } catch (error) {
-    console.error('Error processing form submission:', error)
+    return NextResponse.json(response.data, { status: 201 })
+  } catch (error: any) {
+    console.error('Contact form submission error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: error.response?.data?.message || 'Form gönderilemedi' },
+      { status: error.response?.status || 500 }
     )
   }
 }
 
-export async function GET() {
+// GET - Get all contact form submissions (authenticated)
+export async function GET(req: NextRequest) {
   try {
-    const submissions = getSubmissions()
-    return NextResponse.json(submissions)
-  } catch (error) {
-    console.error('Error retrieving submissions:', error)
+    // Get token from cookies or headers
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.split(' ')[1]
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Bu işlem için yetkiniz yok' },
+        { status: 401 }
+      )
+    }
+    
+    // server already includes "/v1"
+    const response = await axios.get(`${server}/contact-form`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    
+    return NextResponse.json(response.data, { status: 200 })
+  } catch (error: any) {
+    console.error('Get contact forms error:', error)
     return NextResponse.json(
-      { error: 'Failed to retrieve submissions' },
-      { status: 500 }
+      { error: error.response?.data?.message || 'Form verileri alınamadı' },
+      { status: error.response?.status || 500 }
     )
   }
 }
 
-export async function DELETE(request: NextRequest) {
+// DELETE - Delete a contact form submission (authenticated)
+export async function DELETE(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
+    // Get token from cookies or headers
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.split(' ')[1]
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Bu işlem için yetkiniz yok' },
+        { status: 401 }
+      )
+    }
+    
+    // Get the ID from URL params
+    const url = new URL(req.url)
+    const id = url.searchParams.get('id')
     
     if (!id) {
       return NextResponse.json(
-        { error: 'Submission ID is required' },
+        { error: 'Form ID gerekli' },
         { status: 400 }
       )
     }
     
-    const success = deleteSubmission(id)
+    // server already includes "/v1"
+    await axios.delete(`${server}/contact-form?id=${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
     
-    if (success) {
-      return NextResponse.json(
-        { message: 'Submission deleted successfully' },
-        { status: 200 }
-      )
-    } else {
-      return NextResponse.json(
-        { error: 'Submission not found' },
-        { status: 404 }
-      )
-    }
-  } catch (error) {
-    console.error('Error deleting submission:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { message: 'Form başarıyla silindi' },
+      { status: 200 }
+    )
+  } catch (error: any) {
+    console.error('Delete contact form error:', error)
+    return NextResponse.json(
+      { error: error.response?.data?.message || 'Form silinemedi' },
+      { status: error.response?.status || 500 }
     )
   }
 } 

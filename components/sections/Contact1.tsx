@@ -12,6 +12,7 @@ interface Contact1Props {
 
 export default function Contact1({ previewData }: Contact1Props = {}) {
 	const [data, setData] = useState<any>(null)
+	const [isSubmitting, setIsSubmitting] = useState(false)
 	const dispatch = useDispatch<AppDispatch>()
 	const { other, loading } = useSelector((state: RootState) => state.other)
 
@@ -36,6 +37,46 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 	if (!data || loading) {
 		return <section>Contact1 Yükleniyor...</section>
 	}
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setIsSubmitting(true);
+		
+		try {
+			const formData = new FormData(e.currentTarget);
+			const formValues = {
+				name: formData.get('name') as string,
+				email: formData.get('email') as string,
+				phone: formData.get('phone') as string || '',
+				subject: formData.get('subject') as string,
+				message: formData.get('message') as string
+			};
+
+			// Send the form data to our API
+			const response = await fetch('/api/contact-form', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(formValues),
+			});
+			
+			const responseData = await response.json();
+			
+			if (!response.ok) {
+				throw new Error(responseData.error || 'Form gönderilemedi');
+			}
+			
+			toast.success('Mesajınız başarıyla gönderildi!');
+			// Reset the form
+			e.currentTarget.reset();
+		} catch (error: any) {
+			console.error('Form gönderiminde hata:', error);
+			toast.error(error.message || 'Form gönderilemedi. Lütfen tekrar deneyin.');
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
 	return (
 		<>
@@ -110,40 +151,7 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 							<div className="row">
 								<div className="col-lg-6 ps-lg-0 pb-5 pb-lg-0">
 									<h4>{data.formTitle}</h4>
-									<form onSubmit={(e) => {
-										e.preventDefault();
-										const formData = new FormData(e.currentTarget);
-										const formValues = {
-											name: formData.get('name') as string,
-											email: formData.get('email') as string,
-											phone: formData.get('phone') as string || '',
-											subject: formData.get('subject') as string || '',
-											message: formData.get('message') as string || ''
-										};
-
-										// Send the form data to our API
-										fetch('/api/contact-form', {
-											method: 'POST',
-											headers: {
-												'Content-Type': 'application/json',
-											},
-											body: JSON.stringify(formValues),
-										})
-										.then(response => response.json())
-										.then(data => {
-											if (data.error) {
-												toast.error('Hata: ' + data.error);
-											} else {
-												toast.success('Mesajınız başarıyla gönderildi!');
-												// Reset the form
-												e.currentTarget.reset();
-											}
-										})
-										.catch(error => {
-											console.error('Form gönderiminde hata:', error);
-											toast.error('Form gönderilemedi. Lütfen tekrar deneyin.');
-										});
-									}}>
+									<form onSubmit={handleSubmit}>
 										<div className="row mt-5">
 											<div className="col-md-6">
 												<div className="input-group d-flex align-items-center">
@@ -200,8 +208,8 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 												</div>
 											</div>
 											<div className="col-12">
-												<button type="submit" className="btn bg-primary text-white hover-up mt-4">
-													Mesaj Gönder
+												<button type="submit" className="btn bg-primary text-white hover-up mt-4" disabled={isSubmitting}>
+													{isSubmitting ? 'Gönderiliyor...' : 'Mesaj Gönder'}
 													<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
 														<path className="stroke-white" d="M21.1059 12.2562H0.5V11.7443H21.1059H22.313L21.4594 10.8907L17.0558 6.48705L17.4177 6.12508L23.2929 12.0002L17.4177 17.8754L17.0558 17.5134L21.4594 13.1098L22.313 12.2562H21.1059Z" fill="black" stroke="white" />
 													</svg>

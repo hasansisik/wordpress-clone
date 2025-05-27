@@ -10,6 +10,7 @@ import { ctaReducer } from './reducers/ctaReducer';
 import faqReducer from './reducers/faqReducer';
 import otherReducer from './reducers/otherReducer';
 import generalReducer from "./reducers/generalReducer";
+import contactFormReducer from "./reducers/contactFormReducer";
 
 export const store = configureStore({
   reducer: {
@@ -23,6 +24,7 @@ export const store = configureStore({
     faq: faqReducer,
     other: otherReducer,
     general: generalReducer,
+    contactForm: contactFormReducer,
   },
   devTools: process.env.NODE_ENV !== 'production',
   middleware: (getDefaultMiddleware) =>
