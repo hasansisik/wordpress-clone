@@ -179,7 +179,10 @@ const initialState: OtherState = {
       linkUrl: "#",
       backgroundColor: "#ffffff",
       buttonColor: "#6342EC",
-      buttonTextColor: "#FFFFFF"
+      buttonTextColor: "#FFFFFF",
+      filterAllText: "Hepsi",
+      filterButtonColor: "#6342EC",
+      filterButtonTextColor: "#FFFFFF"
     },
     project2: {
       title: "Our featured projects",

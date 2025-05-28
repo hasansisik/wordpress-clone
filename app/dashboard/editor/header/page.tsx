@@ -94,6 +94,9 @@ interface HeaderData {
   topBarColor: string;
   topBarTextColor: string;
   mobileMenuButtonColor: string;
+  phoneIconBgColor?: string;
+  phoneIconColor?: string;
+  phoneQuestionText?: string;
 }
 
 // Topbar item tipleri ve iconları için sabit listeler
@@ -1579,6 +1582,110 @@ function HeaderEditorContent({
                   Set the working hours displayed in the top bar.
                 </p>
               </div>
+            )}
+
+            {/* Add Phone Icon settings for Header5 */}
+            {headerData.headerComponent === "Header5" && (
+              <>
+                <div className="space-y-3 pt-3 border-t">
+                  <Label htmlFor="phoneIconBgColor" className="text-sm">
+                    Phone Icon Background Color
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-8 h-8 rounded border"
+                      style={{ backgroundColor: headerData.phoneIconBgColor || "#3b71fe" }}
+                    />
+                    <Input
+                      id="phoneIconBgColor"
+                      type="color"
+                      value={headerData.phoneIconBgColor || "#3b71fe"}
+                      onChange={(e) => {
+                        const updatedData = {
+                          ...headerData,
+                          phoneIconBgColor: e.target.value,
+                        };
+                        setHeaderData(updatedData);
+                      }}
+                      onBlur={(e) => {
+                        // Save changes on blur
+                        saveChangesToAPI({
+                          ...headerData,
+                          phoneIconBgColor: e.target.value
+                        });
+                      }}
+                      className="w-full h-9 p-1"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set the background color for the phone icon in the header.
+                  </p>
+                </div>
+
+                <div className="space-y-3 pt-3 border-t">
+                  <Label htmlFor="phoneIconColor" className="text-sm">
+                    Phone Icon Color
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-8 h-8 rounded border"
+                      style={{ backgroundColor: headerData.phoneIconColor || "#ffffff" }}
+                    />
+                    <Input
+                      id="phoneIconColor"
+                      type="color"
+                      value={headerData.phoneIconColor || "#ffffff"}
+                      onChange={(e) => {
+                        const updatedData = {
+                          ...headerData,
+                          phoneIconColor: e.target.value,
+                        };
+                        setHeaderData(updatedData);
+                      }}
+                      onBlur={(e) => {
+                        // Save changes on blur
+                        saveChangesToAPI({
+                          ...headerData,
+                          phoneIconColor: e.target.value
+                        });
+                      }}
+                      className="w-full h-9 p-1"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set the color of the phone icon in the header.
+                  </p>
+                </div>
+
+                <div className="space-y-3 pt-3 border-t">
+                  <Label htmlFor="phoneQuestionText" className="text-sm">
+                    Phone Question Text
+                  </Label>
+                  <Input
+                    id="phoneQuestionText"
+                    value={headerData.phoneQuestionText || "Have Any Questions?"}
+                    onChange={(e) => {
+                      const updatedData = {
+                        ...headerData,
+                        phoneQuestionText: e.target.value,
+                      };
+                      setHeaderData(updatedData);
+                    }}
+                    onBlur={(e) => {
+                      // Save changes on blur
+                      saveChangesToAPI({
+                        ...headerData,
+                        phoneQuestionText: e.target.value
+                      });
+                    }}
+                    placeholder="Have Any Questions?"
+                    className="h-9 text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set the question text displayed above the phone number.
+                  </p>
+                </div>
+              </>
             )}
 
             <div className="space-y-3">

@@ -31,6 +31,9 @@ export interface HeaderPayload {
   topBarColor?: string;
   topBarTextColor?: string;
   mobileMenuButtonColor?: string;
+  phoneIconBgColor?: string;
+  phoneIconColor?: string;
+  phoneQuestionText?: string;
 }
 
 // Get header data

@@ -133,6 +133,9 @@ export interface OtherPayload {
     backgroundColor?: string;
     buttonColor?: string;
     buttonTextColor?: string;
+    filterAllText?: string;
+    filterButtonColor?: string;
+    filterButtonTextColor?: string;
   };
   project2?: {
     title?: string;

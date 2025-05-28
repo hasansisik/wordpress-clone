@@ -61,7 +61,7 @@ export default function Cta3({ previewData }: Cta3Props = {}) {
 
 	return (
 		<>
-			<section className="section-cta-12 bg-3 position-relative section-padding fix">
+			<section className="section-cta-12 position-relative section-padding fix">
 				<div className="container">
 					<div className="row">
 						<div className="col-lg-5">

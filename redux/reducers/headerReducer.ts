@@ -62,7 +62,12 @@ const initialState: HeaderState = {
     actionButtonLink: "/",
     headerComponent: "Header1",
     workingHours: "Mon-Fri: 10:00am - 09:00pm",
-    topBarColor: "#3b71fe"
+    topBarColor: "#3b71fe",
+    topBarTextColor: "#ffffff",
+    mobileMenuButtonColor: "transparent",
+    phoneIconBgColor: "#3b71fe",
+    phoneIconColor: "#ffffff",
+    phoneQuestionText: "Have Any Questions?"
   },
   loading: false,
   error: null,

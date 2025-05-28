@@ -66,63 +66,63 @@ export default function Services5({ previewData }: Services5Props) {
 		}
 	}, [previewData, other]);
 
-	// Initialize Isotope when services and container are ready
-	useEffect(() => {
+	const initializeIsotope = useCallback(async () => {
 		// Check if we have services data and the container is rendered
 		if (!services || services.length === 0 || !containerRef.current) {
 			return;
 		}
 
-		// Import Isotope dynamically only on the client side
-		if (typeof window !== 'undefined') {
-			const initializeIsotope = async () => {
-				try {
-					// Clean up existing instance if it exists
-					if (isotope.current) {
-						isotope.current.destroy();
-						isotope.current = null;
+		try {
+			// Clean up existing instance if it exists
+			if (isotope.current) {
+				isotope.current.destroy();
+				isotope.current = null;
+			}
+
+			const { default: Isotope } = await import('isotope-layout');
+			
+			// Make sure container still exists after async import
+			if (containerRef.current) {
+				// Initialize with fitRows layout instead of masonry for more consistent alignment
+				isotope.current = new Isotope(containerRef.current, {
+					itemSelector: '.filter-item',
+					layoutMode: 'fitRows',
+					fitRows: {
+						gutter: 0
 					}
-
-					const { default: Isotope } = await import('isotope-layout');
-					
-					// Make sure container still exists after async import
-					if (containerRef.current) {
-						// Initialize with fitRows layout instead of masonry for more consistent alignment
-						isotope.current = new Isotope(containerRef.current, {
-							itemSelector: '.filter-item',
-							layoutMode: 'fitRows',
-							fitRows: {
-								gutter: 0
-							}
-						});
-						setIsotopeReady(true);
-						
-						// Arrange items based on current filter
-						if (filterKey !== '*') {
-							isotope.current.arrange({ filter: `.${filterKey}` });
-						}
-					}
-				} catch (error) {
-					console.error('Error initializing Isotope:', error);
+				});
+				setIsotopeReady(true);
+				
+				// Apply the current filter immediately
+				if (filterKey !== '*') {
+					isotope.current.arrange({ filter: `.${filterKey}` });
 				}
-			};
-
-			// Initialize with a slight delay to ensure DOM is ready
-			const timer = setTimeout(() => {
-				initializeIsotope();
-			}, 300); // Increased delay to ensure DOM is fully ready
-
-			return () => {
-				clearTimeout(timer);
-				// Cleanup on unmount
-				if (isotope.current) {
-					isotope.current.destroy();
-				}
-			};
+			}
+		} catch (error) {
+			console.error('Error initializing Isotope:', error);
 		}
-	}, [services]); // Re-run when services change
+	}, [services, filterKey]);
 
-	// Apply filter when filterKey changes
+	// Initialize Isotope when services and container are ready
+	useEffect(() => {
+		// Only run on client-side
+		if (typeof window === 'undefined') return;
+
+		// Initialize with a slight delay to ensure DOM is ready
+		const timer = setTimeout(() => {
+			initializeIsotope();
+		}, 300);
+
+		return () => {
+			clearTimeout(timer);
+			// Cleanup on unmount
+			if (isotope.current) {
+				isotope.current.destroy();
+			}
+		};
+	}, [services, initializeIsotope]);
+
+	// Apply filter when filterKey changes and isotope is ready
 	useEffect(() => {
 		if (isotope.current && isotopeReady) {
 			const filterSelector = filterKey === '*' ? '*' : `.${filterKey}`;
@@ -130,11 +130,30 @@ export default function Services5({ previewData }: Services5Props) {
 		}
 	}, [filterKey, isotopeReady]);
 
+	// Re-layout isotope when window is resized
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+
+		const handleResize = () => {
+			if (isotope.current) {
+				isotope.current.layout();
+			}
+		};
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, [isotopeReady]);
+
 	const handleFilterKeyChange = useCallback((key: string) => () => {
 		setFilterKey(key);
 	}, []);
 
-	const activeBtn = (value: string) => (value === filterKey ? "active btn btn-md btn-filter mb-2 me-2" : "btn btn-md btn-filter mb-2 me-2");
+	const activeBtn = (value: string) => {
+		if (value === filterKey) {
+			return "active btn btn-md btn-filter mb-2 me-2";
+		}
+		return "btn btn-md btn-filter mb-2 me-2";
+	};
 
 	if (servicesLoading || otherLoading || !data) {
 		return (
@@ -175,6 +194,12 @@ export default function Services5({ previewData }: Services5Props) {
 		color: data.buttonTextColor || "#FFFFFF"
 	};
 
+	// Create styles for filter buttons
+	const activeFilterButtonStyle = {
+		backgroundColor: data.filterButtonColor || "#6342EC",
+		color: data.filterButtonTextColor || "#FFFFFF"
+	};
+
 	return (
 		<>
 			{/* Services 5 */}
@@ -193,14 +218,19 @@ export default function Services5({ previewData }: Services5Props) {
 					</div>
 					<div className="text-center mt-6">
 						<div className="button-group filter-button-group filter-menu-active">
-							<button className={activeBtn("*")} onClick={handleFilterKeyChange("*")}>
-								Hepsi
+							<button 
+								className={activeBtn("*")} 
+								onClick={handleFilterKeyChange("*")}
+								style={filterKey === "*" ? activeFilterButtonStyle : undefined}
+							>
+								{data.filterAllText || "Hepsi"}
 							</button>
 							{Array.isArray(categories) && categories.length > 0 && categories.map((category) => (
 								<button 
 									key={category.id} 
 									className={activeBtn(category.id)} 
 									onClick={handleFilterKeyChange(category.id)}
+									style={filterKey === category.id ? activeFilterButtonStyle : undefined}
 								>
 									{category.name}
 								</button>

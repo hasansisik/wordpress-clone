@@ -139,14 +139,25 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 								{header.topBarItems && header.topBarItems.map((item: any, index: number) => {
 									if (item.name === "Phone" && item.content) {
 										return (
-											<div key={index}>
-												<a href={`tel:${item.content.replace(/\s+/g, '')}`} className="icon-shape icon-lg bg-linear-2 rounded-circle mx-3">
+											<div key={index} className="d-flex flex-row align-items-center" >
+												<a href={`tel:${item.content.replace(/\s+/g, '')}`} 
+													className="icon-shape icon-lg rounded-circle mx-3"
+													style={{ 
+														backgroundColor: header.phoneIconBgColor || '#3b71fe'
+													}}
+												>
 													<svg className="d-block" xmlns="http://www.w3.org/2000/svg" width={25} height={25} viewBox="0 0 25 25" fill="none">
-														<path className="stroke-white" d="M9.39286 5.25H6.56818C5.84017 5.25 5.25 5.84017 5.25 6.56818C5.25 13.8483 11.1517 19.75 18.4318 19.75C19.1598 19.75 19.75 19.1598 19.75 18.4318V15.6071L16.6429 13.5357L15.0317 15.1468C14.7519 15.4267 14.3337 15.5137 13.9821 15.3321C13.3858 15.024 12.4181 14.4452 11.4643 13.5357C10.4877 12.6045 9.91548 11.6011 9.62829 10.994C9.46734 10.6537 9.56052 10.2609 9.82669 9.99474L11.4643 8.35714L9.39286 5.25Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+														<path 
+															d="M9.39286 5.25H6.56818C5.84017 5.25 5.25 5.84017 5.25 6.56818C5.25 13.8483 11.1517 19.75 18.4318 19.75C19.1598 19.75 19.75 19.1598 19.75 18.4318V15.6071L16.6429 13.5357L15.0317 15.1468C14.7519 15.4267 14.3337 15.5137 13.9821 15.3321C13.3858 15.024 12.4181 14.4452 11.4643 13.5357C10.4877 12.6045 9.91548 11.6011 9.62829 10.994C9.46734 10.6537 9.56052 10.2609 9.82669 9.99474L11.4643 8.35714L9.39286 5.25Z" 
+															stroke={header.phoneIconColor || "#ffffff"}
+															strokeWidth="1.5" 
+															strokeLinecap="round" 
+															strokeLinejoin="round" 
+														/>
 													</svg>
 												</a>
-												<div>
-													<p className="mb-0 text-500 fs-8">Have Any Questions?</p>
+												<div >
+													<p className="mb-0 text-500 fs-8">{header.phoneQuestionText || "Have Any Questions?"}</p>
 													<p className="mb-0 text-900 fw-bold">{item.content}</p>
 												</div>
 											</div>

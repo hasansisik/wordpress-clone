@@ -1035,6 +1035,25 @@ function Services5ContentForm({ data }: { data: any }) {
         path="services5.descriptionColor"
       />
 
+      <FormGroup title="Filter Buttons">
+        <TextField
+          label="All Filter Text"
+          value={data?.filterAllText || "Hepsi"}
+          path="services5.filterAllText"
+          placeholder="e.g. All"
+        />
+        <ColorField
+          label="Active Filter Button Color"
+          value={data?.filterButtonColor || "#6342EC"}
+          path="services5.filterButtonColor"
+        />
+        <ColorField
+          label="Filter Button Text Color"
+          value={data?.filterButtonTextColor || "#FFFFFF"}
+          path="services5.filterButtonTextColor"
+        />
+      </FormGroup>
+
       <FormGroup title="Primary Button">
         <ToggleField
           label="Show Button"
