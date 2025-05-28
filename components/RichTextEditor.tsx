@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
+import { Node as TiptapNode } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import ImageResize from 'tiptap-extension-resize-image';
 import {
   Bold,
   Italic,
@@ -31,6 +33,11 @@ import {
   Heading3,
   Palette,
   Eye,
+  Video as VideoIcon,
+  Youtube,
+  Move,
+  Maximize,
+  Minimize,
 } from 'lucide-react';
 import { uploadImageToCloudinary } from '@/utils/cloudinary';
 
@@ -40,6 +47,115 @@ interface RichTextEditorProps {
   className?: string;
   placeholder?: string;
 }
+
+// Custom extension for YouTube and Vimeo videos
+const VideoExtension = TiptapNode.create({
+  name: 'video',
+  group: 'block',
+  atom: true,
+  
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      width: {
+        default: '100%',
+      },
+      height: {
+        default: '400px',
+      },
+      provider: {
+        default: 'youtube', // youtube or vimeo
+      },
+      videoId: {
+        default: null,
+      },
+      align: {
+        default: 'center', // 'left', 'center', 'right', 'full'
+        parseHTML: element => element.getAttribute('align') || 'center',
+        renderHTML: attributes => {
+          return {
+            align: attributes.align || 'center',
+          }
+        }
+      },
+      // Boyutlandırma işlemi için ekstra attr ekleyelim
+      isResizable: {
+        default: true,
+        parseHTML: () => true,
+        renderHTML: () => ({})
+      }
+    }
+  },
+  
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-video]',
+      },
+    ]
+  },
+  
+  renderHTML({ HTMLAttributes }: { HTMLAttributes: Record<string, any> }) {
+    const { provider, videoId, width, height, align } = HTMLAttributes;
+    
+    let embedUrl = '';
+    if (provider === 'youtube') {
+      embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (provider === 'vimeo') {
+      embedUrl = `https://player.vimeo.com/video/${videoId}`;
+    }
+    
+    // Convert align value to HTML attributes and inline styles
+    let style = '';
+    let alignAttr = align;
+    
+    if (align === 'full') {
+      style = 'display: block; width: 100%; margin-left: auto; margin-right: auto;';
+      alignAttr = 'center';
+    } else if (align === 'center') {
+      style = 'display: block; margin-left: auto; margin-right: auto;';
+    } else if (align === 'left') {
+      style = 'float: left; margin-right: 1rem; max-width: 50%;';
+    } else if (align === 'right') {
+      style = 'float: right; margin-left: 1rem; max-width: 50%;';
+    }
+    
+    return [
+      'div', 
+      { 
+        class: 'video-embed resizable-video', 
+        'data-video': '', 
+        style: `position: relative; margin: 1em 0; ${style}`,
+        align: alignAttr
+      }, 
+      ['iframe', { 
+        src: embedUrl,
+        width: width || '100%',
+        height: height || '400px',
+        frameborder: '0',
+        allowfullscreen: 'true',
+      }],
+    ];
+  },
+});
+
+// Helper function to extract video ID from URLs
+const getVideoId = (url: string, provider: 'youtube' | 'vimeo'): string | null => {
+  if (provider === 'youtube') {
+    // Match YouTube URL patterns - daha geniş regex ile farklı URL biçimlerini destekle
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i;
+    const match = url.match(youtubeRegex);
+    return match ? match[1] : null;
+  } else if (provider === 'vimeo') {
+    // Match Vimeo URL patterns
+    const vimeoRegex = /(?:https?:\/\/)?(?:www\.)?(?:vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|)(\d+)(?:$|\/|\?))/i;
+    const match = url.match(vimeoRegex);
+    return match ? match[1] : null;
+  }
+  return null;
+};
 
 // Stil sınıfları için sabit
 const editorClasses = 'prose prose-sm sm:prose lg:prose-lg prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-sm prose-p:my-3 prose-ul:list-disc prose-ol:list-decimal prose-li:my-1 prose-img:rounded-md prose-img:mx-auto focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-0';
@@ -58,9 +174,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [viewMode, setViewMode] = useState<'edit' | 'code'>('edit');
   const [htmlContent, setHtmlContent] = useState(content);
+  const [isVideoMenuOpen, setIsVideoMenuOpen] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoProvider, setVideoProvider] = useState<'youtube' | 'vimeo'>('youtube');
+  const [selectedImageNode, setSelectedImageNode] = useState<any>(null);
+  const [selectedVideoNode, setSelectedVideoNode] = useState<any>(null);
+  const [selectedNodeAlign, setSelectedNodeAlign] = useState<string>('center');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
 
   // Update htmlContent when content prop changes
   useEffect(() => {
@@ -98,10 +221,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           },
         },
       }),
-      Image.configure({
+      ImageResize.configure({
+        inline: true,
         HTMLAttributes: {
-          class: 'rounded-md max-w-full mb-4',
-        },
+          class: 'tiptap-resize-image',
+          style: 'display: inline-block; max-width: 100%'
+        }
       }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
@@ -117,12 +242,29 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           class: 'text-blue-600 underline',
         },
       }),
+      VideoExtension,
     ],
     content: content,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       onChange(html);
       setHtmlContent(html);
+    },
+    onSelectionUpdate: ({ editor }) => {
+      // Check if the selection contains an image
+      const imageNode = editor.isActive('image') ? editor.getAttributes('image') : null;
+      setSelectedImageNode(imageNode);
+      
+      // Check if the selection contains a video
+      const videoNode = editor.isActive('video') ? editor.getAttributes('video') : null;
+      setSelectedVideoNode(videoNode);
+      
+      // Update selected node alignment
+      if (imageNode) {
+        setSelectedNodeAlign(imageNode.align || 'center');
+      } else if (videoNode) {
+        setSelectedNodeAlign(videoNode.align || 'center');
+      }
     },
     editorProps: {
       attributes: {
@@ -169,14 +311,84 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const insertImage = () => {
     if (editor && imageUrl) {
+      // First insert the image
       editor
         .chain()
         .focus()
-        .setImage({ src: imageUrl, alt: 'Blog image' })
+        .setImage({ 
+          src: imageUrl, 
+          alt: 'Blog image',
+        })
+        .run();
+      
+      // Then separately update the attributes for width/height
+      editor
+        .chain()
+        .focus()
+        .updateAttributes('image', { 
+          width: '100%',
+          height: 'auto' 
+        })
         .run();
       
       setImageUrl('');
       setIsImageMenuOpen(false);
+    }
+  };
+
+  const updateSelectedImage = () => {
+    if (editor && selectedImageNode) {
+      editor
+        .chain()
+        .focus()
+        .updateAttributes('image', { 
+          align: selectedNodeAlign
+        })
+        .run();
+    }
+  };
+
+  const insertVideo = () => {
+    if (editor && videoUrl) {
+      const videoId = getVideoId(videoUrl, videoProvider);
+      
+      if (videoId) {
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: 'video',
+            attrs: {
+              videoId,
+              provider: videoProvider,
+              width: '100%',
+              height: '400px'
+            }
+          })
+          .run();
+        
+        setVideoUrl('');
+        setIsVideoMenuOpen(false);
+      } else {
+        // URL'den video ID çıkarılamadığında kullanıcıya daha yardımcı bir mesaj göster
+        alert(`Geçersiz ${videoProvider === 'youtube' ? 'YouTube' : 'Vimeo'} URL'si. Lütfen doğru bir bağlantı girin.\n\nÖrnek: ${
+          videoProvider === 'youtube' 
+            ? 'https://www.youtube.com/watch?v=abcdefghijk veya https://youtu.be/abcdefghijk' 
+            : 'https://vimeo.com/123456789'
+        }`);
+      }
+    }
+  };
+
+  const updateSelectedVideo = () => {
+    if (editor && selectedVideoNode) {
+      editor
+        .chain()
+        .focus()
+        .updateAttributes('video', { 
+          align: selectedNodeAlign
+        })
+        .run();
     }
   };
 
@@ -276,6 +488,128 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   useEffect(() => {
     setTimeout(() => {
       editor?.commands.focus('end');
+      
+      // Görüntü ve video boyutlandırma sorununu düzeltmek için ölçeklendirilmesini sağlayalım
+      if (editor) {
+        // Görüntüleri boyutlandır
+        const images = document.querySelectorAll('.ProseMirror img');
+        images.forEach((img) => {
+          // TypeScript için HTMLImageElement türünü belirtelim
+          const imageElement = img as HTMLImageElement;
+          
+          // Görüntünün orijinal boyutlarını koruyalım, ancak çok büyükse ölçeklendirelim
+          if (imageElement.naturalWidth > 800) {
+            imageElement.setAttribute('width', '800');
+            imageElement.style.height = 'auto';
+            imageElement.style.maxWidth = '100%';
+          } else {
+            // Orijinal boyutunu koruyalım
+            imageElement.setAttribute('width', imageElement.naturalWidth.toString());
+            imageElement.style.height = 'auto';
+          }
+        });
+        
+        // Video yeniden boyutlandırma işlemleri
+        const videos = document.querySelectorAll('.ProseMirror .video-embed');
+        videos.forEach((videoContainer) => {
+          // Video containerına boyutlandırma işaretçilerini ekle
+          const iframe = videoContainer.querySelector('iframe');
+          if (iframe) {
+            videoContainer.classList.add('resizable-container');
+            
+            // Video boyutlarını sakla
+            const width = iframe.getAttribute('width') || '100%';
+            const height = iframe.getAttribute('height') || '400px';
+            
+            videoContainer.setAttribute('data-original-width', width);
+            videoContainer.setAttribute('data-original-height', height);
+          }
+        });
+        
+        // Videolara resize işlemi ekleyelim - manuel tıklama olayları
+        const setupVideoResizeHandlers = () => {
+          const resizableVideos = document.querySelectorAll('.resizable-video');
+          resizableVideos.forEach((container) => {
+            // Eğer daha önce işaretleyici eklenmemişse ekle
+            if (!container.querySelector('.video-resize-handle')) {
+              const resizeHandle = document.createElement('div');
+              resizeHandle.className = 'video-resize-handle';
+              container.appendChild(resizeHandle);
+              
+              // Boyutlandırma işlemi için olay dinleyicileri ekle
+              let isResizing = false;
+              let initialWidth = 0;
+              let initialX = 0;
+              
+              resizeHandle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                isResizing = true;
+                
+                // İlk tıklama noktasını ve genişliği kaydet
+                const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+                if (iframe) {
+                  initialWidth = iframe.offsetWidth;
+                  initialX = e.clientX;
+                  
+                  // Video seçiliyken stil ekle
+                  container.classList.add('resizing');
+                }
+                
+                // Mouse hareketlerini takip et
+                const onMouseMove = (moveEvent: MouseEvent) => {
+                  if (isResizing) {
+                    const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+                    if (iframe) {
+                      // Yeni genişliği hesapla
+                      const deltaX = moveEvent.clientX - initialX;
+                      const newWidth = Math.max(200, initialWidth + deltaX);
+                      
+                      // Video genişliğini güncelle
+                      iframe.style.width = `${newWidth}px`;
+                      (container as HTMLElement).style.width = `${newWidth}px`;
+                    }
+                  }
+                };
+                
+                // Mouse bırakıldığında olayları temizle
+                const onMouseUp = () => {
+                  isResizing = false;
+                  container.classList.remove('resizing');
+                  
+                  // Olayları temizle
+                  document.removeEventListener('mousemove', onMouseMove);
+                  document.removeEventListener('mouseup', onMouseUp);
+                  
+                  // Editörü güncelle - değişiklikleri kaydet
+                  const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+                  if (iframe && editor) {
+                    const videoNode = editor.state.doc.nodeAt(editor.state.selection.anchor);
+                    if (videoNode && videoNode.type.name === 'video') {
+                      editor.commands.updateAttributes('video', {
+                        width: iframe.style.width
+                      });
+                    }
+                  }
+                };
+                
+                // Global olayları ekle
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+              });
+            }
+          });
+        };
+        
+        // Video boyutlandırma işaretçilerini ayarla
+        setupVideoResizeHandlers();
+        
+        // Editör içeriği değiştiğinde işaretçileri güncelle
+        editor.on('update', () => {
+          setTimeout(() => {
+            setupVideoResizeHandlers();
+          }, 100);
+        });
+      }
     }, 100);
   }, [editor]);
 
@@ -299,6 +633,130 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     '#f2f2f2', '#ffffff', '#ff0000', '#ff9900', '#ffff00', 
     '#00ff00', '#00ffff', '#0000ff', '#9900ff', '#ff00ff'
   ];
+
+  // Function to set alignment for selected node
+  const setNodeAlignment = (align: string) => {
+    if (!editor) return;
+    
+    if (editor.isActive('image')) {
+      editor.chain().focus().updateAttributes('image', { align }).run();
+      setSelectedNodeAlign(align);
+      updateSelectedImage();
+    } else if (editor.isActive('video')) {
+      editor.chain().focus().updateAttributes('video', { align }).run();
+      setSelectedNodeAlign(align);
+      updateSelectedVideo();
+    }
+  };
+
+  // Özel CSS stili ekleyelim
+  useEffect(() => {
+    // Görüntü boyutlandırma için özel CSS ekle
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      /* Ana resim stilleri */
+      .tiptap-resize-image {
+        display: inline-block;
+        max-width: 100%;
+        height: auto;
+        transition: all 0.2s ease;
+      }
+      
+      /* TipTap tarafından eklenen boyutlandırma işaretlerini ve kontrolleri iyileştir */
+      .ProseMirror-selectednode {
+        outline: 2px solid #0096fd;
+        border-radius: 2px;
+      }
+      
+      /* Resize kontrollerini özelleştir */
+      .image-resizer {
+        display: inline-flex;
+        position: relative;
+        flex-grow: 0;
+      }
+      
+      .image-resizer .resize-trigger {
+        position: absolute;
+        right: -6px;
+        bottom: -6px;
+        width: 12px;
+        height: 12px;
+        background-color: #0096fd;
+        border-radius: 50%;
+        border: 2px solid white;
+        opacity: 1;
+        cursor: se-resize;
+        z-index: 10;
+      }
+      
+      /* Boyutlandırma sırasında tıklama olaylarını engelle */
+      .image-resizer.resizing * {
+        pointer-events: none;
+      }
+      
+      /* Görüntü seçildiğinde çerçeve ekle */
+      .image-resizer.ProseMirror-selectednode img {
+        border: 2px solid #0096fd;
+        border-radius: 2px;
+      }
+      
+      /* Video boyutlandırma stilleri */
+      .resizable-video {
+        position: relative;
+        display: block;
+        width: 100%;
+        margin: 1em auto;
+        transition: all 0.2s ease;
+      }
+      
+      .resizable-video.resizing {
+        outline: 2px dashed #0096fd;
+      }
+      
+      .resizable-video iframe {
+        display: block;
+        width: 100%;
+        height: 400px;
+        margin: 0 auto;
+      }
+      
+      .video-resize-handle {
+        position: absolute;
+        right: -10px;
+        bottom: 0;
+        width: 20px;
+        height: 20px;
+        background-color: #0096fd;
+        border-radius: 50%;
+        border: 2px solid white;
+        cursor: e-resize;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 10;
+      }
+      
+      .resizable-video:hover .video-resize-handle {
+        opacity: 1;
+      }
+      
+      .resizable-container {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+      }
+      
+      /* ProseMirror seçimi video için */
+      .ProseMirror-selectednode.video-embed {
+        outline: 2px solid #0096fd;
+        border-radius: 4px;
+      }
+    `;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   if (!editor) {
     return null;
@@ -419,8 +877,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <div className="flex gap-1 items-center mr-2">
             <Button
               size="icon"
-              variant={editor.isActive('heading', { level: 1 }) ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+              variant={editor?.isActive('heading', { level: 1 }) ? 'default' : 'outline'}
+              onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
               type="button"
               title="Heading 1"
             >
@@ -428,8 +886,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </Button>
             <Button
               size="icon"
-              variant={editor.isActive('heading', { level: 2 }) ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              variant={editor?.isActive('heading', { level: 2 }) ? 'default' : 'outline'}
+              onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
               type="button"
               title="Heading 2"
             >
@@ -437,8 +895,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </Button>
             <Button
               size="icon"
-              variant={editor.isActive('heading', { level: 3 }) ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+              variant={editor?.isActive('heading', { level: 3 }) ? 'default' : 'outline'}
+              onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
               type="button"
               title="Heading 3"
             >
@@ -449,8 +907,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <div className="flex gap-1 items-center mr-2">
             <Button
               size="icon"
-              variant={editor.isActive('bulletList') ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
+              variant={editor?.isActive('bulletList') ? 'default' : 'outline'}
+              onClick={() => editor?.chain().focus().toggleBulletList().run()}
               type="button"
               title="Bullet List"
             >
@@ -458,8 +916,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </Button>
             <Button
               size="icon"
-              variant={editor.isActive('orderedList') ? 'default' : 'outline'}
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              variant={editor?.isActive('orderedList') ? 'default' : 'outline'}
+              onClick={() => editor?.chain().focus().toggleOrderedList().run()}
               type="button"
               title="Ordered List"
             >
@@ -493,7 +951,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 </div>
               )}
             </div>
-            {editor.isActive('link') && (
+            {editor?.isActive('link') && (
               <Button
                 size="icon"
                 variant="outline"
@@ -529,11 +987,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                         className="w-full"
                         onKeyDown={(e) => e.key === 'Enter' && insertImage()}
                       />
-                      <Button size="sm" onClick={insertImage} type="button" disabled={!imageUrl}>
-                        Insert
-                      </Button>
                     </div>
                   </div>
+                  
+                  <Button size="sm" onClick={insertImage} type="button" disabled={!imageUrl}>
+                    Insert Image
+                  </Button>
                   
                   <Separator className="my-2" />
                   
@@ -612,8 +1071,114 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 </div>
               )}
             </div>
+            
+            {/* Video Button */}
+            <div className="relative">
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => setIsVideoMenuOpen(!isVideoMenuOpen)}
+                type="button"
+                title="Insert Video"
+              >
+                <VideoIcon className="h-4 w-4" />
+              </Button>
+              {isVideoMenuOpen && (
+                <div className="absolute top-full left-0 mt-1 p-2 bg-white border rounded-md shadow-md z-10 flex flex-col gap-2 min-w-[300px]">
+                  <div className="flex flex-col space-y-2">
+                    <label className="text-xs font-medium">Video URL (YouTube or Vimeo)</label>
+                    <Input
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                      placeholder="https://youtube.com/watch?v=..."
+                      className="w-full"
+                    />
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={videoProvider === 'youtube' ? 'default' : 'outline'}
+                      onClick={() => setVideoProvider('youtube')}
+                      type="button"
+                      className="flex-1"
+                    >
+                      <Youtube className="h-4 w-4 mr-1" />
+                      YouTube
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={videoProvider === 'vimeo' ? 'default' : 'outline'}
+                      onClick={() => setVideoProvider('vimeo')}
+                      type="button"
+                      className="flex-1"
+                    >
+                      <VideoIcon className="h-4 w-4 mr-1" />
+                      Vimeo
+                    </Button>
+                  </div>
+                  
+                  <Button size="sm" onClick={insertVideo} type="button" disabled={!videoUrl}>
+                    Insert Video
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+        
+        {/* Resize controls for selected image or video */}
+        {(selectedImageNode || selectedVideoNode) && (
+          <div className="flex flex-wrap gap-1 p-2 border-t bg-gray-100">
+            <div className="flex items-center gap-2 text-sm">
+              <Move className="h-4 w-4" />
+              {selectedImageNode ? 'Görsel' : 'Video'} Hizalama:
+            </div>
+            
+            <div className="flex gap-1 items-center ml-2">
+              <Button
+                size="icon"
+                variant={selectedNodeAlign === 'left' ? 'default' : 'outline'}
+                onClick={() => setNodeAlignment('left')}
+                type="button"
+                title="Sola Hizala"
+                className="h-6 w-6"
+              >
+                <AlignLeft className="h-3 w-3" />
+              </Button>
+              <Button
+                size="icon"
+                variant={selectedNodeAlign === 'center' ? 'default' : 'outline'}
+                onClick={() => setNodeAlignment('center')}
+                type="button"
+                title="Ortala"
+                className="h-6 w-6"
+              >
+                <AlignCenter className="h-3 w-3" />
+              </Button>
+              <Button
+                size="icon"
+                variant={selectedNodeAlign === 'right' ? 'default' : 'outline'}
+                onClick={() => setNodeAlignment('right')}
+                type="button"
+                title="Sağa Hizala"
+                className="h-6 w-6"
+              >
+                <AlignRight className="h-3 w-3" />
+              </Button>
+              <Button
+                size="icon"
+                variant={selectedNodeAlign === 'full' ? 'default' : 'outline'}
+                onClick={() => setNodeAlignment('full')}
+                type="button"
+                title="Tam Genişlik"
+                className="h-6 w-6"
+              >
+                <AlignJustify className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        )}
         
         {/* Third row - View mode toggle */}
         <div className="flex flex-wrap gap-1 p-2 border-t">
@@ -646,7 +1211,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       </div>
 
       {viewMode === 'edit' && (
-        <div className="relative border-0 outline-none">
+        <div className="relative border-0 outline-none" ref={editorContainerRef}>
           <EditorContent 
             editor={editor} 
             className={`editor-content ${editorClasses} focus-visible:outline-none focus-visible:ring-0 border-0`}
@@ -701,70 +1266,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           border: none !important;
         }
         
-        /* Tiptap ProseMirror sınıfına odaklanma */
+        /* Base styles for ProseMirror */
         .ProseMirror {
           outline: none !important;
           border: none !important;
-          outline-color: transparent !important;
-          box-shadow: none !important;
-          border-color: transparent !important;
         }
         
-        .ProseMirror:focus,
-        .ProseMirror:focus-visible,
-        .ProseMirror-focused {
-          outline: none !important;
-          border: none !important;
-          box-shadow: none !important;
-          --tw-ring-color: transparent !important;
-          --tw-ring-offset-width: 0 !important;
-          --tw-ring-offset-color: transparent !important;
-          --tw-ring-width: 0 !important;
-          --tw-ring-inset: 0 !important;
-        }
-        
-        /* Tüm düzenlenebilir elementler */
-        .editor-content:focus,
-        .editor-content:focus-visible,
-        .editor-content [contenteditable]:focus,
-        .editor-content [contenteditable]:focus-visible,
-        .editor-content *:focus,
-        .editor-content *:focus-visible {
-          outline: none !important;
-          box-shadow: none !important;
-          border: none !important;
-          border-color: transparent !important;
-          --tw-ring-color: transparent !important;
-          --tw-ring-offset-width: 0 !important;
-          --tw-ring-offset-color: transparent !important;
-          --tw-ring-width: 0 !important;
-          --tw-ring-inset: 0 !important;
-        }
-        
-        .editor-content [contenteditable] {
-          outline: none !important;
-          caret-color: #000;
-        }
-        
-        /* Kırmızı sınırı gösteren tüm elementleri hedefle */
-        *:focus-visible {
-          outline: none !important;
-          border-color: transparent !important;
-          box-shadow: none !important;
-          ring: 0 !important;
-          ring-offset: 0 !important;
-        }
-        
-        /* Tiptap editor içindeki her elemana odaklandığında */
-        [data-tippy-root], 
-        [contenteditable="true"],
-        [contenteditable="true"]:focus,
-        [contenteditable="true"]:focus-visible {
-          outline: none !important;
-          border-color: transparent !important;
-          box-shadow: none !important;
-        }
-        
+        /* Basic content styling */
         .editor-content h1, .editor-content h2, .editor-content h3, 
         .editor-content h4, .editor-content h5, .editor-content h6 {
           margin-top: 1rem;
@@ -781,51 +1289,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           margin-bottom: 1rem;
         }
         
-        .editor-content ul {
-          list-style-type: disc;
-        }
-        
-        .editor-content ol {
-          list-style-type: decimal;
-        }
-        
-        .editor-content li {
-          margin-bottom: 0.25rem;
-        }
-        
-        .editor-content a {
-          color: #2563eb;
-          text-decoration: underline;
-        }
-        
-        .editor-content img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 0.375rem;
-          margin: 1rem auto;
-        }
-        
-        .editor-content blockquote {
-          border-left: 4px solid #e5e7eb;
-          padding-left: 1rem;
-          font-style: italic;
+        /* Video styles */
+        .video-embed {
+          position: relative;
           margin: 1rem 0;
-        }
-        
-        .editor-content pre {
-          background-color: #f3f4f6;
-          padding: 1rem;
           border-radius: 0.375rem;
-          overflow-x: auto;
-          margin: 1rem 0;
+          width: 100%;
         }
         
-        .editor-content code {
-          font-family: monospace;
-          background-color: #f3f4f6;
-          padding: 0.2rem 0.4rem;
-          border-radius: 0.25rem;
-          font-size: 0.875em;
+        .video-embed iframe {
+          border-radius: 0.375rem;
+          width: 100%;
+          min-height: 315px;
+          display: block;
         }
       `}</style>
     </div>
