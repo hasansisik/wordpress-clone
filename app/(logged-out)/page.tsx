@@ -56,14 +56,43 @@ function LoadingFallback() {
 
 // Component to render dynamic sections
 async function PageSections() {
-  // Fetch page data from API
-  const response = await fetch(`${server}/page/home`, {
-    next: { revalidate: 10 },
-  });
-  const data = await response.json();
+  try {
+    // Fetch page data from API
+    const response = await fetch(`${server}/page/home`, {
+      next: { revalidate: 10 },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch page data: ${response.status}`);
+    }
+    
+    const data = await response.json();
 
-  if (!data || !data.page || !data.page.sections) {
-    // Fallback to default sections if no data
+    if (!data || !data.page || !data.page.sections) {
+      // Fallback to default sections if no data
+      return (
+        <>
+          <Hero1 />
+          <Cta4 />
+          <Services2 />
+          <Faqs2 />
+        </>
+      );
+    }
+
+    // Render sections from database
+    return (
+      <>
+        {data.page.sections.map((section: Section) => {
+          const SectionComponent =
+            sectionComponents[section.type as keyof typeof sectionComponents];
+          return SectionComponent ? <SectionComponent key={section.id} /> : null;
+        })}
+      </>
+    );
+  } catch (error) {
+    console.error("Error loading page data:", error);
+    // Fallback to default sections if error
     return (
       <>
         <Hero1 />
@@ -73,17 +102,6 @@ async function PageSections() {
       </>
     );
   }
-
-  // Render sections from database
-  return (
-    <>
-      {data.page.sections.map((section: Section) => {
-        const SectionComponent =
-          sectionComponents[section.type as keyof typeof sectionComponents];
-        return SectionComponent ? <SectionComponent key={section.id} /> : null;
-      })}
-    </>
-  );
 }
 
 export default function Home() {
