@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cta4 from "@/components/sections/Cta4";
-import Cta9 from "@/components/sections/Cta9";
+import Cta3 from "@/components/sections/Cta3"
 import Cta1 from "@/components/sections/Cta1";
 import Script from "next/script";
 
@@ -273,8 +273,8 @@ export default function CtaPreview() {
         return <Cta1 previewData={ctaData} />;
       case "cta4":
         return <Cta4 previewData={ctaData} />;
-      case "cta9":
-        return <Cta9 previewData={ctaData} />;
+      case "cta3":
+        return <Cta3 previewData={ctaData} />;
       default:
         return <Cta4 previewData={ctaData} />;
     }

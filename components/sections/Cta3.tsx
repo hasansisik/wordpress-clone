@@ -1,44 +1,123 @@
+'use client'
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getCta } from "@/redux/actions/ctaActions"
+import { AppDispatch } from "@/redux/store"
 
-export default function Cta3() {
+interface Cta3Props {
+	previewData?: any;
+}
+
+export default function Cta3({ previewData }: Cta3Props = {}) {
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { cta, loading } = useSelector((state: RootState) => state.cta)
+
+	useEffect(() => {
+		// Always trigger getCta() on component mount
+		dispatch(getCta())
+	}, [dispatch])
+
+	useEffect(() => {
+		// If preview data is provided, use it
+		if (previewData && previewData.cta3) {
+			setData(previewData.cta3)
+		} 
+		// Otherwise use Redux data
+		else if (cta && cta.cta3) {
+			setData(cta.cta3)
+		}
+	}, [previewData, cta])
+
+	// If data is still loading, show a loading indicator
+	if (!data) {
+		return (
+			<section className="section-padding">
+				<div className="container text-center">
+					<div className="spinner-border" role="status">
+						<span className="visually-hidden">Loading...</span>
+					</div>
+				</div>
+			</section>
+		)
+	}
+	
+	// Button classes and styles
+	const getPrimaryButtonStyles = () => {
+		const buttonStyle: React.CSSProperties = {
+			color: data.buttons?.primary?.textColor || '#FFFFFF'
+		}
+		
+		// Only include backgroundColor if a custom one is set
+		if (data.buttons?.primary?.backgroundColor) {
+			buttonStyle.backgroundColor = data.buttons.primary.backgroundColor;
+			buttonStyle.backgroundImage = 'none'; // Override gradient
+		}
+		
+		return buttonStyle;
+	}
+
 	return (
 		<>
 			<section className="section-cta-12 bg-3 position-relative section-padding fix">
-					<div className="container">
-						<div className="row">
-							<div className="col-lg-5">
-								<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-									<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-									<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">Our History</span>
+				<div className="container">
+					<div className="row">
+						<div className="col-lg-5">
+							{data.tagVisible !== false && (
+								<div 
+									className="d-flex align-items-center justify-content-center border border-2 border-white d-inline-flex rounded-pill px-4 py-2" 
+									data-aos="zoom-in" 
+									data-aos-delay={100}
+									style={{ backgroundColor: data.tagBackgroundColor || "#f1f0fe" }}
+								>
+									<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
+									<span 
+										className="tag-spacing fs-7 fw-bold ms-2 text-uppercase"
+										style={{ color: data.tagTextColor || "#6342EC" }}
+									>
+										{data?.tag || "Our History"}
+									</span>
 								</div>
-								<h5 className="ds-5 my-3">A Journey of <br className="d-none d-md-inline" />
-									Innovation and Growth</h5>
-								<p className="fs-5 text-500 mb-8">Loved By Developers Trusted By Enterprises</p>
-								<div className="d-flex align-items-center mt-5">
-									<Link href="#" className="btn btn-gradient">
-										Get Free Quote
-										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-											<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-											<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</Link>
-									<Link href="#" className="ms-5 fw-bold">How We Work</Link>
-								</div>
-							</div>
-							<div className="col-lg-6 offset-lg-1 mt-lg-0 mt-8">
-								<p className="fs-5 text-900 mb-5"><span className="fw-bold">Infinia</span> was founded with a passion for technology and a desire to make a difference in the digital world. From our humble beginnings, we have grown into a reputable and sought-after web development agency, serving a diverse range of clients across various industries. Over the years, <span className="fw-bold">we have successfully delivered countless projects</span>, each one a testament to our dedication, expertise, and innovative approach. Our journey has been marked by <span className="fw-bold">continuous growth, learning, and adaptation,</span> and we are proud of the milestones we have achieved along the way.</p>
-								<p className="fs-5 text-900 mb-5">Thank you for considering <span className="fw-bold">Infinia</span> as your web development partner. We look forward to helping you achieve your <span className="fw-bold">digital goals and creating a lasting impact</span> on your business.</p>
-								<div className="d-flex">
-									<img className="rounded-circle border border-5 border-primary-light" src="/assets/imgs/cta-12/avatar-1.png" alt="" />
-									<div className="ms-2">
-										<img className="filter-invert" src="/assets/imgs/cta-12/name.svg" alt="" />
-										<h6 className="mt-1 mb-0">Kensei <span className="text-500 fs-6">, CEO</span></h6>
-									</div>
-								</div>
-							</div>
+							)}
+							<h5 
+								className="ds-5 my-3"
+								style={{ color: data.titleColor || "#111827" }}
+							>
+								{data?.title || "A Journey of Innovation and Growth"}
+							</h5>
+							<p 
+								className="fs-5 text-500 mb-8"
+								style={{ color: data.subtitleColor || "#6E6E6E" }}
+							>
+								{data?.subtitle || "Loved By Developers Trusted By Enterprises"}
+							</p>
+							{data?.buttons?.primary?.visible !== false && (
+								<Link 
+									href={data?.buttons?.primary?.link || "#"} 
+									className="btn btn-gradient d-inline-flex align-items-center"
+									style={getPrimaryButtonStyles()}
+								>
+									<span>{data?.buttons?.primary?.text || "Get Started"}</span>
+									<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
+										<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+										<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+									</svg>
+								</Link>
+							)}
+						</div>
+						<div className="col-lg-6 offset-lg-1 mt-lg-0 mt-8">
+							<p 
+								className="fs-5 text-900 mb-5"
+								style={{ color: data.descriptionColor || "#111827" }}
+							>
+								{data?.description || "Was founded with a passion for technology and a desire to make a difference in the digital world. From our humble beginnings, we have grown into a reputable and sought-after web development agency, serving a diverse range of clients across various industries. Over the years, we have successfully delivered countless projects, each one a testament to our dedication, expertise, and innovative approach. Our journey has been marked by continuous growth, learning, and adaptation and we are proud of the milestones we have achieved along the way."}
+							</p>
 						</div>
 					</div>
-				</section>
+				</div>
+			</section>
 		</>
 	)
 }

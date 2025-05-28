@@ -19,11 +19,13 @@ import {
   LinkField,
   FormGroup,
   ImageUploadField,
-  SectionTypeSelector
+  SectionTypeSelector,
+  ToggleField,
+  ColorField
 } from "@/components/editor/FormFields";
 import { Layout, Type, Settings, Image } from "lucide-react";
 import Cta4 from "@/components/sections/Cta4";
-import Cta9 from "@/components/sections/Cta9";
+import Cta3 from "@/components/sections/Cta3";
 import Cta1 from "@/components/sections/Cta1";
 import { Label } from "@/components/ui/label";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,8 +36,8 @@ import { AppDispatch } from "@/redux/store";
 // CTA type options
 const ctaTypes = [
   { value: "cta1", label: "CTA 1" },
-  { value: "cta4", label: "CTA 4" },
-  { value: "cta9", label: "CTA 9" }
+  { value: "cta3", label: "CTA 3" },
+  { value: "cta4", label: "CTA 4" }
 ];
 
 // Fallback preview component that renders directly in the editor
@@ -76,7 +78,7 @@ const DirectPreview = ({ data }: { data: any }) => {
       ) : activeComponent === "cta4" ? (
         <Cta4 previewData={data} />
       ) : (
-        <Cta9 previewData={data} />
+        <Cta3 previewData={data} />
       )}
     </div>
   );
@@ -196,7 +198,7 @@ export default function CtaEditor() {
           ) : activeCta === "cta4" ? (
             <Cta4ContentForm data={data.cta4 || {}} />
           ) : (
-            <Cta9ContentForm data={data.cta9 || {}} />
+            <Cta3ContentForm data={data.cta3 || {}} />
           )}
         </TabsContent>
         
@@ -214,7 +216,7 @@ export default function CtaEditor() {
           ) : activeCta === "cta4" ? (
             <Cta4MediaForm data={data.cta4 || {}} />
           ) : (
-            <Cta9MediaForm data={data.cta9 || {}} />
+            <Cta3MediaForm data={data.cta3 || {}} />
           )}
               </TabsContent>
       </Tabs>
@@ -266,17 +268,32 @@ function Cta4ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <FormGroup title="Heading">
+        <ToggleField
+          label="Show Heading"
+          value={data?.heading?.visible !== false}
+          path="cta4.heading.visible"
+        />
         <TextField
           label="Small Heading"
           value={data?.heading?.small || ""}
           path="cta4.heading.small"
           placeholder="e.g. What We Do"
         />
+        <ColorField
+          label="Small Heading Color"
+          value={data?.heading?.smallColor || "#6342EC"}
+          path="cta4.heading.smallColor"
+        />
         <TextField
           label="Title"
           value={data?.heading?.title || ""}
           path="cta4.heading.title"
           placeholder="e.g. Custom Services For Your Business"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.heading?.titleColor || "#111827"}
+          path="cta4.heading.titleColor"
         />
       </FormGroup>
       
@@ -315,6 +332,11 @@ function Cta4ContentForm({ data }: { data: any }) {
       </FormGroup>
       
       <FormGroup title="Primary Button">
+        <ToggleField
+          label="Show Button"
+          value={data?.buttons?.primary?.visible !== false}
+          path="cta4.buttons.primary.visible"
+        />
         <TextField
           label="Text"
           value={data?.buttons?.primary?.text || ""}
@@ -326,9 +348,24 @@ function Cta4ContentForm({ data }: { data: any }) {
           value={data?.buttons?.primary?.link || ""}
           path="cta4.buttons.primary.link"
         />
+        <ColorField
+          label="Background Color"
+          value={data?.buttons?.primary?.backgroundColor || ""}
+          path="cta4.buttons.primary.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.buttons?.primary?.textColor || "#FFFFFF"}
+          path="cta4.buttons.primary.textColor"
+        />
       </FormGroup>
       
       <FormGroup title="Secondary Button">
+        <ToggleField
+          label="Show Button"
+          value={data?.buttons?.secondary?.visible !== false}
+          path="cta4.buttons.secondary.visible"
+        />
         <TextField
           label="Text"
           value={data?.buttons?.secondary?.text || ""}
@@ -339,6 +376,16 @@ function Cta4ContentForm({ data }: { data: any }) {
           label="Link"
           value={data?.buttons?.secondary?.link || ""}
           path="cta4.buttons.secondary.link"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.buttons?.secondary?.backgroundColor || "transparent"}
+          path="cta4.buttons.secondary.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.buttons?.secondary?.textColor || ""}
+          path="cta4.buttons.secondary.textColor"
         />
       </FormGroup>
       
@@ -360,37 +407,94 @@ function Cta4ContentForm({ data }: { data: any }) {
   );
 }
 
-// CTA 9 Content Form
-function Cta9ContentForm({ data }: { data: any }) {
+// CTA 3 Content Form
+function Cta3ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <FormGroup title="Heading">
+      <FormGroup title="Tag & Title">
+        <ToggleField
+          label="Show Tag"
+          value={data?.tagVisible !== false}
+          path="cta3.tagVisible"
+        />
         <TextField
           label="Tag Text"
-          value={data?.heading?.tag || ""}
-          path="cta9.heading.tag"
-          placeholder="e.g. How It Works"
+          value={data?.tag || ""}
+          path="cta3.tag"
+          placeholder="e.g. Our History"
         />
-        <TextAreaField
-          label="Title (HTML)"
-          value={data?.heading?.title || ""}
-          path="cta9.heading.title"
-          placeholder="Enter title with HTML formatting"
+        <ColorField
+          label="Tag Background Color"
+          value={data?.tagBackgroundColor || "#f1f0fe"}
+          path="cta3.tagBackgroundColor"
+        />
+        <ColorField
+          label="Tag Text Color"
+          value={data?.tagTextColor || "#6342EC"}
+          path="cta3.tagTextColor"
+        />
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="cta3.title"
+          placeholder="e.g. A Journey of Innovation and Growth"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="cta3.titleColor"
+        />
+        <TextField
+          label="Subtitle"
+          value={data?.subtitle || ""}
+          path="cta3.subtitle"
+          placeholder="e.g. Loved By Developers Trusted By Enterprises"
+        />
+        <ColorField
+          label="Subtitle Color"
+          value={data?.subtitleColor || "#6E6E6E"}
+          path="cta3.subtitleColor"
         />
       </FormGroup>
       
-      <FormGroup title="Video Settings">
-        <TextField
-          label="Button Text"
-          value={data?.videoGuide?.buttonText || ""}
-          path="cta9.videoGuide.buttonText"
-          placeholder="e.g. Video Guide"
+      <TextAreaField
+        label="Description"
+        value={data?.description || ""}
+        path="cta3.description"
+        placeholder="Enter detailed description"
+      />
+      <ColorField
+        label="Description Color"
+        value={data?.descriptionColor || "#111827"}
+        path="cta3.descriptionColor"
+      />
+      
+      <FormGroup title="Primary Button">
+        <ToggleField
+          label="Show Button"
+          value={data?.buttons?.primary?.visible !== false}
+          path="cta3.buttons.primary.visible"
         />
         <TextField
-          label="Video ID"
-          value={data?.videoGuide?.videoId || ""}
-          path="cta9.videoGuide.videoId"
-          placeholder="e.g. YouTube video ID"
+          label="Text"
+          value={data?.buttons?.primary?.text || ""}
+          path="cta3.buttons.primary.text"
+          placeholder="e.g. Get Started"
+        />
+        <LinkField
+          label="Link"
+          value={data?.buttons?.primary?.link || ""}
+          path="cta3.buttons.primary.link"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.buttons?.primary?.backgroundColor || ""}
+          path="cta3.buttons.primary.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.buttons?.primary?.textColor || "#FFFFFF"}
+          path="cta3.buttons.primary.textColor"
         />
       </FormGroup>
     </div>
@@ -416,41 +520,15 @@ function Cta4MediaForm({ data }: { data: any }) {
   );
 }
 
-// CTA 9 Media Form
-function Cta9MediaForm({ data }: { data: any }) {
+// CTA 3 Media Form
+function Cta3MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <ImageUploadField
-        label="Video Image"
-        value={data?.videoGuide?.image || ""}
-        path="cta9.videoGuide.image"
-      />
-      
-      <ImageUploadField
         label="Tag Image"
         value={data?.tagImage || ""}
-        path="cta9.tagImage"
+        path="cta3.tagImage"
       />
-      
-      <FormGroup title="Vector Images">
-        <ImageUploadField
-          label="Vector 1"
-          value={data?.vectors?.vector1 || ""}
-          path="cta9.vectors.vector1"
-        />
-        
-        <ImageUploadField
-          label="Vector 2"
-          value={data?.vectors?.vector2 || ""}
-          path="cta9.vectors.vector2"
-        />
-        
-        <ImageUploadField
-          label="Background Line"
-          value={data?.vectors?.bgLine || ""}
-          path="cta9.vectors.bgLine"
-        />
-      </FormGroup>
     </div>
   );
 }
@@ -460,11 +538,26 @@ function Cta1ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <FormGroup title="Badge & Title">
+        <ToggleField
+          label="Show Badge"
+          value={data?.badgeVisible !== false}
+          path="cta1.badgeVisible"
+        />
         <TextField
           label="Badge Text"
           value={data?.badge || ""}
           path="cta1.badge"
           placeholder="e.g. About Us"
+        />
+        <ColorField
+          label="Badge Background Color"
+          value={data?.badgeBackgroundColor || "#f1f0fe"}
+          path="cta1.badgeBackgroundColor"
+        />
+        <ColorField
+          label="Badge Text Color"
+          value={data?.badgeTextColor || "#6342EC"}
+          path="cta1.badgeTextColor"
         />
         <TextAreaField
           label="Title (HTML)"
@@ -480,6 +573,64 @@ function Cta1ContentForm({ data }: { data: any }) {
           value={data?.socialLabel || ""}
           path="cta1.socialLabel"
           placeholder="e.g. Follow us:"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Buttons">
+        <ToggleField
+          label="Show Primary Button"
+          value={data?.buttons?.primary?.visible !== false}
+          path="cta1.buttons.primary.visible"
+        />
+        <TextField
+          label="Primary Button Text"
+          value={data?.buttons?.primary?.text || ""}
+          path="cta1.buttons.primary.text"
+          placeholder="e.g. Contact Us"
+        />
+        <LinkField
+          label="Primary Button Link"
+          value={data?.buttons?.primary?.link || ""}
+          path="cta1.buttons.primary.link"
+        />
+        <ColorField
+          label="Primary Button Background"
+          value={data?.buttons?.primary?.backgroundColor || ""}
+          path="cta1.buttons.primary.backgroundColor"
+        />
+        <ColorField
+          label="Primary Button Text Color"
+          value={data?.buttons?.primary?.textColor || "#FFFFFF"}
+          path="cta1.buttons.primary.textColor"
+        />
+        
+        <div className="mt-4"></div>
+        
+        <ToggleField
+          label="Show Secondary Button"
+          value={data?.buttons?.secondary?.visible !== false}
+          path="cta1.buttons.secondary.visible"
+        />
+        <TextField
+          label="Secondary Button Text"
+          value={data?.buttons?.secondary?.text || ""}
+          path="cta1.buttons.secondary.text"
+          placeholder="e.g. Learn More"
+        />
+        <LinkField
+          label="Secondary Button Link"
+          value={data?.buttons?.secondary?.link || ""}
+          path="cta1.buttons.secondary.link"
+        />
+        <ColorField
+          label="Secondary Button Background"
+          value={data?.buttons?.secondary?.backgroundColor || "transparent"}
+          path="cta1.buttons.secondary.backgroundColor"
+        />
+        <ColorField
+          label="Secondary Button Text Color"
+          value={data?.buttons?.secondary?.textColor || ""}
+          path="cta1.buttons.secondary.textColor"
         />
       </FormGroup>
     </div>

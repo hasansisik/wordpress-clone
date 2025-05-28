@@ -6,6 +6,9 @@ export interface CtaPayload {
   activeCta?: string;
   cta1?: {
     badge?: string;
+    badgeVisible?: boolean;
+    badgeBackgroundColor?: string;
+    badgeTextColor?: string;
     title?: string;
     tagImage?: string;
     star1?: string;
@@ -16,6 +19,22 @@ export interface CtaPayload {
       alt: string;
     }>;
     socialLabel?: string;
+    buttons?: {
+      primary?: {
+        visible?: boolean;
+        text?: string;
+        link?: string;
+        backgroundColor?: string;
+        textColor?: string;
+      };
+      secondary?: {
+        visible?: boolean;
+        text?: string;
+        link?: string;
+        backgroundColor?: string;
+        textColor?: string;
+      };
+    };
   };
   cta4?: {
     videoGuide?: {
@@ -29,6 +48,9 @@ export interface CtaPayload {
     heading?: {
       small?: string;
       title?: string;
+      visible?: boolean;
+      smallColor?: string;
+      titleColor?: string;
     };
     description?: string;
     features?: string[];
@@ -36,29 +58,40 @@ export interface CtaPayload {
       primary?: {
         text?: string;
         link?: string;
+        visible?: boolean;
+        backgroundColor?: string;
+        textColor?: string;
       };
       secondary?: {
         text?: string;
         link?: string;
+        visible?: boolean;
+        backgroundColor?: string;
+        textColor?: string;
       };
     };
   };
-  cta9?: {
-    videoGuide?: {
-      image?: string;
-      videoId?: string;
-      buttonText?: string;
-    };
-    vectors?: {
-      vector1?: string;
-      vector2?: string;
-      bgLine?: string;
-    };
-    heading?: {
-      tag?: string;
-      title?: string;
-    };
+  cta3?: {
+    tag?: string;
+    tagVisible?: boolean;
+    tagBackgroundColor?: string;
+    tagTextColor?: string;
+    title?: string;
+    titleColor?: string;
+    subtitle?: string;
+    subtitleColor?: string;
+    description?: string;
+    descriptionColor?: string;
     tagImage?: string;
+    buttons?: {
+      primary?: {
+        visible?: boolean;
+        text?: string;
+        link?: string;
+        backgroundColor?: string;
+        textColor?: string;
+      };
+    };
   };
 }
 

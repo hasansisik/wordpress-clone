@@ -44,6 +44,27 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 			</section>
 		)
 	}
+	
+	// Button classes and styles
+	const getPrimaryButtonStyles = () => {
+		const buttonStyle: React.CSSProperties = {
+			color: data.buttons?.primary?.textColor || '#FFFFFF'
+		}
+		
+		// Only include backgroundColor if a custom one is set
+		if (data.buttons?.primary?.backgroundColor) {
+			buttonStyle.backgroundColor = data.buttons.primary.backgroundColor;
+			buttonStyle.backgroundImage = 'none'; // Override gradient
+		}
+		
+		return buttonStyle;
+	}
+	
+	const getSecondaryButtonStyles = () => {
+		return {
+			color: data.buttons?.secondary?.textColor || ''
+		};
+	}
 
 	return (
 		<>
@@ -73,8 +94,16 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 							</div>
 						</div>
 						<div className="col-lg-6 mt-lg-0 mt-8">
-							<h6 className="text-primary">{data.heading.small}</h6>
-							<h5 className="ds-5 my-3">{data.heading.title}</h5>
+							{data.heading?.visible !== false && (
+								<>
+									<h6 className="text-primary" style={{ color: data.heading?.smallColor || "#6342EC" }}>
+										{data.heading.small}
+									</h6>
+									<h5 className="ds-5 my-3" style={{ color: data.heading?.titleColor || "#111827" }}>
+										{data.heading.title}
+									</h5>
+								</>
+							)}
 							<p className="fs-5 text-500">{data.description}</p>
 							<div className="d-md-flex align-items-center mt-4 mb-5">
 								<ul className="list-unstyled phase-items mb-0">
@@ -96,14 +125,28 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 							</div>
 							<div className="row mt-8">
 								<div className="d-flex align-items-center">
-									<Link href={data.buttons.primary.link} className="btn btn-gradient d-inline-flex align-items-center">
-										<span>{data.buttons.primary.text}</span>
-										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-											<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-											<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</Link>
-									<Link href={data.buttons.secondary.link} className="ms-5 text-decoration-underline fw-bold">{data.buttons.secondary.text}</Link>
+									{data.buttons?.primary?.visible !== false && (
+										<Link 
+											href={data.buttons.primary.link} 
+											className="btn btn-gradient d-inline-flex align-items-center"
+											style={getPrimaryButtonStyles()}
+										>
+											<span>{data.buttons.primary.text}</span>
+											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
+												<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+												<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+											</svg>
+										</Link>
+									)}
+									{data.buttons?.secondary?.visible !== false && (
+										<Link 
+											href={data.buttons.secondary.link} 
+											className="ms-5 text-decoration-underline fw-bold"
+											style={getSecondaryButtonStyles()}
+										>
+											{data.buttons.secondary.text}
+										</Link>
+									)}
 								</div>
 							</div>
 						</div>

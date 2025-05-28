@@ -44,6 +44,21 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 		)
 	}
 
+	// Button classes and styles
+	const getPrimaryButtonStyles = () => {
+		const buttonStyle: React.CSSProperties = {
+			color: data.buttons?.primary?.textColor || '#FFFFFF'
+		}
+		
+		// Only include backgroundColor if a custom one is set
+		if (data.buttons?.primary?.backgroundColor) {
+			buttonStyle.backgroundColor = data.buttons.primary.backgroundColor;
+			buttonStyle.backgroundImage = 'none'; // Override gradient
+		}
+		
+		return buttonStyle;
+	}
+
 	return (
 		<>
 			<section className="section-testimonial-13 position-relative pt-120 pb-80 fix">
@@ -51,14 +66,56 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 					<div className="row pb-9">
 						<div className="col-lg-10 mx-lg-auto">
 							<div className="text-center mb-lg-0 mb-5">
-								<div className="d-flex align-items-center position-relative z-2 justify-content-center bg-primary-soft d-inline-flex rounded-pill border border-2 border-white px-3 py-1">
-									<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
-									<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data?.badge || "About us"}</span>
-								</div>
+								{data.badgeVisible !== false && (
+									<div 
+										className="d-flex align-items-center position-relative z-2 justify-content-center d-inline-flex rounded-pill border border-2 border-white px-3 py-1"
+										style={{ backgroundColor: data.badgeBackgroundColor || "#f1f0fe" }}
+									>
+										<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
+										<span 
+											className="tag-spacing fs-7 fw-bold ms-2 text-uppercase"
+											style={{ color: data.badgeTextColor || "#6342EC" }}
+										>
+											{data?.badge || "About us"}
+										</span>
+									</div>
+								)}
 								<h3 
 									className="ds-3 my-3 fw-regular"
 									dangerouslySetInnerHTML={{ __html: data?.title || "Together, We are Shaping a Promising Future." }}
 								></h3>
+								
+								{/* Buttons Section */}
+								{(data.buttons?.primary?.visible !== false || data.buttons?.secondary?.visible !== false) && (
+									<div className="mt-4 d-flex justify-content-center align-items-center flex-wrap gap-3">
+										{data.buttons?.primary?.visible !== false && (
+											<Link 
+												href={data.buttons?.primary?.link || "#"} 
+												className="btn btn-gradient d-inline-flex align-items-center"
+												style={getPrimaryButtonStyles()}
+											>
+												<span>{data.buttons?.primary?.text || "Get Started"}</span>
+												<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
+													<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+													<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+												</svg>
+											</Link>
+										)}
+										
+										{data.buttons?.secondary?.visible !== false && (
+											<Link 
+												href={data.buttons?.secondary?.link || "#"} 
+												className="btn btn-outline d-inline-flex align-items-center"
+												style={{
+													backgroundColor: data.buttons?.secondary?.backgroundColor || 'transparent',
+													color: data.buttons?.secondary?.textColor || ''
+												}}
+											>
+												<span>{data.buttons?.secondary?.text || "Learn More"}</span>
+											</Link>
+										)}
+									</div>
+								)}
 							</div>
 						</div>
 					</div>
