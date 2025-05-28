@@ -12,9 +12,6 @@ export default function SectionProjects() {
     <>
       {/* Services 5 */}
       <Services5 />
-      
-      {/* Project 2 */}
-      <Project2 />
     </>
   );
 }
