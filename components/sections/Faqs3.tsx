@@ -59,38 +59,91 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 		<>
 			<section className="section-faqs-1 section-padding position-relative" key={key}>
 				<div className="container position-relative z-2">
-					<div className="mb-5 text-center">
-						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-							<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
-							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data?.heading?.tag || "FAQs"}</span>
+					<div className="row align-items-center">
+						<div className="col-lg-6">
+							<div className="text-start">
+								<div className="d-flex align-items-center position-relative z-2 justify-content-center bg-primary-soft d-inline-flex rounded-pill border border-2 border-white px-3 py-1">
+									<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
+									<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data?.heading?.tag || "Frequently Asked Questions"}</span>
+								</div>
+								<h3 className="ds-3 my-3 fw-bold" dangerouslySetInnerHTML={{ __html: data?.heading?.title || "Got questions? <br />We've got answers" }}></h3>
+								<div className="position-relative d-inline-block mt-3 mb-6">
+									<img src={data?.leftImage1 || "/assets/imgs/faqs-3/img-1.png"} alt="" className=" rounded-pill border border-3 border-white" />
+									<img src={data?.leftImage2 || "/assets/imgs/faqs-3/img-2.png"} alt="" className="position-absolute z-1 top-0 start-50 mt-3 rounded-pill border border-3 border-white" />
+								</div>
+								<p className="fs-5 mb-0" dangerouslySetInnerHTML={{ __html: data?.description || "Quick answers to questions you may have. <br />Can't find what you're looking for? Get in touch with us." }}></p>
+								<div className="d-flex align-items-center mt-5">
+									<Link href={data?.ctaLink || "#"} className="btn btn-gradient d-flex align-items-center">
+										{data?.ctaText || "Get in touch"}
+										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
+											<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+											<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+										</svg>
+									</Link>
+									<Link href={data?.secondaryLink || "#"} className="ms-5 fw-bold">{data?.secondaryText || "Help Center"}</Link>
+								</div>
+							</div>
 						</div>
-						<h3 className="ds-3 mt-3 mb-3" data-aos="fade-zoom-in" data-aos-delay={100} dangerouslySetInnerHTML={{ __html: data?.heading?.title || "Frequently Asked Questions" }}></h3>
-					</div>
-					<div className="row">
-						<div className="col-lg-10 mx-auto">
-							<div className="content-one accordion-list-one pe-lg-8 pe-md-0">
+						<div className="col-lg-6 mt-lg-0 mt-8">
+							<div className="accordion">
 								{data?.questions?.map((item: any, index: number) => (
-									<div key={index} className={`accordion-item bg-white rounded-4 border-0 mb-4 shadow-1 ${activeItem === index + 1 ? 'active' : ''}`}>
-										<h2 className="accordion-header" onClick={() => handleActiveItem(index + 1)}>
-											<button className="accordion-button">
-												{item?.question || `Question ${index + 1}`}
-											</button>
-										</h2>
-										<div className={`accordion-collapse collapse ${activeItem === index + 1 ? 'show' : ''}`}>
-											<div className="accordion-body" dangerouslySetInnerHTML={{ __html: item?.answer || "Answer goes here" }}></div>
+									<div key={index} className="mb-3 card p-3 border rounded-3">
+										<div className="px-0 card-header border-0">
+											<a className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === index + 1 ? '' : ''}`} 
+											   onClick={() => handleActiveItem(index + 1)}>
+												<h6 className="m-0" dangerouslySetInnerHTML={{ __html: item?.question || `Question ${index + 1}` }}></h6>
+												<span className="ms-auto arrow me-2">
+													<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
+														<path className="stroke-dark" d="M11.5 1L6.25 6.5L1 1" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+													</svg>
+												</span>
+											</a>
 										</div>
+										{activeItem === index + 1 && (
+											<div className="card-body px-0 mt-2">
+												<p className="text-black-50 mb-0" dangerouslySetInnerHTML={{ __html: item?.answer || "Answer goes here" }}></p>
+											</div>
+										)}
 									</div>
 								)) || (
-									<div className="accordion-item bg-white rounded-4 border-0 mb-4 shadow-1 active">
-										<h2 className="accordion-header" onClick={() => handleActiveItem(1)}>
-											<button className="accordion-button">
-												Sample Question
-											</button>
-										</h2>
-										<div className={`accordion-collapse collapse ${activeItem === 1 ? 'show' : ''}`}>
-											<div className="accordion-body">Sample Answer</div>
+									<>
+										<div className="mb-3 card p-3 border rounded-3">
+											<div className="px-0 card-header border-0">
+												<a className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === 1 ? '' : ''}`} 
+												   onClick={() => handleActiveItem(1)}>
+													<h6 className="m-0">What are the key benefits of using <span className="text-primary">Infinia System</span></h6>
+													<span className="ms-auto arrow me-2">
+														<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
+															<path className="stroke-dark" d="M11.5 1L6.25 6.5L1 1" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+														</svg>
+													</span>
+												</a>
+											</div>
+											{activeItem === 1 && (
+												<div className="card-body px-0 mt-2">
+													<p className="text-black-50 mb-0">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
+												</div>
+											)}
 										</div>
-									</div>
+										<div className="mb-3 card p-3 border rounded-3">
+											<div className="px-0 card-header border-0">
+												<a className={`pointer text-900 fw-bold d-flex align-items-center ${activeItem === 2 ? '' : ''}`} 
+												   onClick={() => handleActiveItem(2)}>
+													<h6 className="m-0">What features does <span className="text-primary">Infinia</span> offer?</h6>
+													<span className="ms-auto arrow me-2">
+														<svg xmlns="http://www.w3.org/2000/svg" width={13} height={8} viewBox="0 0 13 8" fill="none">
+															<path className="stroke-dark" d="M11.5 1L6.25 6.5L1 1" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+														</svg>
+													</span>
+												</a>
+											</div>
+											{activeItem === 2 && (
+												<div className="card-body px-0 mt-2">
+													<p className="text-black-50 mb-0">We start with a comprehensive analysis of your current brand and online presence, followed by a tailored strategy to improve your brand identity, optimize your website for search engines, and create a cohesive branding plan.</p>
+												</div>
+											)}
+										</div>
+									</>
 								)}
 							</div>
 						</div>
