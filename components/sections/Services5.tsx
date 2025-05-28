@@ -35,12 +35,12 @@ export default function Services5({ previewData }: Services5Props) {
 	const { services, loading: servicesLoading, error } = useSelector((state: RootState) => state.service);
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
 
-	// Extract unique categories from services
+	// Extract unique categories from services and standardize their IDs
 	const categories = services ? 
 		[...new Set(services.flatMap(service => service.categories || []))]
 			.filter(category => category)
 			.map(category => ({ 
-				id: typeof category === 'string' ? category.replace(/\s+/g, '-').toLowerCase() : category, 
+				id: typeof category === 'string' ? slugify(category) : '', 
 				name: category 
 			})) 
 		: [];
@@ -87,12 +87,13 @@ export default function Services5({ previewData }: Services5Props) {
 					
 					// Make sure container still exists after async import
 					if (containerRef.current) {
+						// Initialize with fitRows layout instead of masonry for more consistent alignment
 						isotope.current = new Isotope(containerRef.current, {
 							itemSelector: '.filter-item',
-							percentPosition: true,
-							masonry: {
-								columnWidth: '.filter-item',
-							},
+							layoutMode: 'fitRows',
+							fitRows: {
+								gutter: 0
+							}
 						});
 						setIsotopeReady(true);
 						
@@ -109,7 +110,7 @@ export default function Services5({ previewData }: Services5Props) {
 			// Initialize with a slight delay to ensure DOM is ready
 			const timer = setTimeout(() => {
 				initializeIsotope();
-			}, 100);
+			}, 300); // Increased delay to ensure DOM is fully ready
 
 			return () => {
 				clearTimeout(timer);
@@ -124,16 +125,16 @@ export default function Services5({ previewData }: Services5Props) {
 	// Apply filter when filterKey changes
 	useEffect(() => {
 		if (isotope.current && isotopeReady) {
-			const filterSelector = filterKey === '*' ? '*' : `.${filterKey.replace(/\s+/g, '-').toLowerCase()}`;
+			const filterSelector = filterKey === '*' ? '*' : `.${filterKey}`;
 			isotope.current.arrange({ filter: filterSelector });
 		}
 	}, [filterKey, isotopeReady]);
 
 	const handleFilterKeyChange = useCallback((key: string) => () => {
-		setFilterKey(key)
-	}, [])
+		setFilterKey(key);
+	}, []);
 
-	const activeBtn = (value: string) => (value === filterKey ? "active btn btn-md btn-filter mb-2 me-2" : "btn btn-md btn-filter mb-2 me-2")
+	const activeBtn = (value: string) => (value === filterKey ? "active btn btn-md btn-filter mb-2 me-2" : "btn btn-md btn-filter mb-2 me-2");
 
 	if (servicesLoading || otherLoading || !data) {
 		return (
@@ -222,27 +223,26 @@ export default function Services5({ previewData }: Services5Props) {
 					)}
 				</div>
 				<div className="container mt-6">
-					<div ref={containerRef} className="masonary-active justify-content-between row">
-						<div className="grid-sizer" />
+					<div ref={containerRef} className="row">
 						{services && services.map((service) => {
-							// Create a standardized format for category classes
+							// Process categories to ensure consistent slugification
 							const categoryClasses = Array.isArray(service.categories) 
 								? service.categories.map((cat: string) => 
-									typeof cat === 'string' ? cat.replace(/\s+/g, '-').toLowerCase() : ''
-								).join(' ') 
+									typeof cat === 'string' ? slugify(cat) : ''
+								).filter(Boolean).join(' ') 
 								: '';
 								
 							return (
 								<div 
 									key={service._id || service.id} 
-									className={`filter-item col-12 col-md-4 ${categoryClasses}`}
+									className={`filter-item col-12 col-md-4 mb-4 ${categoryClasses}`}
 								>
-									<div className="project-item zoom-img rounded-2 fix position-relative">
+									<div className="project-item zoom-img rounded-2 fix position-relative h-100">
 										<div style={{ height: '300px', overflow: 'hidden' }}>
 											<img 
 												className="rounded-2 w-100 h-100" 
 												src={service.image} 
-												alt="infinia" 
+												alt={service.title || "Service image"} 
 												style={{ objectFit: 'cover', objectPosition: 'center' }}
 											/>
 										</div>
