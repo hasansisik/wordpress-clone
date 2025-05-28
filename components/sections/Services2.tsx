@@ -57,7 +57,6 @@ export default function Services2({ previewData }: Services2Props = {}) {
 					<div className="text-center">
 						{data.heading?.tagVisible !== false && (
 							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={tagStyle}>
-								<img src={data.tagImage} alt="infinia" />
 								<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.heading?.tag}</span>
 							</div>
 						)}

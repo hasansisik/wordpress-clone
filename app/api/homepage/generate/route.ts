@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { promises as fsPromises } from 'fs';
-import path from 'path';
+import axios from 'axios';
+import { server } from '@/config';
 
 export async function POST(request: Request) {
   try {
@@ -11,55 +11,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
     
-    // Generate and update the actual page file
-    await updateHomePage(data);
+    // Get the token from the request cookies
+    const token = request.headers.get('authorization')?.split(' ')[1] || '';
     
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error generating homepage:', error);
-    return NextResponse.json({ error: 'Failed to generate homepage' }, { status: 500 });
-  }
-}
-
-// Function to update the actual home page file
-async function updateHomePage(data: any) {
-  try {
-    // Create imports
-    let imports = ``;
+    // Update the page in the database
+    const response = await axios.put(`${server}/page/home`, 
+      { sections: data.sections },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     
-    // Add imports for sections
-    const usedSections = new Set();
-    data.sections.forEach((section: any) => {
-      usedSections.add(section.type);
+    if (response.status !== 200) {
+      throw new Error('Failed to update page in database');
+    }
+    
+    // Return success response
+    return NextResponse.json({ 
+      success: true,
+      message: "Page updated successfully" 
     });
-    
-    // Add each import only once
-    Array.from(usedSections).forEach((type: string) => {
-      imports += `import ${type} from "@/components/sections/${type}"\n`;
-    });
-    
-    // Create sections JSX
-    let sectionsJSX = data.sections.map((section: any) => {
-      return `\t\t<${section.type} />`;
-    }).join('\n');
-    
-    // Create the full page code
-    const pageCode = `${imports}
-export default function Home() {
-\treturn (
-\t\t<>
-${sectionsJSX}
-\t\t</>
-\t)
-}`;
-
-    // Write to the home page file
-    const pageFilePath = path.join(process.cwd(), 'app', '(logged-out)', 'page.tsx');
-    await fsPromises.writeFile(pageFilePath, pageCode);
-    
-    return true;
   } catch (error) {
-    console.error('Error updating home page file:', error);
-    return false;
+    console.error('Error updating homepage:', error);
+    return NextResponse.json({ 
+      error: 'Failed to update homepage',
+      details: (error as Error).message 
+    }, { status: 500 });
   }
 } 

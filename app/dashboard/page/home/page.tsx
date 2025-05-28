@@ -107,9 +107,9 @@ const availableSections = [
     icon: Film
   },
   { 
-    id: "cta9", 
-    name: "CTA 9", 
-    type: "Cta9",
+    id: "cta3", 
+    name: "CTA 3", 
+    type: "Cta3",
     description: "Video showcase with background",
     icon: Film
   },
@@ -126,6 +126,13 @@ const availableSections = [
     type: "Services5",
     description: "Services grid with icons",
     icon: Briefcase
+  },
+  { 
+    id: "faqs1", 
+    name: "FAQs 1", 
+    type: "Faqs1",
+    description: "Two-column FAQ accordion",
+    icon: HelpCircle
   },
   { 
     id: "faqs2", 
@@ -374,9 +381,6 @@ export default function HomePageEditor() {
         description: "Your changes will be reflected on the site"
       });
       setIsSaved(true);
-      
-      // Generate and update the actual page file
-      await updatePageFile();
     } catch (error) {
       console.error('Error saving page data:', error);
       toast.error("Failed to save page data");
@@ -414,26 +418,6 @@ ${sectionsJSX}
 }`;
   };
 
-  // Add a separate function to handle the API call for code generation
-  const updatePageFile = async () => {
-    try {
-      const response = await fetch('/api/homepage/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ sections })
-      });
-      
-      if (!response.ok) {
-        console.error('Error generating page code');
-        // Don't show error to user, this is a background process
-      }
-    } catch (error) {
-      console.error('Error generating page code:', error);
-    }
-  };
-  
   // If data is still loading, show loading spinner
   if (isLoading || loading) {
 		return;
