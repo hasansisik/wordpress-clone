@@ -160,8 +160,15 @@ export default function Blog1({ previewData }: Blog1Props) {
 										)}
 									</div>
 									<div className="card-body p-0">
-										<Link href={`/${slugify(post.title)}`} className={` bg-orange-700' position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3`} style={post.premium ? undefined : badgeStyle}>
-											<span className="tag-spacing fs-7 fw-bold text-uppercase ">{post.category[0]}</span>
+										<Link 
+											href={`/${slugify(post.title)}`} 
+											className="position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
+											style={post.premium ? 
+												{ backgroundColor: '#FFEDD5', color: '#C2410C' } : 
+												badgeStyle
+											}
+										>
+											<span className="tag-spacing fs-7 fw-bold text-uppercase">{post.category[0]}</span>
 										</Link>
 										<h6 className={`my-3 ${post.premium ? 'text-orange-700' : 'text-gray-800'}`}>{post.title}</h6>
 										<p className="text-gray-700">{post.description}</p>

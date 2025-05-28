@@ -113,9 +113,13 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
                   <div className="card-body p-0">
                     <Link
                       href={`/${slugify(post.title)}`}
-                      className={`${post.premium ? 'bg-orange-100 text-orange-700' : 'bg-primary-soft'} position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3`}
+                      className="position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
+                      style={post.premium ? 
+                        { backgroundColor: '#FFEDD5', color: '#C2410C' } : 
+                        { backgroundColor: data.badgeBackgroundColor || "#f1f0fe", color: data.badgeTextColor || "#6342EC" }
+                      }
                     >
-                      <span className={`tag-spacing fs-7 fw-bold ${post.premium ? 'text-orange-700' : 'text-linear-2'} text-uppercase`}>
+                      <span className="tag-spacing fs-7 fw-bold text-uppercase">
                         {Array.isArray(post.category) ? post.category[0] : post.category}
                       </span>
                     </Link>
