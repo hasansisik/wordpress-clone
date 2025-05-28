@@ -738,45 +738,50 @@ export default function HeaderEditor() {
     if (!headerTemplate) return;
 
     // Create updated header data with values from the Redux store
-        const updatedHeaderData = {
+    const updatedHeaderData = {
       // These should come from the API via Redux
       mainMenu: Array.isArray(header.mainMenu) ? header.mainMenu : [],
       socialLinks: Array.isArray(header.socialLinks) ? header.socialLinks : [],
       topBarItems: Array.isArray(header.topBarItems) ? header.topBarItems : [],
           
-          // Logo data should always come from the API
+      // Logo data should always come from the API
       logoText: header.logo?.text || "Infinia",
       logoUrl: header.logo?.src || "/assets/imgs/template/favicon.svg",
           
-          // Settings from API
+      // Settings from API
       showDarkModeToggle: header.showDarkModeToggle !== undefined ? header.showDarkModeToggle : true,
       showActionButton: header.showActionButton !== undefined ? header.showActionButton : headerTemplate.buttonText !== "",
           
-          // Button settings - get from API if available, otherwise use defaults
+      // Button settings - get from API if available, otherwise use defaults
       actionButtonText: header.actionButtonText || header.links?.freeTrialLink?.text || headerTemplate.buttonText,
       actionButtonLink: header.actionButtonLink || header.links?.freeTrialLink?.href || "/contact",
           
-          // Button colors from API or defaults
+      // Button colors from API or defaults
       buttonColor: header.buttonColor || "#3b71fe",
       buttonTextColor: header.buttonTextColor || "#ffffff",
           
-          // Component type from API or fall back to the header's component
+      // Component type from API or fall back to the header's component
       headerComponent: header.headerComponent || headerTemplate.component,
       workingHours: header.workingHours || "Mon-Fri: 10:00am - 09:00pm",
       topBarColor: header.topBarColor || "#3b71fe",
       topBarTextColor: header.topBarTextColor || "#ffffff",
-      mobileMenuButtonColor: header.mobileMenuButtonColor || "#3b71fe"
-        };
+      mobileMenuButtonColor: header.mobileMenuButtonColor || "#3b71fe",
+      
+      // Add phone-related properties 
+      phoneIconBgColor: header.phoneIconBgColor || "#3b71fe",
+      phoneIconColor: header.phoneIconColor || "#ffffff",
+      phoneQuestionText: header.phoneQuestionText || "Have Any Questions?"
+    };
 
-        // Use functional state update to ensure we're working with the latest state
-        setHeaderData(prevData => {
-          // If the data is the same, don't trigger a re-render
-          if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
-            return prevData;
-          }
-          
-          return updatedHeaderData;
-        });
+    // Use functional state update to ensure we're working with the latest state
+    setHeaderData(prevData => {
+      // If the data is the same, don't trigger a re-render
+      if (JSON.stringify(prevData) === JSON.stringify(updatedHeaderData)) {
+        return prevData;
+      }
+      
+      return updatedHeaderData;
+    });
   };
 
   // Call refreshHeaderData when the selected header changes
@@ -816,7 +821,11 @@ export default function HeaderEditor() {
         workingHours: data.workingHours || headerData.workingHours,
         topBarColor: data.topBarColor || headerData.topBarColor || "#3b71fe",
         topBarTextColor: data.topBarTextColor || headerData.topBarTextColor || "#ffffff",
-        mobileMenuButtonColor: data.mobileMenuButtonColor || headerData.mobileMenuButtonColor || "#3b71fe"
+        mobileMenuButtonColor: data.mobileMenuButtonColor || headerData.mobileMenuButtonColor || "#3b71fe",
+        // Make sure these properties are included in the save
+        phoneIconBgColor: data.phoneIconBgColor || headerData.phoneIconBgColor || "#3b71fe",
+        phoneIconColor: data.phoneIconColor || headerData.phoneIconColor || "#ffffff",
+        phoneQuestionText: data.phoneQuestionText !== undefined ? data.phoneQuestionText : (headerData.phoneQuestionText || "Have Any Questions?")
       };
 
       // Use Redux to update header
@@ -847,6 +856,15 @@ export default function HeaderEditor() {
           headerData: dataToSave
         }, "*");
       }
+
+      // Update local state to ensure UI consistency
+      setHeaderData(prevData => ({
+        ...prevData,
+        ...data,
+        phoneIconBgColor: data.phoneIconBgColor || prevData.phoneIconBgColor,
+        phoneIconColor: data.phoneIconColor || prevData.phoneIconColor,
+        phoneQuestionText: data.phoneQuestionText !== undefined ? data.phoneQuestionText : prevData.phoneQuestionText
+      }));
 
       // We don't show a success message here since the calling function will do it
       showSuccessAlert(`Header changes saved successfully!`);
@@ -970,8 +988,27 @@ export default function HeaderEditor() {
         uploadHandler={uploadImageToCloudinary}
         initialData={headerData}
         saveHandler={headerData => {
-          // Save işlemini handle et
+          // Create a complete data object to save
+          const completeData = {
+            ...headerData,
+            // Include all specific properties
+            phoneIconBgColor: headerData.phoneIconBgColor,
+            phoneIconColor: headerData.phoneIconColor,
+            phoneQuestionText: headerData.phoneQuestionText
+          };
+          
+          // Save all changes
           handleSaveChanges();
+          
+          // Also send data to iframe
+          const iframe = document.querySelector('iframe');
+          if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({
+              type: "UPDATE_HEADER_DATA",
+              headerData: completeData
+            }, "*");
+          }
+          
           return Promise.resolve({ success: true });
         }}
       >
@@ -1449,46 +1486,30 @@ function HeaderEditorContent({
                   <Label htmlFor="topBarColor" className="text-sm">
                     Top Bar Background Color
                   </Label>
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-8 h-8 rounded border"
-                      style={{ backgroundColor: headerData.topBarColor || "#3b71fe" }}
-                    />
-                    <Input
-                      id="topBarColor"
-                      type="color"
-                      value={headerData.topBarColor || "#3b71fe"}
-                      onChange={(e) => {
-                        const updatedData = {
-                          ...headerData,
-                          topBarColor: e.target.value,
-                        };
-                        setHeaderData(updatedData);
-                      }}
-                      onBlur={(e) => {
-                        // Save changes on blur
-                        saveChangesToAPI({
-                          ...headerData,
-                          topBarColor: e.target.value
-                        });
-                      }}
-                      className="w-full h-9 p-1"
-                    />
-                  </div>
+                  <Input
+                    id="topBarColor"
+                    type="color"
+                    value={headerData.topBarColor || "#3b71fe"}
+                    onChange={(e) => {
+                      const updatedData = {
+                        ...headerData,
+                        topBarColor: e.target.value,
+                      };
+                      setHeaderData(updatedData);
+                      // Save changes immediately
+                      saveChangesToAPI(updatedData);
+                    }}
+                    className="w-full h-9 p-1 cursor-pointer"
+                  />
                   <p className="text-xs text-gray-500 mt-1">
                     Set the background color of the top bar.
                   </p>
                 </div>
                 
-                              <div className="space-y-3 pt-3 border-t">
-                <Label htmlFor="topBarTextColor" className="text-sm">
-                  Top Bar Text Color
-                </Label>
-                <div className="flex items-center gap-2">
-                  <div 
-                    className="w-8 h-8 rounded border"
-                    style={{ backgroundColor: headerData.topBarTextColor || "#ffffff" }}
-                  />
+                <div className="space-y-3 pt-3 border-t">
+                  <Label htmlFor="topBarTextColor" className="text-sm">
+                    Top Bar Text Color
+                  </Label>
                   <Input
                     id="topBarTextColor"
                     type="color"
@@ -1499,31 +1520,20 @@ function HeaderEditorContent({
                         topBarTextColor: e.target.value,
                       };
                       setHeaderData(updatedData);
+                      // Save changes immediately
+                      saveChangesToAPI(updatedData);
                     }}
-                    onBlur={(e) => {
-                      // Save changes on blur
-                      saveChangesToAPI({
-                        ...headerData,
-                        topBarTextColor: e.target.value
-                      });
-                    }}
-                    className="w-full h-9 p-1"
+                    className="w-full h-9 p-1 cursor-pointer"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set the text color for the top bar content.
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Set the text color for the top bar content.
-                </p>
-              </div>
-              
-              <div className="space-y-3 pt-3 border-t">
-                <Label htmlFor="mobileMenuButtonColor" className="text-sm">
-                  Mobile Menu Button Color
-                </Label>
-                <div className="flex items-center gap-2">
-                  <div 
-                    className="w-8 h-8 rounded border"
-                    style={{ backgroundColor: headerData.mobileMenuButtonColor || "#3b71fe" }}
-                  />
+                
+                <div className="space-y-3 pt-3 border-t">
+                  <Label htmlFor="mobileMenuButtonColor" className="text-sm">
+                    Mobile Menu Button Color
+                  </Label>
                   <Input
                     id="mobileMenuButtonColor"
                     type="color"
@@ -1534,21 +1544,15 @@ function HeaderEditorContent({
                         mobileMenuButtonColor: e.target.value,
                       };
                       setHeaderData(updatedData);
+                      // Save changes immediately
+                      saveChangesToAPI(updatedData);
                     }}
-                    onBlur={(e) => {
-                      // Save changes on blur
-                      saveChangesToAPI({
-                        ...headerData,
-                        mobileMenuButtonColor: e.target.value
-                      });
-                    }}
-                    className="w-full h-9 p-1"
+                    className="w-full h-9 p-1 cursor-pointer"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Set the background color for the mobile menu toggle button.
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Set the background color for the mobile menu toggle button.
-                </p>
-              </div>
               </>
             )}
 
@@ -1591,32 +1595,21 @@ function HeaderEditorContent({
                   <Label htmlFor="phoneIconBgColor" className="text-sm">
                     Phone Icon Background Color
                   </Label>
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-8 h-8 rounded border"
-                      style={{ backgroundColor: headerData.phoneIconBgColor || "#3b71fe" }}
-                    />
-                    <Input
-                      id="phoneIconBgColor"
-                      type="color"
-                      value={headerData.phoneIconBgColor || "#3b71fe"}
-                      onChange={(e) => {
-                        const updatedData = {
-                          ...headerData,
-                          phoneIconBgColor: e.target.value,
-                        };
-                        setHeaderData(updatedData);
-                      }}
-                      onBlur={(e) => {
-                        // Save changes on blur
-                        saveChangesToAPI({
-                          ...headerData,
-                          phoneIconBgColor: e.target.value
-                        });
-                      }}
-                      className="w-full h-9 p-1"
-                    />
-                  </div>
+                  <Input
+                    id="phoneIconBgColor"
+                    type="color"
+                    value={headerData.phoneIconBgColor || "#3b71fe"}
+                    onChange={(e) => {
+                      const updatedData = {
+                        ...headerData,
+                        phoneIconBgColor: e.target.value,
+                      };
+                      setHeaderData(updatedData);
+                      // Save changes immediately
+                      saveChangesToAPI(updatedData);
+                    }}
+                    className="w-full h-9 p-1 cursor-pointer"
+                  />
                   <p className="text-xs text-gray-500 mt-1">
                     Set the background color for the phone icon in the header.
                   </p>
@@ -1626,32 +1619,21 @@ function HeaderEditorContent({
                   <Label htmlFor="phoneIconColor" className="text-sm">
                     Phone Icon Color
                   </Label>
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-8 h-8 rounded border"
-                      style={{ backgroundColor: headerData.phoneIconColor || "#ffffff" }}
-                    />
-                    <Input
-                      id="phoneIconColor"
-                      type="color"
-                      value={headerData.phoneIconColor || "#ffffff"}
-                      onChange={(e) => {
-                        const updatedData = {
-                          ...headerData,
-                          phoneIconColor: e.target.value,
-                        };
-                        setHeaderData(updatedData);
-                      }}
-                      onBlur={(e) => {
-                        // Save changes on blur
-                        saveChangesToAPI({
-                          ...headerData,
-                          phoneIconColor: e.target.value
-                        });
-                      }}
-                      className="w-full h-9 p-1"
-                    />
-                  </div>
+                  <Input
+                    id="phoneIconColor"
+                    type="color"
+                    value={headerData.phoneIconColor || "#ffffff"}
+                    onChange={(e) => {
+                      const updatedData = {
+                        ...headerData,
+                        phoneIconColor: e.target.value,
+                      };
+                      setHeaderData(updatedData);
+                      // Save changes immediately
+                      saveChangesToAPI(updatedData);
+                    }}
+                    className="w-full h-9 p-1 cursor-pointer"
+                  />
                   <p className="text-xs text-gray-500 mt-1">
                     Set the color of the phone icon in the header.
                   </p>
@@ -1672,7 +1654,7 @@ function HeaderEditorContent({
                       setHeaderData(updatedData);
                     }}
                     onBlur={(e) => {
-                      // Save changes on blur
+                      // Save changes immediately on blur
                       saveChangesToAPI({
                         ...headerData,
                         phoneQuestionText: e.target.value
@@ -1774,32 +1756,21 @@ function HeaderEditorContent({
                     >
                       Button Color
                     </Label>
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-8 h-8 rounded border"
-                        style={{ backgroundColor: headerData.buttonColor || "#3b71fe" }}
-                      />
-                      <Input
-                        id="buttonColor"
-                        type="color"
-                        value={headerData.buttonColor || "#3b71fe"}
-                        onChange={(e) => {
-                          const updatedData = {
-                            ...headerData,
-                            buttonColor: e.target.value,
-                          };
-                          setHeaderData(updatedData);
-                        }}
-                        onBlur={(e) => {
-                          // Save changes on blur
-                          saveChangesToAPI({
-                            ...headerData,
-                            buttonColor: e.target.value
-                          });
-                        }}
-                        className="w-full h-9 p-1"
-                      />
-                    </div>
+                    <Input
+                      id="buttonColor"
+                      type="color"
+                      value={headerData.buttonColor || "#3b71fe"}
+                      onChange={(e) => {
+                        const updatedData = {
+                          ...headerData,
+                          buttonColor: e.target.value,
+                        };
+                        setHeaderData(updatedData);
+                        // Save changes immediately
+                        saveChangesToAPI(updatedData);
+                      }}
+                      className="w-full h-9 p-1 cursor-pointer"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label
@@ -1808,32 +1779,21 @@ function HeaderEditorContent({
                     >
                       Button Text Color
                     </Label>
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-8 h-8 rounded border"
-                        style={{ backgroundColor: headerData.buttonTextColor || "#ffffff" }}
-                      />
-                      <Input
-                        id="buttonTextColor"
-                        type="color"
-                        value={headerData.buttonTextColor || "#ffffff"}
-                        onChange={(e) => {
-                          const updatedData = {
-                            ...headerData,
-                            buttonTextColor: e.target.value,
-                          };
-                          setHeaderData(updatedData);
-                        }}
-                        onBlur={(e) => {
-                          // Save changes on blur
-                          saveChangesToAPI({
-                            ...headerData,
-                            buttonTextColor: e.target.value
-                          });
-                        }}
-                        className="w-full h-9 p-1"
-                      />
-                    </div>
+                    <Input
+                      id="buttonTextColor"
+                      type="color"
+                      value={headerData.buttonTextColor || "#ffffff"}
+                      onChange={(e) => {
+                        const updatedData = {
+                          ...headerData,
+                          buttonTextColor: e.target.value,
+                        };
+                        setHeaderData(updatedData);
+                        // Save changes immediately
+                        saveChangesToAPI(updatedData);
+                      }}
+                      className="w-full h-9 p-1 cursor-pointer"
+                    />
                   </div>
                 </div>
               )}
