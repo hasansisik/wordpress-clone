@@ -50,6 +50,7 @@
     "axios": "^1.9.0",
     "bcrypt": "^6.0.0",
     "bootstrap": "^5.3.6",
+    "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "fs": "^0.0.1-security",

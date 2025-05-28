@@ -30,6 +30,7 @@ interface BlogPost {
   category: string[];
   author: string;
   date: string;
+  premium?: boolean;
 }
 
 interface Project {
@@ -217,7 +218,20 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   return (
     <>
       {contentType === 'blog' && blogPost && (
-        <section>
+        <section className={blogPost.premium ? "premium-content" : ""}>
+          {blogPost.premium && (
+            <div className="bg-gradient-to-r from-amber-400 to-amber-600 text-white py-2 text-center">
+              <div className="container mx-auto">
+                <div className="flex items-center justify-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-award">
+                    <circle cx="12" cy="8" r="7"></circle>
+                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                  </svg>
+                  <span className="font-bold">Premium Content</span>
+                </div>
+              </div>
+            </div>
+          )}
           <img 
             className="w-100"
             src={blogPost.image} 
@@ -241,17 +255,32 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                   ) : (
                     <Link
                       href="#"
-                      className="bg-primary-soft rounded-pill px-3 fw-bold py-2 text-primary text-uppercase fs-7"
+                      className={`${
+                        blogPost.premium 
+                          ? "bg-amber-100 text-amber-800" 
+                          : "bg-primary-soft text-primary"
+                      } rounded-pill px-3 fw-bold py-2 text-uppercase fs-7`}
                     >
                       {blogPost.category}
                     </Link>
                   )}
+                  {blogPost.premium && (
+                    <span className="bg-amber-500 text-white rounded-pill px-3 fw-bold py-2 text-uppercase fs-7 ml-2">
+                      Premium
+                    </span>
+                  )}
                 </div>
-                <h5 className="ds-5 mt-3 mb-4">{blogPost.title}</h5>
+                <h5 className={`ds-5 mt-3 mb-4 ${blogPost.premium ? "text-amber-800" : ""}`}>
+                  {blogPost.title}
+                </h5>
                 <p className="fs-5 text-900 mb-0">{parse(blogPost.content.intro)}</p>
-                <div className="d-flex align-items-center justify-content-between mt-7 py-3 border-top border-bottom">
+                <div className={`d-flex align-items-center justify-content-between mt-7 py-3 border-top border-bottom ${
+                  blogPost.premium ? "border-amber-200" : ""
+                }`}>
                   <div className="d-flex align-items-center position-relative z-1">
-                    <div className="icon-shape rounded-circle border border-2 border-white bg-primary d-flex justify-content-center align-items-center" style={{ width: '40px', height: '40px' }}>
+                    <div className={`icon-shape rounded-circle border border-2 border-white ${
+                      blogPost.premium ? "bg-amber-500" : "bg-primary"
+                    } d-flex justify-content-center align-items-center`} style={{ width: '40px', height: '40px' }}>
                       <span className="text-white font-weight-bold">
                         {blogPost.content.author.name.substring(0, 2).toUpperCase()}
                       </span>
@@ -290,18 +319,75 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               </div>
               <div className="col-md-10 mx-auto my-7">
                 <img
-                  className="rounded-4"
+                  className={`rounded-4 ${blogPost.premium ? "shadow-lg" : ""}`}
                   src={blogPost.content.mainImage}
                   alt={blogPost.title}
                 />
               </div>
               <div className="col-md-8 mx-auto">
-                <div className="blog-content tw-prose tw-prose-lg tw-max-w-none">
+                <div className={`blog-content tw-prose tw-prose-lg tw-max-w-none ${
+                  blogPost.premium ? "premium-blog-content" : ""
+                }`}>
                   {blogPost.content.fullContent && parse(blogPost.content.fullContent)}
                 </div>
+                
+                {blogPost.premium && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-8">
+                    <div className="flex items-center gap-2 mb-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
+                        <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
+                      </svg>
+                      <h5 className="text-amber-800 font-bold m-0">Premium Content</h5>
+                    </div>
+                    <p className="text-amber-700 mb-0">
+                      You're viewing premium quality content. Thank you for being a valued premium subscriber.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
+          
+          {/* Add premium styling */}
+          {blogPost.premium && (
+            <style jsx global>{`
+              .premium-container {
+                position: relative;
+              }
+              
+              .premium-container::before {
+                content: '';
+                position: absolute;
+                top: -60px;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background: linear-gradient(to bottom, rgba(251, 191, 36, 0.1), transparent);
+                pointer-events: none;
+              }
+              
+              .premium-blog-content {
+                font-family: 'Georgia', serif;
+                line-height: 1.8;
+              }
+              
+              .premium-blog-content h1, 
+              .premium-blog-content h2, 
+              .premium-blog-content h3 {
+                color: #92400e;
+              }
+              
+              .premium-blog-content blockquote {
+                border-left-color: #f59e0b;
+                background-color: rgba(251, 191, 36, 0.1);
+              }
+              
+              .premium-blog-content a {
+                color: #b45309;
+                text-decoration: underline;
+              }
+            `}</style>
+          )}
         </section>
       )}
       

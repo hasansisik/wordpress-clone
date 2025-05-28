@@ -23,6 +23,7 @@ export interface BlogPayload {
   date?: string;
   content: BlogContent;
   link?: string;
+  premium?: boolean;
   companyId?: string;
 }
 

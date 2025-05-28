@@ -119,12 +119,12 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 								<div className="blog-cards-grid">
 									{posts.map((post, index) => (
 										<div key={index} className="blog-card">
-											<div className="card border-0 rounded-3 position-relative d-block w-100 h-100 card-hover">
+											<div className="card border-0 rounded-3 position-relative d-block w-100 h-100 card-hover bg-gray-50">
 												<div className="blog-image-container w-100" style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
 													<img 
 														className="rounded-top-3" 
 														src={post.image} 
-														alt="blog post" 
+														alt={post.title} 
 														style={{ 
 															width: '100%', 
 															height: '100%', 
@@ -132,13 +132,26 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 															objectPosition: 'center'
 														}} 
 													/>
+													{post.premium && (
+														<>
+															<div className="position-absolute top-0 end-0 m-2">
+																<div className="bg-amber-500 text-white px-2 py-1 rounded-pill fs-8 fw-bold">
+																	Premium
+																</div>
+															</div>
+															<div className="position-absolute bottom-0 left-0 w-100" style={{
+																background: 'linear-gradient(to top, rgba(245, 158, 11, 1), rgba(245, 158, 11, 0))',
+																height: '100px'
+															}}></div>
+														</>
+													)}
 												</div>
 												<div className="card-body">
-													<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3" style={badgeStyle}>
+													<Link href={`/${slugify(post.title)}`} className={`${post.premium ? 'bg-orange-100 text-orange-700' : 'bg-primary-soft text-primary'} position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3`} style={post.premium ? undefined : badgeStyle}>
 														<span className="tag-spacing fs-7 fw-bold text-uppercase">{Array.isArray(post.category) ? post.category[0] : post.category}</span>
 													</Link>
-													<h6 className="my-3">{post.title}</h6>
-													<p>{post.description}</p>
+													<h6 className={`my-3 ${post.premium ? 'text-orange-700' : 'text-gray-800'}`}>{post.title}</h6>
+													<p className="text-gray-700">{post.description}</p>
 												</div>
 												<Link href={`/${slugify(post.title)}`} className="position-absolute bottom-0 start-0 end-0 top-0" />
 											</div>

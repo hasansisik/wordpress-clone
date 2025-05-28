@@ -6,6 +6,8 @@ import { getAllBlogs } from "@/redux/actions/blogActions"
 import { getOther } from "@/redux/actions/otherActions"
 import { AppDispatch, RootState } from "@/redux/store"
 import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import PremiumContentDialog from "@/components/PremiumContentDialog"
 
 interface Blog1Props {
 	previewData?: any;
@@ -28,6 +30,9 @@ export default function Blog1({ previewData }: Blog1Props) {
 	const dispatch = useDispatch<AppDispatch>()
 	const { blogs, loading: blogLoading, error } = useSelector((state: RootState) => state.blog)
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other)
+	const router = useRouter()
+	const [showPremiumDialog, setShowPremiumDialog] = useState(false)
+	const [currentPremiumPost, setCurrentPremiumPost] = useState<any>(null)
 
 	useEffect(() => {
 		dispatch(getAllBlogs())
@@ -47,6 +52,20 @@ export default function Blog1({ previewData }: Blog1Props) {
 			setData(other.blog1);
 		}
 	}, [previewData, other])
+
+	// Handle blog post click with premium check
+	const handlePostClick = (e: React.MouseEvent, post: any) => {
+		if (post.premium) {
+			e.preventDefault();
+			setCurrentPremiumPost(post);
+			setShowPremiumDialog(true);
+		}
+	}
+
+	const handleDialogClose = () => {
+		setShowPremiumDialog(false);
+		setCurrentPremiumPost(null);
+	}
 
 	if (blogLoading || otherLoading) {
 		return (
@@ -90,6 +109,13 @@ export default function Blog1({ previewData }: Blog1Props) {
 
 	return (
 		<>
+			{/* Premium Dialog */}
+			<PremiumContentDialog 
+				isOpen={showPremiumDialog} 
+				onClose={handleDialogClose}
+				title={currentPremiumPost?.title ? `Premium İçerik: ${currentPremiumPost.title}` : 'Premium İçerik'}
+			/>
+
 			<section className="section-blog-1 @@padding py-4" style={sectionStyle}>
 				<div className="container">
 					<div className="row align-items-end">
@@ -106,12 +132,12 @@ export default function Blog1({ previewData }: Blog1Props) {
 					<div className="row">
 						{blogPosts.map((post, index) => (
 							<div key={index} className="col-lg-4 text-start">
-								<div className="card border-0 rounded-3 mt-8 position-relative w-100" data-aos="fade-zoom-in" data-aos-delay={(index + 1) * 100}>
+								<div className="card border-0 rounded-3 mt-8 position-relative w-100 bg-gray-50" data-aos="fade-zoom-in" data-aos-delay={(index + 1) * 100}>
 									<div className="blog-image-container" style={{ height: '220px', width: '100%', overflow: 'hidden', position: 'relative' }}>
 										<img 
 											className="rounded-top-3" 
 											src={post.image} 
-											alt="blog post" 
+											alt={post.title} 
 											style={{ 
 												width: '100%', 
 												height: '100%', 
@@ -119,15 +145,32 @@ export default function Blog1({ previewData }: Blog1Props) {
 												objectPosition: 'center'
 											}} 
 										/>
+										{post.premium && (
+											<>
+												<div className="position-absolute top-0 end-0 m-2">
+													<div className="bg-amber-500 text-white px-2 py-1 rounded-pill fs-8 fw-bold">
+														Premium
+													</div>
+												</div>
+												<div className="position-absolute bottom-0 left-0 w-100" style={{
+													background: 'linear-gradient(to top, rgba(245, 158, 11, 1), rgba(245, 158, 11, 0))',
+													height: '100px'
+												}}></div>
+											</>
+										)}
 									</div>
-									<div className="card-body p-0 bg-white">
-										<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3" style={badgeStyle}>
-											<span className="tag-spacing fs-7 fw-bold text-uppercase">{post.category[0]}</span>
+									<div className="card-body p-0">
+										<Link href={`/${slugify(post.title)}`} className={` bg-orange-700' position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3`} style={post.premium ? undefined : badgeStyle}>
+											<span className="tag-spacing fs-7 fw-bold text-uppercase ">{post.category[0]}</span>
 										</Link>
-										<h6 className="my-3">{post.title}</h6>
-										<p>{post.description}</p>
+										<h6 className={`my-3 ${post.premium ? 'text-orange-700' : 'text-gray-800'}`}>{post.title}</h6>
+										<p className="text-gray-700">{post.description}</p>
 									</div>
-									<Link href={`/${slugify(post.title)}`} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" />
+									<Link 
+										href={`/${slugify(post.title)}`} 
+										className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
+										onClick={(e) => handlePostClick(e, post)}
+									/>
 								</div>
 							</div>
 						))}

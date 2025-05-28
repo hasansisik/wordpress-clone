@@ -75,6 +75,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AlertCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface Section {
   title: string;
@@ -106,6 +107,7 @@ interface Post {
   link: string;
   author: string;
   date: string;
+  premium?: boolean;
 }
 
 // Function to convert title to slug
@@ -159,6 +161,7 @@ export default function BlogEditor() {
     intro: "",
     fullContent: "",
     mainImage: "",
+    premium: false,
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -319,6 +322,7 @@ export default function BlogEditor() {
           description: formData.description,
           category: formData.categories,
           author: formData.author,
+          premium: formData.premium,
           content: {
             intro: formData.intro,
             readTime: formData.readTime,
@@ -366,6 +370,7 @@ export default function BlogEditor() {
           description: formData.description,
           category: formData.categories,
           author: formData.author,
+          premium: formData.premium,
           content: {
             intro: formData.intro,
             readTime: formData.readTime,
@@ -492,6 +497,7 @@ export default function BlogEditor() {
       intro: postToEdit.content.intro,
       fullContent: postToEdit.content.fullContent || "",
       mainImage: postToEdit.content.mainImage,
+      premium: postToEdit.premium || false,
     });
 
     // Set edit mode with the correct MongoDB ID
@@ -751,13 +757,14 @@ export default function BlogEditor() {
                       <TableHead>Categories</TableHead>
                       <TableHead>Author</TableHead>
                       <TableHead>Date</TableHead>
+                      <TableHead>Premium</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredPosts.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-4">
+                        <TableCell colSpan={6} className="text-center py-4">
                           No blog posts found.{" "}
                           {searchTerm && "Try a different search term."}
                         </TableCell>
@@ -794,6 +801,13 @@ export default function BlogEditor() {
                           </TableCell>
                           <TableCell>{post.author}</TableCell>
                           <TableCell>{post.date}</TableCell>
+                          <TableCell>
+                            {post.premium ? (
+                              <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100">Premium</Badge>
+                            ) : (
+                              <Badge variant="outline">Free</Badge>
+                            )}
+                          </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               <Link
@@ -1257,6 +1271,36 @@ export default function BlogEditor() {
                         <p className="text-xs text-muted-foreground">
                           Press Enter or click Add to add a category
                         </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-sm">
+                    <CardHeader className="">
+                      <CardTitle className="text-base font-medium">
+                        Premium Content
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label htmlFor="premium-toggle" className="text-sm font-medium">
+                            Mark as Premium Content
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Premium content is specially styled and may be restricted based on subscription.
+                          </p>
+                        </div>
+                        <Switch
+                          id="premium-toggle"
+                          checked={formData.premium}
+                          onCheckedChange={(checked) =>
+                            setFormData({
+                              ...formData,
+                              premium: checked,
+                            })
+                          }
+                        />
                       </div>
                     </CardContent>
                   </Card>

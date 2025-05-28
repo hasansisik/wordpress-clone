@@ -83,12 +83,12 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
           <div className="row">
             {posts.map((post, index) => (
               <div key={index} className="col-lg-4 text-start">
-                <div className="card border-0 rounded-3 mt-8 position-relative w-100">
+                <div className="card border-0 rounded-3 mt-8 position-relative w-100 bg-gray-50">
                   <div className="blog-image-container w-100" style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
                     <img 
                       className="rounded-top-3" 
                       src={post.image} 
-                      alt="blog post" 
+                      alt={post.title} 
                       style={{ 
                         width: '100%', 
                         height: '100%', 
@@ -96,20 +96,33 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
                         objectPosition: 'center'
                       }} 
                     />
+                    {post.premium && (
+                      <>
+                        <div className="position-absolute top-0 end-0 m-2">
+                          <div className="bg-amber-500 text-white px-2 py-1 rounded-pill fs-8 fw-bold">
+                            Premium
+                          </div>
+                        </div>
+                        <div className="position-absolute bottom-0 left-0 w-100" style={{
+                          background: 'linear-gradient(to top, rgba(245, 158, 11, 1), rgba(245, 158, 11, 0))',
+                          height: '100px'
+                        }}></div>
+                      </>
+                    )}
                   </div>
-                  <div className="card-body bg-white p-0">
+                  <div className="card-body p-0">
                     <Link
                       href={`/${slugify(post.title)}`}
-                      className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
+                      className={`${post.premium ? 'bg-orange-100 text-orange-700' : 'bg-primary-soft'} position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3`}
                     >
-                      <span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">
+                      <span className={`tag-spacing fs-7 fw-bold ${post.premium ? 'text-orange-700' : 'text-linear-2'} text-uppercase`}>
                         {Array.isArray(post.category) ? post.category[0] : post.category}
                       </span>
                     </Link>
-                    <h6 className="my-3">
+                    <h6 className={`my-3 ${post.premium ? 'text-orange-700' : 'text-gray-800'}`}>
                       {post.title}
                     </h6>
-                    <p>
+                    <p className="text-gray-700">
                       {post.description}
                     </p>
                   </div>
