@@ -337,9 +337,6 @@ export default function ProjectEditor() {
       return;
     }
 
-    console.log('Form submission - isEditMode:', isEditMode);
-    console.log('Form submission - editingProjectId:', editingProjectId);
-    console.log('Form submission - editingProjectId type:', typeof editingProjectId);
 
     try {
       // Prepare content object
@@ -355,15 +352,12 @@ export default function ProjectEditor() {
         fullContent: formData.fullContent || ""
       };
 
-      if (isEditMode && editingProjectId) {
-        console.log('Mode: UPDATE - Using editingProjectId:', editingProjectId);
-        
+      if (isEditMode && editingProjectId) {        
         // İd'nin string olduğundan emin olalım
         const idString = String(editingProjectId);
         
         // MongoDB Object ID formatını kontrol edelim (24 karakter hexadecimal)
         const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(idString);
-        console.log('Is valid MongoDB ObjectId:', isValidObjectId);
         
         // Update existing project
         const serviceData = {
@@ -378,9 +372,7 @@ export default function ProjectEditor() {
           tag: formData.tag || "",
           content: contentObject
         };
-        
-        console.log('Updating project with data:', serviceData);
-        
+                
         // Dispatch update action
         await dispatch(updateService(serviceData)).unwrap();
         
@@ -394,7 +386,6 @@ export default function ProjectEditor() {
           message: "Project updated successfully!"
         });
       } else {
-        console.log('Mode: CREATE - Creating new project');
         
         // Create new project
         const serviceData = {
@@ -408,9 +399,7 @@ export default function ProjectEditor() {
           tag: formData.tag || "",
           content: contentObject
         };
-        
-        console.log('Creating project with data:', serviceData);
-        
+                
         // Dispatch create action
         await dispatch(createService(serviceData)).unwrap();
         
@@ -514,7 +503,6 @@ export default function ProjectEditor() {
       (projectId as any)._id || projectId : 
       projectId;
     
-    console.log('Delete project with ID:', idToDelete);
     setProjectToDelete(String(idToDelete));
     setDeleteDialogOpen(true);
   };
@@ -524,7 +512,6 @@ export default function ProjectEditor() {
     if (!projectToDelete) return;
     
     try {
-      console.log('Confirming delete project with ID:', projectToDelete);
       await dispatch(deleteService(projectToDelete)).unwrap();
       setDeleteDialogOpen(false);
       setProjectToDelete(null);
@@ -538,9 +525,7 @@ export default function ProjectEditor() {
   };
 
   // Edit project handler
-  const handleEditProject = (projectId: string | number) => {
-    console.log('handleEditProject - projectId received:', projectId);
-    
+  const handleEditProject = (projectId: string | number) => {    
     // projectId'yi string'e çevirelim ve konsola yazdıralım
     const projectIdStr = String(projectId);
     
@@ -558,10 +543,6 @@ export default function ProjectEditor() {
       });
       return;
     }
-    
-    console.log('Found project to edit:', projectToEdit);
-    console.log('Project _id:', projectToEdit._id);
-    console.log('Project id:', projectToEdit.id);
     
     // Set form data
     setFormData({
@@ -584,7 +565,6 @@ export default function ProjectEditor() {
     
     // MongoDB ObjectId değerini öncelikli olarak kullan
     const editId = projectToEdit._id || projectId;
-    console.log('Setting editingProjectId to:', editId);
     
     // Set edit mode
     setIsEditMode(true);
@@ -1014,7 +994,6 @@ export default function ProjectEditor() {
                           type="button" 
                           variant="outline" 
                           onClick={() => {
-                            console.log('Form Cancel button clicked');
                             resetForm();
                             setIsEditMode(false);
                             setEditingProjectId(null);

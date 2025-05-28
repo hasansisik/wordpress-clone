@@ -115,8 +115,6 @@ export const updateBlog = createAsyncThunk(
   "blog/updateBlog",
   async ({ id, ...blogData }: UpdateBlogPayload, thunkAPI) => {
     try {
-      console.log('updateBlog thunk - ID:', id);
-      console.log('updateBlog thunk - Data:', blogData);
       
       const token = localStorage.getItem("accessToken");
       const { data } = await axios.put(`${server}/blogs/${id}`, blogData, {
@@ -124,7 +122,6 @@ export const updateBlog = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('updateBlog thunk - Response:', data);
       return data.blog;
     } catch (error: any) {
       console.error('updateBlog thunk - Error:', error.response?.data || error.message);
