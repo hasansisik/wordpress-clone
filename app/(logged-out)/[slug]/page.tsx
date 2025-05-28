@@ -98,18 +98,21 @@ export async function generateMetadata({
   params: { slug: string }
   searchParams?: { [key: string]: string | string[] | undefined }
 }): Promise<Metadata> {
-  // Properly await the params before accessing properties
-  const resolvedParams = await Promise.resolve(params);
-  const { slug } = resolvedParams;
+  const { slug } = params;
   
   try {
     // Fetch blog and project data from API endpoints
-    const blogData = await fetchBlogs();
-    const projectData = await fetchProjects();
+    const [blogData, projectData] = await Promise.all([
+      fetchBlogs(),
+      fetchProjects()
+    ]);
     
     // Find the content by slugified title in either data set
-    const blogPost = blogData.find((post: BlogPost) => slugify(post.title) === slug);
-    const project = projectData.find((proj: Project) => slugify(proj.title) === slug);
+    const blogPost = Array.isArray(blogData) ? 
+      blogData.find((post: BlogPost) => slugify(post.title) === slug) : null;
+    
+    const project = Array.isArray(projectData) ? 
+      projectData.find((proj: Project) => slugify(proj.title) === slug) : null;
     
     // If we have a blog post
     if (blogPost) {
@@ -140,14 +143,19 @@ export async function generateMetadata({
         },
       };
     }
+    
+    // If we get here, log the slug we're trying to match and the available data
+    console.log(`No content found for slug: ${slug}`);
+    console.log(`Available blog slugs: ${Array.isArray(blogData) ? blogData.map((post: BlogPost) => slugify(post.title)).join(', ') : 'No blogs'}`);
+    console.log(`Available project slugs: ${Array.isArray(projectData) ? projectData.map((proj: Project) => slugify(proj.title)).join(', ') : 'No projects'}`);
   } catch (error) {
     console.error('Error generating metadata:', error);
   }
   
   // Default metadata if not found
   return {
-    title: "Content Not Found | WordPress Clone",
-    description: "The requested content could not be found.",
+    title: `${slug} | WordPress Clone`,
+    description: "WordPress Clone Content",
   };
 }
 
@@ -157,9 +165,6 @@ export default async function SlugPage({
   params: { slug: string }
   searchParams?: { [key: string]: string | string[] | undefined }
 }) {
-  // Properly await the params before accessing properties
-  const resolvedParams = await Promise.resolve(params);
-  
-  // Pass the slug to the client component
-  return <SlugPageClient slug={resolvedParams.slug} />;
+  // Pass the slug directly to the client component
+  return <SlugPageClient slug={params.slug} />;
 }
