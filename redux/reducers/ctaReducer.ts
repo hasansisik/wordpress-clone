@@ -47,7 +47,7 @@ const initialState: CtaState = {
       videoGuide: {
         image: "/assets/imgs/cta-4/img-1.png",
         videoId: "gXFATcwrO-U",
-        buttonText: "Video Guide"
+        buttonText: "Video "
       },
       vector: {
         image: "/assets/imgs/cta-4/vector.svg"

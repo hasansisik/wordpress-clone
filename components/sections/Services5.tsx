@@ -39,7 +39,10 @@ export default function Services5({ previewData }: Services5Props) {
 	const categories = services ? 
 		[...new Set(services.flatMap(service => service.categories || []))]
 			.filter(category => category)
-			.map(category => ({ id: category, name: category })) 
+			.map(category => ({ 
+				id: typeof category === 'string' ? category.replace(/\s+/g, '-').toLowerCase() : category, 
+				name: category 
+			})) 
 		: [];
 
 	useEffect(() => {
@@ -121,7 +124,8 @@ export default function Services5({ previewData }: Services5Props) {
 	// Apply filter when filterKey changes
 	useEffect(() => {
 		if (isotope.current && isotopeReady) {
-			isotope.current.arrange({ filter: filterKey === '*' ? '*' : `.${filterKey}` });
+			const filterSelector = filterKey === '*' ? '*' : `.${filterKey.replace(/\s+/g, '-').toLowerCase()}`;
+			isotope.current.arrange({ filter: filterSelector });
 		}
 	}, [filterKey, isotopeReady]);
 
@@ -208,32 +212,46 @@ export default function Services5({ previewData }: Services5Props) {
 				<div className="container mt-6">
 					<div ref={containerRef} className="masonary-active justify-content-between row">
 						<div className="grid-sizer" />
-						{services && services.map((service) => (
-							<div 
-								key={service._id || service.id} 
-								className={`filter-item col-12 col-md-4 ${
-									Array.isArray(service.categories) 
-										? service.categories.map((cat: any) => typeof cat === 'string' ? cat : '').join(' ') 
-										: ''
-								}`}
-							>
-								<div className="project-item zoom-img rounded-2 fix position-relative">
-									<div style={{ height: '300px', overflow: 'hidden' }}>
-										<img 
-											className="rounded-2 w-100 h-100" 
-											src={service.image} 
-											alt="infinia" 
-											style={{ objectFit: 'cover', objectPosition: 'center' }}
-										/>
+						{services && services.map((service) => {
+							// Create a standardized format for category classes
+							const categoryClasses = Array.isArray(service.categories) 
+								? service.categories.map((cat: string) => 
+									typeof cat === 'string' ? cat.replace(/\s+/g, '-').toLowerCase() : ''
+								).join(' ') 
+								: '';
+								
+							return (
+								<div 
+									key={service._id || service.id} 
+									className={`filter-item col-12 col-md-4 ${categoryClasses}`}
+								>
+									<div className="project-item zoom-img rounded-2 fix position-relative">
+										<div style={{ height: '300px', overflow: 'hidden' }}>
+											<img 
+												className="rounded-2 w-100 h-100" 
+												src={service.image} 
+												alt="infinia" 
+												style={{ objectFit: 'cover', objectPosition: 'center' }}
+											/>
+										</div>
+										<Link 
+											href={`/${slugify(service.title)}`} 
+											className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 d-block" 
+											style={{ 
+												opacity: 1, 
+												visibility: 'visible', 
+												transform: 'none', 
+												transition: 'none' 
+											}}
+										>
+											<h5 className="text-700">{service.title}</h5>
+											<p className="fs-7 mb-0">{service.description}</p>
+										</Link>
+										<Link href={`/${slugify(service.title)}`} className="position-absolute w-100 h-100 top-0 start-0" aria-label={service.title} />
 									</div>
-									<Link href={`/${slugify(service.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 ">
-										<h5 className="text-700">{service.title}</h5>
-										<p className="fs-7 mb-0">{service.description}</p>
-									</Link>
-									<Link href={`/${slugify(service.title)}`} className="position-absolute w-100 h-100 top-0 start-0" aria-label={service.title} />
 								</div>
-							</div>
-						))}
+							);
+						})}
 					</div>
 				</div>
 				<div className="position-absolute top-0 start-50 translate-middle-x z-0">

@@ -78,7 +78,7 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 							<p className="fs-5 text-500">{data.description}</p>
 							<div className="d-md-flex align-items-center mt-4 mb-5">
 								<ul className="list-unstyled phase-items mb-0">
-									{data.features.slice(0, 2).map((feature, index) => (
+									{data.features.slice(0, 2).map((feature: string, index: number) => (
 										<li key={index} className="d-flex align-items-center mt-3">
 										<img src="/assets/imgs/cta-2/check.svg" alt="infinia" />
 											<span className="ms-2 text-900">{feature}</span>
@@ -86,7 +86,7 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 									))}
 								</ul>
 								<ul className="list-unstyled phase-items ms-md-5 mb-0">
-									{data.features.slice(2, 4).map((feature, index) => (
+									{data.features.slice(2, 4).map((feature: string, index: number) => (
 										<li key={index} className="d-flex align-items-center mt-3">
 										<img src="/assets/imgs/cta-2/check.svg" alt="infinia" />
 											<span className="ms-2 text-900">{feature}</span>
@@ -96,8 +96,8 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 							</div>
 							<div className="row mt-8">
 								<div className="d-flex align-items-center">
-									<Link href={data.buttons.primary.link} className="btn btn-gradient">
-										{data.buttons.primary.text}
+									<Link href={data.buttons.primary.link} className="btn btn-gradient d-inline-flex align-items-center">
+										<span>{data.buttons.primary.text}</span>
 										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
 											<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 											<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

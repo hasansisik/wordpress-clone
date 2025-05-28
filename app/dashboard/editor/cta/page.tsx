@@ -347,13 +347,13 @@ function Cta4ContentForm({ data }: { data: any }) {
           label="Button Text"
           value={data?.videoGuide?.buttonText || ""}
           path="cta4.videoGuide.buttonText"
-          placeholder="e.g. Video Guide"
+          placeholder="e.g. Video"
         />
         <TextField
           label="Video ID"
           value={data?.videoGuide?.videoId || ""}
           path="cta4.videoGuide.videoId"
-          placeholder="e.g. YouTube video ID"
+          placeholder="e.g. YouTube"
         />
       </FormGroup>
     </div>

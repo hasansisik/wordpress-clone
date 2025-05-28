@@ -83,19 +83,24 @@ export default function Blog1({ previewData }: Blog1Props) {
 							<h3 className="ds-3 mt-3 mb-3" data-aos="fade-zoom-in" data-aos-delay={100}>{data.title}</h3>
 							<span className="fs-5 fw-medium" data-aos="fade-zoom-in" data-aos-delay={200}>{data.subtitle}</span>
 						</div>
-						<div className="col-12 col-md-6 text-end mt-3 mt-md-0">
-							<Link href={data.seeAllLink} className="d-flex align-items-center justify-content-end fw-bold text-primary">
-								See all articles <svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={14} viewBox="0 0 24 14" fill="none">
-									<path className="fill-dark" d="M17.4177 0.417969L16.3487 1.48705L21.1059 6.24429H0V7.75621H21.1059L16.3487 12.5134L17.4177 13.5825L24 7.0002L17.4177 0.417969Z" fill="black" />
-								</svg>
-							</Link>
-						</div>
 					</div>
 					<div className="row">
 						{blogPosts.map((post, index) => (
 							<div key={index} className="col-lg-4 text-start">
-								<div className="card border-0 rounded-3 mt-8 position-relative d-inline-flex" data-aos="fade-zoom-in" data-aos-delay={(index + 1) * 100}>
-									<img className="rounded-3" src={post.image} alt="blog post" />
+								<div className="card border-0 rounded-3 mt-8 position-relative w-100" data-aos="fade-zoom-in" data-aos-delay={(index + 1) * 100}>
+									<div className="blog-image-container" style={{ height: '220px', width: '100%', overflow: 'hidden', position: 'relative' }}>
+										<img 
+											className="rounded-top-3" 
+											src={post.image} 
+											alt="blog post" 
+											style={{ 
+												width: '100%', 
+												height: '100%', 
+												objectFit: 'cover',
+												objectPosition: 'center'
+											}} 
+										/>
+									</div>
 									<div className="card-body p-0 bg-white">
 										<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
 											<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category[0]}</span>
@@ -110,6 +115,15 @@ export default function Blog1({ previewData }: Blog1Props) {
 					</div>
 				</div>
 			</section>
+			<style jsx>{`
+				.card {
+					display: block;
+					width: 100%;
+				}
+				.blog-image-container {
+					width: 100%;
+				}
+			`}</style>
 		</>
 	)
 }

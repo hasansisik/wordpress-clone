@@ -52,7 +52,7 @@ export default function Services2({ previewData }: Services2Props = {}) {
 							<div key={index} className="col-lg-4 col-md-6">
 								<div className="p-2 rounded-4 shadow-1 bg-white position-relative z-1 hover-up mb-4">
 									<div className="card-service bg-white p-6 border rounded-4 text-center">
-										<div className={`${service.iconBgColor || 'bg-primary-soft'} icon-flip position-relative icon-shape icon-xxl rounded-3 me-5`}>
+										<div className="icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
 											<div className="icon">
 												<img src={service.icon} alt="infinia" />
 											</div>

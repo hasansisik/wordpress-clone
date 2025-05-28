@@ -220,8 +220,9 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         <section>
           <img 
             className="w-100"
-            src={blogPost.content.mainImage} 
+            src={blogPost.image} 
             alt={blogPost.title}
+            style={{ maxWidth: '1920px', maxHeight: '400px', objectFit: 'cover', width: '100%' }}
           />
           <div className="container mt-10">
             <div className="row">

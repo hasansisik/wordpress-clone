@@ -93,8 +93,20 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 								<div className="blog-cards-grid">
 									{posts.map((post, index) => (
 										<div key={index} className="blog-card">
-											<div className="card border-0 rounded-3 position-relative d-inline-flex card-hover">
-												<img className="rounded-top-3" src={post.image} alt="blog post" />
+											<div className="card border-0 rounded-3 position-relative d-block w-100 h-100 card-hover">
+												<div className="blog-image-container w-100" style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
+													<img 
+														className="rounded-top-3" 
+														src={post.image} 
+														alt="blog post" 
+														style={{ 
+															width: '100%', 
+															height: '100%', 
+															objectFit: 'cover',
+															objectPosition: 'center'
+														}} 
+													/>
+												</div>
 												<div className="card-body">
 													<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
 														<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{Array.isArray(post.category) ? post.category[0] : post.category}</span>
@@ -147,13 +159,6 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 				
 				.blog-card .card-body {
 					flex: 1;
-				}
-				
-				.blog-card img {
-					width: 100%;
-					height: auto;
-					max-height: 200px;
-					object-fit: cover;
 				}
 			`}</style>
 		</>

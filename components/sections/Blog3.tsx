@@ -74,12 +74,20 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
           <div className="row">
             {posts.map((post, index) => (
               <div key={index} className="col-lg-4 text-start">
-                <div className="card border-0 rounded-3 mt-8 position-relative d-inline-flex">
-                  <img
-                    className="rounded-top-3"
-                    src={post.image}
-                    alt="blog post"
-                  />
+                <div className="card border-0 rounded-3 mt-8 position-relative w-100">
+                  <div className="blog-image-container w-100" style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
+                    <img 
+                      className="rounded-top-3" 
+                      src={post.image} 
+                      alt="blog post" 
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover',
+                        objectPosition: 'center'
+                      }} 
+                    />
+                  </div>
                   <div className="card-body bg-white p-0">
                     <Link
                       href={`/${slugify(post.title)}`}
@@ -111,6 +119,12 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
         <div className="rotate-center ellipse-rotate-success position-absolute z-0" />
         <div className="rotate-center-rev ellipse-rotate-primary position-absolute z-0" />
       </section>
+      <style jsx>{`
+        .card {
+          display: block;
+          width: 100%;
+        }
+      `}</style>
     </>
   );
 }
