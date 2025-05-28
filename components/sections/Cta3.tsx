@@ -72,7 +72,6 @@ export default function Cta3({ previewData }: Cta3Props = {}) {
 									data-aos-delay={100}
 									style={{ backgroundColor: data.tagBackgroundColor || "#f1f0fe" }}
 								>
-									<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
 									<span 
 										className="tag-spacing fs-7 fw-bold ms-2 text-uppercase"
 										style={{ color: data.tagTextColor || "#6342EC" }}

@@ -47,7 +47,6 @@ export default function Blog4() {
 					<div className="row align-items-end">
 						<div className="col-12 col-md-4 me-auto">
 							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
 								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">From Blog</span>
 							</div>
 							<h3 className="ds-3 mt-3 mb-3">Our Latest Articles</h3>

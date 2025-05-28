@@ -64,12 +64,21 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
     return
   }
 
+  // Create styles for customizable elements
+  const sectionStyle = {
+    backgroundColor: data.backgroundColor || "#ffffff"
+  };
+
+  const titleStyle = {
+    color: data.titleColor || "#111827"
+  };
+
   return (
     <>
-      <section className="section-blog-8 section-padding position-relative fix">
+      <section className="section-blog-8 section-padding position-relative fix" style={sectionStyle}>
         <div className="container position-relative z-1">
           <div className="row text-center">
-            <h5 className="ds-5">{data.title}</h5>
+            <h5 className="ds-5" style={titleStyle}>{data.title}</h5>
           </div>
           <div className="row">
             {posts.map((post, index) => (

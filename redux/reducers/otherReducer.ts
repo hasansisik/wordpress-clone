@@ -14,29 +14,53 @@ const initialState: OtherState = {
     activeOther: "blog1",
     blog1: {
       badge: "From Blog",
+      badgeVisible: true,
+      badgeBackgroundColor: "#f1f0fe",
+      badgeTextColor: "#6342EC",
       title: "Our Latest Articles",
+      titleColor: "#111827",
       subtitle: "Explore the insights and trends shaping our industry",
-      seeAllLink: "#"
+      subtitleColor: "#6E6E6E",
+      seeAllLink: "#",
+      backgroundColor: "#ffffff"
     },
     blog2: {
       badge: "From Blog",
+      badgeVisible: true,
+      badgeBackgroundColor: "#f1f0fe",
+      badgeTextColor: "#6342EC",
       title: "Our Latest News and Articles",
+      titleColor: "#111827",
       subtitle: "Explore the insights and trends shaping our industry. 🔥",
+      subtitleColor: "#6E6E6E",
       seeAllLink: "#",
+      seeAllLinkText: "See all articles",
+      seeAllButtonVisible: true,
+      seeAllButtonColor: "#111827",
+      backgroundColor: "#ffffff",
       bgLine: "/assets/imgs/blog-2/img-bg-line.png"
     },
     blog3: {
       title: "Related Posts",
+      titleColor: "#111827",
+      backgroundColor: "#ffffff",
       bgLine: "/assets/imgs/team-1/bg-line.png"
     },
     blog5: {
       title: "Trending News",
-      subtitle: "Explore the insights and trends shaping our industry"
+      titleColor: "#111827",
+      subtitle: "Explore the insights and trends shaping our industry",
+      subtitleColor: "#6E6E6E",
+      backgroundColor: "#ffffff"
     },
     services2: {
       heading: {
         tag: "What we offer",
-        title: "Let's Discover Our Service <span class=\"fw-bold\">Our Service <br class=\"d-none d-lg-inline\" /> Features</span> Charter"
+        tagVisible: true,
+        tagBackgroundColor: "#f1f0fe",
+        tagTextColor: "#6342EC",
+        title: "Let's Discover Our Service <span class=\"fw-bold\">Our Service <br class=\"d-none d-lg-inline\" /> Features</span> Charter",
+        titleColor: "#111827"
       },
       tagImage: "/assets/imgs/features-1/dots.png",
       services: [
@@ -77,26 +101,37 @@ const initialState: OtherState = {
           iconBgColor: "bg-secondary-soft"
         }
       ],
+      backgroundColor: "#ffffff",
       backgroundImage: "/assets/imgs/service-2/bg-line.png",
       buttons: {
         primary: {
           text: "Explore Now",
           link: "/page-services-1",
           btnClass: "btn-gradient",
-          iconClass: "stroke-white"
+          iconClass: "stroke-white",
+          visible: true,
+          backgroundColor: "#6342EC",
+          textColor: "#FFFFFF"
         },
         secondary: {
           text: "Contact Us",
           link: "/page-contact-1",
           btnClass: "btn-outline-secondary",
-          iconClass: "stroke-dark"
+          iconClass: "stroke-dark",
+          visible: true,
+          backgroundColor: "transparent",
+          textColor: "#111827"
         }
       }
     },
     contact1: {
       badge: "İletişime Geçin",
+      badgeVisible: true,
       title: "Ekibimiz İle İletişime Geçin",
+      titleColor: "#111827",
       description: "Yardıma hazır uzmanlarımızla kapsamlı bir hizmet ajansıyız. <br />24 saat içinde sizinle iletişime geçeceğiz.",
+      descriptionColor: "#6E6E6E",
+      backgroundColor: "#ffffff",
       formTitle: "Mesaj Bırakın",
       chatTitle: "Bizimle sohbet edin",
       chatDescription: "Destek ekibimiz 7/24 hizmetinizdedir",
@@ -124,27 +159,38 @@ const initialState: OtherState = {
         "İş promosyonu"
       ],
       buttonColor: "#6342EC",
+      buttonTextColor: "#FFFFFF",
       badgeColor: "rgba(99, 66, 236, 0.1)"
     },
     services5: {
       title: "Explore Our Projects",
+      titleColor: "#333333",
       subtitle: "What we offers",
+      subtitleVisible: true,
+      subtitleBackgroundColor: "#f1f0fe",
+      subtitleTextColor: "#6342EC",
       description: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
+      descriptionColor: "#6E6E6E",
       buttonText: "Get Free Quote",
+      buttonVisible: true,
       buttonLink: "#",
       linkText: "How We Work",
+      linkVisible: true,
       linkUrl: "#",
       backgroundColor: "#ffffff",
-      titleColor: "#333333",
-      buttonColor: "#6342EC"
+      buttonColor: "#6342EC",
+      buttonTextColor: "#FFFFFF"
     },
     project2: {
       title: "Our featured projects",
-      subtitle: "Recent work",
-      description: "⚡Don't miss any contact. Stay connected.",
-      backgroundColor: "#f8f9fa",
       titleColor: "#333333",
-      badgeColor: "rgba(99, 66, 236, 0.1)"
+      subtitle: "Recent work",
+      subtitleVisible: true,
+      subtitleBackgroundColor: "rgba(99, 66, 236, 0.1)",
+      subtitleTextColor: "#6342EC",
+      description: "⚡Don't miss any contact. Stay connected.",
+      descriptionColor: "#6E6E6E",
+      backgroundColor: "#f8f9fa"
     }
   },
   loading: false,

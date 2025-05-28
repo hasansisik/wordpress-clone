@@ -80,15 +80,29 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 		}
 	};
 
+	// Create styles for customizable elements
+	const sectionStyle = {
+		backgroundColor: data.backgroundColor || "#ffffff"
+	};
+
+	const titleStyle = {
+		color: data.titleColor || "#111827"
+	};
+
+	const descriptionStyle = {
+		color: data.descriptionColor || "#6E6E6E"
+	};
+
 	// Get badge background color or use default
 	const badgeStyle = {
-		backgroundColor: data.badgeColor || "rgba(99, 66, 236, 0.1)"
+		backgroundColor: data.badgeColor || "rgba(99, 66, 236, 0.1)",
+		display: data.badgeVisible !== false ? "flex" : "none"
 	};
 
 	// Get button background color or use default
 	const buttonStyle = {
 		backgroundColor: data.buttonColor || "#6342EC",
-		color: "#ffffff"
+		color: data.buttonTextColor || "#ffffff"
 	};
 
 	return (
@@ -149,15 +163,16 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 					width: 100%;
 				}
 			`}</style>
-			<section className="section-contact-3 position-relative section-padding fix">
+			<section className="section-contact-3 position-relative section-padding fix" style={sectionStyle}>
 				<div className="container position-relative z-1">
 					<div className="text-center">
-						<div className="d-flex align-items-center justify-content-center border border-2 border-white d-inline-flex rounded-pill px-4 py-2" style={badgeStyle}>
-							<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.badge}</span>
-						</div>
-						<h3 className="ds-3 mt-3 mb-3">{data.title}</h3>
-						<p className="fs-5" dangerouslySetInnerHTML={{ __html: data.description }}></p>
+						{data.badgeVisible !== false && (
+							<div className="d-flex align-items-center justify-content-center border border-2 border-white d-inline-flex rounded-pill px-4 py-2" style={badgeStyle}>
+								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.badge}</span>
+							</div>
+						)}
+						<h3 className="ds-3 mt-3 mb-3" style={titleStyle}>{data.title}</h3>
+						<p className="fs-5" dangerouslySetInnerHTML={{ __html: data.description }} style={descriptionStyle}></p>
 					</div>
 					<div className="row mt-8">
 						<div className="col-lg-10 mx-lg-auto">

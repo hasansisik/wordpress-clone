@@ -151,30 +151,27 @@ export default function Services5({ previewData }: Services5Props) {
 		);
 	}
 
-	// Use editor data if available, otherwise use the default data
-	const title = data.title || "Explore Our Projects";
-	const subtitle = data.subtitle || "What we offers";
-	const description = data.description || "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.";
-	const buttonText = data.buttonText || "Get Free Quote";
-	const buttonLink = data.buttonLink || "#";
-	const linkText = data.linkText || "How We Work";
-	const linkUrl = data.linkUrl || "#";
-	const backgroundColor = data.backgroundColor || "#ffffff";
-	const titleColor = data.titleColor || "#333333";
-	const buttonColor = data.buttonColor || "#6342EC";
-
-	// Style objects for dynamic styling
+	// Create styles for customizable elements
 	const sectionStyle = {
-		backgroundColor: backgroundColor
+		backgroundColor: data.backgroundColor || "#ffffff"
 	};
 
 	const titleStyle = {
-		color: titleColor
+		color: data.titleColor || "#333333"
+	};
+
+	const subtitleStyle = {
+		backgroundColor: data.subtitleVisible !== false ? (data.subtitleBackgroundColor || "#f1f0fe") : "transparent",
+		color: data.subtitleTextColor || "#6342EC"
+	};
+
+	const descriptionStyle = {
+		color: data.descriptionColor || "#6E6E6E"
 	};
 
 	const buttonStyle = {
-		backgroundColor: buttonColor,
-		borderColor: buttonColor
+		backgroundColor: data.buttonColor || "#6342EC",
+		color: data.buttonTextColor || "#FFFFFF"
 	};
 
 	return (
@@ -183,13 +180,14 @@ export default function Services5({ previewData }: Services5Props) {
 			<section className="section-team-1 position-relative fix section-padding" style={sectionStyle}>
 				<div className="container position-relative z-2">
 					<div className="text-center">
-						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-							<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{subtitle}</span>
-						</div>
-						<h3 className="ds-3 my-3" style={titleStyle}>{title}</h3>
-						<p className="fs-5">
-							{description}
+						{data.subtitleVisible !== false && (
+							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={subtitleStyle}>
+								<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.subtitle}</span>
+							</div>
+						)}
+						<h3 className="ds-3 my-3" style={titleStyle}>{data.title}</h3>
+						<p className="fs-5" style={descriptionStyle}>
+							{data.description}
 						</p>
 					</div>
 					<div className="text-center mt-6">
@@ -208,6 +206,20 @@ export default function Services5({ previewData }: Services5Props) {
 							))}
 						</div>
 					</div>
+					{data.buttonVisible !== false && (
+						<div className="text-center mt-4">
+							<Link href={data.buttonLink || "#"} className="btn btn-primary" style={buttonStyle}>
+								{data.buttonText}
+							</Link>
+						</div>
+					)}
+					{data.linkVisible !== false && (
+						<div className="text-center mt-2">
+							<Link href={data.linkUrl || "#"} className="text-decoration-underline">
+								{data.linkText}
+							</Link>
+						</div>
+					)}
 				</div>
 				<div className="container mt-6">
 					<div ref={containerRef} className="masonary-active justify-content-between row">

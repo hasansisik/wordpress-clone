@@ -71,7 +71,6 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 										className="d-flex align-items-center position-relative z-2 justify-content-center d-inline-flex rounded-pill border border-2 border-white px-3 py-1"
 										style={{ backgroundColor: data.badgeBackgroundColor || "#f1f0fe" }}
 									>
-										<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
 										<span 
 											className="tag-spacing fs-7 fw-bold ms-2 text-uppercase"
 											style={{ color: data.badgeTextColor || "#6342EC" }}

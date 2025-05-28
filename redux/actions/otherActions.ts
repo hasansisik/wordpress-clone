@@ -6,29 +6,53 @@ export interface OtherPayload {
   activeOther?: string;
   blog1?: {
     badge?: string;
+    badgeVisible?: boolean;
+    badgeBackgroundColor?: string;
+    badgeTextColor?: string;
     title?: string;
+    titleColor?: string;
     subtitle?: string;
+    subtitleColor?: string;
     seeAllLink?: string;
+    backgroundColor?: string;
   };
   blog2?: {
     badge?: string;
+    badgeVisible?: boolean;
+    badgeBackgroundColor?: string;
+    badgeTextColor?: string;
     title?: string;
+    titleColor?: string;
     subtitle?: string;
+    subtitleColor?: string;
     seeAllLink?: string;
+    seeAllLinkText?: string;
+    seeAllButtonVisible?: boolean;
+    seeAllButtonColor?: string;
+    backgroundColor?: string;
     bgLine?: string;
   };
   blog3?: {
     title?: string;
+    titleColor?: string;
+    backgroundColor?: string;
     bgLine?: string;
   };
   blog5?: {
     title?: string;
+    titleColor?: string;
     subtitle?: string;
+    subtitleColor?: string;
+    backgroundColor?: string;
   };
   services2?: {
     heading?: {
       tag?: string;
+      tagVisible?: boolean;
+      tagBackgroundColor?: string;
+      tagTextColor?: string;
       title?: string;
+      titleColor?: string;
     };
     tagImage?: string;
     services?: Array<{
@@ -37,6 +61,7 @@ export interface OtherPayload {
       description: string;
       iconBgColor?: string;
     }>;
+    backgroundColor?: string;
     backgroundImage?: string;
     buttons?: {
       primary?: {
@@ -44,19 +69,29 @@ export interface OtherPayload {
         link?: string;
         btnClass?: string;
         iconClass?: string;
+        visible?: boolean;
+        backgroundColor?: string;
+        textColor?: string;
       };
       secondary?: {
         text?: string;
         link?: string;
         btnClass?: string;
         iconClass?: string;
+        visible?: boolean;
+        backgroundColor?: string;
+        textColor?: string;
       };
     };
   };
   contact1?: {
     badge?: string;
+    badgeVisible?: boolean;
     title?: string;
+    titleColor?: string;
     description?: string;
+    descriptionColor?: string;
+    backgroundColor?: string;
     formTitle?: string;
     chatTitle?: string;
     chatDescription?: string;
@@ -77,27 +112,38 @@ export interface OtherPayload {
     showAddress?: boolean;
     services?: string[];
     buttonColor?: string;
+    buttonTextColor?: string;
     badgeColor?: string;
   };
   services5?: {
     title?: string;
+    titleColor?: string;
     subtitle?: string;
+    subtitleVisible?: boolean;
+    subtitleBackgroundColor?: string;
+    subtitleTextColor?: string;
     description?: string;
+    descriptionColor?: string;
     buttonText?: string;
+    buttonVisible?: boolean;
     buttonLink?: string;
     linkText?: string;
+    linkVisible?: boolean;
     linkUrl?: string;
     backgroundColor?: string;
-    titleColor?: string;
     buttonColor?: string;
+    buttonTextColor?: string;
   };
   project2?: {
     title?: string;
-    subtitle?: string;
-    description?: string;
-    backgroundColor?: string;
     titleColor?: string;
-    badgeColor?: string;
+    subtitle?: string;
+    subtitleVisible?: boolean;
+    subtitleBackgroundColor?: string;
+    subtitleTextColor?: string;
+    description?: string;
+    descriptionColor?: string;
+    backgroundColor?: string;
   };
 }
 

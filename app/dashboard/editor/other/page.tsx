@@ -15,6 +15,8 @@ import {
   FormGroup,
   ImageUploadField,
   SectionTypeSelector,
+  ToggleField,
+  ColorField,
 } from "@/components/editor/FormFields";
 import { Layout, Type, Settings, Image } from "lucide-react";
 import Blog1 from "@/components/sections/Blog1";
@@ -318,32 +320,67 @@ export default function OtherEditor() {
 function Blog1ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <TextField
-        label="Badge"
-        value={data?.badge || ""}
-        path="blog1.badge"
-        placeholder="e.g. From Blog"
-      />
+      <FormGroup title="Badge">
+        <ToggleField
+          label="Show Badge"
+          value={data?.badgeVisible !== false}
+          path="blog1.badgeVisible"
+        />
+        <TextField
+          label="Badge Text"
+          value={data?.badge || ""}
+          path="blog1.badge"
+          placeholder="e.g. From Blog"
+        />
+        <ColorField
+          label="Badge Background Color"
+          value={data?.badgeBackgroundColor || "#f1f0fe"}
+          path="blog1.badgeBackgroundColor"
+        />
+        <ColorField
+          label="Badge Text Color"
+          value={data?.badgeTextColor || "#6342EC"}
+          path="blog1.badgeTextColor"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Title"
-        value={data?.title || ""}
-        path="blog1.title"
-        placeholder="Enter blog section title"
-      />
+      <FormGroup title="Title & Subtitle">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="blog1.title"
+          placeholder="Enter blog section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="blog1.titleColor"
+        />
+        <TextField
+          label="Subtitle"
+          value={data?.subtitle || ""}
+          path="blog1.subtitle"
+          placeholder="Enter section subtitle"
+        />
+        <ColorField
+          label="Subtitle Color"
+          value={data?.subtitleColor || "#6E6E6E"}
+          path="blog1.subtitleColor"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Subtitle"
-        value={data?.subtitle || ""}
-        path="blog1.subtitle"
-        placeholder="Enter section subtitle"
-      />
-
-      <LinkField
-        label="See All Link"
-        value={data?.seeAllLink || ""}
-        path="blog1.seeAllLink"
-      />
+      <FormGroup title="Links & Background">
+        <LinkField
+          label="See All Link"
+          value={data?.seeAllLink || ""}
+          path="blog1.seeAllLink"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="blog1.backgroundColor"
+        />
+      </FormGroup>
     </div>
   );
 }
@@ -352,32 +389,90 @@ function Blog1ContentForm({ data }: { data: any }) {
 function Blog2ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <TextField
-        label="Badge"
-        value={data?.badge || ""}
-        path="blog2.badge"
-        placeholder="e.g. From Blog"
-      />
+      <FormGroup title="Badge">
+        <ToggleField
+          label="Show Badge"
+          value={data?.badgeVisible !== false}
+          path="blog2.badgeVisible"
+        />
+        <TextField
+          label="Badge Text"
+          value={data?.badge || ""}
+          path="blog2.badge"
+          placeholder="e.g. From Blog"
+        />
+        <ColorField
+          label="Badge Background Color"
+          value={data?.badgeBackgroundColor || "#f1f0fe"}
+          path="blog2.badgeBackgroundColor"
+        />
+        <ColorField
+          label="Badge Text Color"
+          value={data?.badgeTextColor || "#6342EC"}
+          path="blog2.badgeTextColor"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Title"
-        value={data?.title || ""}
-        path="blog2.title"
-        placeholder="Enter blog section title"
-      />
+      <FormGroup title="Title & Subtitle">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="blog2.title"
+          placeholder="Enter blog section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="blog2.titleColor"
+        />
+        <TextField
+          label="Subtitle"
+          value={data?.subtitle || ""}
+          path="blog2.subtitle"
+          placeholder="Enter section subtitle"
+        />
+        <ColorField
+          label="Subtitle Color"
+          value={data?.subtitleColor || "#6E6E6E"}
+          path="blog2.subtitleColor"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Subtitle"
-        value={data?.subtitle || ""}
-        path="blog2.subtitle"
-        placeholder="Enter section subtitle"
-      />
+      <FormGroup title="See All Button">
+        <ToggleField
+          label="Show See All Button"
+          value={data?.seeAllButtonVisible !== false}
+          path="blog2.seeAllButtonVisible"
+        />
+        <TextField
+          label="Button Text"
+          value={data?.seeAllLinkText || "See all articles"}
+          path="blog2.seeAllLinkText"
+        />
+        <LinkField
+          label="Button Link"
+          value={data?.seeAllLink || ""}
+          path="blog2.seeAllLink"
+        />
+        <ColorField
+          label="Button Text Color"
+          value={data?.seeAllButtonColor || "#111827"}
+          path="blog2.seeAllButtonColor"
+        />
+      </FormGroup>
 
-      <LinkField
-        label="See All Link"
-        value={data?.seeAllLink || ""}
-        path="blog2.seeAllLink"
-      />
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="blog2.backgroundColor"
+        />
+        <ImageUploadField
+          label="Background Line Image"
+          value={data?.bgLine || ""}
+          path="blog2.bgLine"
+        />
+      </FormGroup>
     </div>
   );
 }
@@ -386,12 +481,29 @@ function Blog2ContentForm({ data }: { data: any }) {
 function Blog3ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <TextField
-        label="Title"
-        value={data?.title || ""}
-        path="blog3.title"
-        placeholder="Enter blog section title"
-      />
+      <FormGroup title="Title & Background">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="blog3.title"
+          placeholder="Enter blog section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="blog3.titleColor"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="blog3.backgroundColor"
+        />
+        <ImageUploadField
+          label="Background Line Image"
+          value={data?.bgLine || ""}
+          path="blog3.bgLine"
+        />
+      </FormGroup>
     </div>
   );
 }
@@ -400,19 +512,38 @@ function Blog3ContentForm({ data }: { data: any }) {
 function Blog5ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <TextField
-        label="Title"
-        value={data?.title || ""}
-        path="blog5.title"
-        placeholder="Enter blog section title"
-      />
+      <FormGroup title="Title & Subtitle">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="blog5.title"
+          placeholder="Enter blog section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="blog5.titleColor"
+        />
+        <TextField
+          label="Subtitle"
+          value={data?.subtitle || ""}
+          path="blog5.subtitle"
+          placeholder="Enter section subtitle"
+        />
+        <ColorField
+          label="Subtitle Color"
+          value={data?.subtitleColor || "#6E6E6E"}
+          path="blog5.subtitleColor"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Subtitle"
-        value={data?.subtitle || ""}
-        path="blog5.subtitle"
-        placeholder="Enter section subtitle"
-      />
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="blog5.backgroundColor"
+        />
+      </FormGroup>
     </div>
   );
 }
@@ -422,11 +553,26 @@ function Services2ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <FormGroup title="Heading">
+        <ToggleField
+          label="Show Tag"
+          value={data?.heading?.tagVisible !== false}
+          path="services2.heading.tagVisible"
+        />
         <TextField
           label="Tag"
           value={data?.heading?.tag || ""}
           path="services2.heading.tag"
           placeholder="e.g. What we offer"
+        />
+        <ColorField
+          label="Tag Background Color"
+          value={data?.heading?.tagBackgroundColor || "#f1f0fe"}
+          path="services2.heading.tagBackgroundColor"
+        />
+        <ColorField
+          label="Tag Text Color"
+          value={data?.heading?.tagTextColor || "#6342EC"}
+          path="services2.heading.tagTextColor"
         />
         
         <TextAreaField
@@ -435,47 +581,88 @@ function Services2ContentForm({ data }: { data: any }) {
           path="services2.heading.title"
           placeholder="Enter section title with HTML formatting if needed"
         />
+        <ColorField
+          label="Title Color"
+          value={data?.heading?.titleColor || "#111827"}
+          path="services2.heading.titleColor"
+        />
       </FormGroup>
       
-      <FormGroup title="Buttons">
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="services2.backgroundColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Primary Button">
+        <ToggleField
+          label="Show Button"
+          value={data?.buttons?.primary?.visible !== false}
+          path="services2.buttons.primary.visible"
+        />
         <TextField
-          label="Primary Button Text"
+          label="Text"
           value={data?.buttons?.primary?.text || ""}
           path="services2.buttons.primary.text"
           placeholder="e.g. Explore Now"
         />
-        
         <LinkField
-          label="Primary Button Link"
+          label="Link"
           value={data?.buttons?.primary?.link || ""}
           path="services2.buttons.primary.link"
         />
-        
         <TextField
-          label="Primary Button Class"
+          label="Button Class"
           value={data?.buttons?.primary?.btnClass || ""}
           path="services2.buttons.primary.btnClass"
           placeholder="e.g. btn-gradient"
         />
-        
+        <ColorField
+          label="Background Color"
+          value={data?.buttons?.primary?.backgroundColor || "#6342EC"}
+          path="services2.buttons.primary.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.buttons?.primary?.textColor || "#FFFFFF"}
+          path="services2.buttons.primary.textColor"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Secondary Button">
+        <ToggleField
+          label="Show Button"
+          value={data?.buttons?.secondary?.visible !== false}
+          path="services2.buttons.secondary.visible"
+        />
         <TextField
-          label="Secondary Button Text"
+          label="Text"
           value={data?.buttons?.secondary?.text || ""}
           path="services2.buttons.secondary.text"
           placeholder="e.g. Contact Us"
         />
-        
         <LinkField
-          label="Secondary Button Link"
+          label="Link"
           value={data?.buttons?.secondary?.link || ""}
           path="services2.buttons.secondary.link"
         />
-        
         <TextField
-          label="Secondary Button Class"
+          label="Button Class"
           value={data?.buttons?.secondary?.btnClass || ""}
           path="services2.buttons.secondary.btnClass"
           placeholder="e.g. btn-outline-secondary"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.buttons?.secondary?.backgroundColor || "transparent"}
+          path="services2.buttons.secondary.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.buttons?.secondary?.textColor || "#111827"}
+          path="services2.buttons.secondary.textColor"
         />
       </FormGroup>
       
@@ -514,26 +701,50 @@ function Services2ContentForm({ data }: { data: any }) {
 function Contact1ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <TextField
-        label="Badge"
-        value={data?.badge || ""}
-        path="contact1.badge"
-        placeholder="e.g. Get in Touch"
-      />
+      <FormGroup title="Badge">
+        <ToggleField
+          label="Show Badge"
+          value={data?.badgeVisible !== false}
+          path="contact1.badgeVisible"
+        />
+        <TextField
+          label="Badge Text"
+          value={data?.badge || ""}
+          path="contact1.badge"
+          placeholder="e.g. Get in Touch"
+        />
+        <ColorField
+          label="Badge Background Color"
+          value={data?.badgeColor || "rgba(99, 66, 236, 0.1)"}
+          path="contact1.badgeColor"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Title"
-        value={data?.title || ""}
-        path="contact1.title"
-        placeholder="Enter contact section title"
-      />
+      <FormGroup title="Title & Description">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="contact1.title"
+          placeholder="Enter contact section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="contact1.titleColor"
+        />
 
-      <TextAreaField
-        label="Description"
-        value={data?.description || ""}
-        path="contact1.description"
-        placeholder="Enter contact section description"
-      />
+        <TextAreaField
+          label="Description"
+          value={data?.description || ""}
+          path="contact1.description"
+          placeholder="Enter contact section description"
+        />
+        <ColorField
+          label="Description Color"
+          value={data?.descriptionColor || "#6E6E6E"}
+          path="contact1.descriptionColor"
+        />
+      </FormGroup>
 
       <TextField
         label="Form Title"
@@ -575,29 +786,11 @@ function Contact1ContentForm({ data }: { data: any }) {
       />
 
       <FormGroup title="Email Section">
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium">Show Email Section</label>
-          <div className="relative inline-block w-10 mr-2 align-middle select-none">
-            <input 
-              type="checkbox" 
-              name="showEmail" 
-              id="showEmail"
-              className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-              checked={data?.showEmail !== false}
-              onChange={(e) => {
-                // Use the EditorContext to update the value
-                const editorContext = (window as any).editorContext;
-                if (editorContext?.updateValue) {
-                  editorContext.updateValue('contact1.showEmail', e.target.checked);
-                }
-              }}
-            />
-            <label 
-              htmlFor="showEmail" 
-              className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-            ></label>
-          </div>
-        </div>
+        <ToggleField
+          label="Show Email Section"
+          value={data?.showEmail !== false}
+          path="contact1.showEmail"
+        />
 
         <TextField
           label="Email Title"
@@ -622,29 +815,11 @@ function Contact1ContentForm({ data }: { data: any }) {
       </FormGroup>
 
       <FormGroup title="Phone Section">
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium">Show Phone Section</label>
-          <div className="relative inline-block w-10 mr-2 align-middle select-none">
-            <input 
-              type="checkbox" 
-              name="showPhone" 
-              id="showPhone"
-              className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-              checked={data?.showPhone !== false}
-              onChange={(e) => {
-                // Use the EditorContext to update the value
-                const editorContext = (window as any).editorContext;
-                if (editorContext?.updateValue) {
-                  editorContext.updateValue('contact1.showPhone', e.target.checked);
-                }
-              }}
-            />
-            <label 
-              htmlFor="showPhone" 
-              className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-            ></label>
-          </div>
-        </div>
+        <ToggleField
+          label="Show Phone Section"
+          value={data?.showPhone !== false}
+          path="contact1.showPhone"
+        />
 
         <TextField
           label="Inquiry Title"
@@ -669,29 +844,11 @@ function Contact1ContentForm({ data }: { data: any }) {
       </FormGroup>
 
       <FormGroup title="Address Section">
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium">Show Address Section</label>
-          <div className="relative inline-block w-10 mr-2 align-middle select-none">
-            <input 
-              type="checkbox" 
-              name="showAddress" 
-              id="showAddress"
-              className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-              checked={data?.showAddress !== false}
-              onChange={(e) => {
-                // Use the EditorContext to update the value
-                const editorContext = (window as any).editorContext;
-                if (editorContext?.updateValue) {
-                  editorContext.updateValue('contact1.showAddress', e.target.checked);
-                }
-              }}
-            />
-            <label 
-              htmlFor="showAddress" 
-              className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-            ></label>
-          </div>
-        </div>
+        <ToggleField
+          label="Show Address Section"
+          value={data?.showAddress !== false}
+          path="contact1.showAddress"
+        />
 
         <TextField
           label="Address Title"
@@ -715,68 +872,17 @@ function Contact1ContentForm({ data }: { data: any }) {
         />
       </FormGroup>
 
-      <FormGroup title="Colors">
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">
-            Button Color
-          </label>
-          <div className="flex items-center">
-            <input
-              type="color"
-              value={data?.buttonColor || "#6342EC"}
-              onChange={(e) => {
-                const editorContext = (window as any).editorContext;
-                if (editorContext?.updateValue) {
-                  editorContext.updateValue('contact1.buttonColor', e.target.value);
-                }
-              }}
-              className="h-8 w-8 rounded border p-0"
-            />
-            <input
-              type="text"
-              value={data?.buttonColor || "#6342EC"}
-              onChange={(e) => {
-                const editorContext = (window as any).editorContext;
-                if (editorContext?.updateValue) {
-                  editorContext.updateValue('contact1.buttonColor', e.target.value);
-                }
-              }}
-              className="ml-2 h-8 w-full border rounded px-2"
-              placeholder="#6342EC"
-            />
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">
-            Badge Background Color
-          </label>
-          <div className="flex items-center">
-            <input
-              type="color"
-              value={data?.badgeColor || "rgba(99, 66, 236, 0.1)"}
-              onChange={(e) => {
-                const editorContext = (window as any).editorContext;
-                if (editorContext?.updateValue) {
-                  editorContext.updateValue('contact1.badgeColor', e.target.value);
-                }
-              }}
-              className="h-8 w-8 rounded border p-0"
-            />
-            <input
-              type="text"
-              value={data?.badgeColor || "rgba(99, 66, 236, 0.1)"}
-              onChange={(e) => {
-                const editorContext = (window as any).editorContext;
-                if (editorContext?.updateValue) {
-                  editorContext.updateValue('contact1.badgeColor', e.target.value);
-                }
-              }}
-              className="ml-2 h-8 w-full border rounded px-2"
-              placeholder="rgba(99, 66, 236, 0.1)"
-            />
-          </div>
-        </div>
+      <FormGroup title="Button">
+        <ColorField
+          label="Button Background Color"
+          value={data?.buttonColor || "#6342EC"}
+          path="contact1.buttonColor"
+        />
+        <ColorField
+          label="Button Text Color"
+          value={data?.buttonTextColor || "#FFFFFF"}
+          path="contact1.buttonTextColor"
+        />
       </FormGroup>
     </div>
   );
@@ -887,13 +993,35 @@ function Services5ContentForm({ data }: { data: any }) {
         path="services5.title"
         placeholder="Enter section title"
       />
-
-      <TextField
-        label="Subtitle"
-        value={data?.subtitle || ""}
-        path="services5.subtitle"
-        placeholder="Enter section subtitle"
+      <ColorField
+        label="Title Color"
+        value={data?.titleColor || "#333333"}
+        path="services5.titleColor"
       />
+
+      <FormGroup title="Subtitle">
+        <ToggleField
+          label="Show Subtitle"
+          value={data?.subtitleVisible !== false}
+          path="services5.subtitleVisible"
+        />
+        <TextField
+          label="Subtitle Text"
+          value={data?.subtitle || ""}
+          path="services5.subtitle"
+          placeholder="e.g. What we offer"
+        />
+        <ColorField
+          label="Subtitle Background Color"
+          value={data?.subtitleBackgroundColor || "#f1f0fe"}
+          path="services5.subtitleBackgroundColor"
+        />
+        <ColorField
+          label="Subtitle Text Color"
+          value={data?.subtitleTextColor || "#6342EC"}
+          path="services5.subtitleTextColor"
+        />
+      </FormGroup>
 
       <TextAreaField
         label="Description"
@@ -901,53 +1029,67 @@ function Services5ContentForm({ data }: { data: any }) {
         path="services5.description"
         placeholder="Enter section description"
       />
-
-      <TextField
-        label="Button Text"
-        value={data?.buttonText || ""}
-        path="services5.buttonText"
-        placeholder="e.g. Get Free Quote"
+      <ColorField
+        label="Description Color"
+        value={data?.descriptionColor || "#6E6E6E"}
+        path="services5.descriptionColor"
       />
 
-      <LinkField
-        label="Button Link"
-        value={data?.buttonLink || ""}
-        path="services5.buttonLink"
-      />
+      <FormGroup title="Primary Button">
+        <ToggleField
+          label="Show Button"
+          value={data?.buttonVisible !== false}
+          path="services5.buttonVisible"
+        />
+        <TextField
+          label="Button Text"
+          value={data?.buttonText || ""}
+          path="services5.buttonText"
+          placeholder="e.g. Get Free Quote"
+        />
+        <LinkField
+          label="Button Link"
+          value={data?.buttonLink || ""}
+          path="services5.buttonLink"
+        />
+        <ColorField
+          label="Button Background Color"
+          value={data?.buttonColor || "#6342EC"}
+          path="services5.buttonColor"
+        />
+        <ColorField
+          label="Button Text Color"
+          value={data?.buttonTextColor || "#FFFFFF"}
+          path="services5.buttonTextColor"
+        />
+      </FormGroup>
 
-      <TextField
-        label="Link Text"
-        value={data?.linkText || ""}
-        path="services5.linkText"
-        placeholder="e.g. How We Work"
-      />
+      <FormGroup title="Secondary Link">
+        <ToggleField
+          label="Show Link"
+          value={data?.linkVisible !== false}
+          path="services5.linkVisible"
+        />
+        <TextField
+          label="Link Text"
+          value={data?.linkText || ""}
+          path="services5.linkText"
+          placeholder="e.g. How We Work"
+        />
+        <LinkField
+          label="Link URL"
+          value={data?.linkUrl || ""}
+          path="services5.linkUrl"
+        />
+      </FormGroup>
 
-      <LinkField
-        label="Link URL"
-        value={data?.linkUrl || ""}
-        path="services5.linkUrl"
-      />
-
-      <TextField
-        label="Background Color"
-        value={data?.backgroundColor || ""}
-        path="services5.backgroundColor"
-        placeholder="e.g. #ffffff"
-      />
-
-      <TextField
-        label="Title Color"
-        value={data?.titleColor || ""}
-        path="services5.titleColor"
-        placeholder="e.g. #333333"
-      />
-
-      <TextField
-        label="Button Color"
-        value={data?.buttonColor || ""}
-        path="services5.buttonColor"
-        placeholder="e.g. #6342EC"
-      />
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="services5.backgroundColor"
+        />
+      </FormGroup>
     </div>
   );
 }
@@ -962,13 +1104,35 @@ function Project2ContentForm({ data }: { data: any }) {
         path="project2.title"
         placeholder="Enter section title"
       />
-
-      <TextField
-        label="Subtitle"
-        value={data?.subtitle || ""}
-        path="project2.subtitle"
-        placeholder="Enter section subtitle"
+      <ColorField
+        label="Title Color"
+        value={data?.titleColor || "#333333"}
+        path="project2.titleColor"
       />
+
+      <FormGroup title="Subtitle">
+        <ToggleField
+          label="Show Subtitle"
+          value={data?.subtitleVisible !== false}
+          path="project2.subtitleVisible"
+        />
+        <TextField
+          label="Subtitle Text"
+          value={data?.subtitle || ""}
+          path="project2.subtitle"
+          placeholder="e.g. Recent work"
+        />
+        <ColorField
+          label="Subtitle Background Color"
+          value={data?.subtitleBackgroundColor || "rgba(99, 66, 236, 0.1)"}
+          path="project2.subtitleBackgroundColor"
+        />
+        <ColorField
+          label="Subtitle Text Color"
+          value={data?.subtitleTextColor || "#6342EC"}
+          path="project2.subtitleTextColor"
+        />
+      </FormGroup>
 
       <TextAreaField
         label="Description"
@@ -976,27 +1140,19 @@ function Project2ContentForm({ data }: { data: any }) {
         path="project2.description"
         placeholder="Enter section description"
       />
-
-      <TextField
-        label="Background Color"
-        value={data?.backgroundColor || ""}
-        path="project2.backgroundColor"
-        placeholder="e.g. #f8f9fa"
+      <ColorField
+        label="Description Color"
+        value={data?.descriptionColor || "#6E6E6E"}
+        path="project2.descriptionColor"
       />
 
-      <TextField
-        label="Title Color"
-        value={data?.titleColor || ""}
-        path="project2.titleColor"
-        placeholder="e.g. #333333"
-      />
-
-      <TextField
-        label="Badge Color"
-        value={data?.badgeColor || ""}
-        path="project2.badgeColor"
-        placeholder="e.g. rgba(99, 66, 236, 0.1)"
-      />
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#f8f9fa"}
+          path="project2.backgroundColor"
+        />
+      </FormGroup>
     </div>
   );
 }

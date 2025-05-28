@@ -36,16 +36,32 @@ export default function Services2({ previewData }: Services2Props = {}) {
 		return <section>Loading Services2...</section>
 	}
 
+	// Create styles for customizable elements
+	const sectionStyle = {
+		backgroundColor: data.backgroundColor || "#ffffff"
+	};
+
+	const titleStyle = {
+		color: data.heading?.titleColor || "#111827"
+	};
+
+	const tagStyle = {
+		backgroundColor: data.heading?.tagBackgroundColor || "#f1f0fe",
+		color: data.heading?.tagTextColor || "#6342EC"
+	};
+
 	return (
 		<>
-			<section className="section-team-1 position-relative fix section-padding">
+			<section className="section-team-1 position-relative fix section-padding" style={sectionStyle}>
 				<div className="container position-relative z-2">
 					<div className="text-center">
-						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-							<img src={data.tagImage} alt="infinia" />
-							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.heading.tag}</span>
-						</div>
-						<h3 className="ds-3 my-3 fw-regular" dangerouslySetInnerHTML={{ __html: data.heading.title }}></h3>
+						{data.heading?.tagVisible !== false && (
+							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={tagStyle}>
+								<img src={data.tagImage} alt="infinia" />
+								<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.heading?.tag}</span>
+							</div>
+						)}
+						<h3 className="ds-3 my-3 fw-regular" dangerouslySetInnerHTML={{ __html: data.heading?.title }} style={titleStyle}></h3>
 					</div>
 					<div className="row mt-6 position-relative">
 						{data.services.map((service: any, index: number) => (

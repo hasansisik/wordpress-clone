@@ -68,25 +68,22 @@ export default function Project2({ previewData }: Project2Props) {
 		);
 	}
 
-	// Use editor data if available, otherwise use the default data
-	const title = data.title || "Our featured projects";
-	const subtitle = data.subtitle || "Recent work";
-	const description = data.description || "⚡Don't miss any contact. Stay connected.";
-	const backgroundColor = data.backgroundColor || "#f8f9fa";
-	const titleColor = data.titleColor || "#333333";
-	const badgeColor = data.badgeColor || "rgba(99, 66, 236, 0.1)";
-
-	// Style objects for dynamic styling
+	// Create styles for customizable elements
 	const sectionStyle = {
-		backgroundColor: backgroundColor
+		backgroundColor: data.backgroundColor || "#f8f9fa"
 	};
 
 	const titleStyle = {
-		color: titleColor
+		color: data.titleColor || "#333333"
 	};
 
-	const badgeStyle = {
-		backgroundColor: badgeColor
+	const descriptionStyle = {
+		color: data.descriptionColor || "#6E6E6E"
+	};
+
+	const subtitleStyle = {
+		backgroundColor: data.subtitleVisible !== false ? (data.subtitleBackgroundColor || "rgba(99, 66, 236, 0.1)") : "transparent",
+		color: data.subtitleTextColor || "#6342EC"
 	};
 
 	const swiperOptions = {
@@ -130,12 +127,13 @@ export default function Project2({ previewData }: Project2Props) {
 				<div className="container">
 					<div className="row mb-8">
 						<div className="col-lg-6">
-							<div className="d-flex align-items-center justify-text-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-3 py-1" style={badgeStyle}>
-								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{subtitle}</span>
-							</div>
-							<h3 className="ds-3 mt-3 mb-3" style={titleStyle}>{title}</h3>
-							<p className="fs-5 fw-medium">{description}</p>
+							{data.subtitleVisible !== false && (
+								<div className="d-flex align-items-center justify-text-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-3 py-1" style={subtitleStyle}>
+									<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.subtitle}</span>
+								</div>
+							)}
+							<h3 className="ds-3 mt-3 mb-3" style={titleStyle}>{data.title}</h3>
+							<p className="fs-5 fw-medium" style={descriptionStyle}>{data.description}</p>
 						</div>
 						<div className="col-lg-2 col-md-3 col-6 ms-auto align-self-end mb-lg-7 mt-lg-0 mt-4">
 							<div className="position-relative z-0">

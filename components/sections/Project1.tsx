@@ -47,7 +47,6 @@ export default function Project1() {
 					<div className="row mb-8">
 						<div className="col-lg-6">
 							<div className="d-flex align-items-center justify-text-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-3 py-1">
-								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
 								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">Recent work</span>
 							</div>
 							<h3 className="ds-3 mt-3 mb-3">Our feared projects</h3>

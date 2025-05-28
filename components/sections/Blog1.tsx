@@ -70,18 +70,37 @@ export default function Blog1({ previewData }: Blog1Props) {
 
 	const blogPosts = blogs.slice(0, 3)
 
+	// Create styles for customizable elements
+	const sectionStyle = {
+		backgroundColor: data.backgroundColor || "#ffffff"
+	};
+
+	const titleStyle = {
+		color: data.titleColor || "#111827"
+	};
+
+	const subtitleStyle = {
+		color: data.subtitleColor || "#6E6E6E"
+	};
+
+	const badgeStyle = {
+		backgroundColor: data.badgeBackgroundColor || "#f1f0fe",
+		color: data.badgeTextColor || "#6342EC"
+	};
+
 	return (
 		<>
-			<section className="section-blog-1 @@padding py-4">
+			<section className="section-blog-1 @@padding py-4" style={sectionStyle}>
 				<div className="container">
 					<div className="row align-items-end">
 						<div className="col-12 col-md-6 me-auto">
-							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-								<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.badge}</span>
-							</div>
-							<h3 className="ds-3 mt-3 mb-3" data-aos="fade-zoom-in" data-aos-delay={100}>{data.title}</h3>
-							<span className="fs-5 fw-medium" data-aos="fade-zoom-in" data-aos-delay={200}>{data.subtitle}</span>
+							{data.badgeVisible !== false && (
+								<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={badgeStyle}>
+									<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.badge}</span>
+								</div>
+							)}
+							<h3 className="ds-3 mt-3 mb-3" data-aos="fade-zoom-in" data-aos-delay={100} style={titleStyle}>{data.title}</h3>
+							<span className="fs-5 fw-medium" data-aos="fade-zoom-in" data-aos-delay={200} style={subtitleStyle}>{data.subtitle}</span>
 						</div>
 					</div>
 					<div className="row">
@@ -102,8 +121,8 @@ export default function Blog1({ previewData }: Blog1Props) {
 										/>
 									</div>
 									<div className="card-body p-0 bg-white">
-										<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
-											<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{post.category[0]}</span>
+										<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3" style={badgeStyle}>
+											<span className="tag-spacing fs-7 fw-bold text-uppercase">{post.category[0]}</span>
 										</Link>
 										<h6 className="my-3">{post.title}</h6>
 										<p>{post.description}</p>

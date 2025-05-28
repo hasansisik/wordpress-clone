@@ -66,26 +66,52 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 		return 
 	}
 
+	// Create styles for customizable elements
+	const sectionStyle = {
+		backgroundColor: data.backgroundColor || "#ffffff"
+	};
+
+	const titleStyle = {
+		color: data.titleColor || "#111827"
+	};
+
+	const subtitleStyle = {
+		color: data.subtitleColor || "#6E6E6E"
+	};
+
+	const badgeStyle = {
+		backgroundColor: data.badgeBackgroundColor || "#f1f0fe",
+		color: data.badgeTextColor || "#6342EC"
+	};
+
+	const buttonStyle = {
+		color: data.seeAllButtonColor || "#111827"
+	};
+
 	return (
 		<>
-			<section className="section-blog-2 position-relative section-padding fix">
+			<section className="section-blog-2 position-relative section-padding fix" style={sectionStyle}>
 				<div className="container position-relative z-1">
 					<div className="row">
 						<div className="col-lg-4">
 							<div className="pe-6">
-								<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2">
-									<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-									<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.badge}</span>
-								</div>
-								<h3 className="ds-3 mt-3 mb-3">{data.title}</h3>
-								<span className="fs-5 fw-medium">{data.subtitle}</span>
-								<div className="d-flex align-items-center mt-8">
-									<Link href={data.seeAllLink} className="fw-bold btn bg-white text-primary hover-up">See all articles
-										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={14} viewBox="0 0 24 14" fill="none">
-											<path className="fill-dark" d="M17.4177 0.417969L16.3487 1.48705L21.1059 6.24429H0V7.75621H21.1059L16.3487 12.5134L17.4177 13.5825L24 7.0002L17.4177 0.417969Z" fill="black" />
-										</svg>
-									</Link>
-								</div>
+								{data.badgeVisible !== false && (
+									<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" style={badgeStyle}>
+										<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.badge}</span>
+									</div>
+								)}
+								<h3 className="ds-3 mt-3 mb-3" style={titleStyle}>{data.title}</h3>
+								<span className="fs-5 fw-medium" style={subtitleStyle}>{data.subtitle}</span>
+								{data.seeAllButtonVisible !== false && (
+									<div className="d-flex align-items-center mt-8">
+										<Link href={data.seeAllLink} className="fw-bold btn bg-white text-primary hover-up" style={buttonStyle}>
+											{data.seeAllLinkText || "See all articles"}
+											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={14} viewBox="0 0 24 14" fill="none">
+												<path className="fill-dark" d="M17.4177 0.417969L16.3487 1.48705L21.1059 6.24429H0V7.75621H21.1059L16.3487 12.5134L17.4177 13.5825L24 7.0002L17.4177 0.417969Z" fill="black" />
+											</svg>
+										</Link>
+									</div>
+								)}
 							</div>
 						</div>
 						<div className="col-lg-8">
@@ -108,8 +134,8 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 													/>
 												</div>
 												<div className="card-body">
-													<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3">
-														<span className="tag-spacing fs-7 fw-bold text-linear-2 text-uppercase">{Array.isArray(post.category) ? post.category[0] : post.category}</span>
+													<Link href={`/${slugify(post.title)}`} className="bg-primary-soft position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3" style={badgeStyle}>
+														<span className="tag-spacing fs-7 fw-bold text-uppercase">{Array.isArray(post.category) ? post.category[0] : post.category}</span>
 													</Link>
 													<h6 className="my-3">{post.title}</h6>
 													<p>{post.description}</p>

@@ -85,14 +85,27 @@ export default function Blog5({ previewData }: Blog5Props) {
 		pageNumbers.push(i)
 	}
 
+	// Create styles for customizable elements
+	const sectionStyle = {
+		backgroundColor: data.backgroundColor || "#ffffff"
+	};
+
+	const titleStyle = {
+		color: data.titleColor || "#111827"
+	};
+
+	const subtitleStyle = {
+		color: data.subtitleColor || "#6E6E6E"
+	};
+
 	return (
 		<>
-			<section className="section-blog-6 section-padding border-bottom">
+			<section className="section-blog-6 section-padding border-bottom" style={sectionStyle}>
 				<div className="container">
 					<div className="row align-items-end">
 						<div className="col">
-							<h5 className="ds-5 mt-3 mb-3">{data.title}</h5>
-							<span className="fs-5 fw-medium">{data.subtitle}</span>
+							<h5 className="ds-5 mt-3 mb-3" style={titleStyle}>{data.title}</h5>
+							<span className="fs-5 fw-medium" style={subtitleStyle}>{data.subtitle}</span>
 						</div>
 					</div>
 					<div className="row">
