@@ -232,7 +232,7 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 															<path className="stroke-dark" d="M17.3285 1.20344L16.4448 0.319749C16.0185 -0.106583 15.3248 -0.106583 14.8984 0.319749L7.82915 7.38907C7.76373 7.45449 7.71914 7.53782 7.70096 7.62854L7.2591 9.83772C7.22839 9.99137 7.27647 10.1502 7.38729 10.261C7.47605 10.3498 7.59561 10.3983 7.71864 10.3983C7.74923 10.3983 7.77997 10.3953 7.81053 10.3892L10.0197 9.94732C10.1104 9.92917 10.1938 9.88455 10.2592 9.81913L17.3285 2.74984C17.3285 2.74984 17.3286 2.74984 17.3286 2.74981C17.7549 2.32351 17.7549 1.6298 17.3285 1.20344ZM9.69678 9.05607L8.31606 9.33225L8.59224 7.95153L14.3461 2.19754L15.4507 3.30214L9.69678 9.05607ZM16.6658 2.0871L16.1135 2.6394L15.0089 1.53479L15.5612 0.982524C15.6221 0.921601 15.7212 0.92157 15.7821 0.982493L16.6658 1.86618C16.7267 1.92707 16.7267 2.0262 16.6658 2.0871Z" fill="black" />
 														</svg>
 													</div>
-													<textarea className="form-control border border-start-0 ms-0 rounded-start-0 rounded-1 pb-10" name="message" placeholder="Projenizi Kısaca Açıklayın" aria-label="With textarea" required></textarea>
+													<textarea className="form-control border border-start-0 ms-0 rounded-start-0 rounded-1 pb-10" name="message" placeholder="Mesajınızı Kısaca Açıklayın" aria-label="With textarea" required></textarea>
 												</div>
 											</div>
 											<div className="col-12 text-center text-lg-start">
