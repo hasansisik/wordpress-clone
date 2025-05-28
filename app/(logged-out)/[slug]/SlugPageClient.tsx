@@ -8,6 +8,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import Link from "next/link";
 import parse from "html-react-parser";
 import { notFound } from "next/navigation";
+import { Award } from "lucide-react";
 
 // Import the types and slugify function
 interface BlogPost {
@@ -220,14 +221,12 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
       {contentType === 'blog' && blogPost && (
         <section className={blogPost.premium ? "premium-content" : ""}>
           {blogPost.premium && (
-            <div className="bg-gradient-to-r from-amber-400 to-amber-600 text-white py-2 text-center">
-              <div className="container mx-auto">
-                <div className="flex items-center justify-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-award">
-                    <circle cx="12" cy="8" r="7"></circle>
-                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                  </svg>
-                  <span className="font-bold">Premium Content</span>
+         <div className="position-absolute left-0 w-100" style={{ background: 'linear-gradient(to bottom, rgba(245, 158, 11, 1), rgba(245, 158, 11, 0))', height: '300px' }}>
+              <div className="container mx-auto relative z-10">
+                <div className="flex items-center justify-center gap-2 pt-5">
+                <Award className="w-8 h-8" color="white" />
+
+                  <span className="font-bold text-white text-xl">Premium İçerik</span>
                 </div>
               </div>
             </div>
@@ -337,10 +336,10 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
                         <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z"></path>
                       </svg>
-                      <h5 className="text-amber-800 font-bold m-0">Premium Content</h5>
+                      <h5 className=" m-0 text-md">Premium İçerik</h5>
                     </div>
                     <p className="text-amber-700 mb-0">
-                      You're viewing premium quality content. Thank you for being a valued premium subscriber.
+                      Premium kalitesinde içerik görüntülüyorsunuz. Değerli premium abonemiz olduğunuz için teşekkür ederiz.
                     </p>
                   </div>
                 )}
