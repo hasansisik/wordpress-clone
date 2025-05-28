@@ -4,88 +4,53 @@ import { server } from '@/config';
 
 export async function POST(req: NextRequest) {
   try {
-    const data = await req.json();
-
-    // Ensure all required properties exist
-    const safeData = {
-      logo: {
-        src: data.logo?.src || "/assets/imgs/template/favicon.svg",
-        alt: data.logo?.alt || "infinia",
-        text: data.logo?.text || "Infinia"
-      },
-      copyright: data.copyright || "Copyright © 2024 Infinia. All Rights Reserved",
-      description: data.description || "You may also realize cost savings from your energy efficient choices in your custom home.",
-      socialLinks: Array.isArray(data.socialLinks) ? data.socialLinks.map((item: any, index: number) => ({
-        _id: item._id || `social-${index}`,
-        name: item.name || "Social Link",
-        link: item.link || "#",
-        order: typeof item.order === 'number' ? item.order : index
-      })) : [],
-      columns: Array.isArray(data.columns) ? data.columns.map((column: any, index: number) => ({
-        _id: column._id || `column-${index}`,
-        title: column.title || "Menu",
-        order: typeof column.order === 'number' ? column.order : index,
-        links: Array.isArray(column.links) ? column.links.map((link: any, linkIndex: number) => ({
-          _id: link._id || `link-${linkIndex}`,
-          name: link.name || "Link",
-          link: link.link || "#",
-          order: typeof link.order === 'number' ? link.order : linkIndex
-        })) : []
-      })) : [],
-      contactItems: {
-        address: data.contactItems?.address || "0811 Erdman Prairie, Joaville CA",
-        phone: data.contactItems?.phone || "+01 (24) 568 900",
-        email: data.contactItems?.email || "contact@infinia.com",
-        hours: data.contactItems?.hours || "Mon-Fri: 9am-5pm"
-      },
-      instagramPosts: Array.isArray(data.instagramPosts) ? data.instagramPosts : [],
-      appLinks: Array.isArray(data.appLinks) ? data.appLinks : [],
-      showAppLinks: typeof data.showAppLinks === 'boolean' ? data.showAppLinks : false,
-      showInstagram: typeof data.showInstagram === 'boolean' ? data.showInstagram : false,
-      showPrivacyLinks: typeof data.showPrivacyLinks === 'boolean' ? data.showPrivacyLinks : true,
-      showSocialLinks: typeof data.showSocialLinks === 'boolean' ? data.showSocialLinks : true,
-      privacyLinks: Array.isArray(data.privacyLinks) ? data.privacyLinks.map((item: any, index: number) => ({
-        _id: item._id || `privacy-${index}`,
-        name: item.name || "Privacy Link",
-        link: item.link || "#",
-        order: typeof item.order === 'number' ? item.order : index
-      })) : [],
-      footerComponent: data.footerComponent || "Footer1"
-    };
+    // Get footer data from request
+    const footerData = await req.json();
     
     try {
-      // Update the MongoDB model via the server API
-      const response = await axios.put(`${server}/footer`, safeData, {
-        headers: {
-          'Content-Type': 'application/json'
+      // Send to MongoDB API with token
+      const authHeader = req.headers.get('authorization');
+      const token = authHeader ? authHeader.split(' ')[1] : '';
+      
+      const { data } = await axios.put(
+        `${server}/footer`,
+        footerData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
         }
-      });
+      );
       
       return NextResponse.json({ 
         success: true, 
         message: 'Footer data saved successfully',
-        data: response.data.footer 
+        data: data.footer 
       });
-    } catch (error) {
-      console.error('Failed to update server via API:', error);
-      return NextResponse.json({ 
-        success: false, 
-        message: 'Failed to update footer data in database'
-      }, { status: 500 });
+    } catch (mongoError) {
+      console.error("Error updating footer data on server:", mongoError);
+      return NextResponse.json(
+        { error: "Failed to update footer data on server" },
+        { status: 500 }
+      );
     }
   } catch (error) {
-    console.error('Error saving footer data:', error);
-    return NextResponse.json({ success: false, message: 'Failed to save footer data' }, { status: 500 });
+    console.error('Error in footer update request:', error);
+    return NextResponse.json(
+      { error: "Failed to process footer update request" },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
   try {
     // Get data from MongoDB via server API
-    const response = await axios.get(`${server}/footer`);
+    const { data } = await axios.get(`${server}/footer`);
     
-    if (response.data && response.data.footer) {
-      return NextResponse.json(response.data.footer);
+    if (data && data.footer) {
+      return NextResponse.json(data.footer);
     } else {
       throw new Error('Invalid response from server API');
     }

@@ -158,22 +158,22 @@ export default function HeroEditor() {
 
     const activeHero = data.activeHero || "hero1";
 
-  return (
+    return (
       <Tabs defaultValue="layout" className="w-full">
         <TabsList className="grid grid-cols-4 m-2">
           <TabsTrigger value="layout" className="px-2">
             <Layout className="h-4 w-4" />
-                </TabsTrigger>
+          </TabsTrigger>
           <TabsTrigger value="content" className="px-2">
             <Type className="h-4 w-4" />
-                </TabsTrigger>
+          </TabsTrigger>
           <TabsTrigger value="style" className="px-2">
             <Settings className="h-4 w-4" />
-                </TabsTrigger>
+          </TabsTrigger>
           <TabsTrigger value="media" className="px-2">
             <Image className="h-4 w-4" />
-                </TabsTrigger>
-              </TabsList>
+          </TabsTrigger>
+        </TabsList>
 
         {/* Layout Tab */}
         <TabsContent value="layout" className="m-0 p-3 border-t">
@@ -183,7 +183,7 @@ export default function HeroEditor() {
             options={heroTypes}
             onChange={handleHeroTypeChange}
           />
-              </TabsContent>
+        </TabsContent>
 
         {/* Content Tab */}
         <TabsContent value="content" className="m-0 p-3 border-t">
@@ -192,13 +192,13 @@ export default function HeroEditor() {
           ) : (
             <Hero3ContentForm data={data.hero3 || {}} />
           )}
-              </TabsContent>
+        </TabsContent>
 
         {/* Style Tab */}
         <TabsContent value="style" className="m-0 p-3 border-t">
           <div className="text-xs text-gray-500">
             Style options will be implemented in future updates.
-                            </div>
+          </div>
         </TabsContent>
 
         {/* Media Tab */}
@@ -208,7 +208,7 @@ export default function HeroEditor() {
           ) : (
             <Hero3MediaForm data={data.hero3 || {}} />
           )}
-              </TabsContent>
+        </TabsContent>
       </Tabs>
     );
   };
@@ -601,9 +601,9 @@ function Hero3ContentForm({ data }: { data: any }) {
           path="hero3.avatarsVisible"
         />
         {(data?.avatars || []).map((avatar: any, index: number) => (
-          <FormGroup 
-            key={index} 
-            title={`Avatar ${index + 1}`} 
+          <FormGroup
+            key={index}
+            title={`Avatar ${index + 1}`}
             className="ml-4 mt-2 p-3 bg-sidebar rounded-md"
           >
             <ToggleField
@@ -676,8 +676,8 @@ function Hero1MediaForm({ data }: { data: any }) {
         label="Card Image"
         value={data?.card?.image || ""}
         path="hero1.card.image"
-                          />
-                        </div>
+      />
+    </div>
   );
 }
 
@@ -685,7 +685,7 @@ function Hero1MediaForm({ data }: { data: any }) {
 function Hero3MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-                          <div className="space-y-2">
+      <div className="space-y-2">
         <div className="text-xs text-gray-500 mb-2">Image Grid</div>
         <div className="grid grid-cols-2 gap-2">
           {["image1", "image2", "image3", "image4"].map((key) => (
@@ -696,8 +696,8 @@ function Hero3MediaForm({ data }: { data: any }) {
               alt={`Grid Image ${key}`}
             />
           ))}
-                          </div>
-                          </div>
+        </div>
+      </div>
 
       <ImageUploadField
         label="Star Image"
@@ -712,7 +712,7 @@ function Hero3MediaForm({ data }: { data: any }) {
             <div key={index} className="p-3 bg-sidebar rounded-md space-y-3">
               <div className="text-xs font-medium text-gray-700 mb-2">
                 Avatar {index + 1}
-                            </div>
+              </div>
               <div className="flex gap-2 items-center">
                 <ImagePreview
                   src={avatar.image || "/placeholder.jpg"}
@@ -720,18 +720,18 @@ function Hero3MediaForm({ data }: { data: any }) {
                   alt={avatar.alt || `User avatar ${index + 1}`}
                   className="h-12 w-12 rounded-full object-cover"
                 />
-                              <div className="flex-1">
+                <div className="flex-1">
                   <TextField
                     label="Alt Text"
                     value={avatar.alt || ""}
                     path={`hero3.avatars.${index}.alt`}
                     placeholder="e.g. User avatar"
                   />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

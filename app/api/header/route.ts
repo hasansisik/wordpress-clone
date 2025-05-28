@@ -4,81 +4,53 @@ import { server } from '@/config';
 
 export async function POST(req: NextRequest) {
   try {
-    const data = await req.json();
-    
-    // Ensure all required properties exist
-    const safeData = {
-      logo: {
-        src: data.logo?.src || "/assets/imgs/template/favicon.svg",
-        alt: data.logo?.alt || "infinia",
-        text: data.logo?.text || "Infinia"
-      },
-      links: {
-        freeTrialLink: {
-          href: data.links?.freeTrialLink?.href || "#",
-          text: data.links?.freeTrialLink?.text || "Join For Free Trial"
-        }
-      },
-      mainMenu: Array.isArray(data.mainMenu) ? data.mainMenu.map((item: any, index: number) => ({
-        _id: item._id || `menu-${index}`,
-        name: item.name || "Menu Item",
-        link: item.link || "#",
-        order: typeof item.order === 'number' ? item.order : index
-      })) : [],
-      socialLinks: Array.isArray(data.socialLinks) ? data.socialLinks.map((item: any, index: number) => ({
-        _id: item._id || `social-${index}`,
-        name: item.name || "Social Link",
-        link: item.link || "#",
-        order: typeof item.order === 'number' ? item.order : index
-      })) : [],
-      topBarItems: Array.isArray(data.topBarItems) ? data.topBarItems.map((item: any, index: number) => ({
-        _id: item._id || `topbar-${index}`,
-        name: item.name || "Info Item",
-        content: item.content || "",
-        order: typeof item.order === 'number' ? item.order : index
-      })) : [],
-      showDarkModeToggle: typeof data.showDarkModeToggle === 'boolean' ? data.showDarkModeToggle : true,
-      showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : true,
-      actionButtonText: data.actionButtonText || "Join For Free Trial",
-      actionButtonLink: data.actionButtonLink || "#",
-      headerComponent: data.headerComponent || "Header1",
-      workingHours: data.workingHours || "Mon-Fri: 10:00am - 09:00pm",
-      topBarColor: data.topBarColor || "#3b71fe"
-    };
+    // Get header data from request
+    const headerData = await req.json();
     
     try {
-      // Update the MongoDB model via the server API
-      const response = await axios.put(`${server}/header`, safeData, {
-        headers: {
-          'Content-Type': 'application/json'
+      // Send to MongoDB API with token
+      const authHeader = req.headers.get('authorization');
+      const token = authHeader ? authHeader.split(' ')[1] : '';
+      
+      const { data } = await axios.put(
+        `${server}/header`,
+        headerData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
         }
-      });
+      );
       
       return NextResponse.json({ 
         success: true, 
         message: 'Header data saved successfully',
-        data: response.data.header 
+        data: data.header 
       });
-    } catch (error) {
-      console.error('Failed to update server via API:', error);
-      return NextResponse.json({ 
-        success: false, 
-        message: 'Failed to update header data in database'
-      }, { status: 500 });
+    } catch (mongoError) {
+      console.error("Error updating header data on server:", mongoError);
+      return NextResponse.json(
+        { error: "Failed to update header data on server" },
+        { status: 500 }
+      );
     }
   } catch (error) {
-    console.error('Error saving header data:', error);
-    return NextResponse.json({ success: false, message: 'Failed to save header data' }, { status: 500 });
+    console.error('Error in header update request:', error);
+    return NextResponse.json(
+      { error: "Failed to process header update request" },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
   try {
     // Get data from MongoDB via server API
-    const response = await axios.get(`${server}/header`);
+    const { data } = await axios.get(`${server}/header`);
     
-    if (response.data && response.data.header) {
-      return NextResponse.json(response.data.header);
+    if (data && data.header) {
+      return NextResponse.json(data.header);
     } else {
       throw new Error('Invalid response from server API');
     }

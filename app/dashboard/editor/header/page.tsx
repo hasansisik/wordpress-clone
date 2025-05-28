@@ -164,6 +164,7 @@ interface HeaderEditorContentProps {
   setEditedItem: (item: { _id: string; name: string; link: string; content: string; type: string }) => void;
   handleSaveChanges: () => void;
   saveChangesToAPI: (data: any) => Promise<void>;
+  dispatch: any;
 }
 
 export default function HeaderEditor() {
@@ -395,18 +396,11 @@ export default function HeaderEditor() {
         logoUrl: uploadedUrl,
       };
       
+      // Update the local state
       setHeaderData(updatedData);
       
-      // Immediately save to API to ensure logo changes are persisted
-      await saveChangesToAPI({
-        ...updatedData,
-        logo: {
-          src: uploadedUrl,
-          text: updatedData.logoText,
-          alt: updatedData.logoText.toLowerCase()
-        }
-      });
-
+      // The EditorProvider's saveHandler will handle saving this data
+      
       showSuccessAlert("Logo uploaded successfully");
     } catch (error: any) {
       console.error('Error during logo upload:', error);
@@ -792,7 +786,6 @@ export default function HeaderEditor() {
   // After successful API operations, refresh data to ensure consistency
   const saveChangesToAPI = async (data: any) => {
     try {
-      
       // Create the data structure to save
       const dataToSave = {
         logo: {
@@ -827,10 +820,12 @@ export default function HeaderEditor() {
       await dispatch(updateHeader(dataToSave) as any);
 
       // Also update the API via the traditional endpoint for backward compatibility
+      const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
       const response = await fetch('/api/header', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         },
         body: JSON.stringify(dataToSave),
         // Make sure we're not caching
@@ -841,27 +836,87 @@ export default function HeaderEditor() {
         throw new Error('Failed to save changes to API endpoint');
       }
 
-      // Force refresh header data after successful API call
-      setTimeout(() => {
-        // Refresh Redux store with latest data from server
-        dispatch(getHeader() as any);
-        
-        // Then refresh the editor UI
-        setTimeout(() => {
-          refreshHeaderData();
-        }, 100);
-      }, 300);
+      // Update the iframe with new data
+      const iframe = document.querySelector('iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({
+          type: "UPDATE_HEADER_DATA",
+          headerData: dataToSave
+        }, "*");
+      }
 
       // We don't show a success message here since the calling function will do it
+      showSuccessAlert(`Header changes saved successfully!`);
+      return await response.json();
     } catch (error: any) {
       console.error('Error saving menu changes:', error);
       showErrorAlert(`Error saving changes: ${error.message}`);
+      throw error;
     }
   };
 
   const handleSaveChanges = async () => {
     try {
-      await saveChangesToAPI(headerData);
+      // Prepare data to save
+      const dataToSave = {
+        logo: {
+          src: headerData.logoUrl,
+          alt: headerData.logoText.toLowerCase(),
+          text: headerData.logoText
+        },
+        links: {
+          freeTrialLink: {
+            href: headerData.actionButtonLink || "#",
+            text: headerData.actionButtonText || "Join For Free Trial"
+          }
+        },
+        mainMenu: headerData.mainMenu,
+        socialLinks: headerData.socialLinks,
+        topBarItems: headerData.topBarItems,
+        showDarkModeToggle: headerData.showDarkModeToggle,
+        showActionButton: headerData.showActionButton,
+        actionButtonText: headerData.actionButtonText,
+        actionButtonLink: headerData.actionButtonLink,
+        buttonColor: headerData.buttonColor || "#3b71fe",
+        buttonTextColor: headerData.buttonTextColor || "#ffffff",
+        headerComponent: headerData.headerComponent,
+        workingHours: headerData.workingHours,
+        topBarColor: headerData.topBarColor || "#3b71fe",
+        topBarTextColor: headerData.topBarTextColor || "#ffffff",
+        mobileMenuButtonColor: headerData.mobileMenuButtonColor || "#3b71fe"
+      };
+
+      // Dispatch ile Redux store'u güncelle
+      await dispatch(updateHeader(dataToSave) as any);
+      
+      // API'yi doğrudan çağır
+      const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
+      const response = await fetch('/api/header', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify(dataToSave),
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save changes to API endpoint');
+      }
+      
+      // Ardından iframe'i güncelle
+      const iframe = document.querySelector('iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({
+          type: "UPDATE_HEADER_DATA",
+          headerData: headerData
+        }, "*");
+      }
+      
+      // Refresh the iframe to ensure changes are visible
+      refreshIframePreview();
+      
       showSuccessAlert("Header changes saved successfully!");
       
       // Redirect to dashboard after successful save
@@ -890,6 +945,20 @@ export default function HeaderEditor() {
       )
     : [];
 
+  // Function to refresh the iframe preview
+  const refreshIframePreview = () => {
+    const iframe = document.querySelector('iframe');
+    if (iframe && iframe.src) {
+      const currentSrc = iframe.src;
+      iframe.src = '';
+      setTimeout(() => {
+        if (iframe) {
+          iframe.src = currentSrc;
+        }
+      }, 100);
+    }
+  };
+
   return (
     <div className="w-full">
       <EditorProvider
@@ -897,6 +966,11 @@ export default function HeaderEditor() {
         sectionType="header"
         uploadHandler={uploadImageToCloudinary}
         initialData={headerData}
+        saveHandler={headerData => {
+          // Save işlemini handle et
+          handleSaveChanges();
+          return Promise.resolve({ success: true });
+        }}
       >
         <HeaderEditorContent 
           headers={headers} 
@@ -928,6 +1002,7 @@ export default function HeaderEditor() {
           setEditedItem={setEditedItem}
           handleSaveChanges={handleSaveChanges}
           saveChangesToAPI={saveChangesToAPI}
+          dispatch={dispatch}
         />
       </EditorProvider>
       
@@ -1093,9 +1168,24 @@ function HeaderEditorContent({
   editedItem,
   setEditedItem,
   handleSaveChanges,
-  saveChangesToAPI
+  saveChangesToAPI,
+  dispatch,
 }: HeaderEditorContentProps) {
   const router = useRouter();
+
+  // Function to refresh the iframe preview
+  const refreshIframePreview = () => {
+    const iframe = document.querySelector('iframe');
+    if (iframe && iframe.src) {
+      const currentSrc = iframe.src;
+      iframe.src = '';
+      setTimeout(() => {
+        if (iframe) {
+          iframe.src = currentSrc;
+        }
+      }, 100);
+    }
+  };
 
   // Render sidebar content function
   const renderSidebarContent = (data: HeaderData) => {
@@ -1663,13 +1753,17 @@ function HeaderEditorContent({
                     logoText: e.target.value,
                   };
                   setHeaderData(updatedData);
-                }}
-                onBlur={(e) => {
-                  // Save changes on blur
-                  saveChangesToAPI({
-                    ...headerData,
-                    logoText: e.target.value
-                  });
+                  
+                  // Auto-update preview after short delay
+                  setTimeout(() => {
+                    const iframe = document.querySelector('iframe');
+                    if (iframe && iframe.contentWindow) {
+                      iframe.contentWindow.postMessage({
+                        type: "UPDATE_HEADER_DATA",
+                        headerData: updatedData
+                      }, "*");
+                    }
+                  }, 100);
                 }}
                 placeholder="Logo text"
                 className="h-9 text-sm"
@@ -1690,13 +1784,17 @@ function HeaderEditorContent({
                       logoUrl: e.target.value,
                     };
                     setHeaderData(updatedData);
-                  }}
-                  onBlur={(e) => {
-                    // Save changes on blur
-                    saveChangesToAPI({
-                      ...headerData,
-                      logoUrl: e.target.value
-                    });
+                    
+                    // Auto-update preview after short delay
+                    setTimeout(() => {
+                      const iframe = document.querySelector('iframe');
+                      if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({
+                          type: "UPDATE_HEADER_DATA",
+                          headerData: updatedData
+                        }, "*");
+                      }
+                    }, 100);
                   }}
                   placeholder="/images/logo.png"
                   className="flex-1 h-9 text-sm"
@@ -1756,8 +1854,25 @@ function HeaderEditorContent({
       sidebarContent={<EditorSidebar>{renderSidebarContent}</EditorSidebar>}
     >
       <div className="w-full h-full flex flex-col">
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden relative">
           <SectionPreview previewUrl="/preview/header" paramName="headerData" />
+          
+          {/* Refresh button overlay */}
+          <div className="absolute top-0 right-0 p-2 z-50">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 bg-white/80 shadow-sm hover:bg-white"
+              onClick={refreshIframePreview}
+              title="Refresh preview"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 0 1-9 9c-4.97 0-9-4.03-9-9s4.03-9 9-9h3" />
+                <path d="M15 3v6h6" />
+                <path d="M17 17v-6h-6" />
+              </svg>
+            </Button>
+          </div>
         </div>
        
       </div>

@@ -744,14 +744,27 @@ function FooterEditorContent({
               <Input
                 id="logoText"
                 value={data.logo.text}
-                onChange={(e) => setFooterData({
-                  ...data,
-                  logo: {
-                    ...data.logo,
-                    text: e.target.value,
-                    alt: e.target.value.toLowerCase()
-                  }
-                })}
+                onChange={(e) => {
+                  const updatedData = {
+                    ...data,
+                    logo: {
+                      ...data.logo,
+                      text: e.target.value,
+                      alt: e.target.value.toLowerCase()
+                    }
+                  };
+                  setFooterData(updatedData);
+                  // Auto-update preview after short delay
+                  setTimeout(() => {
+                    const iframe = document.querySelector('iframe');
+                    if (iframe && iframe.contentWindow) {
+                      iframe.contentWindow.postMessage({
+                        type: "UPDATE_FOOTER_DATA",
+                        footerData: updatedData
+                      }, "*");
+                    }
+                  }, 100);
+                }}
                 placeholder="Logo text"
                 className="h-9 text-sm"
               />
@@ -765,13 +778,26 @@ function FooterEditorContent({
                 <Input
                   id="logoUrl"
                   value={data.logo.src}
-                  onChange={(e) => setFooterData({
-                    ...data,
-                    logo: {
-                      ...data.logo,
-                      src: e.target.value
-                    }
-                  })}
+                  onChange={(e) => {
+                    const updatedData = {
+                      ...data,
+                      logo: {
+                        ...data.logo,
+                        src: e.target.value
+                      }
+                    };
+                    setFooterData(updatedData);
+                    // Auto-update preview after short delay
+                    setTimeout(() => {
+                      const iframe = document.querySelector('iframe');
+                      if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({
+                          type: "UPDATE_FOOTER_DATA",
+                          footerData: updatedData
+                        }, "*");
+                      }
+                    }, 100);
+                  }}
                   placeholder="/images/logo.png"
                   className="flex-1 h-9 text-sm"
                 />
@@ -824,7 +850,7 @@ function FooterEditorContent({
     );
   };
 
-  // Add this function to the FooterEditorContent component to allow manual refresh
+  // Function to refresh the iframe preview
   const refreshIframePreview = () => {
     const iframe = document.querySelector('iframe');
     if (iframe && iframe.src) {
@@ -864,7 +890,6 @@ function FooterEditorContent({
             </Button>
           </div>
         </div>
-
       </div>
     </EditorLayout>
   );
@@ -931,6 +956,30 @@ export default function FooterEditor() {
     columnId: ""
   });
 
+  // Function to monitor iframe connection
+  useEffect(() => {
+    if (!footerData) return;
+
+    // Listen for preview ready messages from iframe
+    const handleMessage = (event: MessageEvent) => {
+      if (!event.data) return;
+
+      if (
+        event.data.type === "PREVIEW_READY" ||
+        event.data.type === "PREVIEW_UPDATED" ||
+        event.data.type === "UPDATE_FOOTER_DATA_RECEIVED"
+      ) {
+        setUseFallback(false);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [footerData]);
+
   // Fetch initial data using Redux
   useEffect(() => {
     dispatch(getFooter() as any);
@@ -943,70 +992,6 @@ export default function FooterEditor() {
       setIsLoading(false);
     }
   }, [footer]);
-
-  // Function to monitor iframe connection
-  useEffect(() => {
-    if (!footerData) return;
-
-    // Listen for preview ready messages from iframe
-    const handleMessage = (event: MessageEvent) => {
-      if (!event.data) return;
-
-      if (
-        event.data.type === "PREVIEW_READY" ||
-        event.data.type === "PREVIEW_UPDATED"
-      ) {
-        setUseFallback(false);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [footerData]);
-
-  // Add this effect to handle iframe refresh if needed
-  useEffect(() => {
-    const handleIframeMessage = (event: MessageEvent) => {
-      if (!event.data) return;
-      
-      if (event.data.type === "PREVIEW_UPDATED") {
-      }
-    };
-    
-    window.addEventListener("message", handleIframeMessage);
-    
-    // Set up a recovery mechanism if iframe doesn't respond
-    let iframeRefreshTimer: any = null;
-    
-    const refreshIframe = () => {
-      const iframe = document.querySelector('iframe');
-      if (iframe && iframe.src) {
-        // Force reload the iframe if it seems stuck
-        const currentSrc = iframe.src;
-        iframe.src = '';
-        
-        // Small delay to ensure DOM updates
-        setTimeout(() => {
-          if (iframe) {
-            iframe.src = currentSrc;
-          }
-        }, 100);
-      }
-    };
-    
-    // Check if we need to refresh the iframe after 5 seconds
-    iframeRefreshTimer = setTimeout(refreshIframe, 5000);
-    
-    return () => {
-      window.removeEventListener("message", handleIframeMessage);
-      if (iframeRefreshTimer) {
-        clearTimeout(iframeRefreshTimer);
-      }
-    };
-  }, []);
 
   const showSuccessAlert = (message: string) => {
     setAlertType("success");
@@ -1051,11 +1036,12 @@ export default function FooterEditor() {
         }
       };
       
+      // Update the local state
       setFooterData(updatedData);
       
-      // Immediately save to API to ensure logo changes are persisted
-      await saveChangesToAPI(updatedData);
-
+      // The EditorProvider's saveHandler will handle saving this data
+      // This will trigger the preview update automatically
+      
       showSuccessAlert("Logo uploaded successfully");
     } catch (error: any) {
       showErrorAlert(`Error uploading logo: ${error.message}`);
@@ -1067,56 +1053,20 @@ export default function FooterEditor() {
   // Update the saveChangesToAPI function to handle columns better
   const saveChangesToAPI = async (data: any) => {
     try {
+      setIsLoading(true);
       
-      // Ensure data has proper structure before sending
-      const dataToSave = {
-        ...data,
-        // Ensure columns have properly structured links
-        columns: Array.isArray(data.columns) ? 
-          data.columns.map((column: any) => ({
-            ...column,
-            _id: column._id || `col-${Math.random().toString(36).substr(2, 9)}`,
-            title: column.title || "Menu",
-            links: Array.isArray(column.links) ? 
-              column.links.map((link: any) => ({
-                ...link,
-                _id: link._id || `link-${Math.random().toString(36).substr(2, 9)}`,
-                name: link.name || "",
-                link: link.link || "#"
-              })) : []
-          })) : [],
-        socialLinks: Array.isArray(data.socialLinks) ? 
-          data.socialLinks.map((link: any) => ({
-            ...link,
-            _id: link._id || `social-${Math.random().toString(36).substr(2, 9)}`,
-            name: link.name || "",
-            link: link.link || "#"
-          })) : [],
-        privacyLinks: Array.isArray(data.privacyLinks) ? 
-          data.privacyLinks.map((link: any) => ({
-            ...link,
-            _id: link._id || `privacy-${Math.random().toString(36).substr(2, 9)}`,
-            name: link.name || "",
-            link: link.link || "#"
-          })) : [],
-        logo: data.logo || {
-          src: "/assets/imgs/logo/logo-white.svg",
-          alt: "logo",
-          text: "Infinia"
-        },
-        footerComponent: data.footerComponent || "Footer1"
-      };
-
       // Update Redux state first (this will call the API)
-      await dispatch(updateFooter(dataToSave) as any);
+      await dispatch(updateFooter(data) as any);
       
       // Also update local API for backward compatibility
+      const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
       const response = await fetch('/api/footer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         },
-        body: JSON.stringify(dataToSave),
+        body: JSON.stringify(data),
         cache: 'no-store'
       });
 
@@ -1124,35 +1074,26 @@ export default function FooterEditor() {
         throw new Error('Failed to save changes to local API');
       }
 
+      // Get the response data
       const result = await response.json();
-
+      
       // Update the iframe with new data
       const iframe = document.querySelector('iframe');
       if (iframe && iframe.contentWindow) {
-        
-        // Send the exact same data structure that was saved to the API
         iframe.contentWindow.postMessage({
           type: "UPDATE_FOOTER_DATA",
-          footerData: dataToSave
+          footerData: data
         }, "*");
-        
-        
-        // Add a retry mechanism in case the first message wasn't received
-        setTimeout(() => {
-          if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage({
-              type: "UPDATE_FOOTER_DATA",
-              footerData: dataToSave
-            }, "*");
-          }
-        }, 1000);
       }
 
+      showSuccessAlert(`Footer changes saved successfully!`);
       return result;
     } catch (error: any) {
-      console.error('Error saving footer changes:', error);
+      console.error(`Error saving footer changes:`, error);
       showErrorAlert(`Error saving changes: ${error.message}`);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1713,9 +1654,15 @@ export default function FooterEditor() {
 
   const handleSaveChanges = async () => {
     try {
-      // Use both Redux action and local API for compatibility
-      await dispatch(updateFooter(footerData) as any);
-      await saveChangesToAPI(footerData);
+      // The EditorProvider will handle saving through its saveHandler prop
+      // Just update local state to ensure it's in sync
+      const iframe = document.querySelector('iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({
+          type: "UPDATE_FOOTER_DATA",
+          footerData: footerData
+        }, "*");
+      }
       
       showSuccessAlert("Footer changes saved successfully!");
       
@@ -1756,6 +1703,7 @@ export default function FooterEditor() {
       sectionType="footer"
       uploadHandler={uploadImageToCloudinary}
       initialData={footerData}
+      saveHandler={saveChangesToAPI}
     >
       <FooterEditorContent
         footers={footers}
