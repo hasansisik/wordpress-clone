@@ -20,58 +20,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import Link from "next/link"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
-import { Image, ImagePlus, Search, ExternalLink, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Image, ExternalLink, AlertCircle, CheckCircle2, Upload } from "lucide-react"
 import { getGeneralSeoData, getAllSeoPages, SeoPageConfig } from "@/lib/seo"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/redux/store"
 import { AppDispatch } from "@/redux/store"
 import { getGeneral, updateGeneral, updateSeoPage } from "@/redux/actions/generalActions"
 import { Toaster, toast } from "sonner"
-
-// Sample Cloudinary images
-const cloudinaryImages = [
-  {
-    id: "1",
-    url: "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
-    thumbnail: "https://res.cloudinary.com/demo/image/upload/c_thumb,w_200,g_face/v1312461204/sample.jpg",
-    name: "Sample Image"
-  },
-  {
-    id: "2",
-    url: "https://res.cloudinary.com/demo/image/upload/v1493119370/sample2.jpg",
-    thumbnail: "https://res.cloudinary.com/demo/image/upload/c_thumb,w_200,g_face/v1493119370/sample2.jpg",
-    name: "Sample Image 2"
-  },
-  {
-    id: "3",
-    url: "https://res.cloudinary.com/demo/image/upload/v1493119383/sample3.jpg",
-    thumbnail: "https://res.cloudinary.com/demo/image/upload/c_thumb,w_200,g_face/v1493119383/sample3.jpg",
-    name: "Sample Image 3"
-  },
-  {
-    id: "4",
-    url: "https://res.cloudinary.com/demo/image/upload/v1493118464/sample4.jpg",
-    thumbnail: "https://res.cloudinary.com/demo/image/upload/c_thumb,w_200,g_face/v1493118464/sample4.jpg",
-    name: "Sample Image 4"
-  },
-  {
-    id: "5",
-    url: "https://res.cloudinary.com/demo/image/upload/v1493118555/sample5.jpg",
-    thumbnail: "https://res.cloudinary.com/demo/image/upload/c_thumb,w_200,g_face/v1493118555/sample5.jpg",
-    name: "Sample Image 5"
-  },
-  {
-    id: "6",
-    url: "https://res.cloudinary.com/demo/image/upload/v1493118854/sample6.jpg",
-    thumbnail: "https://res.cloudinary.com/demo/image/upload/c_thumb,w_200,g_face/v1493118854/sample6.jpg",
-    name: "Sample Image 6"
-  }
-];
+import { uploadImageToCloudinary } from "@/utils/cloudinary";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -120,8 +81,7 @@ export default function Page() {
 
   const [selectedPage, setSelectedPage] = useState<SeoPageConfig | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedImage, setSelectedImage] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
 
   // Select the first page when pages are loaded
   useEffect(() => {
@@ -129,11 +89,6 @@ export default function Page() {
       setSelectedPage(seoPages[0]);
     }
   }, [seoPages, selectedPage]);
-
-  // Filter images based on search term
-  const filteredImages = cloudinaryImages.filter(img => 
-    img.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleChange = (field: keyof SeoPageConfig, value: string) => {
     if (!selectedPage) return;
@@ -144,11 +99,35 @@ export default function Page() {
     });
   };
 
-  const handleImageSelect = (imageUrl: string) => {
-    handleChange('ogImage', imageUrl);
-    setSelectedImage(imageUrl);
-  };
+  // File input reference
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Handle file upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !selectedPage) return;
+    
+    const file = files[0];
+    setImageUploading(true);
+    
+    try {
+      // Use the imported uploadImageToCloudinary function
+      const imageUrl = await uploadImageToCloudinary(file);
+      
+      if (imageUrl) {
+        handleChange('ogImage', imageUrl);
+        toast.success("Image uploaded successfully");
+      } else {
+        toast.error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Error uploading image");
+    } finally {
+      setImageUploading(false);
+    }
+  };
+  
   const handleSave = async () => {
     if (!selectedPage) return;
     
@@ -573,123 +552,57 @@ export default function Page() {
                             <div className="flex gap-2">
                               <Input 
                                 id="ogImage"
-                                value={selectedPage.ogImage}
+                                value={selectedPage?.ogImage || ''}
                                 onChange={(e) => handleChange('ogImage', e.target.value)}
                                 className="flex-1"
+                                placeholder="Enter image URL or upload an image"
                               />
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="outline" className="flex gap-2">
-                                    <Image size={16} />
-                                    <span>Select Image</span>
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[625px]">
-                                  <DialogHeader>
-                                    <DialogTitle>Select Cloudinary Image</DialogTitle>
-                                    <DialogDescription>
-                                      Choose an image from your Cloudinary media library
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  
-                                  <div className="py-4">
-                                    <div className="flex items-center space-x-2 mb-4">
-                                      <div className="relative flex-1">
-                                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                          placeholder="Search images..."
-                                          className="pl-8"
-                                          value={searchTerm}
-                                          onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
-                                      </div>
-                                      <Button variant="outline">
-                                        <ImagePlus className="mr-2 h-4 w-4" />
-                                        Upload New
-                                      </Button>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-3 gap-4 mt-4 max-h-[300px] overflow-y-auto p-1">
-                                      {filteredImages.map((image) => (
-                                        <div 
-                                          key={image.id}
-                                          className={`
-                                            relative cursor-pointer overflow-hidden rounded-md 
-                                            border-2 transition-all
-                                            ${selectedPage.ogImage === image.url ? 'border-primary' : 'border-muted hover:border-muted-foreground/50'}
-                                          `}
-                                          onClick={() => handleImageSelect(image.url)}
-                                        >
-                                          <img 
-                                            src={image.thumbnail} 
-                                            alt={image.name}
-                                            className="h-32 w-full object-cover"
-                                          />
-                                          <div className="absolute inset-x-0 bottom-0 bg-black/70 p-2">
-                                            <p className="truncate text-xs text-white">{image.name}</p>
-                                          </div>
-                                          {selectedPage.ogImage === image.url && (
-                                            <div className="absolute right-2 top-2 rounded-full bg-primary p-1">
-                                              <CheckCircle2 className="h-4 w-4 text-white" />
-                                            </div>
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
-                                    
-                                    {selectedPage.ogImage && (
-                                      <div className="mt-4 border rounded-md p-4">
-                                        <div className="flex items-center gap-4">
-                                          <div className="h-16 w-16 overflow-hidden rounded">
-                                            <img 
-                                              src={selectedPage.ogImage} 
-                                              alt="Selected image preview"
-                                              className="h-full w-full object-cover"
-                                            />
-                                          </div>
-                                          <div className="flex-1">
-                                            <h4 className="text-sm font-medium">Selected Image</h4>
-                                            <p className="text-xs text-muted-foreground truncate">{selectedPage.ogImage}</p>
-                                          </div>
-                                          <Button 
-                                            variant="outline" 
-                                            size="sm"
-                                            onClick={() => window.open(selectedPage.ogImage, '_blank')}
-                                          >
-                                            <ExternalLink size={14} className="mr-1" />
-                                            Preview
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                  
-                                  <div className="flex justify-end gap-2">
-                                    <DialogClose asChild>
-                                      <Button type="button" variant="secondary">
-                                        Cancel
-                                      </Button>
-                                    </DialogClose>
-                                    <DialogClose asChild>
-                                      <Button type="button">
-                                        Select & Close
-                                      </Button>
-                                    </DialogClose>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
+                              <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImageUpload}
+                                className="hidden"
+                                accept="image/*"
+                              />
+                              <Button 
+                                variant="outline" 
+                                className="flex gap-2"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={imageUploading}
+                              >
+                                {imageUploading ? (
+                                  <>
+                                    <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                                    <span>Uploading...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload size={16} />
+                                    <span>Upload</span>
+                                  </>
+                                )}
+                              </Button>
                             </div>
                             
-                            {selectedPage.ogImage && (
+                            {selectedPage?.ogImage && (
                               <div className="mt-2 rounded-md border p-2 flex items-center gap-3">
                                 <img 
                                   src={selectedPage.ogImage} 
                                   alt="OG Image Preview" 
                                   className="h-16 w-24 object-cover rounded"
                                 />
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-muted-foreground flex-1">
                                   <p>Preview of your Open Graph image (shown when sharing on social media)</p>
+                                  <p className="text-xs truncate mt-1">{selectedPage.ogImage}</p>
                                 </div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => window.open(selectedPage.ogImage, '_blank')}
+                                >
+                                  <ExternalLink size={14} className="mr-1" />
+                                  Preview
+                                </Button>
                               </div>
                             )}
                           </div>
