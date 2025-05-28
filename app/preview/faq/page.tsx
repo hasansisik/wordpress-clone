@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Faqs2 from "@/components/sections/Faqs2";
 import Faqs3 from "@/components/sections/Faqs3";
+import Faqs1 from "@/components/sections/Faqs1";
 import Script from "next/script";
 
 // Import all the necessary CSS directly in this component
@@ -244,7 +245,9 @@ export default function FaqPreview() {
       />
       <style jsx global>{fixFaqStyles}</style>
       <div className="h-full overflow-auto">
-        {faqData.activeFaq === "faqs2" ? (
+        {faqData.activeFaq === "faqs1" ? (
+          <Faqs1 previewData={faqData} />
+        ) : faqData.activeFaq === "faqs2" ? (
           <Faqs2 previewData={faqData} />
         ) : (
           <Faqs3 previewData={faqData} />

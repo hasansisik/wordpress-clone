@@ -4,12 +4,38 @@ import { server } from "@/config";
 
 export interface FaqPayload {
   activeFaq?: string;
+  faqs1?: {
+    heading?: {
+      title?: string;
+      description?: string;
+      titleColor?: string;
+      descriptionColor?: string;
+    };
+    mainImage?: string;
+    backgroundImage?: string;
+    numberColor?: string;
+    numberBgColor?: string;
+    supportItems?: Array<{
+      icon: string;
+      title: string;
+      description: string;
+    }>;
+    questions?: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
   faqs2?: {
     heading?: {
       tag?: string;
       title?: string;
       description?: string;
+      titleColor?: string;
+      descriptionColor?: string;
     };
+    tagVisible?: boolean;
+    tagBackgroundColor?: string;
+    tagTextColor?: string;
     tagImage?: string;
     questions?: Array<{
       question: string;
@@ -21,22 +47,30 @@ export interface FaqPayload {
       tag?: string;
       title?: string;
       description?: string;
+      titleColor?: string;
+      descriptionColor?: string;
     };
+    tagVisible?: boolean;
+    tagBackgroundColor?: string;
+    tagTextColor?: string;
+    tagImage?: string;
     buttons?: {
       primary?: {
         text?: string;
         link?: string;
+        visible?: boolean;
+        backgroundColor?: string;
+        textColor?: string;
       };
       secondary?: {
         text?: string;
         link?: string;
+        visible?: boolean;
+        textColor?: string;
       };
     };
-    images?: {
-      image1?: string;
-      image2?: string;
-    };
-    tagImage?: string;
+    leftImage1?: string;
+    leftImage2?: string;
     questions?: Array<{
       question: string;
       answer: string;

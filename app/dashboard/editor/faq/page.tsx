@@ -20,11 +20,14 @@ import {
   FormGroup,
   ImageUploadField,
   SectionTypeSelector,
-  EditorButton
+  EditorButton,
+  ToggleField,
+  ColorField
 } from "@/components/editor/FormFields";
 import { Layout, Type, Settings, Image, Plus, Trash2, GripVertical, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import Faqs2 from "@/components/sections/Faqs2";
 import Faqs3 from "@/components/sections/Faqs3";
+import Faqs1 from "@/components/sections/Faqs1";
 import {
   DndContext,
   closestCenter,
@@ -45,6 +48,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 // FAQ type options
 const faqTypes = [
+  { value: "faqs1", label: "FAQs 1" },
   { value: "faqs2", label: "FAQs 2" },
   { value: "faqs3", label: "FAQs 3" }
 ];
@@ -82,7 +86,9 @@ const DirectPreview = ({ data }: { data: any }) => {
   
   return (
     <div className="preview-container editor-preview">
-      {activeComponent === "faqs2" ? (
+      {activeComponent === "faqs1" ? (
+        <Faqs1 previewData={data} />
+      ) : activeComponent === "faqs2" ? (
         <Faqs2 previewData={data} />
       ) : (
         <Faqs3 previewData={data} />
@@ -405,7 +411,15 @@ export default function FaqEditor() {
 
         {/* Content Tab */}
         <TabsContent value="content" className="m-0 p-3 border-t">
-          {activeFaq === "faqs2" ? (
+          {activeFaq === "faqs1" ? (
+            <Faqs1ContentForm 
+              data={data.faqs1 || {}} 
+              addFaqItem={() => addFaqItem("faqs1")} 
+              removeFaqItem={(index: number) => removeFaqItem("faqs1", index)}
+              handleDragEnd={(event: DragEndEvent) => handleDragEnd("faqs1", event)}
+              insertFaqItem={(index: number) => insertFaqItem("faqs1", index)}
+            />
+          ) : activeFaq === "faqs2" ? (
             <Faqs2ContentForm 
               data={data.faqs2 || {}} 
               addFaqItem={() => addFaqItem("faqs2")} 
@@ -433,7 +447,9 @@ export default function FaqEditor() {
 
         {/* Media Tab */}
         <TabsContent value="media" className="m-0 p-3 border-t">
-          {activeFaq === "faqs2" ? (
+          {activeFaq === "faqs1" ? (
+            <Faqs1MediaForm data={data.faqs1 || {}} />
+          ) : activeFaq === "faqs2" ? (
             <Faqs2MediaForm data={data.faqs2 || {}} />
           ) : (
             <Faqs3MediaForm data={data.faqs3 || {}} />
@@ -491,12 +507,27 @@ function Faqs2ContentForm({
   
   return (
     <div className="space-y-4">
-      <FormGroup title="Heading">
+      <FormGroup title="Tag & Heading">
+        <ToggleField
+          label="Show Tag"
+          value={data?.tagVisible !== false}
+          path="faqs2.tagVisible"
+        />
         <TextField
           label="Tag Text"
           value={data?.heading?.tag || ""}
           path="faqs2.heading.tag"
           placeholder="e.g. Pricing FAQs"
+        />
+        <ColorField
+          label="Tag Background Color"
+          value={data?.tagBackgroundColor || "#f1f0fe"}
+          path="faqs2.tagBackgroundColor"
+        />
+        <ColorField
+          label="Tag Text Color"
+          value={data?.tagTextColor || "#6342EC"}
+          path="faqs2.tagTextColor"
         />
         <TextField
           label="Title"
@@ -504,11 +535,21 @@ function Faqs2ContentForm({
           path="faqs2.heading.title"
           placeholder="e.g. Ask us anything"
         />
+        <ColorField
+          label="Title Color"
+          value={data?.heading?.titleColor || "#111827"}
+          path="faqs2.heading.titleColor"
+        />
         <TextField
           label="Description"
           value={data?.heading?.description || ""}
           path="faqs2.heading.description"
           placeholder="e.g. Have any questions? We're here to assist you."
+        />
+        <ColorField
+          label="Description Color"
+          value={data?.heading?.descriptionColor || "#6E6E6E"}
+          path="faqs2.heading.descriptionColor"
         />
       </FormGroup>
       
@@ -582,12 +623,27 @@ function Faqs3ContentForm({
   
   return (
     <div className="space-y-4">
-      <FormGroup title="Heading">
+      <FormGroup title="Tag & Heading">
+        <ToggleField
+          label="Show Tag"
+          value={data?.tagVisible !== false}
+          path="faqs3.tagVisible"
+        />
         <TextField
           label="Tag Text"
           value={data?.heading?.tag || ""}
           path="faqs3.heading.tag"
           placeholder="e.g. Frequently Asked questions"
+        />
+        <ColorField
+          label="Tag Background Color"
+          value={data?.tagBackgroundColor || "#f1f0fe"}
+          path="faqs3.tagBackgroundColor"
+        />
+        <ColorField
+          label="Tag Text Color"
+          value={data?.tagTextColor || "#6342EC"}
+          path="faqs3.tagTextColor"
         />
         <TextAreaField
           label="Title (HTML)"
@@ -595,15 +651,30 @@ function Faqs3ContentForm({
           path="faqs3.heading.title"
           placeholder="Enter title with HTML formatting if needed"
         />
+        <ColorField
+          label="Title Color"
+          value={data?.heading?.titleColor || "#111827"}
+          path="faqs3.heading.titleColor"
+        />
         <TextAreaField
           label="Description"
           value={data?.heading?.description || ""}
           path="faqs3.heading.description"
           placeholder="Enter description with HTML formatting if needed"
         />
+        <ColorField
+          label="Description Color"
+          value={data?.heading?.descriptionColor || "#6E6E6E"}
+          path="faqs3.heading.descriptionColor"
+        />
       </FormGroup>
       
       <FormGroup title="Buttons">
+        <ToggleField
+          label="Show Primary Button"
+          value={data?.buttons?.primary?.visible !== false}
+          path="faqs3.buttons.primary.visible"
+        />
         <TextField
           label="Primary Button Text"
           value={data?.buttons?.primary?.text || ""}
@@ -616,6 +687,24 @@ function Faqs3ContentForm({
           path="faqs3.buttons.primary.link"
           placeholder="#"
         />
+        <ColorField
+          label="Primary Button Background"
+          value={data?.buttons?.primary?.backgroundColor || ""}
+          path="faqs3.buttons.primary.backgroundColor"
+        />
+        <ColorField
+          label="Primary Button Text Color"
+          value={data?.buttons?.primary?.textColor || "#FFFFFF"}
+          path="faqs3.buttons.primary.textColor"
+        />
+        
+        <div className="mt-4"></div>
+        
+        <ToggleField
+          label="Show Secondary Button"
+          value={data?.buttons?.secondary?.visible !== false}
+          path="faqs3.buttons.secondary.visible"
+        />
         <TextField
           label="Secondary Button Text"
           value={data?.buttons?.secondary?.text || ""}
@@ -627,6 +716,11 @@ function Faqs3ContentForm({
           value={data?.buttons?.secondary?.link || ""}
           path="faqs3.buttons.secondary.link"
           placeholder="#"
+        />
+        <ColorField
+          label="Secondary Button Text Color"
+          value={data?.buttons?.secondary?.textColor || "#111827"}
+          path="faqs3.buttons.secondary.textColor"
         />
       </FormGroup>
       
@@ -717,6 +811,160 @@ function Faqs3MediaForm({ data }: { data: any }) {
           path="faqs3.images.image2"
         />
       </FormGroup>
+    </div>
+  );
+}
+
+// Add Faqs1ContentForm component
+function Faqs1ContentForm({ 
+  data, 
+  addFaqItem, 
+  removeFaqItem,
+  handleDragEnd,
+  insertFaqItem
+}: { 
+  data: any, 
+  addFaqItem: () => void, 
+  removeFaqItem: (index: number) => void,
+  handleDragEnd: (event: DragEndEvent) => void,
+  insertFaqItem: (index: number) => void
+}) {
+  const questions = data?.questions || [];
+  
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Heading">
+        <TextField
+          label="Title"
+          value={data?.heading?.title || ""}
+          path="faqs1.heading.title"
+          placeholder="e.g. Frequently Asked Questions"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.heading?.titleColor || "#111827"}
+          path="faqs1.heading.titleColor"
+        />
+        <TextField
+          label="Description"
+          value={data?.heading?.description || ""}
+          path="faqs1.heading.description"
+          placeholder="e.g. Find the answers to all of our most frequently asked questions"
+        />
+        <ColorField
+          label="Description Color"
+          value={data?.heading?.descriptionColor || "#6E6E6E"}
+          path="faqs1.heading.descriptionColor"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Number Style">
+        <ColorField
+          label="Number Background Color"
+          value={data?.numberColor || "#6342EC"}
+          path="faqs1.numberColor"
+        />
+        <ColorField
+          label="Number Text Color"
+          value={data?.numberBgColor || "#ffffff"}
+          path="faqs1.numberBgColor"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Support Items">
+        {(data?.supportItems || []).map((item: any, index: number) => (
+          <div key={index} className="space-y-2 p-3 bg-gray-50 rounded-md mb-3">
+            <div className="flex justify-between items-center">
+              <div className="text-sm font-medium">Support Item {index + 1}</div>
+              {/* Could add delete functionality here if needed */}
+            </div>
+            <TextField
+              label="Title"
+              value={item?.title || ""}
+              path={`faqs1.supportItems.${index}.title`}
+              placeholder="e.g. Live chat support 24/7"
+            />
+            <TextField
+              label="Description"
+              value={item?.description || ""}
+              path={`faqs1.supportItems.${index}.description`}
+              placeholder="e.g. More than 300 employees are ready to help you"
+            />
+            <ImageUploadField
+              label="Icon"
+              value={item?.icon || ""}
+              path={`faqs1.supportItems.${index}.icon`}
+            />
+          </div>
+        ))}
+      </FormGroup>
+      
+      <FormGroup title="FAQ Items">
+        <div className="bg-sidebar p-4 rounded-md">
+          <div className="mb-4">
+            <EditorButton 
+              onClick={addFaqItem} 
+              icon={<Plus className="h-4 w-4 mr-2" />}
+              className="w-full justify-center bg-indigo-600 hover:bg-indigo-700 transition-colors"
+            >
+              Add FAQ Item
+            </EditorButton>
+          </div>
+          
+          <DndContext 
+            sensors={useSensors(
+              useSensor(PointerSensor),
+              useSensor(KeyboardSensor, {
+                coordinateGetter: sortableKeyboardCoordinates,
+              })
+            )}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext 
+              items={questions.map((_: any, i: number) => `faq-${i}`)}
+              strategy={verticalListSortingStrategy}
+            >
+              {questions.map((faq: any, index: number) => (
+                <SortableFaqItem
+                  key={`faq-${index}`}
+                  id={`faq-${index}`}
+                  index={index}
+                  faq={faq}
+                  faqType="faqs1"
+                  handleRemove={() => removeFaqItem(index)}
+                  handleInsert={() => insertFaqItem(index)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+          
+          {questions.length === 0 && (
+            <div className="text-center p-6 text-gray-500 border border-dashed border-gray-300 rounded-md mt-4">
+              <p className="mb-2">No FAQ items yet</p>
+              <p className="text-sm">Click the button above to add your first FAQ</p>
+            </div>
+          )}
+        </div>
+      </FormGroup>
+    </div>
+  );
+}
+
+// Add Faqs1MediaForm component
+function Faqs1MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <ImageUploadField
+        label="Main Image"
+        value={data?.mainImage || ""}
+        path="faqs1.mainImage"
+      />
+      <ImageUploadField
+        label="Background Image"
+        value={data?.backgroundImage || ""}
+        path="faqs1.backgroundImage"
+      />
     </div>
   );
 } 

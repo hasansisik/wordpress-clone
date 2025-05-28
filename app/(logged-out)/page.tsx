@@ -14,11 +14,6 @@ import Faqs1 from "@/components/sections/Faqs1"
 export default function Home() {
 	return (
 		<>
-		<Cta1 />
-		<Services5 />
-
-
-
 		<Faqs1 />
 		<Faqs2 />
 		<Faqs3 />

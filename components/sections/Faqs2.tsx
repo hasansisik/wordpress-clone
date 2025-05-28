@@ -70,12 +70,32 @@ export default function Faqs2({ previewData }: Faqs2Props = {}) {
 			<section className="section-faqs-2 section-padding bg-4 position-relative" key={key}>
 				<div className="container position-relative z-2">
 					<div className="text-center mb-8">
-						<div className="d-flex align-items-center position-relative z-2 justify-content-center bg-primary-soft d-inline-flex rounded-pill border border-2 border-white px-3 py-1">
-							<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
-							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data?.heading?.tag || "FAQs"}</span>
-						</div>
-						<h3 className="ds-3 my-3 fw-bold">{data?.heading?.title || "Frequently Asked Questions"}</h3>
-						<p className="fs-5 mb-0">{data?.heading?.description || "Find answers to common questions about our services"}</p>
+						{data.tagVisible !== false && (
+							<div 
+								className="d-flex align-items-center position-relative z-2 justify-content-center d-inline-flex rounded-pill border border-2 border-white px-3 py-1"
+								style={{ backgroundColor: data.tagBackgroundColor || "#f1f0fe" }}
+							>
+								<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
+								<span 
+									className="tag-spacing fs-7 fw-bold ms-2 text-uppercase"
+									style={{ color: data.tagTextColor || "#6342EC" }}
+								>
+									{data?.heading?.tag || "FAQs"}
+								</span>
+							</div>
+						)}
+						<h3 
+							className="ds-3 my-3 fw-bold"
+							style={{ color: data.heading?.titleColor || "#111827" }}
+						>
+							{data?.heading?.title || "Frequently Asked Questions"}
+						</h3>
+						<p 
+							className="fs-5 mb-0"
+							style={{ color: data.heading?.descriptionColor || "#6E6E6E" }}
+						>
+							{data?.heading?.description || "Find answers to common questions about our services"}
+						</p>
 					</div>
 					<div className="row align-items-center position-relative z-1">
 						<div className="col-lg-6">

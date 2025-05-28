@@ -55,6 +55,21 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 		)
 	}
 
+	// Primary button styles
+	const getPrimaryButtonStyles = () => {
+		const buttonStyle: React.CSSProperties = {
+			color: data.buttons?.primary?.textColor || '#FFFFFF'
+		}
+		
+		// Only include backgroundColor if a custom one is set
+		if (data.buttons?.primary?.backgroundColor) {
+			buttonStyle.backgroundColor = data.buttons.primary.backgroundColor;
+			buttonStyle.backgroundImage = 'none'; // Override gradient
+		}
+		
+		return buttonStyle;
+	}
+
 	return (
 		<>
 			<section className="section-faqs-1 section-padding position-relative" key={key}>
@@ -62,25 +77,57 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 					<div className="row align-items-center">
 						<div className="col-lg-6">
 							<div className="text-start">
-								<div className="d-flex align-items-center position-relative z-2 justify-content-center bg-primary-soft d-inline-flex rounded-pill border border-2 border-white px-3 py-1">
-									<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
-									<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data?.heading?.tag || "Frequently Asked Questions"}</span>
-								</div>
-								<h3 className="ds-3 my-3 fw-bold" dangerouslySetInnerHTML={{ __html: data?.heading?.title || "Got questions? <br />We've got answers" }}></h3>
+								{data.tagVisible !== false && (
+									<div 
+										className="d-flex align-items-center position-relative z-2 justify-content-center d-inline-flex rounded-pill border border-2 border-white px-3 py-1"
+										style={{ backgroundColor: data.tagBackgroundColor || "#f1f0fe" }}
+									>
+										<img src={data?.tagImage || "/assets/imgs/features-1/dots.png"} alt="infinia" />
+										<span 
+											className="tag-spacing fs-7 fw-bold ms-2 text-uppercase"
+											style={{ color: data.tagTextColor || "#6342EC" }}
+										>
+											{data?.heading?.tag || "Frequently Asked Questions"}
+										</span>
+									</div>
+								)}
+								<h3 
+									className="ds-3 my-3 fw-bold" 
+									dangerouslySetInnerHTML={{ __html: data?.heading?.title || "Got questions? <br />We've got answers" }}
+									style={{ color: data.heading?.titleColor || "#111827" }}
+								></h3>
 								<div className="position-relative d-inline-block mt-3 mb-6">
 									<img src={data?.leftImage1 || "/assets/imgs/faqs-3/img-1.png"} alt="" className=" rounded-pill border border-3 border-white" />
 									<img src={data?.leftImage2 || "/assets/imgs/faqs-3/img-2.png"} alt="" className="position-absolute z-1 top-0 start-50 mt-3 rounded-pill border border-3 border-white" />
 								</div>
-								<p className="fs-5 mb-0" dangerouslySetInnerHTML={{ __html: data?.description || "Quick answers to questions you may have. <br />Can't find what you're looking for? Get in touch with us." }}></p>
+								<p 
+									className="fs-5 mb-0" 
+									dangerouslySetInnerHTML={{ __html: data?.description || "Quick answers to questions you may have. <br />Can't find what you're looking for? Get in touch with us." }}
+									style={{ color: data.heading?.descriptionColor || "#6E6E6E" }}
+								></p>
 								<div className="d-flex align-items-center mt-5">
-									<Link href={data?.ctaLink || "#"} className="btn btn-gradient d-flex align-items-center">
-										{data?.ctaText || "Get in touch"}
-										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-											<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-											<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-										</svg>
-									</Link>
-									<Link href={data?.secondaryLink || "#"} className="ms-5 fw-bold">{data?.secondaryText || "Help Center"}</Link>
+									{data.buttons?.primary?.visible !== false && (
+										<Link 
+											href={data?.buttons?.primary?.link || "#"} 
+											className="btn btn-gradient d-flex align-items-center"
+											style={getPrimaryButtonStyles()}
+										>
+											{data?.buttons?.primary?.text || "Get in touch"}
+											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
+												<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+												<path className="stroke-white" d="M17 7L6.75 17.25" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+											</svg>
+										</Link>
+									)}
+									{data.buttons?.secondary?.visible !== false && (
+										<Link 
+											href={data?.buttons?.secondary?.link || "#"} 
+											className="ms-5 fw-bold"
+											style={{ color: data.buttons?.secondary?.textColor || "#111827" }}
+										>
+											{data?.buttons?.secondary?.text || "Help Center"}
+										</Link>
+									)}
 								</div>
 							</div>
 						</div>
