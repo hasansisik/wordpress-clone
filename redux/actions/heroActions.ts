@@ -6,19 +6,34 @@ export interface HeroPayload {
   activeHero?: string;
   hero1?: {
     badge?: {
+      visible?: boolean;
       label?: string;
       text?: string;
       link?: string;
+      backgroundColor?: string;
+      labelBgColor?: string;
+      labelTextColor?: string;
+      textColor?: string;
+      iconColor?: string;
     };
     title?: string;
     description?: string;
     primaryButton?: {
+      visible?: boolean;
       text?: string;
       link?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconColor?: string;
     };
     secondaryButton?: {
+      visible?: boolean;
       text?: string;
       link?: string;
+      backgroundColor?: string;
+      borderColor?: string;
+      textColor?: string;
+      iconColor?: string;
     };
     images?: {
       background?: string;
@@ -27,19 +42,32 @@ export interface HeroPayload {
       shape3?: string;
     };
     card?: {
+      visible?: boolean;
       image?: string;
       title?: string;
       description?: string;
+      backgroundColor?: string;
+      titleColor?: string;
+      descriptionColor?: string;
       button?: {
         label?: string;
         text?: string;
         link?: string;
+        backgroundColor?: string;
+        labelBgColor?: string;
+        labelTextColor?: string;
+        textColor?: string;
+        iconColor?: string;
       };
     };
   };
   hero3?: {
     badge?: {
+      visible?: boolean;
       text?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      borderColor?: string;
     };
     title?: {
       part1?: string;
@@ -47,12 +75,30 @@ export interface HeroPayload {
     };
     description?: string;
     button?: {
+      visible?: boolean;
       text?: string;
       link?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconColor?: string;
     };
+    buttons?: {
+      secondary?: {
+        visible?: boolean;
+        text?: string;
+        link?: string;
+        backgroundColor?: string;
+        borderColor?: string;
+        textColor?: string;
+      };
+    };
+    avatarsVisible?: boolean;
     avatars?: Array<{
-      image: string;
-      alt: string;
+      image?: string;
+      alt?: string;
+      visible?: boolean;
+      borderColor?: string;
+      backgroundColor?: string;
     }>;
     images?: {
       image1?: string;

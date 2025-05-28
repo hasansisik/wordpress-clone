@@ -14,19 +14,34 @@ const initialState: HeroState = {
     activeHero: "hero1",
     hero1: {
       badge: {
+        visible: true,
         label: "yeni",
         text: "Free Lifetime ",
-        link: "#"
+        link: "#",
+        backgroundColor: "",
+        labelBgColor: "#6342EC",
+        labelTextColor: "#FFFFFF",
+        textColor: "#6342EC",
+        iconColor: "#6342EC"
       },
       title: "Create stunning websites with our",
       description: "Build beautiful, responsive websites without code. Our drag-and-drop interface makes it easy to create professional sites in minutes.",
       primaryButton: {
+        visible: true,
         text: "Get Started",
-        link: "/register"
+        link: "/register",
+        backgroundColor: "",
+        textColor: "#FFFFFF",
+        iconColor: "#FFFFFF"
       },
       secondaryButton: {
+        visible: true,
         text: "Contact Sales",
-        link: "/contact"
+        link: "/contact",
+        backgroundColor: "transparent",
+        borderColor: "",
+        textColor: "",
+        iconColor: "#111827"
       },
       images: {
         background: "/assets/imgs/hero-1/background.png",
@@ -35,19 +50,32 @@ const initialState: HeroState = {
         shape3: "/assets/imgs/hero-1/shape-3.png"
       },
       card: {
+        visible: true,
         image: "/assets/imgs/hero-1/shape-4.png",
         title: "Join Our Community",
         description: "Over 2,500+ happy customers",
+        backgroundColor: "",
+        titleColor: "",
+        descriptionColor: "",
         button: {
           label: "Get",
           text: "Free Update",
-          link: "#"
+          link: "#",
+          backgroundColor: "#FFFFFF",
+          labelBgColor: "#6D4DF2",
+          labelTextColor: "#FFFFFF",
+          textColor: "#6D4DF2",
+          iconColor: "#6D4DF2"
         }
       }
     },
     hero3: {
       badge: {
-        text: "Build Without Limits"
+        visible: true,
+        text: "Build Without Limits",
+        backgroundColor: "#FFFFFF",
+        textColor: "#6342EC",
+        borderColor: ""
       },
       title: {
         part1: "Create Stunning",
@@ -55,21 +83,45 @@ const initialState: HeroState = {
       },
       description: "Design professional websites with our powerful drag-and-drop builder. No coding skills required.",
       button: {
+        visible: true,
         text: "Try It Free",
-        link: "/register"
+        link: "/register",
+        backgroundColor: "",
+        textColor: "#FFFFFF",
+        iconColor: "#FFFFFF"
       },
+      buttons: {
+        secondary: {
+          visible: true,
+          text: "Learn More",
+          link: "#",
+          backgroundColor: "transparent",
+          borderColor: "",
+          textColor: ""
+        }
+      },
+      avatarsVisible: true,
       avatars: [
         {
           image: "/assets/imgs/hero-3/avatar-1.png",
-          alt: "User avatar 1"
+          alt: "User avatar 1",
+          visible: true,
+          borderColor: "#FFFFFF",
+          backgroundColor: ""
         },
         {
           image: "/assets/imgs/hero-3/avatar-2.png",
-          alt: "User avatar 2"
+          alt: "User avatar 2",
+          visible: true,
+          borderColor: "#FFFFFF",
+          backgroundColor: ""
         },
         {
           image: "/assets/imgs/hero-3/avatar-3.png",
-          alt: "User avatar 3"
+          alt: "User avatar 3",
+          visible: true,
+          borderColor: "#FFFFFF",
+          backgroundColor: ""
         }
       ],
       images: {

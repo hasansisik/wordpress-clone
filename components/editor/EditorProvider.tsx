@@ -35,10 +35,58 @@ export interface EditorContextType {
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>, imagePath: string) => Promise<void>;
   savedData: any;
   saveCurrentData: () => void;
+  data: any;
+  uploadFile: (file: File, path: string) => Promise<string>;
+  updateData: (path: string, value: string | boolean | number) => void;
+  handleSubmit: () => Promise<{ success: boolean; error?: string }>;
+  isSaving: boolean;
+  saved: boolean;
+  error: string | null;
 }
 
 // Create context with default values
-const EditorContext = createContext<EditorContextType | null>(null);
+export const EditorContext = createContext<EditorContextType>({
+  sectionData: null,
+  sectionType: '',
+  loading: false,
+  handleTextChange: () => {},
+  updateData: () => {},
+  handleImageUpload: async () => '',
+  handleImageDelete: () => {},
+  handleSave: async () => ({ success: false }),
+  isSaving: false,
+  saveError: null,
+  saveSuccess: false,
+  resetSaveState: () => {},
+  savedData: null,
+  saveCurrentData: () => {},
+  selectedSection: null,
+  setSelectedSection: () => {},
+  previewMode: "desktop",
+  setPreviewMode: () => {},
+  sidebarCollapsed: false,
+  setSidebarCollapsed: () => {},
+  showAlert: false,
+  setShowAlert: () => {},
+  alertType: "success",
+  setAlertType: () => {},
+  alertMessage: "",
+  setAlertMessage: () => {},
+  showSuccessAlert: () => {},
+  showErrorAlert: () => {},
+  iframeRef: { current: null },
+  updateIframeContent: () => {},
+  saveChangesToAPI: async () => {},
+  isLoading: false,
+  setIsLoading: () => {},
+  imageUploading: false,
+  setImageUploading: () => {},
+  data: null,
+  uploadFile: async () => '',
+  handleSubmit: async () => ({ success: false }),
+  saved: false,
+  error: null,
+});
 
 // EditorProvider props type
 interface EditorProviderProps {
@@ -195,26 +243,17 @@ export const EditorProvider = ({
 
   // Handle text change with auto-save
   const handleTextChange = (value: string, path: string) => {
-    // Update the correct path in the data
-    const newData = JSON.parse(JSON.stringify(sectionData)); // Deep clone to ensure we're not modifying read-only props
+    // Handle boolean values from string
+    let parsedValue: string | boolean | number = value;
     
-    // Split the path by dots and use it to navigate and update the object
-    const parts = path.split('.');
-    let current: any = newData;
-    
-    // Navigate to the second-to-last part
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!current[parts[i]]) {
-        current[parts[i]] = {};
-      }
-      current = current[parts[i]];
+    // Convert "true"/"false" strings to actual boolean values
+    if (value === "true") {
+      parsedValue = true;
+    } else if (value === "false") {
+      parsedValue = false;
     }
     
-    // Update the value
-    current[parts[parts.length - 1]] = value;
-    
-    // Update state with new data
-    setSectionData(newData);
+    setSectionData((prevData) => updateDataInObject(prevData, path, parsedValue));
   };
 
   // Handle image upload
@@ -305,6 +344,11 @@ export const EditorProvider = ({
     }
   };
 
+  // Inside the EditorProvider component, update the updateData method
+  const updateData = (path: string, value: string | boolean | number) => {
+    setSectionData((prevData) => updateDataInObject(prevData, path, value));
+  };
+
   // Create context value
   const contextValue: EditorContextType = {
     sectionData,
@@ -334,7 +378,17 @@ export const EditorProvider = ({
     handleTextChange,
     handleImageUpload,
     savedData,
-    saveCurrentData
+    saveCurrentData,
+    data: sectionData,
+    uploadFile: async (file: File, path: string) => {
+      // Implementation of uploadFile method
+      return ""; // Placeholder return, actual implementation needed
+    },
+    updateData,
+    handleSubmit: async () => ({ success: false }),
+    isSaving: false,
+    saved: false,
+    error: null,
   };
 
   return (
@@ -351,4 +405,41 @@ export const useEditor = () => {
     throw new Error('useEditor must be used within an EditorProvider');
   }
   return context;
+};
+
+export const updateDataInObject = (obj: any, path: string, value: string | boolean | number): any => {
+  // Create a deep clone of the object to avoid modifying read-only properties
+  const newObj = JSON.parse(JSON.stringify(obj));
+  const keys = path.split('.');
+  let current = newObj;
+  
+  // Navigate to the right depth
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i];
+    // Handle array indices
+    if (key.includes('[') && key.includes(']')) {
+      const arrKey = key.substring(0, key.indexOf('['));
+      const index = parseInt(key.substring(key.indexOf('[') + 1, key.indexOf(']')));
+      if (!current[arrKey]) current[arrKey] = [];
+      if (!current[arrKey][index]) current[arrKey][index] = {};
+      current = current[arrKey][index];
+    } else {
+      if (!current[key]) current[key] = {};
+      current = current[key];
+    }
+  }
+  
+  // Set the value at the final key
+  const finalKey = keys[keys.length - 1];
+  // Handle array indices in the final key
+  if (finalKey.includes('[') && finalKey.includes(']')) {
+    const arrKey = finalKey.substring(0, finalKey.indexOf('['));
+    const index = parseInt(finalKey.substring(finalKey.indexOf('[') + 1, finalKey.indexOf(']')));
+    if (!current[arrKey]) current[arrKey] = [];
+    current[arrKey][index] = value;
+  } else {
+    current[finalKey] = value;
+  }
+  
+  return newObj;
 }; 

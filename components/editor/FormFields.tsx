@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useEditor } from "./EditorProvider";
 import { useState } from "react";
+import { HexColorPicker } from "react-colorful";
+import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 // Base field props
 interface BaseFieldProps {
@@ -303,43 +307,89 @@ export const CheckboxField = ({
   );
 };
 
-// Color picker field
-export const ColorField = ({ 
-  label, 
-  value, 
-  path, 
-  className = "space-y-2 mb-4",
-  disabled = false
-}: BaseFieldProps) => {
+// Color Picker Field
+export const ColorField = ({ label, value, path, className }: {
+  label: string;
+  value: string;
+  path: string;
+  className?: string;
+}) => {
   const { handleTextChange } = useEditor();
-  const [color, setColor] = useState(value || "#000000");
+  const [color, setColor] = useState<string>(value || "");
   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newColor = e.target.value;
+  const handleChange = (newColor: string) => {
     setColor(newColor);
     handleTextChange(newColor, path);
   };
-  
+
   return (
-    <div className={className}>
-      <Label className="text-xs text-gray-500">{label}</Label>
+    <div className={cn("grid w-full items-center gap-1.5", className)}>
+      <Label className="text-xs">{label}</Label>
       <div className="flex items-center gap-2">
-        <Input
-          type="color"
-          value={color}
-          onChange={handleChange}
-          className="h-8 w-10 p-1"
-          disabled={disabled}
-        />
-        <Input
-          type="text"
-          value={color}
-          onChange={handleChange}
-          className="h-8 text-xs flex-1"
-          placeholder="#000000"
-          disabled={disabled}
-        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-8 h-8 p-0 border"
+              style={{ 
+                backgroundColor: color || 'transparent',
+                borderColor: !color ? '#ccc' : 'transparent'
+              }}
+            >
+              {!color && <span className="text-xs text-gray-500">+</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-3">
+            <HexColorPicker color={color} onChange={handleChange} />
+            <div className="flex items-center mt-2">
+              <Input
+                value={color}
+                onChange={(e) => handleChange(e.target.value)}
+                className="h-8 text-xs"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 ml-1"
+                onClick={() => handleChange("")}
+              >
+                Clear
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+        <span className="text-xs text-gray-500">{color || "Not set"}</span>
       </div>
+    </div>
+  );
+};
+
+// Toggle Field
+export const ToggleField = ({ label, value, path, className }: {
+  label: string;
+  value: boolean;
+  path: string;
+  className?: string;
+}) => {
+  const { updateData } = useEditor();
+  
+  const handleChange = (checked: boolean) => {
+    // Use updateData which can accept boolean values directly
+    try {
+      updateData(path, checked);
+    } catch (error) {
+      console.error("Error updating toggle field:", error);
+    }
+  };
+
+  return (
+    <div className={cn("flex items-center justify-between", className)}>
+      <Label htmlFor={path} className="text-xs cursor-pointer">{label}</Label>
+      <Switch
+        id={path}
+        checked={value}
+        onCheckedChange={handleChange}
+      />
     </div>
   );
 };

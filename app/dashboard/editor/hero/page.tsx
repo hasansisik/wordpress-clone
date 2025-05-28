@@ -16,6 +16,8 @@ import {
   ImageUploadField,
   ImagePreview,
   SectionTypeSelector,
+  ColorField,
+  ToggleField,
 } from "@/components/editor/FormFields";
 import { Layout, Type, Settings, Image } from "lucide-react";
 import Hero1 from "@/components/sections/Hero1";
@@ -252,6 +254,11 @@ function Hero1ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <FormGroup title="Badge">
+        <ToggleField
+          label="Show Badge"
+          value={data?.badge?.visible !== false}
+          path="hero1.badge.visible"
+        />
         <TextField
           label="Label"
           value={data?.badge?.label || ""}
@@ -268,6 +275,31 @@ function Hero1ContentForm({ data }: { data: any }) {
           label="Link"
           value={data?.badge?.link || ""}
           path="hero1.badge.link"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.badge?.backgroundColor || ""}
+          path="hero1.badge.backgroundColor"
+        />
+        <ColorField
+          label="Label Background Color"
+          value={data?.badge?.labelBgColor || "#6342EC"}
+          path="hero1.badge.labelBgColor"
+        />
+        <ColorField
+          label="Label Text Color"
+          value={data?.badge?.labelTextColor || "#FFFFFF"}
+          path="hero1.badge.labelTextColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.badge?.textColor || "#6342EC"}
+          path="hero1.badge.textColor"
+        />
+        <ColorField
+          label="Icon Color"
+          value={data?.badge?.iconColor || "#6342EC"}
+          path="hero1.badge.iconColor"
         />
       </FormGroup>
 
@@ -286,6 +318,11 @@ function Hero1ContentForm({ data }: { data: any }) {
       />
 
       <FormGroup title="Primary Button">
+        <ToggleField
+          label="Show Primary Button"
+          value={data?.primaryButton?.visible !== false}
+          path="hero1.primaryButton.visible"
+        />
         <TextField
           label="Text"
           value={data?.primaryButton?.text || ""}
@@ -297,9 +334,29 @@ function Hero1ContentForm({ data }: { data: any }) {
           value={data?.primaryButton?.link || ""}
           path="hero1.primaryButton.link"
         />
+        <ColorField
+          label="Background Color"
+          value={data?.primaryButton?.backgroundColor || ""}
+          path="hero1.primaryButton.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.primaryButton?.textColor || "#FFFFFF"}
+          path="hero1.primaryButton.textColor"
+        />
+        <ColorField
+          label="Icon Color"
+          value={data?.primaryButton?.iconColor || "#FFFFFF"}
+          path="hero1.primaryButton.iconColor"
+        />
       </FormGroup>
 
       <FormGroup title="Secondary Button">
+        <ToggleField
+          label="Show Secondary Button"
+          value={data?.secondaryButton?.visible !== false}
+          path="hero1.secondaryButton.visible"
+        />
         <TextField
           label="Text"
           value={data?.secondaryButton?.text || ""}
@@ -311,9 +368,34 @@ function Hero1ContentForm({ data }: { data: any }) {
           value={data?.secondaryButton?.link || ""}
           path="hero1.secondaryButton.link"
         />
+        <ColorField
+          label="Background Color"
+          value={data?.secondaryButton?.backgroundColor || "transparent"}
+          path="hero1.secondaryButton.backgroundColor"
+        />
+        <ColorField
+          label="Border Color"
+          value={data?.secondaryButton?.borderColor || ""}
+          path="hero1.secondaryButton.borderColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.secondaryButton?.textColor || ""}
+          path="hero1.secondaryButton.textColor"
+        />
+        <ColorField
+          label="Icon Color"
+          value={data?.secondaryButton?.iconColor || "#111827"}
+          path="hero1.secondaryButton.iconColor"
+        />
       </FormGroup>
 
       <FormGroup title="Card Settings">
+        <ToggleField
+          label="Show Card"
+          value={data?.card?.visible !== false}
+          path="hero1.card.visible"
+        />
         <TextField
           label="Card Title"
           value={data?.card?.title || ""}
@@ -326,25 +408,67 @@ function Hero1ContentForm({ data }: { data: any }) {
           path="hero1.card.description"
           placeholder="e.g. Over 2,500+ happy customers"
         />
-        <TextField
-          label="Button Label"
-          value={data?.card?.button?.label || ""}
-          path="hero1.card.button.label"
-          placeholder="e.g. Get"
+        <ColorField
+          label="Card Background"
+          value={data?.card?.backgroundColor || ""}
+          path="hero1.card.backgroundColor"
         />
-        <TextField
-          label="Button Text"
-          value={data?.card?.button?.text || ""}
-          path="hero1.card.button.text"
-          placeholder="e.g. Free Update"
+        <ColorField
+          label="Title Color"
+          value={data?.card?.titleColor || ""}
+          path="hero1.card.titleColor"
         />
-        <LinkField
-          label="Button Link"
-          value={data?.card?.button?.link || ""}
-          path="hero1.card.button.link"
+        <ColorField
+          label="Description Color"
+          value={data?.card?.descriptionColor || ""}
+          path="hero1.card.descriptionColor"
         />
+        <FormGroup title="Card Button" className="ml-4 mt-2">
+          <TextField
+            label="Button Label"
+            value={data?.card?.button?.label || ""}
+            path="hero1.card.button.label"
+            placeholder="e.g. Get"
+          />
+          <TextField
+            label="Button Text"
+            value={data?.card?.button?.text || ""}
+            path="hero1.card.button.text"
+            placeholder="e.g. Free Update"
+          />
+          <LinkField
+            label="Button Link"
+            value={data?.card?.button?.link || ""}
+            path="hero1.card.button.link"
+          />
+          <ColorField
+            label="Button Background"
+            value={data?.card?.button?.backgroundColor || "#FFFFFF"}
+            path="hero1.card.button.backgroundColor"
+          />
+          <ColorField
+            label="Label Background"
+            value={data?.card?.button?.labelBgColor || "#6D4DF2"}
+            path="hero1.card.button.labelBgColor"
+          />
+          <ColorField
+            label="Label Text Color"
+            value={data?.card?.button?.labelTextColor || "#FFFFFF"}
+            path="hero1.card.button.labelTextColor"
+          />
+          <ColorField
+            label="Text Color"
+            value={data?.card?.button?.textColor || "#6D4DF2"}
+            path="hero1.card.button.textColor"
+          />
+          <ColorField
+            label="Icon Color"
+            value={data?.card?.button?.iconColor || "#6D4DF2"}
+            path="hero1.card.button.iconColor"
+          />
+        </FormGroup>
       </FormGroup>
-                              </div>
+    </div>
   );
 }
 
@@ -352,12 +476,34 @@ function Hero1ContentForm({ data }: { data: any }) {
 function Hero3ContentForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
-      <TextField
-        label="Badge Text"
-        value={data?.badge?.text || ""}
-        path="hero3.badge.text"
-        placeholder="e.g. Build Without Limits"
-      />
+      <FormGroup title="Badge">
+        <ToggleField
+          label="Show Badge"
+          value={data?.badge?.visible !== false}
+          path="hero3.badge.visible"
+        />
+        <TextField
+          label="Badge Text"
+          value={data?.badge?.text || ""}
+          path="hero3.badge.text"
+          placeholder="e.g. Build Without Limits"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.badge?.backgroundColor || "#FFFFFF"}
+          path="hero3.badge.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.badge?.textColor || "#6342EC"}
+          path="hero3.badge.textColor"
+        />
+        <ColorField
+          label="Border Color"
+          value={data?.badge?.borderColor || ""}
+          path="hero3.badge.borderColor"
+        />
+      </FormGroup>
 
       <TextField
         label="Title (First Line)"
@@ -380,7 +526,12 @@ function Hero3ContentForm({ data }: { data: any }) {
         placeholder="Enter hero description"
       />
 
-      <FormGroup title="Button Settings">
+      <FormGroup title="Primary Button">
+        <ToggleField
+          label="Show Primary Button"
+          value={data?.button?.visible !== false}
+          path="hero3.button.visible"
+        />
         <TextField
           label="Button Text"
           value={data?.button?.text || ""}
@@ -392,8 +543,104 @@ function Hero3ContentForm({ data }: { data: any }) {
           value={data?.button?.link || ""}
           path="hero3.button.link"
         />
+        <ColorField
+          label="Background Color"
+          value={data?.button?.backgroundColor || ""}
+          path="hero3.button.backgroundColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.button?.textColor || "#FFFFFF"}
+          path="hero3.button.textColor"
+        />
+        <ColorField
+          label="Icon Color"
+          value={data?.button?.iconColor || "#FFFFFF"}
+          path="hero3.button.iconColor"
+        />
       </FormGroup>
-                              </div>
+
+      <FormGroup title="Secondary Button">
+        <ToggleField
+          label="Show Secondary Button"
+          value={data?.buttons?.secondary?.visible !== false}
+          path="hero3.buttons.secondary.visible"
+        />
+        <TextField
+          label="Button Text"
+          value={data?.buttons?.secondary?.text || ""}
+          path="hero3.buttons.secondary.text"
+          placeholder="e.g. Learn More"
+        />
+        <LinkField
+          label="Button Link"
+          value={data?.buttons?.secondary?.link || ""}
+          path="hero3.buttons.secondary.link"
+        />
+        <ColorField
+          label="Background Color"
+          value={data?.buttons?.secondary?.backgroundColor || "transparent"}
+          path="hero3.buttons.secondary.backgroundColor"
+        />
+        <ColorField
+          label="Border Color"
+          value={data?.buttons?.secondary?.borderColor || ""}
+          path="hero3.buttons.secondary.borderColor"
+        />
+        <ColorField
+          label="Text Color"
+          value={data?.buttons?.secondary?.textColor || ""}
+          path="hero3.buttons.secondary.textColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Avatars">
+        <ToggleField
+          label="Show Avatars"
+          value={data?.avatarsVisible !== false}
+          path="hero3.avatarsVisible"
+        />
+        {(data?.avatars || []).map((avatar: any, index: number) => (
+          <FormGroup 
+            key={index} 
+            title={`Avatar ${index + 1}`} 
+            className="ml-4 mt-2 p-3 bg-sidebar rounded-md"
+          >
+            <ToggleField
+              label="Show Avatar"
+              value={avatar?.visible !== false}
+              path={`hero3.avatars.${index}.visible`}
+            />
+            <div className="flex gap-2 items-center">
+              <ImagePreview
+                src={avatar.image || "/placeholder.jpg"}
+                path={`hero3.avatars.${index}.image`}
+                alt={avatar.alt || `User avatar ${index + 1}`}
+                className="h-12 w-12 rounded-full object-cover"
+              />
+              <div className="flex-1">
+                <TextField
+                  label="Alt Text"
+                  value={avatar.alt || ""}
+                  path={`hero3.avatars.${index}.alt`}
+                  placeholder="e.g. User avatar"
+                />
+              </div>
+            </div>
+            <ColorField
+              label="Border Color"
+              value={avatar?.borderColor || "#FFFFFF"}
+              path={`hero3.avatars.${index}.borderColor`}
+            />
+            <ColorField
+              label="Background Color"
+              value={avatar?.backgroundColor || ""}
+              path={`hero3.avatars.${index}.backgroundColor`}
+            />
+          </FormGroup>
+        ))}
+      </FormGroup>
+    </div>
   );
 }
 

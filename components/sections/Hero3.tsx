@@ -17,6 +17,25 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 	const { hero, loading } = useSelector((state: RootState) => state.hero)
 
 	useEffect(() => {
+		// Add styles for rotation animation
+		const style = document.createElement('style');
+		style.innerHTML = `
+			.rotateme {
+				animation: rotate 10s linear infinite;
+			}
+			@keyframes rotate {
+				from { transform: rotate(0deg); }
+				to { transform: rotate(360deg); }
+			}
+		`;
+		document.head.appendChild(style);
+		
+		return () => {
+			document.head.removeChild(style);
+		};
+	}, []);
+
+	useEffect(() => {
 		// Always trigger getHero() on component mount
 		dispatch(getHero())
 	}, [dispatch])
@@ -45,6 +64,23 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 		)
 	}
 
+	// Parse description to add line break if needed
+	const descriptionWithBreak = () => {
+		if (!data?.description) return "Access top-tier group mentoring plans and <br />exclusive professional benefits for your team.";
+		
+		// If description already has <br>, return as is
+		if (data.description.includes("<br />")) return data.description;
+		
+		// Otherwise, try to split it at a natural point
+		const words = data.description.split(" ");
+		if (words.length > 6) {
+			const firstPart = words.slice(0, Math.ceil(words.length/2)).join(" ");
+			const secondPart = words.slice(Math.ceil(words.length/2)).join(" ");
+			return `${firstPart} <br />${secondPart}`;
+		}
+		return data.description;
+	}
+
 	return (
 		<>
 			<section className="section-hero-3 position-relative fix section-padding">
@@ -52,51 +88,94 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 					<div className="row align-items-center position-relative">
 						<div className="col-lg-7 position-relative z-1 mb-lg-0 pb-10 mb-">
 							<div className="text-start mb-lg-0 mb-5">
-								<div className="border-linear-1 rounded-pill d-inline-block mb-3">
-									<div className="text-primary bg-white px-4 py-2 rounded-pill fw-medium position-relative z-2">
-										{data?.badge?.text || ""}
+								{data?.badge?.visible !== false && (
+									<div className="border-linear-1 rounded-pill d-inline-block mb-3" style={{borderColor: data?.badge?.borderColor || ''}}>
+										<div className="text-primary bg-white px-4 py-2 rounded-pill fw-medium position-relative z-2" style={{backgroundColor: data?.badge?.backgroundColor || '', color: data?.badge?.textColor || ''}}>
+											{data?.badge?.text || "🚀 Free Lifetime Update"}
+										</div>
 									</div>
-								</div>
+								)}
 								<div className="d-flex align-items-center">
 									<h1 className="ds-1 my-3 me-4 lh-1">
-										{data?.title?.part1 || ""}
+										{data?.title?.part1 || "Elevate your"}
 									</h1>
 									<div className="mt-3 d-none d-md-flex">
-										{data?.avatars?.map((avatar: any, index: number) => (
-											<div key={index} className={`avt-hero ${index === 2 ? 'icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle' : ''}`}>
-												{index !== 2 ? (
-													<img className="icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle" src={avatar?.image || ""} alt={avatar?.alt || ""} />
-												) : (
-													<img src={avatar?.image || ""} alt={avatar?.alt || ""} />
-												)}
-											</div>
+										{data?.avatarsVisible !== false && data?.avatars?.map((avatar: any, index: number) => (
+											avatar.visible !== false && (
+												<div key={index} className={`avt-hero ${index === 2 ? 'icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle' : ''}`}>
+													{index !== 2 ? (
+														<img className="icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle" src={avatar?.image || ""} alt={avatar?.alt || "infinia"} style={{borderColor: avatar?.borderColor || '', backgroundColor: avatar?.backgroundColor || ''}} />
+													) : (
+														<img src={avatar?.image || "/assets/imgs/hero-3/icon.svg"} alt={avatar?.alt || "infinia"} />
+													)}
+												</div>
+											)
 										)) || []}
 									</div>
 								</div>
 								<h1 className="ds-1 lh-1 m-0">
-									{data?.title?.part2 || ""}
+									{data?.title?.part2 || "brand with Infinia."}
 								</h1>
-								<p className="fs-5 text-900 my-6">
-									{data?.description || ""}
+								<p className="fs-5 text-900 my-6" dangerouslySetInnerHTML={{ __html: descriptionWithBreak() }}>
 								</p>
 								<div className="d-flex flex-wrap gap-3">
-									<Link href={data?.button?.link || "#"} className="btn btn-gradient-1">
-										{data?.button?.text || ""}
-										<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
-											<path d="M17.9199 12.79L14.1199 9L15.5299 7.59L21.9199 14L15.5299 20.41L14.1199 19L17.9199 15.21H2.91992V12.79H17.9199Z" fill="white" />
-										</svg>
-									</Link>
-									<Link href={data?.buttons?.secondary?.link || "#"} className="btn btn-outline-secondary">
-										{data?.buttons?.secondary?.text || ""}
-									</Link>
+									{data?.button?.visible !== false && (
+										<Link 
+											href={data?.button?.link || "#"} 
+											className="btn btn-gradient d-flex align-items-center justify-content-between" 
+											style={{
+												backgroundColor: data?.button?.backgroundColor || '#6342EC',
+												backgroundImage: data?.button?.backgroundColor ? 'none' : 'linear-gradient(90deg, #6342EC 0%, #8B6FE7 100%)',
+												color: data?.button?.textColor || '#FFFFFF'
+											}}
+										>
+											<span>{data?.button?.text || "Get Free Quote"}</span>
+											<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
+												<path className="stroke-white" d="M17.25 15.25V6.75H8.75" stroke={data?.button?.iconColor || "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+												<path className="stroke-white" d="M17 7L6.75 17.25" stroke={data?.button?.iconColor || "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+											</svg>
+										</Link>
+									)}
+									{data?.buttons?.secondary?.visible !== false && (
+										<Link 
+											href={data?.buttons?.secondary?.link || "#"} 
+											className="btn" 
+											style={{
+												backgroundColor: data?.buttons?.secondary?.backgroundColor || 'transparent',
+												color: data?.buttons?.secondary?.textColor || '#111827',
+												border: `1px solid ${data?.buttons?.secondary?.borderColor || '#d1d5db'}`
+											}}
+										>
+											{data?.buttons?.secondary?.text || "Learn More"}
+										</Link>
+									)}
 								</div>
 							</div>
 						</div>
-						<div className="col-lg-5 position-lg-absolute end-0 pe-0">
-							<div className="device-1-wrapper">
-								<div className="hero-3-img position-relative">
-									<img className="w-100 h-100 object-cover" src={data?.heroImage || ""} alt="device" />
+						<div className="col-lg-7 position-xl-absolute mb-lg-10 top-50 end-0 translate-middle-lg-y z-0">
+							<div className="row">
+								<div className="col-6 align-self-end">
+									<div className="border-5 border-white border rounded-4 mb-4 d-block d-xl-none">
+										<img className="rounded-4" src={data?.images?.image4 || "/assets/imgs/hero-3/img-4.png"} alt="infinia" />
+									</div>
+									<div className="border-5 border-white border rounded-4">
+										<img className="rounded-4" src={data?.images?.image3 || "/assets/imgs/hero-3/img-3.png"} alt="infinia" />
+									</div>
 								</div>
+								<div className="col-6 align-self-end">
+									<div className="border-5 border-white border rounded-4 mb-4">
+										<img className="rounded-4" src={data?.images?.image1 || "/assets/imgs/hero-3/img-1.png"} alt="infinia" />
+									</div>
+									<div className="border-5 border-white border rounded-4">
+										<img className="rounded-4" src={data?.images?.image2 || "/assets/imgs/hero-3/img-2.png"} alt="infinia" />
+									</div>
+								</div>
+							</div>
+							<div className="position-absolute top-50 start-50 translate-middle pb-10 pe-10">
+								<img className="rotateme" src={data?.images?.star || "/assets/imgs/hero-3/star-rotate.png"} alt="infinia" />
+							</div>
+							<div className="position-absolute top-50 start-50 translate-middle">
+								<div className="ellipse-primary" />
 							</div>
 						</div>
 					</div>
