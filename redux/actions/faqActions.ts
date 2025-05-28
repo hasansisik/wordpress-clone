@@ -54,6 +54,8 @@ export interface FaqPayload {
     tagBackgroundColor?: string;
     tagTextColor?: string;
     tagImage?: string;
+    descriptionVisible?: boolean;
+    leftImagesVisible?: boolean;
     buttons?: {
       primary?: {
         text?: string;

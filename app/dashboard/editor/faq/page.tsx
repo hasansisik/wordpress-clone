@@ -656,8 +656,16 @@ function Faqs3ContentForm({
           value={data?.heading?.titleColor || "#111827"}
           path="faqs3.heading.titleColor"
         />
+      </FormGroup>
+      
+      <FormGroup title="Description">
+        <ToggleField
+          label="Show Description"
+          value={data?.descriptionVisible !== false}
+          path="faqs3.descriptionVisible"
+        />
         <TextAreaField
-          label="Description"
+          label="Description (HTML)"
           value={data?.heading?.description || ""}
           path="faqs3.heading.description"
           placeholder="Enter description with HTML formatting if needed"
@@ -666,6 +674,24 @@ function Faqs3ContentForm({
           label="Description Color"
           value={data?.heading?.descriptionColor || "#6E6E6E"}
           path="faqs3.heading.descriptionColor"
+        />
+      </FormGroup>
+      
+      <FormGroup title="Profile Images">
+        <ToggleField
+          label="Show Profile Images"
+          value={data?.leftImagesVisible !== false}
+          path="faqs3.leftImagesVisible"
+        />
+        <ImageUploadField
+          label="Profile Image 1"
+          value={data?.leftImage1 || ""}
+          path="faqs3.leftImage1"
+        />
+        <ImageUploadField
+          label="Profile Image 2"
+          value={data?.leftImage2 || ""}
+          path="faqs3.leftImage2"
         />
       </FormGroup>
       
@@ -798,19 +824,6 @@ function Faqs3MediaForm({ data }: { data: any }) {
         value={data?.tagImage || ""}
         path="faqs3.tagImage"
       />
-      
-      <FormGroup title="User Images">
-        <ImageUploadField
-          label="Image 1"
-          value={data?.images?.image1 || ""}
-          path="faqs3.images.image1"
-        />
-        <ImageUploadField
-          label="Image 2"
-          value={data?.images?.image2 || ""}
-          path="faqs3.images.image2"
-        />
-      </FormGroup>
     </div>
   );
 }

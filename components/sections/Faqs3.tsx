@@ -95,15 +95,23 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 									dangerouslySetInnerHTML={{ __html: data?.heading?.title || "Got questions? <br />We've got answers" }}
 									style={{ color: data.heading?.titleColor || "#111827" }}
 								></h3>
-								<div className="position-relative d-inline-block mt-3 mb-6">
-									<img src={data?.leftImage1 || "/assets/imgs/faqs-3/img-1.png"} alt="" className=" rounded-pill border border-3 border-white" />
-									<img src={data?.leftImage2 || "/assets/imgs/faqs-3/img-2.png"} alt="" className="position-absolute z-1 top-0 start-50 mt-3 rounded-pill border border-3 border-white" />
-								</div>
-								<p 
-									className="fs-5 mb-0" 
-									dangerouslySetInnerHTML={{ __html: data?.description || "Quick answers to questions you may have. <br />Can't find what you're looking for? Get in touch with us." }}
-									style={{ color: data.heading?.descriptionColor || "#6E6E6E" }}
-								></p>
+								{data.descriptionVisible !== false && (
+									<div className="position-relative d-inline-block mt-3 mb-6">
+										{data?.leftImagesVisible !== false && (
+											<>
+												<img src={data?.leftImage1 || "/assets/imgs/faqs-3/img-1.png"} alt="" className=" rounded-pill border border-3 border-white" />
+												<img src={data?.leftImage2 || "/assets/imgs/faqs-3/img-2.png"} alt="" className="position-absolute z-1 top-0 start-50 mt-3 rounded-pill border border-3 border-white" />
+											</>
+										)}
+									</div>
+								)}
+								{data.descriptionVisible !== false && (
+									<p 
+										className="fs-5 mb-0" 
+										dangerouslySetInnerHTML={{ __html: data?.description || "Quick answers to questions you may have. <br />Can't find what you're looking for? Get in touch with us." }}
+										style={{ color: data.heading?.descriptionColor || "#6E6E6E" }}
+									></p>
+								)}
 								<div className="d-flex align-items-center mt-5">
 									{data.buttons?.primary?.visible !== false && (
 										<Link 
