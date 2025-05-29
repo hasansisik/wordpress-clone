@@ -68,6 +68,10 @@ const data = {
           url: "/dashboard/editor/other",
         },
         {
+          title: "Features",
+          url: "/dashboard/editor/features",
+        },
+        {
           title: "Footer",
           url: "/dashboard/editor/footer",
         },

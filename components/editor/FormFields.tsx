@@ -50,16 +50,26 @@ export const TextField = ({
   path, 
   placeholder, 
   className = "space-y-2 mb-4",
-  disabled = false
-}: BaseFieldProps) => {
+  disabled = false,
+  onChange
+}: BaseFieldProps & { onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
   const { handleTextChange } = useEditor();
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleTextChange(e.target.value, path);
+    
+    // If an onChange handler is provided, call it with the event
+    if (onChange) {
+      onChange(e);
+    }
+  };
   
   return (
     <div className={className}>
       <Label className="text-xs text-gray-500">{label}</Label>
       <Input
         value={value}
-        onChange={(e) => handleTextChange(e.target.value, path)}
+        onChange={handleChange}
         placeholder={placeholder}
         className="h-8 text-xs"
         disabled={disabled}
@@ -71,6 +81,7 @@ export const TextField = ({
 // Textarea Field
 interface TextAreaFieldProps extends BaseFieldProps {
   rows?: number;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
 export const TextAreaField = ({ 
@@ -80,16 +91,26 @@ export const TextAreaField = ({
   placeholder, 
   rows = 4,
   className = "space-y-2 mb-4", 
-  disabled = false
+  disabled = false,
+  onChange
 }: TextAreaFieldProps) => {
   const { handleTextChange } = useEditor();
+  
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleTextChange(e.target.value, path);
+    
+    // If an onChange handler is provided, call it with the event
+    if (onChange) {
+      onChange(e);
+    }
+  };
   
   return (
     <div className={className}>
       <Label className="text-xs text-gray-500">{label}</Label>
       <Textarea
         value={value}
-        onChange={(e) => handleTextChange(e.target.value, path)}
+        onChange={handleChange}
         placeholder={placeholder}
         className="min-h-[100px] text-xs resize-y"
         rows={rows}
@@ -308,11 +329,12 @@ export const CheckboxField = ({
 };
 
 // Color Picker Field
-export const ColorField = ({ label, value, path, className }: {
+export const ColorField = ({ label, value, path, className, onChange }: {
   label: string;
   value: string;
   path: string;
   className?: string;
+  onChange?: (color: string) => void;
 }) => {
   const { handleTextChange } = useEditor();
   const [color, setColor] = useState<string>(value || "");
@@ -320,6 +342,11 @@ export const ColorField = ({ label, value, path, className }: {
   const handleChange = (newColor: string) => {
     setColor(newColor);
     handleTextChange(newColor, path);
+    
+    // If an onChange handler is provided, call it with the new color
+    if (onChange) {
+      onChange(newColor);
+    }
   };
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEditor } from "./EditorProvider";
-import { useEffect, FC, useRef, useState } from "react";
+import { useEffect, FC, useRef, useState, forwardRef, ForwardedRef, RefObject } from "react";
 
 interface SectionPreviewProps {
   previewUrl: string;
@@ -9,18 +9,21 @@ interface SectionPreviewProps {
   paramName?: string;
 }
 
-export const SectionPreview: FC<SectionPreviewProps> = ({ 
+const SectionPreview = forwardRef<HTMLIFrameElement, SectionPreviewProps>(({ 
   previewUrl, 
   additionalParams = {},
   paramName
-}) => {
+}, ref) => {
   const { 
-    iframeRef, 
     previewMode, 
     sectionData,
     sectionType,
     savedData
   } = useEditor();
+  
+  // Use the forwarded ref if provided, otherwise use the one from context
+  const { iframeRef: contextIframeRef } = useEditor();
+  const actualIframeRef = (ref as RefObject<HTMLIFrameElement>) || contextIframeRef;
   
   const initialLoadRef = useRef(false);
   const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
@@ -52,7 +55,7 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
 
   // Function to update the iframe
   const updateIframe = () => {
-    if (sectionData && iframeRef.current) {
+    if (sectionData && actualIframeRef.current) {
       const queryParams = new URLSearchParams();
       
       // Determine the parameter name based on section type
@@ -75,15 +78,15 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
       
       
       // Update iframe src
-      iframeRef.current.src = fullPreviewUrl;
+      actualIframeRef.current.src = fullPreviewUrl;
     }
   };
 
   // Only update iframe width when preview mode changes
   useEffect(() => {
-    if (iframeRef.current) {
+    if (actualIframeRef.current) {
       // Update iframe width class without reloading the content
-      iframeRef.current.className = `
+      actualIframeRef.current.className = `
         border-none w-full h-full transition-all duration-300 ease-in-out bg-white
         ${getPreviewWidthClass()} mx-auto
       `;
@@ -103,7 +106,7 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
   return (
     <div className="w-full h-full flex items-center justify-center overflow-auto">
       <iframe 
-        ref={iframeRef}
+        ref={actualIframeRef}
         src={`${previewUrl}`} 
         className={`
           border-none w-full h-full transition-all duration-300 ease-in-out bg-white
@@ -113,6 +116,8 @@ export const SectionPreview: FC<SectionPreviewProps> = ({
       />
     </div>
   );
-};
+});
+
+SectionPreview.displayName = 'SectionPreview';
 
 export default SectionPreview; 

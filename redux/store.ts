@@ -6,6 +6,7 @@ import serviceReducer from "./reducers/serviceReducer";
 import headerReducer from "./reducers/headerReducer";
 import footerReducer from "./reducers/footerReducer";
 import heroReducer from "./reducers/heroReducer";
+import featuresReducer from "./reducers/featuresReducer";
 import { ctaReducer } from './reducers/ctaReducer';
 import faqReducer from './reducers/faqReducer';
 import otherReducer from './reducers/otherReducer';
@@ -21,6 +22,7 @@ export const store = configureStore({
     header: headerReducer,
     footer: footerReducer,
     hero: heroReducer,
+    features: featuresReducer,
     cta: ctaReducer,
     faq: faqReducer,
     other: otherReducer,

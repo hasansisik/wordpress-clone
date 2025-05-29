@@ -1,102 +1,134 @@
 'use client'
 import Link from "next/link"
 import CountUp from 'react-countup'
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/redux/store"
+import { getFeatures } from "@/redux/actions/featuresActions"
+import { AppDispatch } from "@/redux/store"
 
-export default function Features8() {
+interface Features8Props {
+	previewData?: any;
+}
+
+export default function Features8({ previewData }: Features8Props = {}) {
+	const [data, setData] = useState<any>(null)
+	const dispatch = useDispatch<AppDispatch>()
+	const { features, loading } = useSelector((state: RootState) => state.features)
+
+	useEffect(() => {
+		// Always trigger getFeatures() on component mount
+		dispatch(getFeatures())
+	}, [dispatch])
+
+	useEffect(() => {
+		// If preview data is provided, use it
+		if (previewData && previewData.features8) {
+			setData(previewData.features8)
+		} 
+		// Otherwise use Redux data
+		else if (features && features.features8) {
+			setData(features.features8)
+		}
+	}, [previewData, features])
+
+	// If data is still loading, return empty component
+	if (!data) {
+		return null
+	}
+
+	// Split values into two columns (left and right)
+	const leftValues = data.values ? data.values.slice(0, 3) : [];
+	const rightValues = data.values ? data.values.slice(3, 6) : [];
+
 	return (
 		<>
 			<section>
-				<div className="container-fluid position-relative bg-primary-light section-padding">
+				<div 
+					className="container-fluid position-relative section-padding" 
+					style={{ 
+						backgroundColor: data.backgroundColor || '#6342EC' 
+					}}
+				>
 					<div className="container">
 						<div className="row align-items-center">
 							<div className="col-lg-4 col-md-6 mb-lg-0 mb-8 pe-5 pe-lg-10 position-relative z-1">
-								<img src="/assets/imgs/features-8/icon-star.svg" alt="infinia" />
-								<h2 className="text-white mt-3 mb-4 fw-black">Core values</h2>
-								<p className="text-white">We break down barriers so teams can focus on what matters – working together to create products their customers love.</p>
-								<div className="col d-flex align-items-center mt-5 min-w-">
-									<span className="h2 count fw-black text-white min-w-70"><span className="odometer" /><CountUp end={98} enableScrollSpy={true} /></span><span className="fw-medium text-white fs-4 align-self-start">%</span>
-									<p className="ms-3 text-white">
-										Genuine repeated <br />
-										happy customers.
-									</p>
-								</div>
-								<div className="col d-flex align-items-center mt-5">
-									<span className="h2 count fw-black text-white min-w-70"><span className="odometer" /><CountUp end={98} enableScrollSpy={true} /></span><span className="fs-4 fw-medium text-white align-self-start">%</span>
-									<p className="ms-3 text-white">
-										Genuine repeated <br />
-										happy customers.
-									</p>
-								</div>
+								<img src={data.starIcon || "/assets/imgs/features-8/icon-star.svg"} alt="infinia" />
+								<h2 
+									className="mt-3 mb-4 fw-black" 
+									style={{ 
+										color: data.titleColor || '#FFFFFF' 
+									}}
+								>
+									{data.title || "Core values"}
+								</h2>
+								<p 
+									style={{ 
+										color: data.descriptionColor || '#FFFFFF' 
+									}}
+								>
+									{data.description || "We break down barriers so teams can focus on what matters – working together to create products their customers love."}
+								</p>
 							</div>
 							<div className="col-lg-4 col-md-6 mb-lg-0 mb-8 pe-lg-8">
-								<ul className="list-unstyled ">
-									<li>
-										<Link href="#" className="d-flex align-items-start mb-6">
-											<img className="mt-2" src="/assets/imgs/features-2/tick.svg" alt="infinia" />
-											<div className="ms-3 pb-4 border-bottom">
-												<h5 className="text-white mb-2">Customers First</h5>
-												<p className="text-white mb-0">Our company exists to help merchants sell more. We make every decision and measure every outcome based on how well it serves our customers.</p>
-											</div>
-										</Link>
-									</li>
-									<li>
-										<Link href="#" className="d-flex align-items-start mb-6">
-											<img className="mt-2" src="/assets/imgs/features-2/tick.svg" alt="infinia" />
-											<div className="ms-3 pb-4 border-bottom">
-												<h5 className="text-white mb-2">Think Big</h5>
-												<p className="text-white mb-0">Our company exists to help merchants sell more. We make every decision and measure every outcome based on how well it serves our customers.</p>
-											</div>
-										</Link>
-									</li>
-									<li>
-										<Link href="#" className="d-flex align-items-start mb-6">
-											<img className="mt-2" src="/assets/imgs/features-2/tick.svg" alt="infinia" />
-											<div className="ms-3 pb-4 border-bottom">
-												<h5 className="text-white mb-2">Make a Difference</h5>
-												<p className="text-white mb-0">Our company exists to help merchants sell more. We make every decision and measure every outcome based on how well it serves our customers.</p>
-											</div>
-										</Link>
-									</li>
+								<ul className="list-unstyled">
+									{leftValues.map((value: any, index: number) => (
+										<li key={index}>
+											<Link href="#" className="d-flex align-items-start mb-6">
+												<img className="mt-2" src={value.icon || "/assets/imgs/features-2/tick.svg"} alt="infinia" />
+												<div className="ms-3 pb-4 border-bottom border-opacity-25">
+													<h5 
+														className="mb-2" 
+														style={{ 
+															color: data.valuesTitleColor || '#FFFFFF' 
+														}}
+													>
+														{value.title}
+													</h5>
+													<p 
+														className="mb-0" 
+														style={{ 
+															color: data.valuesDescriptionColor || '#FFFFFF' 
+														}}
+													>
+														{value.description}
+													</p>
+												</div>
+											</Link>
+										</li>
+									))}
 								</ul>
 							</div>
 							<div className="col-lg-4 mb-lg-0 mb-8 pe-lg-8">
-								<ul className="list-unstyled ">
-									<li>
-										<Link href="#" className="d-flex align-items-start mb-6">
-											<img className="mt-2" src="/assets/imgs/features-2/tick.svg" alt="infinia" />
-											<div className="ms-3 pb-4 border-bottom">
-												<h5 className="text-white mb-2">Act With Integrity</h5>
-												<p className="text-white mb-0">Our company exists to help merchants sell more. We make every decision and measure every outcome based on how well it serves our customers.</p>
-											</div>
-										</Link>
-									</li>
-									<li>
-										<Link href="#" className="d-flex align-items-start mb-6">
-											<img className="mt-2" src="/assets/imgs/features-2/tick.svg" alt="infinia" />
-											<div className="ms-3 pb-4 border-bottom">
-												<h5 className="text-white mb-2">Do the right thing</h5>
-												<p className="text-white mb-0">Our company exists to help merchants sell more. We make every decision and measure every outcome based on how well it serves our customers.</p>
-											</div>
-										</Link>
-									</li>
-									<li>
-										<Link href="#" className="d-flex align-items-start mb-6">
-											<img className="mt-2" src="/assets/imgs/features-2/tick.svg" alt="infinia" />
-											<div className="ms-3 pb-4 border-bottom">
-												<h5 className="text-white mb-2">Stronger united</h5>
-												<p className="text-white mb-0">Our company exists to help merchants sell more. We make every decision and measure every outcome based on how well it serves our customers.</p>
-											</div>
-										</Link>
-									</li>
+								<ul className="list-unstyled">
+									{rightValues.map((value: any, index: number) => (
+										<li key={index}>
+											<Link href="#" className="d-flex align-items-start mb-6">
+												<img className="mt-2" src={value.icon || "/assets/imgs/features-2/tick.svg"} alt="infinia" />
+												<div className="ms-3 pb-4 border-bottom border-opacity-25">
+													<h5 
+														className="mb-2" 
+														style={{ 
+															color: data.valuesTitleColor || '#FFFFFF' 
+														}}
+													>
+														{value.title}
+													</h5>
+													<p 
+														className="mb-0" 
+														style={{ 
+															color: data.valuesDescriptionColor || '#FFFFFF' 
+														}}
+													>
+														{value.description}
+													</p>
+												</div>
+											</Link>
+										</li>
+									))}
 								</ul>
 							</div>
 						</div>
-					</div>
-					<div className="position-absolute bottom-0 start-0 bg-rotate z-0">
-						<img className="rotate-center" src="/assets/imgs/features-8/bg-img-favicon.png" alt="infinia" />
-					</div>
-					<div className="position-absolute top-0 end-0 z-1 p-8">
-						<div className="bloom" />
 					</div>
 				</div>
 			</section>
