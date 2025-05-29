@@ -16,6 +16,12 @@ export interface RegisterPayload {
   companyId?: string;
 }
 
+export interface RegisterUserPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface EditProfilePayload {
   name?: string;
   email?: string;
@@ -33,6 +39,98 @@ export interface EditUserPayload {
   picture?: string;
   companyId?: string;
 }
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  email: string;
+  password: string;
+}
+
+export interface VerifyEmailPayload {
+  email: string;
+  verificationCode: string;
+}
+
+// Kullanıcı kayıt işlemi (normal kullanıcılar için)
+export const registerUser = createAsyncThunk(
+  "user/registerUser",
+  async (payload: RegisterUserPayload, thunkAPI) => {
+    try {
+      console.log(payload);
+      const { data } = await axios.post(`${server}/auth/register-user`, payload);
+      return data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Kullanıcı kaydı yapılamadı';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Şifremi unuttum işlemi
+export const forgotPassword = createAsyncThunk(
+  "user/forgotPassword",
+  async (payload: ForgotPasswordPayload, thunkAPI) => {
+    try {
+      const { data } = await axios.post(`${server}/auth/forgot-password`, payload);
+      return data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Şifre sıfırlama isteği gönderilemedi';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Şifre sıfırlama işlemi
+export const resetPassword = createAsyncThunk(
+  "user/resetPassword",
+  async (payload: ResetPasswordPayload, thunkAPI) => {
+    try {
+      const { data } = await axios.post(`${server}/auth/reset-password`, payload);
+      return data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Şifre sıfırlanamadı';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Email doğrulama işlemi
+export const verifyEmail = createAsyncThunk(
+  "user/verifyEmail",
+  async (payload: VerifyEmailPayload, thunkAPI) => {
+    try {
+      // Eğer verificationCode bir dizi ise birleştir
+      let code = payload.verificationCode;
+      
+      const { data } = await axios.post(`${server}/auth/verify-email`, {
+        email: payload.email,
+        verificationCode: code
+      });
+      return data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Email doğrulanamadı';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Doğrulama kodunu tekrar gönderme
+export const resendVerificationCode = createAsyncThunk(
+  "user/resendVerificationCode",
+  async (email: string, thunkAPI) => {
+    try {
+      const { data } = await axios.post(`${server}/auth/again-email`, { email });
+      return data;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Doğrulama kodu gönderilemedi';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
 
 export const login = createAsyncThunk(
   "user/login",

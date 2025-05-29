@@ -7,7 +7,12 @@ import {
   editProfile,
   getAllUsers,
   editUser,
-  deleteUser
+  deleteUser,
+  registerUser,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  resendVerificationCode
 } from "../actions/userActions";
 
 interface userState {
@@ -18,6 +23,10 @@ interface userState {
   message?: string;
   users: any[];
   success?: boolean;
+  verificationSuccess?: boolean;
+  forgotPasswordSuccess?: boolean;
+  resetPasswordSuccess?: boolean;
+  registerSuccess?: boolean;
 }
 
 const initialState: userState = {
@@ -26,25 +35,85 @@ const initialState: userState = {
   error: null,
   isAuthenticated: false,
   users: [],
+  success: false,
+  verificationSuccess: false,
+  forgotPasswordSuccess: false,
+  resetPasswordSuccess: false,
+  registerSuccess: false,
 };
 
 export const userReducer = createReducer(initialState, (builder) => {
   builder
-    // Login
-    .addCase(login.pending, (state) => {
+    // RegisterUser
+    .addCase(registerUser.pending, (state) => {
       state.loading = true;
       state.error = null;
+      state.registerSuccess = false;
     })
-    .addCase(login.fulfilled, (state, action) => {
+    .addCase(registerUser.fulfilled, (state, action) => {
       state.loading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload;
       state.error = null;
+      state.message = action.payload.message || "Kayıt başarılı. Lütfen e-posta adresinizi doğrulayın.";
+      state.registerSuccess = true;
     })
-    .addCase(login.rejected, (state, action) => {
+    .addCase(registerUser.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
-      state.isAuthenticated = false;
+      state.registerSuccess = false;
+    })
+    
+    // ForgotPassword
+    .addCase(forgotPassword.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.forgotPasswordSuccess = false;
+    })
+    .addCase(forgotPassword.fulfilled, (state, action) => {
+      state.loading = false;
+      state.error = null;
+      state.message = action.payload.msg || "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.";
+      state.forgotPasswordSuccess = true;
+    })
+    .addCase(forgotPassword.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+      state.forgotPasswordSuccess = false;
+    })
+    
+    // ResetPassword
+    .addCase(resetPassword.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.resetPasswordSuccess = false;
+    })
+    .addCase(resetPassword.fulfilled, (state) => {
+      state.loading = false;
+      state.error = null;
+      state.message = "Şifreniz başarıyla sıfırlandı.";
+      state.resetPasswordSuccess = true;
+    })
+    .addCase(resetPassword.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+      state.resetPasswordSuccess = false;
+    })
+    
+    // VerifyEmail
+    .addCase(verifyEmail.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.verificationSuccess = false;
+    })
+    .addCase(verifyEmail.fulfilled, (state, action) => {
+      state.loading = false;
+      state.error = null;
+      state.message = action.payload.message || "E-posta adresiniz başarıyla doğrulandı.";
+      state.verificationSuccess = true;
+    })
+    .addCase(verifyEmail.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+      state.verificationSuccess = false;
     })
     
     // Register
@@ -63,6 +132,23 @@ export const userReducer = createReducer(initialState, (builder) => {
       state.loading = false;
       state.error = action.payload as string;
       state.success = false;
+    })
+    
+    // Login
+    .addCase(login.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(login.fulfilled, (state, action) => {
+      state.loading = false;
+      state.isAuthenticated = true;
+      state.user = action.payload;
+      state.error = null;
+    })
+    .addCase(login.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+      state.isAuthenticated = false;
     })
     
     // Logout
