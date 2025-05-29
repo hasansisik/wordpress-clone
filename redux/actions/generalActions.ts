@@ -29,6 +29,10 @@ export interface GeneralPayload {
     phoneNumber?: string;
     message?: string;
   };
+  theme?: {
+    headerStyle?: number;
+    footerStyle?: number;
+  };
   colors?: {
     primaryColor?: string;
     secondaryColor?: string;

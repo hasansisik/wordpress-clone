@@ -14,6 +14,8 @@ import Header3 from './header/Header3'
 import Header4 from './header/Header4'
 import Header5 from './header/Header5'
 import { useThemeConfig } from '@/lib/store/themeConfig'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
 
 interface LayoutProps {
 	headerStyle?: Number
@@ -21,15 +23,63 @@ interface LayoutProps {
 	children?: React.ReactNode
 	breadcrumbTitle?: string
 	useGlobalTheme?: boolean
+	usePersistedTheme?: boolean
 }
 
 
-export default function Layout({ headerStyle: propHeaderStyle, footerStyle: propFooterStyle, breadcrumbTitle, children, useGlobalTheme = true }: LayoutProps) {
-	const { headerStyle: globalHeaderStyle, footerStyle: globalFooterStyle } = useThemeConfig()
+export default function Layout({ headerStyle: propHeaderStyle, footerStyle: propFooterStyle, breadcrumbTitle, children, useGlobalTheme = true, usePersistedTheme = false }: LayoutProps) {
+	const { headerStyle: clientHeaderStyle, footerStyle: clientFooterStyle, setHeaderStyle, setFooterStyle } = useThemeConfig()
+	const generalState = useSelector((state: RootState) => state.general)
 	
-	// Use prop values if provided, otherwise use global theme settings
-	const headerStyle = useGlobalTheme ? globalHeaderStyle : propHeaderStyle
-	const footerStyle = useGlobalTheme ? globalFooterStyle : propFooterStyle
+	// Initialize header and footer styles based on props or global client state
+	const [finalHeaderStyle, setFinalHeaderStyle] = useState<Number | undefined>(
+		useGlobalTheme ? clientHeaderStyle : propHeaderStyle
+	)
+	const [finalFooterStyle, setFinalFooterStyle] = useState<Number | undefined>(
+		useGlobalTheme ? clientFooterStyle : propFooterStyle
+	)
+
+	// Update from persisted Redux state if available and usePersistedTheme is true
+	useEffect(() => {
+		console.log("General state:", generalState);
+		
+		if (usePersistedTheme && generalState && generalState.general) {
+			const { general } = generalState;
+			console.log("Theme from Redux:", general.theme);
+			
+			if (general.theme?.headerStyle) {
+				console.log("Setting header style from Redux:", general.theme.headerStyle);
+				setFinalHeaderStyle(general.theme.headerStyle);
+				// Update client state to keep it in sync
+				if (useGlobalTheme) {
+					setHeaderStyle(general.theme.headerStyle);
+				}
+			}
+			
+			if (general.theme?.footerStyle) {
+				console.log("Setting footer style from Redux:", general.theme.footerStyle);
+				setFinalFooterStyle(general.theme.footerStyle);
+				// Update client state to keep it in sync
+				if (useGlobalTheme) {
+					setFooterStyle(general.theme.footerStyle);
+				}
+			}
+		}
+	}, [generalState, usePersistedTheme, useGlobalTheme, setHeaderStyle, setFooterStyle])
+
+	// Update final styles when client state changes (for real-time updates)
+	useEffect(() => {
+		if (useGlobalTheme) {
+			setFinalHeaderStyle(clientHeaderStyle);
+			setFinalFooterStyle(clientFooterStyle);
+		}
+	}, [clientHeaderStyle, clientFooterStyle, useGlobalTheme])
+
+	// Log current styles for debugging
+	useEffect(() => {
+		console.log("Current header style:", finalHeaderStyle);
+		console.log("Current footer style:", finalFooterStyle);
+	}, [finalHeaderStyle, finalFooterStyle])
 
 	const [scroll, setScroll] = useState<boolean>(false)
 	const [hideHeader, setHideHeader] = useState<boolean>(false)
@@ -87,12 +137,12 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 	}, [scroll, lastScrollY])
 	return (
 		<><div id="top" />
-			{!headerStyle && <Header5 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} />}
-			{headerStyle == 1 ? <Header1 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 2 ? <Header2 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 3 ? <Header3 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 4 ? <Header4 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
-			{headerStyle == 5 ? <Header5 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{!finalHeaderStyle && <Header5 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} />}
+			{finalHeaderStyle == 1 ? <Header1 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{finalHeaderStyle == 2 ? <Header2 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{finalHeaderStyle == 3 ? <Header3 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{finalHeaderStyle == 4 ? <Header4 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
+			{finalHeaderStyle == 5 ? <Header5 scroll={scroll} hideHeader={hideHeader} isMobileMenu={isMobileMenu} handleMobileMenu={handleMobileMenu} isSearch={isSearch} handleSearch={handleSearch} isOffCanvas={isOffCanvas} handleOffCanvas={handleOffCanvas} /> : null}
 
 
 			<main>
@@ -101,11 +151,11 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 				{children}
 			</main>
 
-			{!footerStyle && < Footer1 />}
-			{footerStyle == 1 ? < Footer1 /> : null}
-			{footerStyle == 2 ? < Footer2 /> : null}
-			{footerStyle == 3 ? < Footer3 /> : null}
-			{footerStyle == 4 ? < Footer4 /> : null}
+			{!finalFooterStyle && < Footer1 />}
+			{finalFooterStyle == 1 ? < Footer1 /> : null}
+			{finalFooterStyle == 2 ? < Footer2 /> : null}
+			{finalFooterStyle == 3 ? < Footer3 /> : null}
+			{finalFooterStyle == 4 ? < Footer4 /> : null}
 
 			<BackToTop target="#top" />
 		</>

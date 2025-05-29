@@ -66,6 +66,10 @@ export default function SiteSettingsPage() {
     darkSecondaryColor: "#2d2d2d",
     darkAccentColor: "#fd4a36",
     darkTextColor: "#f5f5f5",
+    theme: {
+      headerStyle: 1,
+      footerStyle: 1
+    },
     cloudinary: {
       cloudName: "",
       apiKey: "",
@@ -98,6 +102,10 @@ export default function SiteSettingsPage() {
         darkSecondaryColor: general.colors?.darkSecondaryColor || siteSettings.darkSecondaryColor,
         darkAccentColor: general.colors?.darkAccentColor || siteSettings.darkAccentColor,
         darkTextColor: general.colors?.darkTextColor || siteSettings.darkTextColor,
+        theme: {
+          headerStyle: general.theme?.headerStyle || headerStyle || 1,
+          footerStyle: general.theme?.footerStyle || footerStyle || 1
+        },
         cloudinary: {
           cloudName: general.cloudinary?.cloudName || siteSettings.cloudinary.cloudName,
           apiKey: general.cloudinary?.apiKey || siteSettings.cloudinary.apiKey,
@@ -109,6 +117,14 @@ export default function SiteSettingsPage() {
           message: general.whatsapp?.message || siteSettings.whatsapp.message
         }
       });
+
+      // Also update the global theme state
+      if (general.theme?.headerStyle) {
+        setHeaderStyle(general.theme.headerStyle);
+      }
+      if (general.theme?.footerStyle) {
+        setFooterStyle(general.theme.footerStyle);
+      }
     }
   }, [general]);
 
@@ -191,6 +207,10 @@ export default function SiteSettingsPage() {
           phoneNumber: siteSettings.whatsapp.phoneNumber,
           message: siteSettings.whatsapp.message
         },
+        theme: {
+          headerStyle: siteSettings.theme.headerStyle,
+          footerStyle: siteSettings.theme.footerStyle
+        },
         colors: {
           primaryColor: siteSettings.primaryColor,
           secondaryColor: siteSettings.secondaryColor,
@@ -217,7 +237,7 @@ export default function SiteSettingsPage() {
       document.documentElement.style.setProperty('--dark-text-color', siteSettings.darkTextColor);
       
       toast.success("Site settings saved successfully!", {
-        description: "Your settings have been updated."
+        description: "Your settings have been updated. Header and footer styles will be applied to the entire site."
       });
     } catch (error) {
       toast.error("Failed to save settings. Please try again.", {
@@ -230,12 +250,23 @@ export default function SiteSettingsPage() {
   };
 
   const handleThemeStyleChange = (type: 'headerStyle' | 'footerStyle', value: number) => {
+    // Update local state
+    setSiteSettings({
+      ...siteSettings,
+      theme: {
+        ...siteSettings.theme,
+        [type]: value
+      }
+    });
+    
+    // Update global client state for immediate preview
     if (type === 'headerStyle') {
       setHeaderStyle(value);
     } else {
       setFooterStyle(value);
     }
     
+    // Show success toast
     toast.success(`${type === 'headerStyle' ? 'Header' : 'Footer'} style updated`, {
       description: `Global style changed to option ${value}`
     });
@@ -537,7 +568,7 @@ export default function SiteSettingsPage() {
                     <select 
                       id="headerStyle"
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      value={headerStyle}
+                      value={siteSettings.theme.headerStyle}
                       onChange={(e) => handleThemeStyleChange('headerStyle', parseInt(e.target.value))}
                     >
                       {[1, 2, 3, 4, 5].map(num => (
@@ -552,7 +583,7 @@ export default function SiteSettingsPage() {
                     <select 
                       id="footerStyle"
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      value={footerStyle}
+                      value={siteSettings.theme.footerStyle}
                       onChange={(e) => handleThemeStyleChange('footerStyle', parseInt(e.target.value))}
                     >
                       {[1, 2, 3, 4].map(num => (

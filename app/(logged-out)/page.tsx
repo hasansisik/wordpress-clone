@@ -57,9 +57,9 @@ function LoadingFallback() {
 // Component to render dynamic sections
 async function PageSections() {
   try {
-    // Fetch page data from API
+    // Fetch page data from API with no cache to ensure fresh data
     const response = await fetch(`${server}/page/home`, {
-      next: { revalidate: 10 },
+      cache: "no-store", // Ensure fresh data on each request
     });
     
     if (!response.ok) {

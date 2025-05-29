@@ -15,27 +15,25 @@ import type { Metadata } from "next"
 import { store } from "@/redux/store"
 import { getGeneral } from "@/redux/actions/generalActions"
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo"
-import Layout from "@/components/layout/Layout"
-import WhatsAppButton from "@/components/common/WhatsAppButton"
+import ThemeProvider from "@/components/layout/ThemeProvider"
 
-// Dinamik metadata oluşturma
+// This will run server-side
 export async function generateMetadata(): Promise<Metadata> {
-  // Redux store'a genel verileri yükle
+  // Load general data to Redux store
   await store.dispatch(getGeneral())
   
-  // SEO metadatasını oluştur
+  // Generate SEO metadata
   return generateSeoMetadata("general")
 }
 
 export default function LogoutLayout({
-    children,
-  }: {
-    children: React.ReactNode;
-  }) {
-    return (
-      <Layout useGlobalTheme={true}>
-        {children}
-        <WhatsAppButton />
-      </Layout>
-    );
-  }
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <ThemeProvider>
+      {children}
+    </ThemeProvider>
+  );
+}
