@@ -8,14 +8,18 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import { getHeader } from '@/redux/actions/headerActions'
+import { getMyProfile } from '@/redux/actions/userActions'
+import { User } from 'lucide-react'
 
 export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
 	const dispatch = useDispatch();
 	const { header, loading } = useSelector((state: RootState) => state.header);
+	const { user } = useSelector((state: RootState) => state.user);
 
 	// Always fetch header data when component mounts
 	useEffect(() => {
 		dispatch(getHeader() as any);
+		dispatch(getMyProfile() as any);
 	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
 
 	// Display loading state while header data is being fetched
@@ -167,10 +171,26 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 								})}
 							</div>
 							{header.showDarkModeToggle && <ThemeSwitch />}
+							
+							{/* Profil Butonu - Kullanıcı giriş yapmışsa göster */}
+							{user?._id && (
+								<Link 
+									href="/profile" 
+									className="ms-2 d-flex align-items-center justify-content-center bg-white rounded icon-shape border icon-md"
+									style={{
+										width: '32px',
+										height: '32px',
+										color: '#111827'
+									}}
+								>
+									<User size={18} />
+								</Link>
+							)}
+							
 							{header.showActionButton && (
 								<Link 
 									href={header.links.freeTrialLink.href} 
-									className="btn d-none d-md-block"
+									className="btn d-none d-md-block ms-2"
 									style={{
 										backgroundColor: header.buttonColor || "#3b71fe",
 										color: header.buttonTextColor || "#ffffff"
