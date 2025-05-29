@@ -222,9 +222,6 @@ export const getMyProfile = createAsyncThunk(
       });
       return data.user;
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        window.location.href = '/login';
-      }
       const message = error.response?.data?.message || 'Profil bilgileri alınamadı';
       return thunkAPI.rejectWithValue(message);
     }

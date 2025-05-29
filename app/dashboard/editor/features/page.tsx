@@ -76,23 +76,7 @@ export default function FeaturesEditor() {
       }
     }
   }, [features]);
-  
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!userLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, userLoading, router]);
 
-  // Handle success or error messages
-  useEffect(() => {
-    if (success) {
-      // Success notification would go here
-    }
-    if (error) {
-      // Error notification would go here
-    }
-  }, [success, error]);
 
   // Send current data to preview iframe
   const sendDataToPreview = () => {

@@ -19,7 +19,7 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 	// Always fetch header data when component mounts
 	useEffect(() => {
 		dispatch(getHeader() as any);
-		dispatch(getMyProfile());
+		dispatch(getMyProfile() );
 	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
 
 	// Display loading state while header data is being fetched

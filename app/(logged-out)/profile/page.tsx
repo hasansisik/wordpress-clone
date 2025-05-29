@@ -164,8 +164,9 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
-    router.push('/login');
+    dispatch(logout());    
+    router.push('/');
+
   };
 
   if (loading && !user.name) {
