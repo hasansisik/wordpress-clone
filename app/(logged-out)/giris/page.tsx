@@ -23,7 +23,7 @@ export default function PageLogin() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/dashboard");
+      router.push("/profile");
     }
   }, [isAuthenticated, router]);
 

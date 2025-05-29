@@ -27,6 +27,8 @@ export interface EditProfilePayload {
   email?: string;
   picture?: string;
   companyId?: string;
+  currentPassword?: string;
+  newPassword?: string;
 }
 
 export interface EditUserPayload {
