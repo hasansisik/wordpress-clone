@@ -7,6 +7,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
+    serverComponentsExternalPackages: ["iyzipay"],
     turbo: {
       // Turbopack için genel ayarlar
       resolveAlias: {

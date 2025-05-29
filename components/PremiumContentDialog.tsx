@@ -1,6 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/redux/store";
+import { getMyProfile } from "@/redux/actions/userActions";
+import { useEffect } from "react";
 import { 
   Dialog,
   DialogContent,
@@ -24,10 +28,31 @@ const PremiumContentDialog = ({
   title = "Premium İçerik"
 }: PremiumContentDialogProps) => {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.user);
+  
+  // Kullanıcı profil bilgilerini güncelle
+  useEffect(() => {
+    if (isOpen) {
+      // Dialog açılırsa kullanıcı profilini yeniden kontrol et
+      dispatch(getMyProfile());
+    }
+  }, [dispatch, isOpen]);
+  
+  // Premium kontrolü - === true ile kesin kontrol
+  const isPremiumUser = isAuthenticated && user?.isPremium === true;
+  
+  // Eğer kullanıcı premium ise, dialog'u gösterme
+  if (isPremiumUser) {
+    if (isOpen) {
+      onClose();
+    }
+    return null;
+  }
   
   const handleCheckout = () => {
     onClose();
-    router.push("/checkout/premium");
+    router.push("/odeme/premium");
   };
 
   return (

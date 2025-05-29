@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getAllBlogs } from "@/redux/actions/blogActions"
 import { getOther } from "@/redux/actions/otherActions"
+import { getMyProfile } from "@/redux/actions/userActions"
 import { AppDispatch, RootState } from "@/redux/store"
 import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -30,10 +31,19 @@ export default function Blog1({ previewData }: Blog1Props) {
 	const dispatch = useDispatch<AppDispatch>()
 	const { blogs, loading: blogLoading, error } = useSelector((state: RootState) => state.blog)
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other)
+	const { user, isAuthenticated } = useSelector((state: RootState) => state.user);
 	const router = useRouter()
 	const [showPremiumDialog, setShowPremiumDialog] = useState(false)
 	const [currentPremiumPost, setCurrentPremiumPost] = useState<any>(null)
+	
+	// Premium kontrolü - === true ile kesin kontrol
+	const isPremiumUser = isAuthenticated && user?.isPremium === true;
 
+	// Kullanıcı profil bilgilerini güncelle
+	useEffect(() => {
+		dispatch(getMyProfile());
+	}, [dispatch]);
+	
 	useEffect(() => {
 		dispatch(getAllBlogs())
 		// Also fetch other data if not provided in preview
@@ -55,10 +65,12 @@ export default function Blog1({ previewData }: Blog1Props) {
 
 	// Handle blog post click with premium check
 	const handlePostClick = (e: React.MouseEvent, post: any) => {
-		if (post.premium) {
+		if (post.premium && !isPremiumUser) {
 			e.preventDefault();
 			setCurrentPremiumPost(post);
 			setShowPremiumDialog(true);
+		} else if (post.premium && isPremiumUser) {
+			// Premium içerik ve kullanıcı premium, normal link davranışı devam eder
 		}
 	}
 

@@ -12,7 +12,8 @@ import {
   forgotPassword,
   resetPassword,
   verifyEmail,
-  resendVerificationCode
+  resendVerificationCode,
+  setPremiumStatus
 } from "../actions/userActions";
 
 interface userState {
@@ -27,6 +28,7 @@ interface userState {
   forgotPasswordSuccess?: boolean;
   resetPasswordSuccess?: boolean;
   registerSuccess?: boolean;
+  premiumStatusSuccess?: boolean;
 }
 
 const initialState: userState = {
@@ -40,10 +42,30 @@ const initialState: userState = {
   forgotPasswordSuccess: false,
   resetPasswordSuccess: false,
   registerSuccess: false,
+  premiumStatusSuccess: false,
 };
 
 export const userReducer = createReducer(initialState, (builder) => {
   builder
+    // Set Premium Status
+    .addCase(setPremiumStatus.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.premiumStatusSuccess = false;
+    })
+    .addCase(setPremiumStatus.fulfilled, (state, action) => {
+      state.loading = false;
+      state.error = null;
+      state.user = action.payload || { ...state.user, isPremium: true };
+      state.message = "Premium durum başarıyla güncellendi.";
+      state.premiumStatusSuccess = true;
+    })
+    .addCase(setPremiumStatus.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+      state.premiumStatusSuccess = false;
+    })
+    
     // RegisterUser
     .addCase(registerUser.pending, (state) => {
       state.loading = true;

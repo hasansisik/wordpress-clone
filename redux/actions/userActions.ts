@@ -57,6 +57,28 @@ export interface VerifyEmailPayload {
   verificationCode: string;
 }
 
+// Premium durumunu güncelleme
+export const setPremiumStatus = createAsyncThunk(
+  "user/setPremiumStatus",
+  async (isPremium: boolean, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.post(`${server}/auth/set-premium-status`, 
+        { isPremium },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return data.user;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Premium durum güncellenemedi';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Kullanıcı kayıt işlemi (normal kullanıcılar için)
 export const registerUser = createAsyncThunk(
   "user/registerUser",

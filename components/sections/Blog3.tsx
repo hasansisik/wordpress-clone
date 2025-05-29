@@ -4,7 +4,9 @@ import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getAllBlogs } from "@/redux/actions/blogActions"
 import { getOther } from "@/redux/actions/otherActions"
+import { getMyProfile } from "@/redux/actions/userActions"
 import { AppDispatch, RootState } from "@/redux/store"
+import PremiumContentDialog from "@/components/PremiumContentDialog"
 
 interface Blog3Props {
 	previewData?: any;
@@ -26,9 +28,20 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
   const dispatch = useDispatch<AppDispatch>();
   const { blogs, loading: blogLoading } = useSelector((state: RootState) => state.blog);
   const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.user);
   
   const [data, setData] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false)
+  const [currentPremiumPost, setCurrentPremiumPost] = useState<any>(null)
+  
+  // Premium kontrolü - === true ile kesin kontrol
+  const isPremiumUser = isAuthenticated && user?.isPremium === true;
+  
+  // Kullanıcı profil bilgilerini güncelle
+  useEffect(() => {
+    dispatch(getMyProfile());
+  }, [dispatch]);
 
   useEffect(() => {
     // If preview data is provided, use it
@@ -55,6 +68,22 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
       dispatch(getOther());
     }
   }, [blogs, dispatch, previewData]);
+  
+  // Handle blog post click with premium check
+  const handlePostClick = (e: React.MouseEvent, post: any) => {
+    if (post.premium && !isPremiumUser) {
+      e.preventDefault();
+      setCurrentPremiumPost(post);
+      setShowPremiumDialog(true);
+    } else if (post.premium && isPremiumUser) {
+      // Premium içerik ve kullanıcı premium, normal link davranışı devam eder
+    }
+  }
+
+  const handleDialogClose = () => {
+    setShowPremiumDialog(false);
+    setCurrentPremiumPost(null);
+  }
 
   if (!data) {
     return
@@ -75,6 +104,13 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
 
   return (
     <>
+      {/* Premium Dialog */}
+      <PremiumContentDialog 
+        isOpen={showPremiumDialog} 
+        onClose={handleDialogClose}
+        title={currentPremiumPost?.title ? `Premium İçerik: ${currentPremiumPost.title}` : 'Premium İçerik'}
+      />
+      
       <section className="section-blog-8 section-padding position-relative fix" style={sectionStyle}>
         <div className="container position-relative z-1">
           <div className="row text-center">
@@ -133,6 +169,7 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
                   <Link
                     href={`/${slugify(post.title)}`}
                     className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
+                    onClick={(e) => handlePostClick(e, post)}
                   />
                 </div>
               </div>
