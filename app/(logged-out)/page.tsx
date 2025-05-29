@@ -16,6 +16,11 @@ import Blog1 from "@/components/sections/Blog1";
 import Blog2 from "@/components/sections/Blog2";
 import Blog3 from "@/components/sections/Blog3";
 import Blog5 from "@/components/sections/Blog5";
+import Features1 from "@/components/sections/Features1";
+import Features4 from "@/components/sections/Features4";
+import Features5 from "@/components/sections/Features5";
+import Features8 from "@/components/sections/Features8";
+import Features10 from "@/components/sections/Features10";
 
 // Define section type
 interface Section {
@@ -43,6 +48,11 @@ const sectionComponents = {
   Blog2,
   Blog3,
   Blog5,
+  Features1,
+  Features4,
+  Features5,
+  Features8,
+  Features10,
 };
 
 // Fallback component

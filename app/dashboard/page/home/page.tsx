@@ -189,7 +189,42 @@ const availableSections = [
     type: "Blog5",
     description: "Blog grid with images",
     icon: Layout
-  }
+  },
+  { 
+    id: "features1",
+    name: "Features 1",
+    type: "Features1",
+    description: "Features grid with images",
+    icon: Layout
+  },
+  { 
+    id: "features4",
+    name: "Features 4",
+    type: "Features4",
+    description: "Features grid with images",
+    icon: Layout
+  },
+  { 
+    id: "features5",
+    name: "Features 5",
+    type: "Features5",
+    description: "Features grid with images",
+    icon: Layout
+  },
+  { 
+    id: "features8",
+    name: "Features 8",
+    type: "Features8",
+    description: "Features grid with images",
+    icon: Layout
+  },
+  { 
+    id: "features10",
+    name: "Features 10",
+    type: "Features10",
+    description: "Features grid with images",
+    icon: Layout
+  },
 ];
 
 // Component to show section thumbnails

@@ -90,7 +90,11 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 							<div className="text-start mb-lg-0 mb-5">
 								{data?.badge?.visible !== false && (
 									<div className="border-linear-1 rounded-pill d-inline-block mb-3" style={{borderColor: data?.badge?.borderColor || ''}}>
-										<div className="text-primary bg-white px-4 py-2 rounded-pill fw-medium position-relative z-2" style={{backgroundColor: data?.badge?.backgroundColor || '', color: data?.badge?.textColor || ''}}>
+										<div className="rounded-pill fw-medium position-relative z-2 px-4 py-2" style={{
+											backgroundColor: data?.badge?.backgroundColor || '#FFFFFF',
+											background: data?.badge?.backgroundColor || '#FFFFFF',
+											color: data?.badge?.textColor || '#6342EC'
+										}}>
 											{data?.badge?.text || "🚀 Free Lifetime Update"}
 										</div>
 									</div>

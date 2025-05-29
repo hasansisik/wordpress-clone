@@ -115,7 +115,7 @@ export default function Blog1({ previewData }: Blog1Props) {
 	};
 
 	const badgeStyle = {
-		backgroundColor: data.badgeBackgroundColor || "#f1f0fe",
+		backgroundColor: `${data.badgeBackgroundColor || "#f1f0fe"} !important`,
 		color: data.badgeTextColor || "#6342EC"
 	};
 
@@ -133,7 +133,10 @@ export default function Blog1({ previewData }: Blog1Props) {
 					<div className="row align-items-end">
 						<div className="col-12 col-md-6 me-auto">
 							{data.badgeVisible !== false && (
-								<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={badgeStyle}>
+								<div className="d-flex align-items-center justify-content-center border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={{
+									backgroundColor: data.badgeBackgroundColor || "#f1f0fe",
+									color: data.badgeTextColor || "#6342EC"
+								}}>
 									<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.badge}</span>
 								</div>
 							)}
@@ -177,7 +180,7 @@ export default function Blog1({ previewData }: Blog1Props) {
 											className="position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
 											style={post.premium ? 
 												{ backgroundColor: '#FFEDD5', color: '#C2410C' } : 
-												badgeStyle
+												{ backgroundColor: '#f5f5f5', color: '#333333' }
 											}
 										>
 											<span className="tag-spacing fs-7 fw-bold text-uppercase">{post.category[0]}</span>

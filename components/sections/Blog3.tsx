@@ -152,7 +152,7 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
                       className="position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
                       style={post.premium ? 
                         { backgroundColor: '#FFEDD5', color: '#C2410C' } : 
-                        { backgroundColor: data.badgeBackgroundColor || "#f1f0fe", color: data.badgeTextColor || "#6342EC" }
+                        { backgroundColor: '#f5f5f5', color: '#333333' }
                       }
                     >
                       <span className="tag-spacing fs-7 fw-bold text-uppercase">

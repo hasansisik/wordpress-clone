@@ -82,7 +82,7 @@ export default function Project2({ previewData }: Project2Props) {
 	};
 
 	const subtitleStyle = {
-		backgroundColor: data.subtitleVisible !== false ? (data.subtitleBackgroundColor || "rgba(99, 66, 236, 0.1)") : "transparent",
+		backgroundColor: data.subtitleVisible !== false ? `${data.subtitleBackgroundColor || "rgba(99, 66, 236, 0.1)"} !important` : "transparent",
 		color: data.subtitleTextColor || "#6342EC"
 	};
 
@@ -128,7 +128,10 @@ export default function Project2({ previewData }: Project2Props) {
 					<div className="row mb-8">
 						<div className="col-lg-6">
 							{data.subtitleVisible !== false && (
-								<div className="d-flex align-items-center justify-text-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-3 py-1" style={subtitleStyle}>
+								<div className="d-flex align-items-center justify-text-center border border-2 border-white d-inline-flex rounded-pill px-3 py-1" style={{
+									backgroundColor: data.subtitleBackgroundColor || "rgba(99, 66, 236, 0.1)",
+									color: data.subtitleTextColor || "#6342EC"
+								}}>
 									<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.subtitle}</span>
 								</div>
 							)}
