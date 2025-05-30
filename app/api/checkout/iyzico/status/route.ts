@@ -1,67 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import Iyzipay from "iyzipay";
-
-// Initialize iyzipay
-const iyzipay = new Iyzipay({
-  apiKey: process.env.IYZIPAY_API_KEY || "sandbox-OwAK76eKxLfPmFS3uF65m3yOsohhKD3B",
-  secretKey: process.env.IYZIPAY_SECRET_KEY || "sandbox-P5Ppp3OxgdCQnfbCoZcaUEacUdv54l6i",
-  uri: process.env.IYZIPAY_URI || "https://sandbox-api.iyzipay.com",
-});
+import { getGeneral } from "@/services/generalService";
 
 export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams;
-  const token = searchParams.get('token');
-
-  if (!token) {
-    return NextResponse.json({ 
-      status: "error", 
-      message: "Token is required" 
-    }, { status: 400 });
-  }
-
   try {
+    // Get token from query params
+    const { searchParams } = new URL(req.url);
+    const token = searchParams.get('token');
+
+    if (!token) {
+      return NextResponse.json(
+        { status: "error", message: "Token is required" },
+        { status: 400 }
+      );
+    }
+
+    // Get general settings including iyzico API keys
+    const general = await getGeneral();
+    
+    // Initialize iyzipay with settings from general
+    const iyzipay = new Iyzipay({
+      apiKey: general?.iyzico?.apiKey || "sandbox-OwAK76eKxLfPmFS3uF65m3yOsohhKD3B",
+      secretKey: general?.iyzico?.secretKey || "sandbox-P5Ppp3OxgdCQnfbCoZcaUEacUdv54l6i",
+      uri: general?.iyzico?.uri || "https://sandbox-api.iyzipay.com",
+    });
+
     // Create request object for retrieving payment result
-    const request: any = {
+    const request = {
       locale: "tr",
       conversationId: "123456789",
       token: token
     };
-    
+
     // Get payment result
     return new Promise((resolve) => {
       iyzipay.checkoutForm.retrieve(request, function (err: any, result: any) {
         if (err) {
           console.error("Iyzipay error:", err);
-          resolve(NextResponse.json({ 
-            status: "error", 
-            message: err.errorMessage || "Ödeme durumu kontrol edilirken bir hata oluştu" 
-          }, { status: 500 }));
+          resolve(
+            NextResponse.json(
+              { status: "error", message: "Error checking payment status" },
+              { status: 500 }
+            )
+          );
         } else {
-          console.log("Payment status check:", result);
-          
-          if (result.status === "success" && result.paymentStatus === "SUCCESS") {
-            // Payment successful
-            resolve(NextResponse.json({ 
-              status: "success", 
+          resolve(
+            NextResponse.json({
+              status: "success",
               paymentStatus: result.paymentStatus,
-              message: "Ödeme başarılı"
-            }));
-          } else {
-            // Payment failed or pending
-            resolve(NextResponse.json({ 
-              status: "error", 
-              paymentStatus: result.paymentStatus || "FAILURE",
-              message: result.errorMessage || "Ödeme başarısız"
-            }));
-          }
+              paymentId: result.paymentId,
+              fraudStatus: result.fraudStatus,
+              result: result
+            })
+          );
         }
       });
     });
   } catch (error) {
-    console.error("Payment status check error:", error);
-    return NextResponse.json({ 
-      status: "error", 
-      message: "Ödeme durumu kontrol edilirken bir hata oluştu" 
-    }, { status: 500 });
+    console.error("Status check error:", error);
+    return NextResponse.json(
+      { status: "error", message: "An error occurred checking payment status" },
+      { status: 500 }
+    );
   }
 } 

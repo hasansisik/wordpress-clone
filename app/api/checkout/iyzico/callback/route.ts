@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Iyzipay from "iyzipay";
-
-// Initialize iyzipay
-const iyzipay = new Iyzipay({
-  apiKey: process.env.IYZIPAY_API_KEY || "sandbox-OwAK76eKxLfPmFS3uF65m3yOsohhKD3B",
-  secretKey: process.env.IYZIPAY_SECRET_KEY || "sandbox-P5Ppp3OxgdCQnfbCoZcaUEacUdv54l6i",
-  uri: process.env.IYZIPAY_URI || "https://sandbox-api.iyzipay.com",
-});
+import { getGeneral } from "@/services/generalService";
 
 // Create HTML response that sends a message to parent window and also provides a fallback link
 function createParentMessageResponse(status: string, token: string) {
@@ -78,6 +72,16 @@ function createParentMessageResponse(status: string, token: string) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Get general settings including iyzico API keys
+    const general = await getGeneral();
+    
+    // Initialize iyzipay with settings from general
+    const iyzipay = new Iyzipay({
+      apiKey: general?.iyzico?.apiKey || "sandbox-OwAK76eKxLfPmFS3uF65m3yOsohhKD3B",
+      secretKey: general?.iyzico?.secretKey || "sandbox-P5Ppp3OxgdCQnfbCoZcaUEacUdv54l6i",
+      uri: general?.iyzico?.uri || "https://sandbox-api.iyzipay.com",
+    });
+    
     const formData = await req.formData();
     const token = formData.get('token') as string;
     

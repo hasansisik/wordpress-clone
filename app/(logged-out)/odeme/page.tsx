@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getGeneral } from "@/services/generalService";
 
 export default function IyzicoCheckout() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function IyzicoCheckout() {
   const [paymentPageUrl, setPaymentPageUrl] = useState<string | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [generalSettings, setGeneralSettings] = useState<any>(null);
 
   // Function to check payment status
   const checkPaymentStatus = async (token: string) => {
@@ -56,6 +58,20 @@ export default function IyzicoCheckout() {
     };
   }, [router]);
 
+  // Fetch general settings for iyzico configuration
+  useEffect(() => {
+    const fetchGeneralSettings = async () => {
+      try {
+        const settings = await getGeneral();
+        setGeneralSettings(settings);
+      } catch (error) {
+        console.error("Error fetching general settings:", error);
+      }
+    };
+
+    fetchGeneralSettings();
+  }, []);
+
   useEffect(() => {
     const initializeCheckout = async () => {
       try {
@@ -92,8 +108,11 @@ export default function IyzicoCheckout() {
       }
     };
 
-    initializeCheckout();
-  }, []);
+    // Only initialize checkout once general settings are loaded
+    if (generalSettings) {
+      initializeCheckout();
+    }
+  }, [generalSettings]);
 
   // Direct to payment page in new window if needed
   const handleOpenPaymentPage = () => {
@@ -177,7 +196,7 @@ export default function IyzicoCheckout() {
                     </Button>
                   </div>
                 </div>
-              ) : (
+              ) : generalSettings ? (
                 <div className="text-center py-6">
                   <p className="text-red-600 text-sm mb-3">Ödeme sayfası yüklenemedi</p>
                   <Button 
@@ -186,6 +205,11 @@ export default function IyzicoCheckout() {
                   >
                     Yeniden Dene
                   </Button>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-gray-600 text-sm mb-3">Ödeme sistemi yapılandırması yükleniyor...</p>
+                  <div className="animate-spin h-8 w-8 border-4 border-orange-500 rounded-full border-t-transparent mx-auto"></div>
                 </div>
               )}
             </CardContent>

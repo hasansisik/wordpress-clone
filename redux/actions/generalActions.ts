@@ -24,6 +24,11 @@ export interface GeneralPayload {
     apiKey?: string;
     apiSecret?: string;
   };
+  iyzico?: {
+    apiKey?: string;
+    secretKey?: string;
+    uri?: string;
+  };
   whatsapp?: {
     enabled?: boolean;
     phoneNumber?: string;

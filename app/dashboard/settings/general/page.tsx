@@ -25,7 +25,8 @@ import {
   Save,
   Moon,
   Sun,
-  MessageCircle
+  MessageCircle,
+  CreditCard
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -75,6 +76,11 @@ export default function SiteSettingsPage() {
       apiKey: "",
       apiSecret: ""
     },
+    iyzico: {
+      apiKey: "",
+      secretKey: "",
+      uri: ""
+    },
     whatsapp: {
       enabled: false,
       phoneNumber: "",
@@ -111,6 +117,11 @@ export default function SiteSettingsPage() {
           apiKey: general.cloudinary?.apiKey || siteSettings.cloudinary.apiKey,
           apiSecret: general.cloudinary?.apiSecret || siteSettings.cloudinary.apiSecret
         },
+        iyzico: {
+          apiKey: general.iyzico?.apiKey || siteSettings.iyzico.apiKey,
+          secretKey: general.iyzico?.secretKey || siteSettings.iyzico.secretKey,
+          uri: general.iyzico?.uri || siteSettings.iyzico.uri
+        },
         whatsapp: {
           enabled: general.whatsapp?.enabled !== undefined ? general.whatsapp.enabled : siteSettings.whatsapp.enabled,
           phoneNumber: general.whatsapp?.phoneNumber || siteSettings.whatsapp.phoneNumber,
@@ -138,6 +149,15 @@ export default function SiteSettingsPage() {
         cloudinary: {
           ...siteSettings.cloudinary,
           [cloudinaryField]: value
+        }
+      });
+    } else if (name.startsWith("iyzico.")) {
+      const iyzicoField = name.split(".")[1];
+      setSiteSettings({
+        ...siteSettings,
+        iyzico: {
+          ...siteSettings.iyzico,
+          [iyzicoField]: value
         }
       });
     } else if (name.startsWith("whatsapp.")) {
@@ -201,6 +221,11 @@ export default function SiteSettingsPage() {
           cloudName: siteSettings.cloudinary.cloudName,
           apiKey: siteSettings.cloudinary.apiKey,
           apiSecret: siteSettings.cloudinary.apiSecret
+        },
+        iyzico: {
+          apiKey: siteSettings.iyzico.apiKey,
+          secretKey: siteSettings.iyzico.secretKey,
+          uri: siteSettings.iyzico.uri
         },
         whatsapp: {
           enabled: siteSettings.whatsapp.enabled,
@@ -331,7 +356,7 @@ export default function SiteSettingsPage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid grid-cols-5 mb-8">
+              <TabsList className="grid grid-cols-6 mb-8">
                 <TabsTrigger value="general" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   <span className="hidden sm:inline">General</span>
@@ -347,6 +372,10 @@ export default function SiteSettingsPage() {
                 <TabsTrigger value="integrations" className="flex items-center gap-2">
                   <CloudCog className="h-4 w-4" />
                   <span className="hidden sm:inline">Integrations</span>
+                </TabsTrigger>
+                <TabsTrigger value="iyzico" className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  <span className="hidden sm:inline">İyzico</span>
                 </TabsTrigger>
                 <TabsTrigger value="whatsapp" className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" />
@@ -680,6 +709,63 @@ export default function SiteSettingsPage() {
                           onChange={handleInputChange}
                         />
                       </div>
+                    </div>
+                    
+                    <div className="bg-muted/50 border-muted border p-3 rounded-md">
+                      <div className="flex items-center gap-2 mb-1">
+                        <AlertCircle className="h-4 w-4" />
+                        <h4 className="font-medium">Security Notice</h4>
+                      </div>
+                      <p className="text-sm">
+                        API credentials are stored securely in our database. Never expose these values in client-side code.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* iyzico Settings Tab */}
+              <TabsContent value="iyzico" className="space-y-6">
+                <div className="border rounded-md p-4">
+                  <h3 className="text-lg font-medium mb-4">İyzico Payment Integration</h3>
+                  <p className="text-sm mb-4">
+                    Configure your İyzico account for payment processing
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="iyzicoApiKey">API Key</Label>
+                      <Input
+                        id="iyzicoApiKey"
+                        name="iyzico.apiKey"
+                        placeholder="Enter İyzico API Key"
+                        value={siteSettings.iyzico.apiKey}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="iyzicoSecretKey">Secret Key</Label>
+                      <Input
+                        id="iyzicoSecretKey"
+                        name="iyzico.secretKey"
+                        type="password"
+                        placeholder="Enter İyzico Secret Key"
+                        value={siteSettings.iyzico.secretKey}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="iyzicoUri">API URI</Label>
+                      <Input
+                        id="iyzicoUri"
+                        name="iyzico.uri"
+                        placeholder="Enter İyzico API URI (e.g. https://sandbox-api.iyzipay.com)"
+                        value={siteSettings.iyzico.uri}
+                        onChange={handleInputChange}
+                      />
+                      <p className="text-xs text-muted-foreground">Default: https://sandbox-api.iyzipay.com</p>
                     </div>
                     
                     <div className="bg-muted/50 border-muted border p-3 rounded-md">
