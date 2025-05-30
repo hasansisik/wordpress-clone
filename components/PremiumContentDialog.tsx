@@ -52,7 +52,7 @@ const PremiumContentDialog = ({
   
   const handleCheckout = () => {
     onClose();
-    router.push("/odeme/premium");
+    router.push("/odeme");
   };
 
   return (
