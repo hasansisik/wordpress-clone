@@ -79,7 +79,7 @@ export default function Features5({ previewData }: Features5Props = {}) {
 										<div 
 											className="photo-description position-relative rounded-4 d-inline-block"
 											style={{ 
-												backgroundColor: section.photoBackgroundColor || 'transparent'
+												backgroundColor: `${section.photoBackgroundColor || 'transparent'} !important`
 											}}
 										>
 											<img 
@@ -88,7 +88,7 @@ export default function Features5({ previewData }: Features5Props = {}) {
 												alt="infinia" 
 											/>
 											<div className={imageOnLeft 
-												? "box-gradient-1 ms-lg-8 position-absolute bottom-0 start-0 bg-linear-1 rounded-4 z-0" 
+												? "box-gradient-1 ms-lg-8 position-absolute bottom-0 start-0 rounded-4 z-0" 
 												: "position-absolute top-50 start-50 translate-middle z-0"
 											}
 											style={{
@@ -97,7 +97,7 @@ export default function Features5({ previewData }: Features5Props = {}) {
 											>
 												{!imageOnLeft && (
 													<div 
-														className="box-gradient-2 position-relative bg-linear-1 rounded-4 z-0"
+														className="box-gradient-2 position-relative rounded-4 z-0"
 														style={{
 															backgroundColor: section.gradientBackgroundColor2 || ''
 														}}

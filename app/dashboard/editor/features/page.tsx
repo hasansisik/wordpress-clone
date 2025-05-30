@@ -828,22 +828,9 @@ function Features5ContentForm({ data, updateFeaturesData }: { data: any, updateF
             />
             
             <FormGroup title="Image Styling" className="mt-4 mb-4 border-t pt-3">
+           
               <ColorField
-                label="Photo Background Color"
-                value={section.photoBackgroundColor || ""}
-                path={`features5.sections.${index}.photoBackgroundColor`}
-                onChange={(color) => handleLocalSectionChange(section.id, 'photoBackgroundColor', color)}
-              />
-              
-              <ColorField
-                label="Gradient Background Color 1"
-                value={section.gradientBackgroundColor || ""}
-                path={`features5.sections.${index}.gradientBackgroundColor`}
-                onChange={(color) => handleLocalSectionChange(section.id, 'gradientBackgroundColor', color)}
-              />
-              
-              <ColorField
-                label="Gradient Background Color 2"
+                label="Background Color"
                 value={section.gradientBackgroundColor2 || ""}
                 path={`features5.sections.${index}.gradientBackgroundColor2`}
                 onChange={(color) => handleLocalSectionChange(section.id, 'gradientBackgroundColor2', color)}

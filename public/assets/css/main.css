@@ -12900,6 +12900,7 @@ strong {
   height: 446px;
   transform: rotate(-2.178deg);
   transition: 0.3s ease-in-out;
+  
 }
 .section-feature-5 .photo-description:hover .box-gradient-1 {
   transform: rotate(-5deg);
