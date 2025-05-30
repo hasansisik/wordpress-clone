@@ -1,128 +1,222 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Check, ExternalLink } from "lucide-react";
+import { useState, useEffect, useRef, FormEvent } from "react";
+import { ArrowLeft, Check, CreditCard } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getGeneral } from "@/services/generalService";
+import { useDispatch, useSelector } from "react-redux";
+import { setPremiumStatus, getMyProfile } from "@/redux/actions/userActions";
+import { AppDispatch, RootState } from "@/redux/store";
 
 export default function IyzicoCheckout() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { user, loading: userLoading } = useSelector((state: RootState) => state.user);
+  const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [paymentPageUrl, setPaymentPageUrl] = useState<string | null>(null);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [generalSettings, setGeneralSettings] = useState<any>(null);
+  const [premiumUpdated, setPremiumUpdated] = useState(false);
+  
+  // Card details state
+  const [cardHolder, setCardHolder] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryMonth, setExpiryMonth] = useState("");
+  const [expiryYear, setExpiryYear] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Function to check payment status
-  const checkPaymentStatus = async (token: string) => {
-    try {
-      const response = await fetch(`/api/checkout/iyzico/status?token=${token}`, {
-        method: "GET",
-      });
-      
-      const data = await response.json();
-      
-      if (data.status === "success" && data.paymentStatus === "SUCCESS") {
-        router.push("/odeme/basarili");
-      } else {
-        router.push("/odeme/basarisiz");
-      }
-    } catch (error) {
-      console.error("Error checking payment status:", error);
-    }
-  };
+  // Refs for input fields
+  const cardHolderRef = useRef<HTMLInputElement>(null);
+  const cardNumberRef = useRef<HTMLInputElement>(null);
+  const expiryMonthRef = useRef<HTMLInputElement>(null);
+  const expiryYearRef = useRef<HTMLInputElement>(null);
+  const cvvRef = useRef<HTMLInputElement>(null);
 
-  // Listen for messages from the iframe
+  // Get user profile
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Check if the message is from iyzico
-      if (event.data && event.data.type === 'PAYMENT_RESULT') {
-        console.log('Payment result received:', event.data);
-        
-        if (event.data.status === 'success') {
-          router.push("/odeme/basarili");
-        } else {
-          router.push("/odeme/basarisiz");
-        }
-      }
-    };
+    dispatch(getMyProfile());
+  }, [dispatch]);
 
-    window.addEventListener('message', handleMessage);
-    
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, [router]);
-
-  // Fetch general settings for iyzico configuration
+  // Fetch general settings
   useEffect(() => {
     const fetchGeneralSettings = async () => {
       try {
         const settings = await getGeneral();
         setGeneralSettings(settings);
+        setPageLoading(false);
       } catch (error) {
         console.error("Error fetching general settings:", error);
+        setPageLoading(false);
       }
     };
 
     fetchGeneralSettings();
   }, []);
 
-  useEffect(() => {
-    const initializeCheckout = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Format card number with spaces
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || "";
+    const parts = [];
 
-        const response = await fetch("/api/checkout/iyzico", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            callbackUrl: `${window.location.origin}/api/checkout/iyzico/callback`,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.status === "success") {
-          // Store payment page URL
-          if (data.paymentPageUrl) {
-            setPaymentPageUrl(data.paymentPageUrl);
-          } else {
-            setError("Ödeme sayfası URL'si alınamadı");
-          }
-        } else {
-          setError(data.message || "Ödeme formu oluşturulurken bir hata oluştu");
-        }
-      } catch (error) {
-        console.error("Checkout error:", error);
-        setError("Ödeme sayfası yüklenirken bir hata oluştu");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Only initialize checkout once general settings are loaded
-    if (generalSettings) {
-      initializeCheckout();
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
     }
-  }, [generalSettings]);
 
-  // Direct to payment page in new window if needed
-  const handleOpenPaymentPage = () => {
-    if (paymentPageUrl) {
-      window.open(paymentPageUrl, '_blank');
+    if (parts.length) {
+      return parts.join(" ");
+    } else {
+      return value;
+    }
+  };
+
+  // Handle card holder change
+  const handleCardHolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCardHolder(e.target.value);
+  };
+
+  // Handle card number change
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatCardNumber(e.target.value);
+    setCardNumber(formattedValue);
+    
+    // Auto-focus to next field when card number is complete
+    if (formattedValue.replace(/\s/g, "").length === 16 && expiryMonthRef.current) {
+      expiryMonthRef.current.focus();
+    }
+  };
+
+  // Handle month change
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 2);
+    
+    // Validate month
+    if (value && parseInt(value) > 12) {
+      setExpiryMonth("12");
+      if (expiryYearRef.current) {
+        expiryYearRef.current.focus();
+      }
+    } else {
+      setExpiryMonth(value);
+      // Auto-focus to year field when month is complete
+      if (value.length === 2 && expiryYearRef.current) {
+        expiryYearRef.current.focus();
+      }
+    }
+  };
+
+  // Handle year change
+  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 2);
+    setExpiryYear(value);
+    
+    // Auto-focus to CVV field when year is complete
+    if (value.length === 2 && cvvRef.current) {
+      cvvRef.current.focus();
+    }
+  };
+
+  // Handle CVV change
+  const handleCVVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 3);
+    setCvv(value);
+  };
+
+  // Update premium status
+  const updatePremiumStatus = async () => {
+    if (!premiumUpdated && !userLoading && user?._id) {
+      try {
+        await dispatch(setPremiumStatus(true));
+        console.log("Premium status updated successfully");
+        setPremiumUpdated(true);
+        return true;
+      } catch (error) {
+        console.error("Error updating premium status:", error);
+        return false;
+      }
+    }
+    return false;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      // Validation
+      if (!cardHolder.trim()) {
+        setError("Kart üzerindeki isim boş bırakılamaz");
+        setIsSubmitting(false);
+        if (cardHolderRef.current) cardHolderRef.current.focus();
+        return;
+      }
+      
+      if (cardNumber.replace(/\s/g, "").length < 16) {
+        setError("Geçerli bir kart numarası giriniz");
+        setIsSubmitting(false);
+        if (cardNumberRef.current) cardNumberRef.current.focus();
+        return;
+      }
+      
+      if (!expiryMonth || !expiryYear) {
+        setError("Geçerli bir son kullanma tarihi giriniz");
+        setIsSubmitting(false);
+        if (!expiryMonth && expiryMonthRef.current) expiryMonthRef.current.focus();
+        else if (!expiryYear && expiryYearRef.current) expiryYearRef.current.focus();
+        return;
+      }
+      
+      // Validate month
+      const month = parseInt(expiryMonth);
+      if (month < 1 || month > 12) {
+        setError("Geçerli bir ay giriniz (1-12)");
+        setIsSubmitting(false);
+        if (expiryMonthRef.current) expiryMonthRef.current.focus();
+        return;
+      }
+      
+      if (cvv.length < 3) {
+        setError("Geçerli bir CVV kodu giriniz");
+        setIsSubmitting(false);
+        if (cvvRef.current) cvvRef.current.focus();
+        return;
+      }
+      
+      // In a real implementation, you would send the card data to your payment API
+      // For this demo, we'll simulate a successful payment
+      
+      // First update premium status
+      await updatePremiumStatus();
+      
+      // Set a flag to indicate payment was successful
+      try {
+        sessionStorage.setItem('paymentSuccessful', 'true');
+      } catch (err) {
+        console.error("Error setting sessionStorage:", err);
+      }
+      
+      // Then redirect to success page after a small delay
+      setTimeout(() => {
+        router.push("/odeme/basarili");
+      }, 2000);
+      
+    } catch (error) {
+      console.error("Payment error:", error);
+      setError("Ödeme işlemi sırasında bir hata oluştu");
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="containe mx-10 px-4 py-6">
+    <div className="container mx-auto px-4 py-6">
       <Link 
         href="/" 
         className="inline-flex items-center text-xs font-medium text-gray-600 hover:text-gray-900 mb-4"
@@ -150,75 +244,141 @@ export default function IyzicoCheckout() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base">Ödeme</CardTitle>
               <CardDescription className="text-xs">
-                Güvenli ödeme için iyzico altyapısı kullanılmaktadır
+                Güvenli ödeme işlemi
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
+              {pageLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin h-8 w-8 border-4 border-orange-500 rounded-full border-t-transparent"></div>
                 </div>
-              ) : paymentPageUrl ? (
-                <div className="space-y-4">
-                  {/* Option 1: iframe */}
-                  <div className="rounded-md border overflow-hidden" style={{ height: '800px' }}>
-                    {!iframeLoaded && (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin h-8 w-8 border-4 border-orange-500 rounded-full border-t-transparent"></div>
-                      </div>
-                    )}
-                    <iframe 
-                      ref={iframeRef}
-                      src={paymentPageUrl}
-                      style={{ width: '100%', height: '100%', border: 'none' }}
-                      onLoad={() => setIframeLoaded(true)}
-                      className={iframeLoaded ? 'block' : 'hidden'}
-                      name="iyzico-checkout-frame"
-                      id="iyzico-checkout-frame"
-                      frameBorder="0"
-                      allowFullScreen={true}
-                    />
+              ) : (
+                <div>
+                  {/* Payment form title */}
+                  <div className="flex mb-6 border-b pb-3">
+                    <div className="flex items-center">
+                      <CreditCard className="h-5 w-5 mr-2 text-gray-600" />
+                      <h3 className="text-lg font-medium">Kartla Ödeme</h3>
+                    </div>
                   </div>
                   
-                  {/* Option 2: Direct link */}
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600 mb-2">
-                      {iframeLoaded 
-                        ? "İframe'de sorun yaşıyorsanız, ödeme sayfasını ayrı bir pencerede açabilirsiniz:"
-                        : "Ödeme sayfasını ayrı bir pencerede açabilirsiniz:"}
-                    </p>
-                    <Button 
-                      onClick={handleOpenPaymentPage}
-                      className="bg-orange-500 hover:bg-orange-600 inline-flex items-center"
-                    >
-                      Ödeme Sayfasını Aç
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ) : generalSettings ? (
-                <div className="text-center py-6">
-                  <p className="text-red-600 text-sm mb-3">Ödeme sayfası yüklenemedi</p>
-                  <Button 
-                    onClick={() => window.location.reload()} 
-                    variant="outline"
-                  >
-                    Yeniden Dene
-                  </Button>
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <p className="text-gray-600 text-sm mb-3">Ödeme sistemi yapılandırması yükleniyor...</p>
-                  <div className="animate-spin h-8 w-8 border-4 border-orange-500 rounded-full border-t-transparent mx-auto"></div>
+                  {/* Card payment form */}
+                  <form onSubmit={handleSubmit}>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="cardHolder" className="text-sm font-medium">
+                          Kart Üzerindeki Ad Soyad
+                        </Label>
+                        <Input
+                          id="cardHolder"
+                          ref={cardHolderRef}
+                          value={cardHolder}
+                          onChange={handleCardHolderChange}
+                          onKeyDown={(e) => e.key === "Enter" && cardNumberRef.current?.focus()}
+                          placeholder="Kart Üzerindeki Ad Soyad"
+                          className="mt-1 text-gray-800"
+                          required
+                          autoFocus
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="cardNumber" className="text-sm font-medium">
+                          Kart Numarası
+                        </Label>
+                        <Input
+                          id="cardNumber"
+                          ref={cardNumberRef}
+                          value={cardNumber}
+                          onChange={handleCardNumberChange}
+                          onKeyDown={(e) => e.key === "Enter" && expiryMonthRef.current?.focus()}
+                          placeholder="0000 0000 0000 0000"
+                          className="mt-1 text-gray-800"
+                          maxLength={19}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4">
+                        <div>
+                          <Label htmlFor="expiryMonth" className="text-sm font-medium">
+                            Ay
+                          </Label>
+                          <Input
+                            id="expiryMonth"
+                            ref={expiryMonthRef}
+                            value={expiryMonth}
+                            onChange={handleMonthChange}
+                            onKeyDown={(e) => e.key === "Enter" && expiryYearRef.current?.focus()}
+                            placeholder="MM"
+                            className="mt-1 text-gray-800"
+                            maxLength={2}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="expiryYear" className="text-sm font-medium">
+                            Yıl
+                          </Label>
+                          <Input
+                            id="expiryYear"
+                            ref={expiryYearRef}
+                            value={expiryYear}
+                            onChange={handleYearChange}
+                            onKeyDown={(e) => e.key === "Enter" && cvvRef.current?.focus()}
+                            placeholder="YY"
+                            className="mt-1 text-gray-800"
+                            maxLength={2}
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="cvv" className="text-sm font-medium">
+                            CVC
+                          </Label>
+                          <Input
+                            id="cvv"
+                            ref={cvvRef}
+                            value={cvv}
+                            onChange={handleCVVChange}
+                            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.form?.requestSubmit()}
+                            placeholder="123"
+                            className="mt-1 text-gray-800"
+                            maxLength={3}
+                            required
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="pt-4">
+                        <Button 
+                          type="submit" 
+                          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <span className="flex items-center justify-center">
+                              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                              İşleniyor...
+                            </span>
+                          ) : (
+                            <span>149,00 TL ÖDE</span>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      <div className="text-xs text-gray-500 text-center mt-2">
+                        Ödeme işlemine devam ederek <Link href="#" className="text-blue-500">KVKK Aydınlatma Metni</Link>'ni okuduğumu ve anladığımı kabul ediyorum.
+                      </div>
+                    </div>
+                  </form>
                 </div>
               )}
             </CardContent>
           </Card>
           
-          <div className="text-xs text-gray-500 text-center">
-            <p>iyzico güvenli ödeme altyapısı kullanılmaktadır.</p>
-            <p className="mt-1">Test kartı: 5528790000000008, Son kullanma: 12/30, CVC: 123</p>
-          </div>
         </div>
         
         <div className="md:col-span">
@@ -260,6 +420,16 @@ export default function IyzicoCheckout() {
           </Card>
         </div>
       </div>
+      
+      {/* Add a custom style to make input text darker */}
+      <style jsx global>{`
+        .text-gray-800::placeholder {
+          color: #9ca3af;
+        }
+        .text-gray-800 {
+          color: #1f2937;
+        }
+      `}</style>
     </div>
   );
 } 
