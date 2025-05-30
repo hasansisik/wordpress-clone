@@ -56,6 +56,9 @@ import {
   createBlog,
   updateBlog,
   deleteBlog,
+  getAllCategories,
+  createGlobalCategory,
+  deleteGlobalCategory
 } from "@/redux/actions/blogActions";
 import {
   Loader2,
@@ -124,7 +127,7 @@ const slugify = (text: string) => {
 
 export default function BlogEditor() {
   const dispatch = useDispatch<AppDispatch>();
-  const { blogs, loading, error, success, message } = useSelector(
+  const { blogs, categories, loading, categoryLoading, error, success, message } = useSelector(
     (state: RootState) => state.blog
   );
 
@@ -168,10 +171,18 @@ export default function BlogEditor() {
   const [activeTab, setActiveTab] = useState("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   // Load blogs from Redux store
   useEffect(() => {
     dispatch(getAllBlogs());
+  }, [dispatch]);
+
+  // Load categories from Redux store
+  useEffect(() => {
+    dispatch(getAllCategories());
   }, [dispatch]);
 
   // Update filtered posts when blogs or search term changes
@@ -639,6 +650,49 @@ export default function BlogEditor() {
     window.history.pushState({}, "", url);
   };
 
+  // Handle adding a global category
+  const handleAddGlobalCategory = async () => {
+    if (!newCategoryName.trim()) {
+      setNotification({
+        type: "error",
+        message: "Kategori adı boş olamaz.",
+      });
+      return;
+    }
+    
+    try {
+      await dispatch(createGlobalCategory(newCategoryName.trim())).unwrap();
+      setNewCategoryName("");
+      
+      setNotification({
+        type: "success",
+        message: "Kategori başarıyla eklendi.",
+      });
+    } catch (error: any) {
+      setNotification({
+        type: "error",
+        message: error.message || "Kategori eklenirken bir hata oluştu.",
+      });
+    }
+  };
+  
+  // Handle deleting a global category
+  const handleDeleteGlobalCategory = async (category: string) => {
+    try {
+      await dispatch(deleteGlobalCategory(category)).unwrap();
+      
+      setNotification({
+        type: "success",
+        message: "Kategori başarıyla silindi.",
+      });
+    } catch (error: any) {
+      setNotification({
+        type: "error",
+        message: error.message || "Kategori silinirken bir hata oluştu.",
+      });
+    }
+  };
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -733,6 +787,23 @@ export default function BlogEditor() {
                 >
                   <Download className="h-4 w-4 mr-1" />
                   Export
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setCategoryDialogOpen(true)}
+                  title="Manage categories"
+                  size="sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1">
+                    <path d="M8 2h8"></path>
+                    <path d="M16 2v4"></path>
+                    <path d="M8 2v4"></path>
+                    <path d="M2 6h20v4H2z"></path>
+                    <path d="M4 10v10h16V10"></path>
+                    <path d="M10 14h4"></path>
+                  </svg>
+                  Categories
                 </Button>
 
                 <Button
@@ -866,24 +937,41 @@ export default function BlogEditor() {
                   ? `Edit Blog: ${formData.title}`
                   : "Create New Blog"}
               </h2>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // Reset form first
-                  resetForm();
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setCategoryDialogOpen(true)}
+                  title="Manage categories"
+                  size="sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1">
+                    <path d="M8 2h8"></path>
+                    <path d="M16 2v4"></path>
+                    <path d="M8 2v4"></path>
+                    <path d="M2 6h20v4H2z"></path>
+                    <path d="M4 10v10h16V10"></path>
+                    <path d="M10 14h4"></path>
+                  </svg>
+                  Categories
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // Reset form first
+                    resetForm();
 
-                  // Then explicitly reset edit mode
-                  setIsEditMode(false);
-                  setEditingPostId(null);
+                    // Then explicitly reset edit mode
+                    setIsEditMode(false);
+                    setEditingPostId(null);
 
-                  // Go back to list view
-                  setActiveTab("all");
-                }}
-                className="ml-2"
-                disabled={loading}
-              >
-                Cancel
-              </Button>
+                    // Go back to list view
+                    setActiveTab("all");
+                  }}
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -1209,67 +1297,55 @@ export default function BlogEditor() {
                             </Badge>
                           ))}
                         </div>
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Add category"
-                            value={formData.category}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                category: e.target.value,
-                              })
-                            }
-                            className="h-9"
-                            onKeyDown={(e) => {
-                              if (
-                                e.key === "Enter" &&
-                                formData.category.trim()
-                              ) {
-                                e.preventDefault();
-                                if (
-                                  !formData.categories.includes(
-                                    formData.category.trim()
-                                  )
-                                ) {
-                                  setFormData({
-                                    ...formData,
-                                    categories: [
-                                      ...formData.categories,
-                                      formData.category.trim(),
-                                    ],
-                                    category: "",
-                                  });
-                                }
-                              }
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            size="sm"
-                            className="h-9"
-                            onClick={() => {
-                              if (
-                                formData.category.trim() &&
-                                !formData.categories.includes(
-                                  formData.category.trim()
-                                )
-                              ) {
-                                setFormData({
-                                  ...formData,
-                                  categories: [
-                                    ...formData.categories,
-                                    formData.category.trim(),
-                                  ],
-                                  category: "",
-                                });
-                              }
-                            }}
-                          >
-                            Add
-                          </Button>
+                        
+                        
+                        <div className="mt-4">
+                          <p className="text-sm font-medium mb-2">Available Categories</p>
+                          <div className="flex flex-wrap gap-1">
+                            {categoryLoading ? (
+                              <div className="flex items-center justify-center w-full py-2">
+                                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                              </div>
+                            ) : (
+                              categories.map((category, index) => (
+                                <Badge
+                                  key={index}
+                                  variant={formData.categories.includes(category) ? "default" : "outline"}
+                                  className="px-3 py-2 text-xs cursor-pointer hover:bg-primary-50"
+                                  onClick={() => {
+                                    if (!formData.categories.includes(category)) {
+                                      setFormData({
+                                        ...formData,
+                                        categories: [...formData.categories, category],
+                                      });
+                                    } else {
+                                      removeCategory(category);
+                                    }
+                                  }}
+                                >
+                                  {category}
+                                  {formData.categories.includes(category) && (
+                                    <span className="ml-1 text-xs">✓</span>
+                                  )}
+                                </Badge>
+                              ))
+                            )}
+                            
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setCategoryDialogOpen(true)}
+                              className="h-6 text-xs mt-2"
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add New
+                            </Button>
+                          </div>
                         </div>
+                        
                         <p className="text-xs text-muted-foreground">
-                          Press Enter or click Add to add a category
+                          Click a category to select/deselect or enter a custom category above
                         </p>
                       </div>
                     </CardContent>
@@ -1352,6 +1428,80 @@ export default function BlogEditor() {
                   Delete
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Categories Management Dialog */}
+      <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Manage Categories</DialogTitle>
+            <DialogDescription>
+              Add, edit, or delete categories for your blog posts.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col gap-4 my-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="New category name"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newCategoryName.trim()) {
+                    e.preventDefault();
+                    handleAddGlobalCategory();
+                  }
+                }}
+              />
+              <Button 
+                type="button" 
+                onClick={handleAddGlobalCategory}
+                disabled={categoryLoading || !newCategoryName.trim()}
+              >
+                {categoryLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add'}
+              </Button>
+            </div>
+            
+            <div className="border rounded-md">
+
+              {categoryLoading ? (
+                <div className="flex justify-center items-center py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="py-3 px-4 text-center text-muted-foreground">
+                  No categories found. Add your first category above.
+                </div>
+              ) : (
+                <div className="max-h-[250px] overflow-y-auto">
+                  {categories.map((category, index) => (
+                    <div 
+                      key={index}
+                      className="py-2 px-4 border-b last:border-b-0 flex justify-between items-center"
+                    >
+                      <span>{category}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteGlobalCategory(category)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -245,7 +245,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                     blogPost.category.map((cat, index) => (
                       <Link
                         key={index}
-                        href="#"
+                        href={`/blog/kategori?category=${encodeURIComponent(cat)}`}
                         className="bg-primary-soft rounded-pill px-3 fw-bold py-2 text-primary text-uppercase fs-7"
                       >
                         {cat}
@@ -253,7 +253,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                     ))
                   ) : (
                     <Link
-                      href="#"
+                      href={`/blog/kategori?category=${encodeURIComponent(blogPost.category)}`}
                       className={`${
                         blogPost.premium 
                           ? "bg-amber-100 text-amber-800" 

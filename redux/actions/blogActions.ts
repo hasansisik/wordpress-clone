@@ -31,12 +31,29 @@ export interface UpdateBlogPayload extends Partial<BlogPayload> {
   id: string;
 }
 
+export interface BlogFilterParams {
+  category?: string;
+  companyId?: string;
+}
+
 // Get all blogs
 export const getAllBlogs = createAsyncThunk(
   "blog/getAllBlogs",
-  async (_, thunkAPI) => {
+  async (params?: BlogFilterParams, thunkAPI) => {
     try {
-      const { data } = await axios.get(`${server}/blogs`);
+      // Build query string based on filter params
+      let queryString = '';
+      
+      if (params) {
+        const queryParams = new URLSearchParams();
+        if (params.category) queryParams.append('category', params.category);
+        if (params.companyId) queryParams.append('companyId', params.companyId);
+        
+        queryString = queryParams.toString();
+        if (queryString) queryString = `?${queryString}`;
+      }
+      
+      const { data } = await axios.get(`${server}/blogs${queryString}`);
       return data.blogs;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Bloglar alınamadı';
@@ -146,6 +163,107 @@ export const deleteBlog = createAsyncThunk(
       return id;
     } catch (error: any) {
       const message = error.response?.data?.message || 'Blog silinemedi';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Get all categories
+export const getAllCategories = createAsyncThunk(
+  "blog/getAllCategories",
+  async (_, thunkAPI) => {
+    try {
+      const { data } = await axios.get(`${server}/blogs/categories`);
+      return data.categories;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Kategoriler alınamadı';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Create a global category
+export const createGlobalCategory = createAsyncThunk(
+  "blog/createGlobalCategory",
+  async (name: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.post(
+        `${server}/blogs/categories`, 
+        { name },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return data.category;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Kategori oluşturulamadı';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Delete a global category
+export const deleteGlobalCategory = createAsyncThunk(
+  "blog/deleteGlobalCategory",
+  async (category: string, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      await axios.delete(`${server}/blogs/categories/${encodeURIComponent(category)}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return category;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Kategori silinemedi';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Add a category to a blog post
+export const addCategory = createAsyncThunk(
+  "blog/addCategory",
+  async ({ blogId, category }: { blogId: string, category: string }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.post(
+        `${server}/blogs/${blogId}/categories`, 
+        { category },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return data.blog;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Kategori eklenemedi';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Delete a category from a blog post
+export const deleteCategory = createAsyncThunk(
+  "blog/deleteCategory",
+  async ({ blogId, category }: { blogId: string, category: string }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.delete(
+        `${server}/blogs/${blogId}/categories/${encodeURIComponent(category)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return data.blog;
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Kategori silinemedi';
       return thunkAPI.rejectWithValue(message);
     }
   }
