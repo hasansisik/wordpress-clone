@@ -33,10 +33,6 @@ export default function PaymentSuccess() {
       // Check if payment was successful from the payment page
       const paymentSuccessful = sessionStorage.getItem('paymentSuccessful');
       
-      console.log("Payment validation check:", { 
-        paymentSuccessful
-      });
-      
       // If valid token, show success message
       if (paymentSuccessful === 'true') {
         setIsValidPayment(true);
@@ -44,7 +40,6 @@ export default function PaymentSuccess() {
         // Clear token from session storage to prevent reuse
         sessionStorage.removeItem('paymentSuccessful');
       } else {
-        console.log("Direct access detected - payment success message limited");
         setIsValidPayment(false);
       }
       

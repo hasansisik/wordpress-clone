@@ -41,14 +41,11 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 
 	// Update from persisted Redux state if available and usePersistedTheme is true
 	useEffect(() => {
-		console.log("General state:", generalState);
 		
 		if (usePersistedTheme && generalState && generalState.general) {
 			const { general } = generalState;
-			console.log("Theme from Redux:", general.theme);
 			
 			if (general.theme?.headerStyle) {
-				console.log("Setting header style from Redux:", general.theme.headerStyle);
 				setFinalHeaderStyle(general.theme.headerStyle);
 				// Update client state to keep it in sync
 				if (useGlobalTheme) {
@@ -57,7 +54,6 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 			}
 			
 			if (general.theme?.footerStyle) {
-				console.log("Setting footer style from Redux:", general.theme.footerStyle);
 				setFinalFooterStyle(general.theme.footerStyle);
 				// Update client state to keep it in sync
 				if (useGlobalTheme) {
@@ -75,11 +71,6 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 		}
 	}, [clientHeaderStyle, clientFooterStyle, useGlobalTheme])
 
-	// Log current styles for debugging
-	useEffect(() => {
-		console.log("Current header style:", finalHeaderStyle);
-		console.log("Current footer style:", finalFooterStyle);
-	}, [finalHeaderStyle, finalFooterStyle])
 
 	const [scroll, setScroll] = useState<boolean>(false)
 	const [hideHeader, setHideHeader] = useState<boolean>(false)

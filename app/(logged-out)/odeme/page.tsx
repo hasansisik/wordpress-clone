@@ -133,7 +133,6 @@ export default function IyzicoCheckout() {
     if (!premiumUpdated && !userLoading && user?._id) {
       try {
         await dispatch(setPremiumStatus(true));
-        console.log("Premium status updated successfully");
         setPremiumUpdated(true);
         return true;
       } catch (error) {

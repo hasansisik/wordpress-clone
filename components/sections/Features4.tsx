@@ -56,7 +56,6 @@ export default function Features4({ previewData }: Features4Props = {}) {
 									data-aos="zoom-in" 
 									data-aos-delay={200}
 								>
-									<img src={data.badge?.icon || "/assets/imgs/features-1/dots.png"} alt="infinia" />
 									<span 
 										className="tag-spacing fs-7 fw-bold ms-2 text-uppercase" 
 										style={{ 

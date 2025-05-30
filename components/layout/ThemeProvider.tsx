@@ -35,7 +35,6 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
         const data = await response.json();
         
         if (data && data.general && data.general.theme) {
-          console.log("Theme data from server:", data.general.theme);
           
           // Use the theme settings from the server
           const headerStyle = data.general.theme.headerStyle || 1;

@@ -144,10 +144,6 @@ export async function generateMetadata({
       };
     }
     
-    // If we get here, log the slug we're trying to match and the available data
-    console.log(`No content found for slug: ${slug}`);
-    console.log(`Available blog slugs: ${Array.isArray(blogData) ? blogData.map((post: BlogPost) => slugify(post.title)).join(', ') : 'No blogs'}`);
-    console.log(`Available project slugs: ${Array.isArray(projectData) ? projectData.map((proj: Project) => slugify(proj.title)).join(', ') : 'No projects'}`);
   } catch (error) {
     console.error('Error generating metadata:', error);
   }

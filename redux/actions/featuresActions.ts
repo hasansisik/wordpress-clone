@@ -205,9 +205,6 @@ export const updateFeatures = createAsyncThunk(
   "features/updateFeatures",
   async (payload: FeaturesPayload, thunkAPI) => {
     try {
-      // Log the payload for debugging
-      console.log("Updating features with payload:", JSON.stringify(payload, null, 2));
-      
       const token = localStorage.getItem("accessToken");
       const { data } = await axios.put(`${server}/features`, payload, {
         headers: {

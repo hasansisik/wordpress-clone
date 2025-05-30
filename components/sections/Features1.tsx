@@ -56,7 +56,6 @@ export default function Features1({ previewData }: Features1Props = {}) {
 										backgroundColor: data.badge?.backgroundColor || '#f8f4ff'
 									}}
 								>
-									<img src={data.images?.dots || "/assets/imgs/features-1/dots.png"} alt="infinia" />
 									<span 
 										className="tag-spacing fs-7 fw-bold ms-2 text-uppercase" 
 										style={{ 

@@ -274,11 +274,9 @@ const initialState: FeaturesState = {
 
 // Helper function to handle features5 section updates
 const handleFeatures5Update = (state: FeaturesState, payload: any) => {
-  console.log("Handling features5 update:", payload.features5);
   
   // If direct backgroundColor update
   if (payload.features5.backgroundColor !== undefined) {
-    console.log("Updating main background color to:", payload.features5.backgroundColor);
     state.features.features5.backgroundColor = payload.features5.backgroundColor;
   }
   
@@ -289,9 +287,7 @@ const handleFeatures5Update = (state: FeaturesState, payload: any) => {
     // Handle special operation object format
     if (sections.operation) {
       const { operation, section, sectionId, order } = sections;
-      
-      console.log(`Performing ${operation} operation on sections:`, { section, sectionId, order });
-      
+            
       // Different operations based on the operation type
       switch (operation) {
         case 'add':
@@ -317,7 +313,6 @@ const handleFeatures5Update = (state: FeaturesState, payload: any) => {
                 ...state.features.features5.sections[index],
                 ...section
               };
-              console.log("Updated section:", state.features.features5.sections[index]);
             }
           }
           break;
@@ -380,7 +375,6 @@ export const featuresReducer = createReducer(initialState, (builder) => {
       state.error = null;
     })
     .addCase(updateFeatures.fulfilled, (state, action) => {
-      console.log("Features update fulfilled with payload:", action.payload);
       
       // Handle features5 specific updates
       if (action.payload?.features5) {

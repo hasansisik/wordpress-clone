@@ -103,7 +103,6 @@ export async function POST(req: NextRequest) {
           console.error("Iyzipay error:", err);
           resolve(createParentMessageResponse('error', token));
         } else {
-          console.log("Payment result:", result);
           
           if (result.status === "success" && result.paymentStatus === "SUCCESS") {
             // Payment successful - could update database here

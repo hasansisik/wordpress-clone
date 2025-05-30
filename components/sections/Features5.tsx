@@ -24,12 +24,10 @@ export default function Features5({ previewData }: Features5Props = {}) {
 		// If preview data is provided, use it
 		if (previewData && previewData.features5) {
 			setData(previewData.features5)
-			console.log("Using preview data:", previewData.features5)
 		} 
 		// Otherwise use Redux data
 		else if (features && features.features5) {
 			setData(features.features5)
-			console.log("Using Redux data:", features.features5)
 		}
 	}, [previewData, features])
 
@@ -43,11 +41,6 @@ export default function Features5({ previewData }: Features5Props = {}) {
 		? [...data.sections].sort((a, b) => a.position - b.position)
 		: [];
 	
-	console.log("Background color:", data.backgroundColor)
-	console.log("Sections with backgrounds:", sortedSections.map(s => ({ 
-		id: s.id, 
-		backgroundColor: s.backgroundColor 
-	})))
 		
 	return (
 		<>
