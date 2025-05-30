@@ -84,6 +84,43 @@ export interface OtherPayload {
       };
     };
   };
+  services3?: {
+    badge?: string;
+    badgeVisible?: boolean;
+    badgeBackgroundColor?: string;
+    badgeTextColor?: string;
+    title?: string;
+    titleColor?: string;
+    backgroundColor?: string;
+    slideDelay?: number;
+    slideServices?: Array<{
+      icon: string;
+      title: string;
+      description: string;
+      iconBgColor?: string;
+      link?: string;
+    }>;
+    showNavigation?: boolean;
+    navButtonColor?: string;
+  };
+  team1?: {
+    badge?: string;
+    badgeVisible?: boolean;
+    badgeBackgroundColor?: string;
+    badgeTextColor?: string;
+    title?: string;
+    titleColor?: string;
+    description?: string;
+    descriptionColor?: string;
+    backgroundColor?: string;
+    bgLine?: string;
+    showBgLine?: boolean;
+    teamMembers?: Array<{
+      image: string;
+      link?: string;
+    }>;
+    showRotatingElements?: boolean;
+  };
   contact1?: {
     badge?: string;
     badgeVisible?: boolean;

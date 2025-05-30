@@ -1,9 +1,122 @@
 "use client"
-import Link from "next/link"
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import axios from "axios";
+import { server } from "@/config";
 
-export default function Services3() {
+interface ServiceItem {
+	icon: string;
+	title: string;
+	description: string;
+	iconBgColor?: string;
+	link?: string;
+}
+
+export default function Services3({ previewData }: { previewData?: any }) {
+	const [servicesData, setServicesData] = useState<any>(null);
+	const [loading, setLoading] = useState(true);
+
+	// Fetch services data from server if not provided as props
+	useEffect(() => {
+		const fetchServicesData = async () => {
+			if (previewData) {
+				setServicesData(previewData);
+				setLoading(false);
+				return;
+			}
+
+			try {
+				const { data } = await axios.get(`${server}/other`);
+				setServicesData(data.other);
+				setLoading(false);
+			} catch (error) {
+				console.error("Error fetching services data:", error);
+				setLoading(false);
+			}
+		};
+
+		fetchServicesData();
+	}, [previewData]);
+
+	if (loading) {
+		return <div className="section-padding text-center">Loading services information...</div>;
+	}
+	
+	// Get services3 data with fallback to default values if not provided
+	const data = servicesData?.services3 || {};
+	
+	// Destructure properties with fallbacks
+	const {
+		badge = "What we offers",
+		badgeVisible = true,
+		badgeBackgroundColor = "#f1f0fe",
+		badgeTextColor = "#6342EC",
+		title = "The Leading <span class=\"fw-bold\">IT Solutions <br class=\"d-lg-block d-none\" /> Company</span> For You",
+		titleColor = "#111827",
+		backgroundColor = "#ffffff",
+		slideDelay = 4000,
+		slideServices = [
+			{
+				icon: "/assets/imgs/service-3/icon-1.svg",
+				title: "IT Consulting",
+				description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+				iconBgColor: "#e9e3ff",
+				link: "#"
+			},
+			{
+				icon: "/assets/imgs/service-3/icon-2.svg",
+				title: "Network Design",
+				description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+				iconBgColor: "#d1f5ea",
+				link: "#"
+			},
+			{
+				icon: "/assets/imgs/service-3/icon-3.svg",
+				title: "Software Dev",
+				description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+				iconBgColor: "#fff5d3",
+				link: "#"
+			},
+			{
+				icon: "/assets/imgs/service-3/icon-4.svg",
+				title: "IT Training",
+				description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+				iconBgColor: "#d9f2ff",
+				link: "#"
+			}
+		],
+		showNavigation = true,
+		navButtonColor = "#ffffff"
+	} = data;
+
+	// Create styles for dynamic theming
+	const sectionStyle = {
+		backgroundColor: backgroundColor,
+	};
+
+	const badgeStyle = {
+		backgroundColor: badgeBackgroundColor,
+	};
+
+	const badgeTextStyle = {
+		color: badgeTextColor,
+	};
+
+	const titleStyle = {
+		color: titleColor,
+	};
+
+	const navButtonStyle = {
+		backgroundColor: navButtonColor,
+	};
+
+	const getIconStyle = (service: ServiceItem) => {
+		return {
+			backgroundColor: service.iconBgColor || '#f1f0fe'
+		};
+	};
 
 	const swiperOptions = {
 		slidesPerView: 4,
@@ -12,7 +125,7 @@ export default function Services3() {
 		centeredSlides: false,
 		loop: true,
 		autoplay: {
-			delay: 4000,
+			delay: slideDelay,
 		},
 		breakpoints: {
 			1200: {
@@ -39,16 +152,29 @@ export default function Services3() {
 
 	return (
 		<>
-
-
-			<section className="section-services-3  section-padding">
+			<section className="section-services-3 section-padding" style={sectionStyle}>
 				<div className="container position-relative z-2">
 					<div className="text-center">
-						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>
-							<img src="/assets/imgs/features-1/dots.png" alt="infinia" />
-							<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">What we offers</span>
-						</div>
-						<h3 className="ds-3 my-3 fw-regular">The Leading <span className=" fw-bold">IT Solutions <br className="d-lg-block d-none" /> Company</span> For You</h3>
+						{badgeVisible && (
+							<div 
+								className="d-flex align-items-center justify-content-center border border-2 border-white d-inline-flex rounded-pill px-4 py-2" 
+								data-aos="zoom-in" 
+								data-aos-delay={100}
+								style={badgeStyle}
+							>
+								<span 
+									className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase"
+									style={badgeTextStyle}
+								>
+									{badge}
+								</span>
+							</div>
+						)}
+						<h3 
+							className="ds-3 my-3 fw-regular" 
+							style={titleStyle}
+							dangerouslySetInnerHTML={{ __html: title }}
+						/>
 					</div>
 					<div className="row mt-6 position-relative">
 						<Swiper {...swiperOptions}
@@ -56,227 +182,44 @@ export default function Services3() {
 							modules={[Keyboard, Autoplay, Pagination, Navigation]}
 						>
 							<div className="swiper-wrapper">
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-1.svg" alt="infinia" />
+								{slideServices.map((service: ServiceItem, index: number) => (
+									<SwiperSlide className="swiper-slide" key={index}>
+										<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
+											<div 
+												className="icon-flip position-relative icon-shape icon-xxl rounded-3 me-5"
+												style={getIconStyle(service)}
+											>
+												<div className="icon">
+													<img src={service.icon} alt={service.title} />
+												</div>
 											</div>
+											<h5 className="my-3">{service.title}</h5>
+											<p className="mb-4">{service.description}</p>
+											{service.link && (
+												<div className="mt-2 mb-2">
+													<Link href={service.link} className="btn btn-sm btn-outline-primary">
+														Learn More
+													</Link>
+												</div>
+											)}
 										</div>
-										<h5 className="my-3">IT Consulting</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-2.svg" alt="infinia" />
-											</div>
-										</div>
-										<h5 className="my-3">Network Design</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-3.svg" alt="infinia" />
-											</div>
-										</div>
-										<h5 className="my-3">Software Dev</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-4.svg" alt="infinia" />
-											</div>
-										</div>
-										<h5 className="my-3">IT Training</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-1.svg" alt="infinia" />
-											</div>
-										</div>
-										<h5 className="my-3">IT Consulting</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-2.svg" alt="infinia" />
-											</div>
-										</div>
-										<h5 className="my-3">Network Design</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-3.svg" alt="infinia" />
-											</div>
-										</div>
-										<h5 className="my-3">Software Dev</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
-								<SwiperSlide className="swiper-slide">
-									<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
-										<div className="bg-primary-soft icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
-											<div className="icon">
-												<img src="/assets/imgs/service-3/icon-4.svg" alt="infinia" />
-											</div>
-										</div>
-										<h5 className="my-3">IT Training</h5>
-										<p className="mb-6">Beauis utter enim amet lacus ornare ullamcorper Praesent
-											neque purus rhoncus.</p>
-										<Link href="#" className="text-primary fs-7 fw-bold">
-											Learm More
-											<svg className=" ms-2 " xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-												<g clipPath="url(#clip0_399_9647)">
-													<path d="M13.5633 4.06348L12.7615 4.86529L16.3294 8.43321H0.5V9.56716H16.3294L12.7615 13.135L13.5633 13.9369L18.5 9.00015L13.5633 4.06348Z" fill="#111827" />
-												</g>
-												<defs>
-													<clipPath>
-														<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-													</clipPath>
-												</defs>
-											</svg>
-										</Link>
-										<div className="rectangle position-absolute bottom-0 start-50 translate-middle-x" />
-									</div>
-								</SwiperSlide>
+									</SwiperSlide>
+								))}
 							</div>
 						</Swiper>
-						<div className="swiper-button-prev d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y bg-white ms-lg-7">
-							<i className="bi bi-arrow-left" />
-						</div>
-						<div className="swiper-button-next d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y bg-white">
-							<i className="bi bi-arrow-right" />
-						</div>
+						{showNavigation && (
+							<>
+								<div className="swiper-button-prev d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y ms-lg-7" style={navButtonStyle}>
+									<i className="bi bi-arrow-left" />
+								</div>
+								<div className="swiper-button-next d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y" style={navButtonStyle}>
+									<i className="bi bi-arrow-right" />
+								</div>
+							</>
+						)}
 					</div>
 				</div>
 			</section>
-
-
 		</>
 	)
 }

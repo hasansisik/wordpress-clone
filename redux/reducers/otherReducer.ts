@@ -124,6 +124,96 @@ const initialState: OtherState = {
         }
       }
     },
+    services3: {
+      badge: "What we offers",
+      badgeVisible: true,
+      badgeBackgroundColor: "#f1f0fe",
+      badgeTextColor: "#6342EC",
+      title: "The Leading <span class=\"fw-bold\">IT Solutions <br class=\"d-lg-block d-none\" /> Company</span> For You",
+      titleColor: "#111827",
+      backgroundColor: "#ffffff",
+      slideDelay: 4000,
+      slideServices: [
+        {
+          icon: "/assets/imgs/service-3/icon-1.svg",
+          title: "IT Consulting",
+          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+          iconBgColor: "bg-primary-soft",
+          link: "#"
+        },
+        {
+          icon: "/assets/imgs/service-3/icon-2.svg",
+          title: "Network Design",
+          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+          iconBgColor: "bg-primary-soft",
+          link: "#"
+        },
+        {
+          icon: "/assets/imgs/service-3/icon-3.svg",
+          title: "Software Dev",
+          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+          iconBgColor: "bg-primary-soft",
+          link: "#"
+        },
+        {
+          icon: "/assets/imgs/service-3/icon-4.svg",
+          title: "IT Training",
+          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
+          iconBgColor: "bg-primary-soft",
+          link: "#"
+        }
+      ],
+      showNavigation: true,
+      navButtonColor: "#ffffff"
+    },
+    team1: {
+      badge: "OUR TEAM MEMBERS",
+      badgeVisible: true,
+      badgeBackgroundColor: "#f1f0fe",
+      badgeTextColor: "#6342EC",
+      title: "Meet Our Team",
+      titleColor: "#111827",
+      description: "Meet the talented and passionate team members who drive our company forward every day. <br class=\"d-none d-lg-block\" /> company forward every day.",
+      descriptionColor: "#6E6E6E",
+      backgroundColor: "#ffffff",
+      bgLine: "/assets/imgs/team-1/bg-line.png",
+      showBgLine: true,
+      teamMembers: [
+        {
+          image: "/assets/imgs/team-1/avatar-1.png",
+          link: "#"
+        },
+        {
+          image: "/assets/imgs/team-1/avatar-2.png",
+          link: "#"
+        },
+        {
+          image: "/assets/imgs/team-1/avatar-3.png",
+          link: "#"
+        },
+        {
+          image: "/assets/imgs/team-1/avatar-4.png",
+          link: "#"
+        },
+        {
+          image: "/assets/imgs/team-1/avatar-5.png",
+          link: "#"
+        },
+        {
+          image: "/assets/imgs/team-1/avatar-6.png",
+          link: "#"
+        },
+        {
+          image: "/assets/imgs/team-1/avatar-7.png",
+          link: "#"
+        },
+        {
+          image: "/assets/imgs/team-1/avatar-8.png",
+          link: "#"
+        }
+      ],
+      showRotatingElements: true
+    },
     contact1: {
       badge: "İletişime Geçin",
       badgeVisible: true,

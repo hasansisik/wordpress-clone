@@ -58,7 +58,9 @@ const otherTypes = [
   { value: "blog3", label: "Blog 3" },
   { value: "blog5", label: "Blog 5" },
   { value: "services2", label: "Services 2" },
+  { value: "services3", label: "Services 3" },
   { value: "services5", label: "Services 5" },
+  { value: "team1", label: "Team 1" },
   { value: "project2", label: "Project 2" },
   { value: "contact1", label: "Contact 1" },
 ];
@@ -239,10 +241,14 @@ export default function OtherEditor() {
             <Blog5ContentForm data={data.blog5 || {}} />
           ) : activeOther === "services2" ? (
             <Services2ContentForm data={data.services2 || {}} />
+          ) : activeOther === "services3" ? (
+            <Services3ContentForm data={data.services3 || {}} />
           ) : activeOther === "services5" ? (
             <Services5ContentForm data={data.services5 || {}} />
           ) : activeOther === "project2" ? (
             <Project2ContentForm data={data.project2 || {}} />
+          ) : activeOther === "team1" ? (
+            <Team1ContentForm data={data.team1 || {}} />
           ) : (
             <Contact1ContentForm data={data.contact1 || {}} />
           )}
@@ -267,10 +273,14 @@ export default function OtherEditor() {
             <Blog5MediaForm data={data.blog5 || {}} />
           ) : activeOther === "services2" ? (
             <Services2MediaForm data={data.services2 || {}} />
+          ) : activeOther === "services3" ? (
+            <Services3MediaForm data={data.services3 || {}} />
           ) : activeOther === "services5" ? (
             <Services5MediaForm data={data.services5 || {}} />
           ) : activeOther === "project2" ? (
             <Project2MediaForm data={data.project2 || {}} />
+          ) : activeOther === "team1" ? (
+            <Team1MediaForm data={data.team1 || {}} />
           ) : (
             <Contact1MediaForm data={data.contact1 || {}} />
           )}
@@ -1194,6 +1204,518 @@ function Project2MediaForm({ data }: { data: any }) {
       <div className="text-xs text-gray-500 mb-2">
         Project images are managed from a separate source.
       </div>
+    </div>
+  );
+}
+
+// Services 3 Content Form
+function Services3ContentForm({ data }: { data: any }) {
+  const [slideServices, setSlideServices] = useState<any[]>([]);
+  const [localData, setLocalData] = useState<any>(data);
+  const dispatch = useDispatch<AppDispatch>();
+  
+  useEffect(() => {
+    // When data changes, update our local state
+    setLocalData(data);
+    if (data.slideServices && Array.isArray(data.slideServices)) {
+      // Convert any CSS class-based bg colors to hex values
+      const servicesWithHexColors = data.slideServices.map((service: any) => {
+        const updatedService = { ...service };
+        // Convert CSS class to hex color if needed
+        if (service.iconBgColor && service.iconBgColor.startsWith('bg-')) {
+          updatedService.iconBgColor = getColorFromClass(service.iconBgColor);
+        }
+        return updatedService;
+      });
+      setSlideServices(servicesWithHexColors);
+    }
+  }, [data]);
+  
+  // Convert CSS class to hex color
+  const getColorFromClass = (cssClass: string): string => {
+    switch(cssClass) {
+      case 'bg-primary-soft': return '#e9e3ff';
+      case 'bg-success-soft': return '#d1f5ea';
+      case 'bg-warning-soft': return '#fff5d3';
+      case 'bg-info-soft': return '#d9f2ff';
+      case 'bg-danger-soft': return '#fee7e7';
+      case 'bg-secondary-soft': return '#e9ecef';
+      default: return '#f1f0fe';
+    }
+  };
+  
+  // Get CSS class from hex color (for display only)
+  const getClassNameForColor = (hexColor: string): string | null => {
+    const colorMap: {[key: string]: string} = {
+      '#e9e3ff': 'primary',
+      '#d1f5ea': 'success',
+      '#fff5d3': 'warning',
+      '#d9f2ff': 'info',
+      '#fee7e7': 'danger',
+      '#e9ecef': 'secondary'
+    };
+    
+    // Find the closest matching color
+    const closestColor = Object.keys(colorMap).find(key => 
+      key.toLowerCase() === hexColor.toLowerCase()
+    );
+    
+    return closestColor ? colorMap[closestColor] : null;
+  };
+  
+  // Save changes to Redux/backend
+  const saveChanges = () => {
+    dispatch(
+      updateOther({
+        services3: {
+          ...localData,
+          slideServices: slideServices
+        }
+      })
+    );
+  };
+  
+  const handleAddService = () => {
+    // Create a new service with default values
+    const newService = {
+      icon: "/assets/imgs/service-3/icon-1.svg",
+      title: "New Service",
+      description: "Service description goes here.",
+      iconBgColor: "#e9e3ff", // Primary soft color
+      link: "#"
+    };
+    
+    const updatedServices = [...slideServices, newService];
+    setSlideServices(updatedServices);
+    // Don't dispatch Redux action here, wait for saveChanges
+  };
+  
+  const handleRemoveService = (index: number) => {
+    if (slideServices.length <= 1) {
+      alert("You must keep at least one service.");
+      return;
+    }
+    
+    // Confirm before removing
+    if (confirm("Are you sure you want to remove this service?")) {
+      const updatedServices = [...slideServices];
+      updatedServices.splice(index, 1);
+      setSlideServices(updatedServices);
+      // Don't dispatch Redux action here, wait for saveChanges
+    }
+  };
+  
+  const handleUpdateService = (index: number, field: string, value: any) => {
+    const updatedServices = [...slideServices];
+    updatedServices[index] = {
+      ...updatedServices[index],
+      [field]: value
+    };
+    setSlideServices(updatedServices);
+  };
+  
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Badge">
+        <ToggleField
+          label="Show Badge"
+          value={localData?.badgeVisible !== false}
+          path="services3.badgeVisible"
+        />
+        <TextField
+          label="Badge Text"
+          value={localData?.badge || ""}
+          path="services3.badge"
+          placeholder="e.g. What we offers"
+        />
+        <ColorField
+          label="Badge Background Color"
+          value={localData?.badgeBackgroundColor || "#f1f0fe"}
+          path="services3.badgeBackgroundColor"
+        />
+        <ColorField
+          label="Badge Text Color"
+          value={localData?.badgeTextColor || "#6342EC"}
+          path="services3.badgeTextColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Title & Background">
+        <TextAreaField
+          label="Title"
+          value={localData?.title || ""}
+          path="services3.title"
+          placeholder="Enter title with HTML formatting if needed"
+        />
+        <ColorField
+          label="Title Color"
+          value={localData?.titleColor || "#111827"}
+          path="services3.titleColor"
+        />
+        <ColorField
+          label="Background Color"
+          value={localData?.backgroundColor || "#ffffff"}
+          path="services3.backgroundColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Slider Settings">
+        <TextField
+          label="Slide Delay (ms)"
+          value={localData?.slideDelay?.toString() || "4000"}
+          path="services3.slideDelay"
+          placeholder="Delay between slides in milliseconds"
+        />
+        <ToggleField
+          label="Show Navigation Buttons"
+          value={localData?.showNavigation !== false}
+          path="services3.showNavigation"
+        />
+        <ColorField
+          label="Navigation Button Color"
+          value={localData?.navButtonColor || "#ffffff"}
+          path="services3.navButtonColor"
+        />
+        
+        <div className="mt-4 flex justify-between">
+          <button 
+            type="button"
+            onClick={saveChanges}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none"
+          >
+            Save Changes
+          </button>
+        </div>
+      </FormGroup>
+
+      <FormGroup title="Service Cards">
+        {slideServices.map((service, index) => (
+          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4 border border-gray-200">
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-xs font-medium text-gray-700">
+                Service {index + 1}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemoveService(index)}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+            <TextField
+              label="Title"
+              value={service.title || ""}
+              path={`services3.slideServices.${index}.title`}
+              placeholder="e.g. IT Consulting"
+            />
+            <TextAreaField
+              label="Description"
+              value={service.description || ""}
+              path={`services3.slideServices.${index}.description`}
+              placeholder="Enter service description"
+            />
+            <ColorField
+              label="Icon Background Color"
+              value={service.iconBgColor || "#f1f0fe"}
+              path={`services3.slideServices.${index}.iconBgColor`}
+            />
+
+            <ImageUploadField
+              label="Icon"
+              value={service.icon || ""}
+              path={`services3.slideServices.${index}.icon`}
+              placeholder="Service icon path"
+            />
+            <LinkField
+              label="Link URL"
+              value={service.link || ""}
+              path={`services3.slideServices.${index}.link`}
+              placeholder="e.g. /services/consulting"
+            />
+          </div>
+        ))}
+        
+        <div className="mt-4 flex justify-between">
+          <button
+            type="button"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none"
+            onClick={handleAddService}
+          >
+            Add Service
+          </button>
+          {slideServices.length > 1 && (
+            <button
+              type="button"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none"
+              onClick={() => handleRemoveService(slideServices.length - 1)}
+            >
+              Remove Last Service
+            </button>
+          )}
+        </div>
+      </FormGroup>
+    </div>
+  );
+}
+
+// Team 1 Content Form
+function Team1ContentForm({ data }: { data: any }) {
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [localData, setLocalData] = useState<any>(data);
+  const dispatch = useDispatch<AppDispatch>();
+  
+  useEffect(() => {
+    // When data changes, update our local state
+    setLocalData(data);
+    if (data.teamMembers && Array.isArray(data.teamMembers)) {
+      setTeamMembers([...data.teamMembers]);
+    }
+  }, [data]);
+  
+  // Handle local state changes
+  const handleLocalDataChange = (field: string, value: any) => {
+    setLocalData((prev: any) => {
+      return { ...prev, [field]: value };
+    });
+  };
+  
+  // Save changes to Redux/backend
+  const saveChanges = () => {
+    dispatch(
+      updateOther({
+        team1: {
+          ...localData,
+          teamMembers: teamMembers
+        }
+      })
+    );
+  };
+  
+  const handleAddTeamMember = () => {
+    // Create a new team member with default values
+    const newMember = {
+      image: "/assets/imgs/team-1/avatar-1.png",
+      link: "#"
+    };
+    
+    const updatedMembers = [...teamMembers, newMember];
+    setTeamMembers(updatedMembers);
+    
+    // Dispatch the add team member action
+    dispatch(
+      updateOther({
+        team1: {
+          teamMembers: updatedMembers
+        }
+      })
+    );
+  };
+  
+  const handleRemoveTeamMember = (index: number) => {
+    if (teamMembers.length <= 1) {
+      alert("You must keep at least one team member.");
+      return;
+    }
+    
+    // Confirm before removing
+    if (confirm("Are you sure you want to remove this team member?")) {
+      const updatedMembers = [...teamMembers];
+      updatedMembers.splice(index, 1);
+      setTeamMembers(updatedMembers);
+      
+      // Dispatch the remove team member action
+      dispatch(
+        updateOther({
+          team1: {
+            teamMembers: updatedMembers
+          }
+        })
+      );
+    }
+  };
+  
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Badge">
+        <ToggleField
+          label="Show Badge"
+          value={localData?.badgeVisible !== false}
+          path="team1.badgeVisible"
+        />
+        <TextField
+          label="Badge Text"
+          value={localData?.badge || ""}
+          path="team1.badge"
+          placeholder="e.g. OUR TEAM MEMBERS"
+        />
+        <ColorField
+          label="Badge Background Color"
+          value={localData?.badgeBackgroundColor || "#f1f0fe"}
+          path="team1.badgeBackgroundColor"
+        />
+        <ColorField
+          label="Badge Text Color"
+          value={localData?.badgeTextColor || "#6342EC"}
+          path="team1.badgeTextColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Title & Description">
+        <TextField
+          label="Title"
+          value={localData?.title || ""}
+          path="team1.title"
+          placeholder="e.g. Meet Our Team"
+        />
+        <ColorField
+          label="Title Color"
+          value={localData?.titleColor || "#111827"}
+          path="team1.titleColor"
+        />
+        <TextAreaField
+          label="Description"
+          value={localData?.description || ""}
+          path="team1.description"
+          placeholder="Enter description with HTML formatting if needed"
+        />
+        <ColorField
+          label="Description Color"
+          value={localData?.descriptionColor || "#6E6E6E"}
+          path="team1.descriptionColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Background Settings">
+        <ColorField
+          label="Background Color"
+          value={localData?.backgroundColor || "#ffffff"}
+          path="team1.backgroundColor"
+        />
+        <ToggleField
+          label="Show Background Line"
+          value={localData?.showBgLine !== false}
+          path="team1.showBgLine"
+        />
+        <ImageUploadField
+          label="Background Line Image"
+          value={localData?.bgLine || ""}
+          path="team1.bgLine"
+        />
+        <ToggleField
+          label="Show Rotating Elements"
+          value={localData?.showRotatingElements !== false}
+          path="team1.showRotatingElements"
+        />
+        
+        <div className="mt-4 flex justify-between">
+          <button 
+            type="button"
+            onClick={saveChanges}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none"
+          >
+            Save Changes
+          </button>
+        </div>
+      </FormGroup>
+
+      <FormGroup title="Team Members">
+        {teamMembers.map((member, index) => (
+          <div key={index} className="p-3 bg-sidebar rounded-md space-y-3 mb-4 border border-gray-200">
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-xs font-medium text-gray-700">
+                Team Member {index + 1}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemoveTeamMember(index)}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+            <div className="mb-3">
+              <ImageUploadField
+                label="Photo"
+                value={member.image || ""}
+                path={`team1.teamMembers.${index}.image`}
+                placeholder="Team member photo path"
+              />
+            </div>
+            <div className="mb-3">
+              <LinkField
+                label="Profile Link"
+                value={member.link || ""}
+                path={`team1.teamMembers.${index}.link`}
+                placeholder="e.g. /team/john-doe"
+              />
+            </div>
+          </div>
+        ))}
+        
+        <div className="mt-4 flex justify-between">
+          <button
+            type="button"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none"
+            onClick={handleAddTeamMember}
+          >
+            Add Team Member
+          </button>
+          {teamMembers.length > 1 && (
+            <button
+              type="button"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none"
+              onClick={() => handleRemoveTeamMember(teamMembers.length - 1)}
+            >
+              Remove Last Member
+            </button>
+          )}
+        </div>
+      </FormGroup>
+    </div>
+  );
+}
+
+// Services 3 Media Form
+function Services3MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Service Icons">
+        {(data?.slideServices || []).map((service: any, index: number) => (
+          <div key={index} className="mb-3">
+            <ImageUploadField
+              label={`Service ${index + 1} Icon`}
+              value={service.icon || ""}
+              path={`services3.slideServices.${index}.icon`}
+            />
+          </div>
+        ))}
+      </FormGroup>
+    </div>
+  );
+}
+
+// Team 1 Media Form
+function Team1MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <ImageUploadField
+        label="Background Line Image"
+        value={data?.bgLine || ""}
+        path="team1.bgLine"
+      />
+      
+      <FormGroup title="Team Member Photos">
+        {(data?.teamMembers || []).map((member: any, index: number) => (
+          <div key={index} className="mb-3">
+            <ImageUploadField
+              label={`Team Member ${index + 1} Photo`}
+              value={member.image || ""}
+              path={`team1.teamMembers.${index}.image`}
+            />
+          </div>
+        ))}
+      </FormGroup>
     </div>
   );
 }
