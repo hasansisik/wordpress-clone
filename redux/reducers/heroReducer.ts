@@ -69,6 +69,48 @@ const initialState: HeroState = {
         }
       }
     },
+    hero2: {
+      autoplay: true,
+      slideDelay: 4000,
+      showNavigation: true,
+      navigationButtonColor: "#ffffff",
+      paginationVisible: true,
+      videoId: "gXFATcwrO-U",
+      badgeBackgroundColor: "rgba(255, 255, 255, 0.5)",
+      badgeTextColor: "#6342EC",
+      badgeBorderColor: "rgba(99, 66, 236, 0.3)",
+      titleColor: "#111827",
+      descriptionColor: "#4B5563",
+      primaryButtonBackgroundColor: "linear-gradient(90deg, #6342EC 0%, #4731D8 100%)",
+      primaryButtonTextColor: "#FFFFFF",
+      videoButtonBackgroundColor: "rgba(255, 255, 255, 0.3)",
+      videoButtonTextColor: "#111827",
+      videoButtonIconColor: "#111827",
+      slides: [
+        {
+          backgroundImage: "/assets/imgs/hero-5/img-bg-1.png",
+          badge: "🚀 Welcome to Infinia",
+          title: "Best Solutions for Innovation",
+          description: "Infinia offers full range of consultancy training methods for business consultation.",
+          primaryButtonText: "View Our Services",
+          primaryButtonLink: "#",
+          videoButtonVisible: true,
+          videoButtonText: "Video Guide",
+          lineImage: "/assets/imgs/hero-5/img-bg-line.png"
+        },
+        {
+          backgroundImage: "/assets/imgs/hero-5/img-bg-2.png",
+          badge: "🚀 Welcome to Infinia",
+          title: "Best Solutions for Innovation",
+          description: "Infinia offers full range of consultancy training methods for business consultation.",
+          primaryButtonText: "View Our Services",
+          primaryButtonLink: "#",
+          videoButtonVisible: true,
+          videoButtonText: "Video Guide",
+          lineImage: "/assets/imgs/hero-5/img-bg-line.png"
+        }
+      ]
+    },
     hero3: {
       badge: {
         visible: true,

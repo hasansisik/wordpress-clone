@@ -296,57 +296,105 @@ export const EditorProvider = ({
     }
   };
 
-  // Save changes to API
+  // Function to save changes to API
   const saveChangesToAPI = async (data: any) => {
     try {
-      setIsLoading(true);
+      if (!data) return;
 
-      // If a custom saveHandler is provided, use it
+      // Use custom save handler if provided, otherwise use default API endpoint
       if (saveHandler) {
         const result = await saveHandler(data);
         if (result.success) {
-          // Update saved data to match current data
-          setSavedData({...data});
-          showSuccessAlert(`${sectionType} changes saved successfully!`);
+          showSuccessAlert(`${sectionType.charAt(0).toUpperCase() + sectionType.slice(1)} updated successfully!`);
+          
+          // If we're saving Hero2 slides, make sure we update the preview too
+          if (data.hero2 && data.hero2.slides) {
+            setSavedData({...sectionData});
+            setTimeout(() => {
+              updateIframeContent();
+            }, 100);
+          }
         } else {
-          throw new Error(result.error || 'Failed to save changes');
+          showErrorAlert(result.error || `Failed to update ${sectionType}.`);
         }
         return;
       }
 
-      // Default API saving behavior
+      // Default behavior using API endpoint
       const response = await fetch(apiEndpoint, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
-        cache: 'no-store'
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save changes');
+      if (response.ok) {
+        showSuccessAlert(`${sectionType.charAt(0).toUpperCase() + sectionType.slice(1)} updated successfully!`);
+        
+        // If we're saving Hero2 slides, make sure we update the preview too
+        if (data.hero2 && data.hero2.slides) {
+          setSavedData({...sectionData});
+          setTimeout(() => {
+            updateIframeContent();
+          }, 100);
+        }
+      } else {
+        const errorText = await response.text();
+        console.error(`API Error:`, errorText);
+        showErrorAlert(`Failed to update ${sectionType}. Please try again.`);
       }
-
-      // Get the response data
-      const result = await response.json();
-      
-      // Update saved data to match current data
-      setSavedData({...data});
-      
-      showSuccessAlert(`${sectionType} changes saved successfully!`);
-    } catch (error: any) {
-      console.error(`Error saving ${sectionType} changes:`, error);
-      showErrorAlert(`Error saving changes: ${error.message}`);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      console.error(`Error saving ${sectionType} data:`, error);
+      showErrorAlert(`An error occurred while saving. Please check your connection.`);
     }
   };
 
   // Inside the EditorProvider component, update the updateData method
   const updateData = (path: string, value: string | boolean | number) => {
-    setSectionData((prevData) => updateDataInObject(prevData, path, value));
+    if (!path) return;
+
+    try {
+      const updatedData = { ...sectionData };
+      const pathArray = path.split('.');
+
+      // Handle array paths like 'hero2.slides.0.title'
+      let current = updatedData;
+      for (let i = 0; i < pathArray.length - 1; i++) {
+        const key = pathArray[i];
+        
+        // Handle array indices
+        if (i < pathArray.length - 2 && !isNaN(Number(pathArray[i + 1]))) {
+          // We have an array index coming next
+          if (!current[key]) {
+            current[key] = [];
+          } else if (!Array.isArray(current[key])) {
+            current[key] = [];
+          }
+        } 
+        // Create object if it doesn't exist
+        else if (!current[key]) {
+          current[key] = {};
+        }
+        
+        current = current[key];
+      }
+
+      const lastKey = pathArray[pathArray.length - 1];
+      current[lastKey] = value;
+
+      setSectionData(updatedData);
+      
+      // If this is a change to the slides array, immediately update the preview
+      if (pathArray.length >= 3 && pathArray[0] === 'hero2' && pathArray[1] === 'slides') {
+        setSavedData({...updatedData});
+        setTimeout(() => {
+          updateIframeContent();
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error updating data:', error);
+    }
   };
 
   // Create context value

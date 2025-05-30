@@ -61,6 +61,35 @@ export interface HeroPayload {
       };
     };
   };
+  hero2?: {
+    autoplay?: boolean;
+    slideDelay?: number;
+    showNavigation?: boolean;
+    navigationButtonColor?: string;
+    paginationVisible?: boolean;
+    videoId?: string;
+    badgeBackgroundColor?: string;
+    badgeTextColor?: string;
+    badgeBorderColor?: string;
+    titleColor?: string;
+    descriptionColor?: string;
+    primaryButtonBackgroundColor?: string;
+    primaryButtonTextColor?: string;
+    videoButtonBackgroundColor?: string;
+    videoButtonTextColor?: string;
+    videoButtonIconColor?: string;
+    slides?: Array<{
+      backgroundImage?: string;
+      badge?: string;
+      title?: string;
+      description?: string;
+      primaryButtonText?: string;
+      primaryButtonLink?: string;
+      videoButtonVisible?: boolean;
+      videoButtonText?: string;
+      lineImage?: string;
+    }>;
+  };
   hero3?: {
     badge?: {
       visible?: boolean;

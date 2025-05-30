@@ -1,14 +1,16 @@
 import { Suspense } from "react";
 import { server } from "@/config";
 import Hero1 from "@/components/sections/Hero1";
+import Hero2 from "@/components/sections/Hero2";
 import Cta4 from "@/components/sections/Cta4";
-import Services2 from "@/components/sections/Services2";
 import Faqs1 from "@/components/sections/Faqs1";
 import Faqs2 from "@/components/sections/Faqs2";
 import Faqs3 from "@/components/sections/Faqs3";
 import Hero3 from "@/components/sections/Hero3";
 import Cta1 from "@/components/sections/Cta1";
 import Cta3 from "@/components/sections/Cta3";
+import Services2 from "@/components/sections/Services2";
+import Services3 from "@/components/sections/Services3";
 import Services5 from "@/components/sections/Services5";
 import Contact1 from "@/components/sections/Contact1";
 import Project2 from "@/components/sections/Project2";
@@ -16,6 +18,7 @@ import Blog1 from "@/components/sections/Blog1";
 import Blog2 from "@/components/sections/Blog2";
 import Blog3 from "@/components/sections/Blog3";
 import Blog5 from "@/components/sections/Blog5";
+import Team1 from "@/components/sections/Team1";  
 import Features1 from "@/components/sections/Features1";
 import Features4 from "@/components/sections/Features4";
 import Features5 from "@/components/sections/Features5";
@@ -33,11 +36,13 @@ interface Section {
 // Map section types to components
 const sectionComponents = {
   Hero1,
+  Hero2,
   Hero3,
   Cta1,
   Cta4,
   Cta3,
   Services2,
+  Services3,
   Services5,
   Faqs1,
   Faqs2,
@@ -48,6 +53,7 @@ const sectionComponents = {
   Blog2,
   Blog3,
   Blog5,
+  Team1,
   Features1,
   Features4,
   Features5,

@@ -86,6 +86,13 @@ const availableSections = [
     icon: Home
   },
   { 
+    id: "hero2", 
+    name: "Hero 2", 
+    type: "Hero2",
+    description: "Main hero with floating card and shapes",
+    icon: Home
+  },
+  { 
     id: "hero3", 
     name: "Hero 3", 
     type: "Hero3",
@@ -117,6 +124,13 @@ const availableSections = [
     id: "services2", 
     name: "Services 2", 
     type: "Services2",
+    description: "Services grid with icons",
+    icon: Briefcase
+  },
+  { 
+    id: "services3", 
+    name: "Services 3", 
+    type: "Services3",
     description: "Services grid with icons",
     icon: Briefcase
   },
@@ -188,6 +202,13 @@ const availableSections = [
     name: "Blog 5",
     type: "Blog5",
     description: "Blog grid with images",
+    icon: Layout
+  },
+  { 
+    id: "team1",
+    name: "Team 1",
+    type: "Team1",
+    description: "Team grid with images",
     icon: Layout
   },
   { 

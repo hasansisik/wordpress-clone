@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Hero1 from "@/components/sections/Hero1";
+import Hero2 from "@/components/sections/Hero2";
 import Hero3 from "@/components/sections/Hero3";
 import Script from "next/script";
 
@@ -261,6 +262,8 @@ export default function HeroPreview() {
     switch (activeComponent) {
       case "hero1":
         return <Hero1 previewData={heroData} />;
+      case "hero2":
+        return <Hero2 previewData={heroData} />;
       case "hero3":
         return <Hero3 previewData={heroData} />;
       default:

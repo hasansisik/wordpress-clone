@@ -30,6 +30,7 @@ import { AppDispatch } from "@/redux/store";
 // Hero type options
 const heroTypes = [
   { value: "hero1", label: "Hero 1" },
+  { value: "hero2", label: "Hero 2" },
   { value: "hero3", label: "Hero 3" },
 ];
 
@@ -189,6 +190,8 @@ export default function HeroEditor() {
         <TabsContent value="content" className="m-0 p-3 border-t">
           {activeHero === "hero1" ? (
             <Hero1ContentForm data={data.hero1 || {}} />
+          ) : activeHero === "hero2" ? (
+            <Hero2ContentForm data={data.hero2 || {}} />
           ) : (
             <Hero3ContentForm data={data.hero3 || {}} />
           )}
@@ -205,6 +208,8 @@ export default function HeroEditor() {
         <TabsContent value="media" className="m-0 p-3 border-t">
           {activeHero === "hero1" ? (
             <Hero1MediaForm data={data.hero1 || {}} />
+          ) : activeHero === "hero2" ? (
+            <Hero2MediaForm data={data.hero2 || {}} />
           ) : (
             <Hero3MediaForm data={data.hero3 || {}} />
           )}
@@ -733,6 +738,365 @@ function Hero3MediaForm({ data }: { data: any }) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Hero 2 Content Form
+function Hero2ContentForm({ data }: { data: any }) {
+  const [slides, setSlides] = useState<any[]>([]);
+  const [localData, setLocalData] = useState<any>(data);
+  const dispatch = useDispatch<AppDispatch>();
+  const { hero, loading } = useSelector((state: RootState) => state.hero);
+
+  // Sync with Redux state
+  useEffect(() => {
+    if (hero && hero.hero2) {
+      // Only update if the slide structure has changed
+      if (
+        hero.hero2.slides &&
+        JSON.stringify(slides) !== JSON.stringify(hero.hero2.slides)
+      ) {
+        setSlides([...hero.hero2.slides]);
+      }
+
+      // Update other localData fields
+      setLocalData((prevData) => ({
+        ...prevData,
+        ...hero.hero2,
+        // Don't overwrite slides in localData to avoid UI flickering
+        slides: prevData.slides,
+      }));
+    }
+  }, [hero]);
+
+  // Initial data load
+  useEffect(() => {
+    // When data changes, update our local state
+    setLocalData(data);
+    if (data.slides && Array.isArray(data.slides)) {
+      setSlides([...data.slides]);
+    }
+  }, [data]);
+
+  // Save changes to Redux/backend
+  const saveChanges = () => {
+    // Create a new payload with the current local state and slides
+    const payload = {
+      hero2: {
+        ...localData,
+        slides: slides,
+      },
+    };
+
+    // Dispatch the update action
+    dispatch(updateHero(payload));
+  };
+
+  const handleAddSlide = () => {
+    // Create a new slide with default values
+    const newSlide = {
+      backgroundImage: "/assets/imgs/hero-5/img-bg-1.png",
+      badge: "🚀 Welcome to Infinia",
+      title: "New Slide Title",
+      description: "Add your slide description here.",
+      primaryButtonText: "View Services",
+      primaryButtonLink: "#",
+      videoButtonVisible: true,
+      videoButtonText: "Video Guide",
+      lineImage: "/assets/imgs/hero-5/img-bg-line.png",
+    };
+
+    const updatedSlides = [...slides, newSlide];
+    setSlides(updatedSlides);
+
+    // Immediately save changes to backend after adding
+    setTimeout(() => {
+      dispatch(
+        updateHero({
+          hero2: {
+            ...localData,
+            slides: updatedSlides,
+          },
+        })
+      );
+    }, 100);
+  };
+
+  const handleRemoveSlide = (index: number) => {
+    if (slides.length <= 1) {
+      alert("You must keep at least one slide.");
+      return;
+    }
+
+    // Confirm before removing
+    if (confirm("Are you sure you want to remove this slide?")) {
+      const updatedSlides = [...slides];
+      updatedSlides.splice(index, 1);
+      setSlides(updatedSlides);
+
+      // Immediately save changes to backend after removing
+      setTimeout(() => {
+        dispatch(
+          updateHero({
+            hero2: {
+              ...localData,
+              slides: updatedSlides,
+            },
+          })
+        );
+      }, 100);
+    }
+  };
+
+  const handleUpdateSlide = (index: number, field: string, value: any) => {
+    const updatedSlides = [...slides];
+    updatedSlides[index] = {
+      ...updatedSlides[index],
+      [field]: value,
+    };
+    setSlides(updatedSlides);
+
+    // Don't save immediately to avoid too many API calls
+    // Changes will be saved when user clicks Save Changes button
+  };
+
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Slider Settings">
+        <ToggleField
+          label="Autoplay"
+          value={localData?.autoplay !== false}
+          path="hero2.autoplay"
+        />
+        <TextField
+          label="Slide Delay (ms)"
+          value={localData?.slideDelay?.toString() || "4000"}
+          path="hero2.slideDelay"
+          placeholder="Delay between slides in milliseconds"
+        />
+        <ToggleField
+          label="Show Navigation Buttons"
+          value={localData?.showNavigation !== false}
+          path="hero2.showNavigation"
+        />
+        <ColorField
+          label="Navigation Button Color"
+          value={localData?.navigationButtonColor || "#ffffff"}
+          path="hero2.navigationButtonColor"
+        />
+        <ToggleField
+          label="Show Pagination"
+          value={localData?.paginationVisible !== false}
+          path="hero2.paginationVisible"
+        />
+      </FormGroup>
+
+      <FormGroup title="Video Settings">
+        <TextField
+          label="YouTube Video ID"
+          value={localData?.videoId || ""}
+          path="hero2.videoId"
+          placeholder="e.g. gXFATcwrO-U"
+        />
+      </FormGroup>
+
+      <FormGroup title="Global Style Settings">
+        <ColorField
+          label="Badge Background Color"
+          value={localData?.badgeBackgroundColor || "rgba(255, 255, 255, 0.5)"}
+          path="hero2.badgeBackgroundColor"
+        />
+        <ColorField
+          label="Badge Text Color"
+          value={localData?.badgeTextColor || "#6342EC"}
+          path="hero2.badgeTextColor"
+        />
+        <ColorField
+          label="Badge Border Color"
+          value={localData?.badgeBorderColor || "rgba(99, 66, 236, 0.3)"}
+          path="hero2.badgeBorderColor"
+        />
+        <ColorField
+          label="Title Color"
+          value={localData?.titleColor || "#111827"}
+          path="hero2.titleColor"
+        />
+        <ColorField
+          label="Description Color"
+          value={localData?.descriptionColor || "#4B5563"}
+          path="hero2.descriptionColor"
+        />
+        <ColorField
+          label="Primary Button Background"
+          value={
+            localData?.primaryButtonBackgroundColor ||
+            "linear-gradient(90deg, #6342EC 0%, #4731D8 100%)"
+          }
+          path="hero2.primaryButtonBackgroundColor"
+        />
+        <ColorField
+          label="Primary Button Text Color"
+          value={localData?.primaryButtonTextColor || "#FFFFFF"}
+          path="hero2.primaryButtonTextColor"
+        />
+        <ColorField
+          label="Video Button Background"
+          value={
+            localData?.videoButtonBackgroundColor || "rgba(255, 255, 255, 0.3)"
+          }
+          path="hero2.videoButtonBackgroundColor"
+        />
+        <ColorField
+          label="Video Button Text Color"
+          value={localData?.videoButtonTextColor || "#111827"}
+          path="hero2.videoButtonTextColor"
+        />
+        <ColorField
+          label="Video Button Icon Color"
+          value={localData?.videoButtonIconColor || "#111827"}
+          path="hero2.videoButtonIconColor"
+        />
+
+        <div className="mt-4 flex justify-between">
+          <button
+            type="button"
+            onClick={saveChanges}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none"
+          >
+            Save Changes
+          </button>
+        </div>
+      </FormGroup>
+
+      <FormGroup title="Slides">
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className="p-3 bg-sidebar rounded-md space-y-3 mb-4 border border-gray-200"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-xs font-medium text-gray-700">
+                Slide {index + 1}
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemoveSlide(index)}
+                className="text-xs text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+
+            <TextField
+              label="Badge Text"
+              value={slide.badge || ""}
+              path={`hero2.slides.${index}.badge`}
+              placeholder="e.g. Welcome to Infinia"
+            />
+
+            <TextField
+              label="Title"
+              value={slide.title || ""}
+              path={`hero2.slides.${index}.title`}
+              placeholder="e.g. Best Solutions for Innovation"
+            />
+
+            <TextAreaField
+              label="Description"
+              value={slide.description || ""}
+              path={`hero2.slides.${index}.description`}
+              placeholder="Enter slide description"
+            />
+
+            <FormGroup title="Primary Button" className="ml-4 mt-2">
+              <TextField
+                label="Button Text"
+                value={slide.primaryButtonText || ""}
+                path={`hero2.slides.${index}.primaryButtonText`}
+                placeholder="e.g. View Our Services"
+              />
+              <LinkField
+                label="Button Link"
+                value={slide.primaryButtonLink || ""}
+                path={`hero2.slides.${index}.primaryButtonLink`}
+                placeholder="e.g. /services"
+              />
+            </FormGroup>
+
+            <FormGroup title="Video Button" className="ml-4 mt-2">
+              <ToggleField
+                label="Show Video Button"
+                value={slide.videoButtonVisible !== false}
+                path={`hero2.slides.${index}.videoButtonVisible`}
+              />
+              <TextField
+                label="Button Text"
+                value={slide.videoButtonText || ""}
+                path={`hero2.slides.${index}.videoButtonText`}
+                placeholder="e.g. Video Guide"
+              />
+            </FormGroup>
+
+            <div className="mt-3">
+              <ImageUploadField
+                label="Background Image"
+                value={slide.backgroundImage || ""}
+                path={`hero2.slides.${index}.backgroundImage`}
+              />
+            </div>
+
+           
+          </div>
+        ))}
+
+        <div className="mt-4 flex justify-between">
+          <button
+            type="button"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none"
+            onClick={handleAddSlide}
+          >
+            Add Slide
+          </button>
+          {slides.length > 1 && (
+            <button
+              type="button"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none"
+              onClick={() => handleRemoveSlide(slides.length - 1)}
+            >
+              Remove Last Slide
+            </button>
+          )}
+        </div>
+      </FormGroup>
+    </div>
+  );
+}
+
+// Hero 2 Media Form
+function Hero2MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Slides Media">
+        {(data?.slides || []).map((slide: any, index: number) => (
+          <div key={index} className="mb-4 p-3 bg-sidebar rounded-md">
+            <div className="text-xs font-medium text-gray-700 mb-2">
+              Slide {index + 1}
+            </div>
+            <ImageUploadField
+              label="Background Image"
+              value={slide.backgroundImage || ""}
+              path={`hero2.slides.${index}.backgroundImage`}
+            />
+            <ImageUploadField
+              label="Line Image"
+              value={slide.lineImage || ""}
+              path={`hero2.slides.${index}.lineImage`}
+              className="mt-3"
+            />
+          </div>
+        ))}
+      </FormGroup>
     </div>
   );
 }
