@@ -43,6 +43,66 @@ export default function Features1({ previewData }: Features1Props = {}) {
 		setOpen(true)
 	}
 
+	// Image style constraints
+	const getImageStyle = (index: number) => {
+		// Base style for all images
+		const baseStyle: React.CSSProperties = {
+			height: 'auto',
+			objectFit: 'cover'
+		};
+		
+		// Different constraints based on image position
+		switch(index) {
+			// First image (smallest)
+			case 1:
+				return {
+					...baseStyle,
+					maxWidth: '172px',
+					maxHeight: '120px'
+				};
+			// Second image (medium)
+			case 2:
+				return {
+					...baseStyle,
+					maxWidth: '242px',
+					maxHeight: '168px'
+				};
+			// Third image (largest)
+			case 3:
+				return {
+					...baseStyle,
+					maxWidth: '372px',
+					maxHeight: '258px'
+				};
+			// Default
+			default:
+				return baseStyle;
+		}
+	};
+
+	// Background and decoration image styles
+	const bgEllipseStyle = {
+		maxWidth: '762px',
+		height: 'auto',
+		maxHeight: '530px'
+	};
+
+	const starLgStyle = {
+		width: '59px',
+		height: '71px'
+	};
+
+	const starMdStyle = {
+		width: '45px',
+		height: '54px'
+	};
+
+	// Feature icon style
+	const featureIconStyle = {
+		maxWidth: '100%',
+		height: 'auto'
+	};
+
 	return (
 		<>
 			<section className="features-1 section-padding">
@@ -82,10 +142,20 @@ export default function Features1({ previewData }: Features1Props = {}) {
 						<div className="col-lg-8">
 							<div className="d-flex flex-md-row flex-column align-items-center position-relative ps-lg-8 pt-lg-0 pt-10">
 								<div className="pe-md-3 pb-3 pb-md-0 position-relative z-1" data-aos="fade-zoom-in" data-aos-delay={100}>
-									<img className="rounded-3 border border-3 border-white" src={data.images?.img1 || "/assets/imgs/features-1/img-1.png"} alt="infinia" />
+									<img 
+										className="rounded-3 border border-3 border-white" 
+										src={data.images?.img1 || "/assets/imgs/features-1/img-1.png"} 
+										alt="infinia" 
+										style={getImageStyle(1)}
+									/>
 								</div>
 								<div className="pe-md-3 pb-3 pb-md-0 position-relative z-1" data-aos="fade-zoom-in" data-aos-delay={200}>
-									<img className="rounded-3 border border-3 border-white" src={data.images?.img2 || "/assets/imgs/features-1/img-2.png"} alt="infinia" />
+									<img 
+										className="rounded-3 border border-3 border-white" 
+										src={data.images?.img2 || "/assets/imgs/features-1/img-2.png"} 
+										alt="infinia" 
+										style={getImageStyle(2)}
+									/>
 								</div>
 								<div className="pe-md-3 pb-3 pb-md-0 position-relative z-1" data-aos="fade-zoom-in" data-aos-delay={300}>
 									<img 
@@ -93,6 +163,7 @@ export default function Features1({ previewData }: Features1Props = {}) {
 										src={data.images?.img3 || "/assets/imgs/features-1/img-3.png"} 
 										alt="infinia"
 										onClick={handleVideoClick}
+										style={getImageStyle(3)}
 									/>
 									
 									<ModalVideo 
@@ -102,9 +173,24 @@ export default function Features1({ previewData }: Features1Props = {}) {
 										onClose={() => setOpen(false)} 
 									/>
 								</div>
-								<img className="position-absolute top-50 start-0 translate-middle-y z-0" src={data.images?.bgEllipse || "/assets/imgs/features-1/bg-ellipse.png"} alt="infinia" />
-								<img className="position-absolute z-2 star-lg" src={data.images?.starLg || "/assets/imgs/features-1/star-lg.png"} alt="infinia" />
-								<img className="position-absolute z-2 star-md" src={data.images?.starMd || "/assets/imgs/features-1/star-md.png"} alt="infinia" />
+								<img 
+									className="position-absolute top-50 start-0 translate-middle-y z-0" 
+									src={data.images?.bgEllipse || "/assets/imgs/features-1/bg-ellipse.png"} 
+									alt="infinia" 
+									style={bgEllipseStyle}
+								/>
+								<img 
+									className="position-absolute z-2 star-lg" 
+									src={data.images?.starLg || "/assets/imgs/features-1/star-lg.png"} 
+									alt="infinia" 
+									style={starLgStyle}
+								/>
+								<img 
+									className="position-absolute z-2 star-md" 
+									src={data.images?.starMd || "/assets/imgs/features-1/star-md.png"} 
+									alt="infinia" 
+									style={starMdStyle}
+								/>
 							</div>
 						</div>
 					</div>
@@ -126,7 +212,11 @@ export default function Features1({ previewData }: Features1Props = {}) {
 										}}
 									>
 										<div className="icon">
-											<img src={feature.icon || `/assets/imgs/features-1/icon-${index + 1}.svg`} alt="infinia" />
+											<img 
+												src={feature.icon || `/assets/imgs/features-1/icon-${index + 1}.svg`} 
+												alt="infinia" 
+												style={featureIconStyle}
+											/>
 										</div>
 									</div>
 									<h6 style={{ color: feature.titleColor || '' }}>{feature.title}</h6>

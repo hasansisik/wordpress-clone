@@ -66,6 +66,15 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 		};
 	}
 
+	// Image style constraints
+	const videoImageStyle = {
+		width: '100%',
+		height: 'auto',
+		maxWidth: '508px',
+		maxHeight: '550px',
+		objectFit: 'cover' as 'cover'
+	};
+
 	return (
 		<>
 			<section className="section-cta-4 pb-110 @@classList">
@@ -74,7 +83,12 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 						<div className="col-lg-6 text-center">
 							<div className="text-center rounded-4 position-relative d-inline-flex">
 								<div className="zoom-img rounded-4 position-relative z-1">
-									<img className="rounded-4" src={data.videoGuide.image} alt="infinia" />
+									<img 
+										className="rounded-4" 
+										src={data.videoGuide.image} 
+										alt="infinia" 
+										style={videoImageStyle}
+									/>
 									<div className="position-absolute top-50 start-50 translate-middle z-2">
 										<Link href="#" onClick={() => setOpen(true)} scroll={false} className="d-inline-flex align-items-center rounded-4 text-nowrap backdrop-filter px-3 py-2 popup-video hover-up me-3 shadow-1">
 											<span className="backdrop-filter me-2 icon-shape icon-md rounded-circle">

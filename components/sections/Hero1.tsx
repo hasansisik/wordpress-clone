@@ -112,19 +112,48 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 							</div>
 						</div>
 						<div className="col-lg-6 position-relative justify-content-center">
-							<img className="hero-img" src={data?.images?.background || ""} alt="infinia" />
+							<img 
+								className="hero-img" 
+								src={data?.images?.background || ""} 
+								alt="infinia" 
+								style={{ maxWidth: "100%", height: "auto", maxHeight: "823px" }}
+							/>
 							<div className="shape-1 position-absolute">
-								<img className="rightToLeft" src={data?.images?.shape1 || ""} alt="infinia" data-aos="zoom-in" data-aos-delay={500} />
+								<img 
+									className="rightToLeft" 
+									src={data?.images?.shape1 || ""} 
+									alt="infinia" 
+									data-aos="zoom-in" 
+									data-aos-delay={500}
+									style={{ maxWidth: "371px", height: "auto" }}
+								/>
 							</div>
 							<div className="shape-2 position-absolute d-none d-md-block">
-								<img src={data?.images?.shape2 || ""} alt="infinia" data-aos="zoom-in" data-aos-delay={200} />
+								<img 
+									src={data?.images?.shape2 || ""} 
+									alt="infinia" 
+									data-aos="zoom-in" 
+									data-aos-delay={200}
+									style={{ maxWidth: "264px", height: "auto" }}
+								/>
 							</div>
 							<div className="shape-3 position-absolute d-none d-md-block">
-								<img src={data?.images?.shape3 || ""} alt="infinia" data-aos="zoom-in" data-aos-delay={300} />
+								<img 
+									src={data?.images?.shape3 || ""} 
+									alt="infinia" 
+									data-aos="zoom-in" 
+									data-aos-delay={300}
+									style={{ maxWidth: "278px", height: "auto" }}
+								/>
 							</div>
 							{data?.card?.visible !== false && (
 								<div className="alltuchtopdown card-hero backdrop-filter rounded-3 text-center d-inline-block p-3 position-absolute" style={{backgroundColor: data?.card?.backgroundColor || ''}}>
-									<img className="rounded-3" src={data?.card?.image || ""} alt="infinia" />
+									<img 
+										className="rounded-3" 
+										src={data?.card?.image || ""} 
+										alt="infinia"
+										style={{ maxWidth: "100%", height: "auto", maxHeight: "200px" }}
+									/>
 									<h6 className="mt-3" style={{color: data?.card?.titleColor || ''}}>
 										{data?.card?.title || ""}
 									</h6>

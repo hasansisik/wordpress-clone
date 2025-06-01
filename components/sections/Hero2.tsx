@@ -165,6 +165,19 @@ export default function Hero2({ previewData }: { previewData?: any }) {
     backgroundColor: navigationButtonColor
   };
 
+  // Image style constraints
+  const backgroundImageStyle = {
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    maxHeight: '927px'
+  };
+
+  const lineImageStyle = {
+    maxWidth: '999px',
+    height: 'auto',
+    maxHeight: '720px'
+  };
+
   return (
     <>
       <div className="section-hero-5 position-relative">
@@ -178,7 +191,10 @@ export default function Hero2({ previewData }: { previewData?: any }) {
               <SwiperSlide className="swiper-slide" key={index}>
                 <div 
                   className="position-relative py-188 img-pull" 
-                  style={{ backgroundImage: `url(${slide.backgroundImage})` }}
+                  style={{ 
+                    backgroundImage: `url(${slide.backgroundImage})`,
+                    ...backgroundImageStyle
+                  }}
                 >
                   <div className="container position-relative z-2">
                     <div className="row">
@@ -270,7 +286,11 @@ export default function Hero2({ previewData }: { previewData?: any }) {
                     </div>
                   </div>
                   <div className="position-absolute top-0 start-0 z-0">
-                    <img src={slide.lineImage} alt="background line" />
+                    <img 
+                      src={slide.lineImage} 
+                      alt="background line" 
+                      style={lineImageStyle}
+                    />
                   </div>
                 </div>
               </SwiperSlide>

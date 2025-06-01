@@ -59,6 +59,49 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 		return buttonStyle;
 	}
 
+	// Image style based on image index/position
+	const getTeamImageStyle = (index: number) => {
+		// Base style for all images
+		const baseStyle: React.CSSProperties = {
+			height: 'auto',
+			objectFit: 'cover'
+		};
+		
+		// Different constraints based on image position
+		switch(index) {
+			// First and last images (smallest)
+			case 0:
+			case 4:
+				return {
+					...baseStyle,
+					maxWidth: '225px',
+					maxHeight: '157px'
+				};
+			// Second and fourth images (medium)
+			case 1:
+			case 3:
+				return {
+					...baseStyle,
+					maxWidth: '316px',
+					maxHeight: '220px'
+				};
+			// Middle/third image (largest)
+			case 2:
+				return {
+					...baseStyle,
+					maxWidth: '486px',
+					maxHeight: '337px'
+				};
+			// Default
+			default:
+				return {
+					...baseStyle,
+					maxWidth: '316px',
+					maxHeight: '220px'
+				};
+		}
+	};
+
 	return (
 		<>
 			<section className="section-testimonial-13 position-relative pt-120 pb-80 fix">
@@ -123,25 +166,55 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 					<div className="d-flex align-items-center justify-content-center position-relative">
 					{data.images && data.images.map((image: any, index: number) => (
 						<div key={index} className={`pe-3 position-relative z-1 ${index === 0 || index === 4 ? 'd-none d-md-block' : ''}`}>
-							<img className="rounded-3 border border-3 border-white" src={image.src} alt={image.alt || "Team image"} />
+							<img 
+								className="rounded-3 border border-3 border-white" 
+								src={image.src} 
+								alt={image.alt || "Team image"} 
+								style={getTeamImageStyle(index)}
+							/>
 						</div>
 					))}
 					{!data.images && (
 						<>
 						<div className="pe-3 position-relative z-1 d-none d-md-block">
-							<img className="rounded-3 border border-3 border-white" src="/assets/imgs/cta-15/img-1.png" alt="infinia" />
+							<img 
+								className="rounded-3 border border-3 border-white" 
+								src="/assets/imgs/cta-15/img-1.png" 
+								alt="infinia" 
+								style={getTeamImageStyle(0)}
+							/>
 						</div>
 						<div className="pe-3 position-relative z-1">
-							<img className="rounded-3 border border-3 border-white" src="/assets/imgs/cta-15/img-2.png" alt="infinia" />
+							<img 
+								className="rounded-3 border border-3 border-white" 
+								src="/assets/imgs/cta-15/img-2.png" 
+								alt="infinia" 
+								style={getTeamImageStyle(1)}
+							/>
 						</div>
 						<div className="pe-3 position-relative z-1">
-							<img className="rounded-3 border border-3 border-white" src="/assets/imgs/cta-15/img-3.png" alt="infinia" />
+							<img 
+								className="rounded-3 border border-3 border-white" 
+								src="/assets/imgs/cta-15/img-3.png" 
+								alt="infinia" 
+								style={getTeamImageStyle(2)}
+							/>
 						</div>
 						<div className="pe-3 position-relative z-1">
-							<img className="rounded-3 border border-3 border-white" src="/assets/imgs/cta-15/img-4.png" alt="infinia" />
+							<img 
+								className="rounded-3 border border-3 border-white" 
+								src="/assets/imgs/cta-15/img-4.png" 
+								alt="infinia" 
+								style={getTeamImageStyle(3)}
+							/>
 						</div>
 						<div className="pe-3 position-relative z-1 d-none d-md-block">
-							<img className="rounded-3 border border-3 border-white" src="/assets/imgs/cta-15/img-5.png" alt="infinia" />
+							<img 
+								className="rounded-3 border border-3 border-white" 
+								src="/assets/imgs/cta-15/img-5.png" 
+								alt="infinia" 
+								style={getTeamImageStyle(4)}
+							/>
 						</div>
 						</>
 					)}

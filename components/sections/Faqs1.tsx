@@ -58,6 +58,28 @@ export default function Faqs1({ previewData }: Faqs1Props = {}) {
 		)
 	}
 
+	// Image style constraints
+	const mainImageStyle = {
+		width: '100%',
+		height: 'auto',
+		maxWidth: '583px',
+		maxHeight: '789px',
+		objectFit: 'cover' as 'cover'
+	};
+
+	const iconImageStyle = {
+		width: '48px',
+		height: '48px',
+		objectFit: 'contain' as 'contain'
+	};
+
+	const backgroundImageStyle = {
+		width: 'auto',
+		height: 'auto',
+		maxWidth: '1377px',
+		maxHeight: '979px'
+	};
+
 	return (
 		<>
 			<section className="section-faqs-1 section-padding position-relative" key={key}>
@@ -65,11 +87,20 @@ export default function Faqs1({ previewData }: Faqs1Props = {}) {
 					<div className="row align-items-center">
 						<div className="col-lg-6">
 							<div className="text-start position-relative d-inline-block mb-lg-0 mb-5">
-								<img className="rounded-4" src={data.mainImage || "/assets/imgs/faqs-1/img-1.png"} alt="infinia" />
+								<img 
+									className="rounded-4" 
+									src={data.mainImage || "/assets/imgs/faqs-1/img-1.png"} 
+									alt="infinia" 
+									style={mainImageStyle}
+								/>
 								<div className="px-0 card-team rounded-4 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto px-5 py-8 m-5">
 									{data.supportItems && data.supportItems.map((item: any, index: number) => (
 										<div key={index} className="d-flex flex-column flex-md-row align-items-start gap-3 mb-4" data-aos="fade-zoom-in" data-aos-delay={index * 100}>
-											<img src={item.icon || `/assets/imgs/faqs-1/icon-${index + 1}.png`} alt="infinia" />
+											<img 
+												src={item.icon || `/assets/imgs/faqs-1/icon-${index + 1}.png`} 
+												alt="infinia" 
+												style={iconImageStyle}
+											/>
 											<div>
 												<h6 className="m-0">{item.title}</h6>
 												<p className="m-0">{item.description}</p>
@@ -119,7 +150,12 @@ export default function Faqs1({ previewData }: Faqs1Props = {}) {
 						</div>
 					</div>
 				</div>
-				<img className="position-absolute top-0 end-0 z-0" src={data.backgroundImage || "/assets/imgs/faqs-1/img-bg-line.png"} alt="infinia" />
+				<img 
+					className="position-absolute top-0 end-0 z-0" 
+					src={data.backgroundImage || "/assets/imgs/faqs-1/img-bg-line.png"} 
+					alt="infinia" 
+					style={backgroundImageStyle}
+				/>
 			</section>
 		</>
 	)

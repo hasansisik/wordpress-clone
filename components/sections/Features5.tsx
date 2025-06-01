@@ -41,6 +41,14 @@ export default function Features5({ previewData }: Features5Props = {}) {
 		? [...data.sections].sort((a, b) => a.position - b.position)
 		: [];
 	
+	// Image style constraints
+	const featureImageStyle = {
+		width: '100%',
+		height: 'auto',
+		maxWidth: '534px',
+		maxHeight: '446px',
+		objectFit: 'cover' as 'cover'
+	};
 		
 	return (
 		<>
@@ -79,6 +87,7 @@ export default function Features5({ previewData }: Features5Props = {}) {
 												className="rounded-4 border border-2 border-white position-relative z-1" 
 												src={section.image || `/assets/imgs/features-5/img-${index + 1}.png`} 
 												alt="infinia" 
+												style={featureImageStyle}
 											/>
 											<div className={imageOnLeft 
 												? "box-gradient-1 ms-lg-8 position-absolute bottom-0 start-0 rounded-4 z-0" 

@@ -81,6 +81,26 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 		return data.description;
 	}
 
+	// Define image style constraints
+	const avatarImageStyle = {
+		width: '57px',
+		height: '57px',
+		objectFit: 'cover' as 'cover'
+	};
+
+	const avatarIconStyle = {
+		width: '69px',
+		height: '69px',
+		objectFit: 'contain' as 'contain'
+	};
+
+	const gridImageStyle = {
+		width: '100%',
+		height: 'auto',
+		maxHeight: '333px',
+		objectFit: 'cover' as 'cover'
+	};
+
 	return (
 		<>
 			<section className="section-hero-3 position-relative fix section-padding">
@@ -108,9 +128,22 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 											avatar.visible !== false && (
 												<div key={index} className={`avt-hero ${index === 2 ? 'icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle' : ''}`}>
 													{index !== 2 ? (
-														<img className="icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle" src={avatar?.image || ""} alt={avatar?.alt || "infinia"} style={{borderColor: avatar?.borderColor || '', backgroundColor: avatar?.backgroundColor || ''}} />
+														<img 
+															className="icon-shape icon-xxl border border-5 border-white-keep bg-primary-soft rounded-circle" 
+															src={avatar?.image || ""} 
+															alt={avatar?.alt || "infinia"} 
+															style={{
+																...avatarImageStyle,
+																borderColor: avatar?.borderColor || '', 
+																backgroundColor: avatar?.backgroundColor || ''
+															}} 
+														/>
 													) : (
-														<img src={avatar?.image || "/assets/imgs/hero-3/icon.svg"} alt={avatar?.alt || "infinia"} />
+														<img 
+															src={avatar?.image || "/assets/imgs/hero-3/icon.svg"} 
+															alt={avatar?.alt || "infinia"} 
+															style={avatarIconStyle}
+														/>
 													)}
 												</div>
 											)
@@ -160,18 +193,38 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 							<div className="row">
 								<div className="col-6 align-self-end">
 									<div className="border-5 border-white border rounded-4 mb-4 d-block d-xl-none">
-										<img className="rounded-4" src={data?.images?.image4 || "/assets/imgs/hero-3/img-4.png"} alt="infinia" />
+										<img 
+											className="rounded-4" 
+											src={data?.images?.image4 || "/assets/imgs/hero-3/img-4.png"} 
+											alt="infinia" 
+											style={gridImageStyle}
+										/>
 									</div>
 									<div className="border-5 border-white border rounded-4">
-										<img className="rounded-4" src={data?.images?.image3 || "/assets/imgs/hero-3/img-3.png"} alt="infinia" />
+										<img 
+											className="rounded-4" 
+											src={data?.images?.image3 || "/assets/imgs/hero-3/img-3.png"} 
+											alt="infinia" 
+											style={gridImageStyle}
+										/>
 									</div>
 								</div>
 								<div className="col-6 align-self-end">
 									<div className="border-5 border-white border rounded-4 mb-4">
-										<img className="rounded-4" src={data?.images?.image1 || "/assets/imgs/hero-3/img-1.png"} alt="infinia" />
+										<img 
+											className="rounded-4" 
+											src={data?.images?.image1 || "/assets/imgs/hero-3/img-1.png"} 
+											alt="infinia" 
+											style={gridImageStyle}
+										/>
 									</div>
 									<div className="border-5 border-white border rounded-4">
-										<img className="rounded-4" src={data?.images?.image2 || "/assets/imgs/hero-3/img-2.png"} alt="infinia" />
+										<img 
+											className="rounded-4" 
+											src={data?.images?.image2 || "/assets/imgs/hero-3/img-2.png"} 
+											alt="infinia" 
+											style={gridImageStyle}
+										/>
 									</div>
 								</div>
 							</div>

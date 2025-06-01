@@ -165,7 +165,7 @@ export default function Services5({ previewData }: Services5Props) {
 
 	const activeBtn = (value: string) => {
 		if (value === filterKey) {
-			return "active btn btn-md btn-filter mb-2 me-2";
+			return " btn btn-md btn-filter mb-2 me-2";
 		}
 		return "btn btn-md btn-filter mb-2 me-2";
 	};
