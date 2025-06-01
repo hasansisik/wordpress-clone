@@ -1,7 +1,7 @@
 'use client';
 
 import { Provider } from 'react-redux';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { store } from '@/redux/store';
 
 export function ReduxProvider({ children, preloadedState = {} }) {
@@ -10,7 +10,10 @@ export function ReduxProvider({ children, preloadedState = {} }) {
   if (!storeRef.current) {
     // Create a new store instance if it doesn't exist yet
     storeRef.current = store;
-    
+  }
+  
+  // Use useEffect to hydrate the store after render
+  useEffect(() => {
     // If there's preloaded state, update the store with it
     if (Object.keys(preloadedState).length > 0) {
       Object.keys(preloadedState).forEach(key => {
@@ -22,7 +25,7 @@ export function ReduxProvider({ children, preloadedState = {} }) {
         }
       });
     }
-  }
+  }, [preloadedState]); // Only re-run if preloadedState changes
 
   return <Provider store={storeRef.current}>{children}</Provider>;
 } 
