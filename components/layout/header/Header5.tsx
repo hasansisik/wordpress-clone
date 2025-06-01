@@ -29,7 +29,7 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 
 	return (
 		<>
-			<div className="top-bar position-relative z-4">
+			<div className="top-bar position-relative ">
 				<div className="container-fluid" style={{ backgroundColor: header.topBarColor || '#3b71fe', color: header.topBarTextColor || '#ffffff' }}>
 					<div className="container-fluid py-2 px-8">
 						<div className="d-flex flex-column flex-lg-row justify-content-between align-items-center">
@@ -114,7 +114,7 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 
 			<header>
 				<nav 
-					className={`navbar navbar-expand-lg navbar-light w-100 border-bottom z-999 ${scroll ? 'navbar-stick' : ''}`} 
+					className={`navbar navbar-expand-lg navbar-light w-100 border-bottom z-5 ${scroll ? 'navbar-stick' : ''}`} 
 					style={{ 
 						position: `${scroll ? "fixed" : "relative"}`, 
 						top: `${scroll ? (hideHeader ? "-100px" : "0") : "auto"}`, 

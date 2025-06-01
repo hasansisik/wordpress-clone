@@ -19,7 +19,7 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 	// Always fetch header data when component mounts
 	useEffect(() => {
 		dispatch(getHeader() as any);
-		dispatch(getMyProfile());
+		dispatch(getMyProfile() as any);
 	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
 
 	// Display loading state while header data is being fetched
@@ -92,7 +92,7 @@ export default function Header3({ scroll, hideHeader, isMobileMenu, handleMobile
 				{/* Navbar */}
 				<header>
 					<nav 
-						className={`navbar navbar-expand-lg navbar-light w-100 z-999 ${scroll ? 'navbar-stick' : ''}`} 
+						className={`navbar navbar-expand-lg navbar-light w-100 z-9 ${scroll ? 'navbar-stick' : ''}`} 
 						style={{ 
 							position: `${scroll ? "fixed" : "relative"}`, 
 							top: `${scroll ? (hideHeader ? "-100px" : "0") : "auto"}`, 

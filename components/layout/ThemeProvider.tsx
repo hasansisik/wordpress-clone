@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Layout from "./Layout";
 import { server } from "@/config";
 import WhatsAppButton from "@/components/common/WhatsAppButton";
+import CookieConsent from "@/components/common/CookieConsent";
 import { useThemeConfig } from "@/lib/store/themeConfig";
 
 interface ThemeProviderProps {
@@ -72,6 +73,7 @@ export default function ThemeProvider({ children }: ThemeProviderProps) {
     >
       {children}
       <WhatsAppButton />
+      <CookieConsent />
     </Layout>
   );
 } 

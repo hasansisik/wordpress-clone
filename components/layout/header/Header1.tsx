@@ -55,7 +55,7 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 		<>
 			<header>
 				<nav 
-					className={`navbar navbar-expand-lg navbar-light w-100 z-999 ${scroll ? 'navbar-stick' : ''}`} 
+					className={`navbar navbar-expand-lg navbar-light w-100 z-9 ${scroll ? 'navbar-stick' : ''}`} 
 					style={{ 
 						position: `${scroll ? "fixed" : "relative"}`, 
 						top: `${scroll ? (hideHeader ? "-100px" : "0") : "auto"}`,
