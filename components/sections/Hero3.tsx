@@ -175,12 +175,6 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 									</div>
 								</div>
 							</div>
-							<div className="position-absolute top-50 start-50 translate-middle pb-10 pe-10">
-								<img className="rotateme" src={data?.images?.star || "/assets/imgs/hero-3/star-rotate.png"} alt="infinia" />
-							</div>
-							<div className="position-absolute top-50 start-50 translate-middle">
-								<div className="ellipse-primary" />
-							</div>
 						</div>
 					</div>
 				</div>

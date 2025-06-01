@@ -151,6 +151,7 @@ export interface OtherPayload {
     buttonColor?: string;
     buttonTextColor?: string;
     badgeColor?: string;
+    badgeTextColor?: string;
   };
   services5?: {
     title?: string;

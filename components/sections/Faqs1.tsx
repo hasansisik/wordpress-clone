@@ -14,6 +14,7 @@ export default function Faqs1({ previewData }: Faqs1Props = {}) {
 	const [data, setData] = useState<any>(null)
 	const dispatch = useDispatch<AppDispatch>()
 	const { faq, loading } = useSelector((state: RootState) => state.faq)
+	console.log("faq1",faq)
 	
 	const [activeItem, setActiveItem] = useState(1);
 	const [key, setKey] = useState(0);

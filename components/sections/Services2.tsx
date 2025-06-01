@@ -78,16 +78,9 @@ export default function Services2({ previewData }: Services2Props = {}) {
 								</div>
 							</div>
 						))}
-						<svg className="position-absolute top-50 start-50 translate-middle z-0" xmlns="http://www.w3.org/2000/svg" width={828} height={699} viewBox="0 0 828 699" fill="none">
-							<path className="fill-primary-soft" d="M0 130.481C0 110.236 15.1267 93.1822 35.2276 90.7667L783.228 0.880261C807.04 -1.98124 828 16.611 828 40.5945V533.155C828 552.691 813.888 569.369 794.622 572.603L46.6224 698.173C22.2271 702.269 0 683.462 0 658.725V130.481Z" fill="#F5EEFF" />
-						</svg>
+
 					</div>
 				</div>
-				<div className="position-absolute top-0 start-50 translate-middle-x z-0">
-					<img src={data.backgroundImage} alt="infinia" />
-				</div>
-				<div className="rotate-center ellipse-rotate-success position-absolute z-1" />
-				<div className="rotate-center-rev ellipse-rotate-primary position-absolute z-1" />
 			</section>
 		</>
 	)

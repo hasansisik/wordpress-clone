@@ -230,10 +230,16 @@ export default function FaqEditor() {
   const handleFaqTypeChange = (newType: string) => {
     if (!faqData) return;
     
-    setFaqData({
+    const updatedData = {
       ...faqData,
       activeFaq: newType
-    });
+    };
+    
+    // Update local state
+    setFaqData(updatedData);
+    
+    // Save to API immediately to ensure the data is persisted
+    saveFaqData(updatedData);
   };
 
   // Function to handle iframe load failures and success messages
@@ -373,6 +379,8 @@ export default function FaqEditor() {
       );
       
       setFaqData(updatedData);
+      // Save to API immediately to ensure the data is persisted
+      saveFaqData(updatedData);
     }
   };
 

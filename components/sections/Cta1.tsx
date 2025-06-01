@@ -118,8 +118,6 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 							</div>
 						</div>
 					</div>
-					<img className="position-absolute z-2 top-0 end-0 pe-10 pe-lg-10" src={data?.star1 || "/assets/imgs/cta-15/star-2.svg"} alt="infinia" />
-					<img className="position-absolute z-2 bottom-0 start-0 ps-10 ms-10" src={data?.star2 || "/assets/imgs/cta-15/star-1.svg"} alt="infinia" />
 				</div>
 				<div className="container-fluid">
 					<div className="d-flex align-items-center justify-content-center position-relative">
@@ -147,10 +145,7 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 						</div>
 						</>
 					)}
-					<img className="position-absolute top-50 end-50 translate-middle-y z-0" src={data.bgEllipse || "/assets/imgs/cta-15/bg-ellipse.png"} alt="infinia" />
 					</div>
-					<div className="rotate-center ellipse-rotate-success position-absolute z-0" />
-					<div className="rotate-center-rev ellipse-rotate-primary position-absolute z-0" />
 				</div>
 			</section>
 		</>

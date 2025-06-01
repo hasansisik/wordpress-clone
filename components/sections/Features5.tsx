@@ -104,10 +104,9 @@ export default function Features5({ previewData }: Features5Props = {}) {
 									<div className={`col-lg-6 ${imageOnLeft ? 'offset-lg-1' : 'order-2 order-lg-1'} mt-lg-0 mt-5`}>
 										<h4 className="ds-4 fw-regular">
 											{section.title?.part1 || `Title Part 1 - ${index + 1}`} <br /> 
-											{!imageOnLeft && "for "}
+											{!imageOnLeft && " "}
 											<span className="fw-bold" data-aos="fade-zoom-in" data-aos-delay={200} style={{ color: section.title?.part2Color || '' }}>
 												{section.title?.part2 || `Title Part 2 - ${index + 1}`} <br className="d-none d-lg-inline" /> 
-												{section.title?.part3 || `Title Part 3 - ${index + 1}`}
 											</span>
 										</h4>
 										<p className="fs-5" style={{ color: section.descriptionColor || '' }}>

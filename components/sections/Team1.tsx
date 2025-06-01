@@ -12,6 +12,7 @@ interface TeamMember {
 export default function Team1({ previewData }: { previewData?: any }) {
   const [teamData, setTeamData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // Fetch team data from server if not provided as props
   useEffect(() => {
@@ -34,6 +35,14 @@ export default function Team1({ previewData }: { previewData?: any }) {
 
     fetchTeamData();
   }, [previewData]);
+
+  const openImagePreview = (image: string) => {
+    setPreviewImage(image);
+  };
+
+  const closeImagePreview = () => {
+    setPreviewImage(null);
+  };
 
   if (loading) {
     return <div className="section-padding text-center">Loading team information...</div>;
@@ -139,15 +148,21 @@ export default function Team1({ previewData }: { previewData?: any }) {
                           className="img-fluid w-100"
                           src={member.image}
                           alt={`Team Member ${index + 1}`}
+                          style={{ borderRadius: '8px' }}
                         />
                       </div>
                     </Link>
                   ) : (
-                    <div className="zoom-img rounded-3">
+                    <div 
+                      className="zoom-img rounded-3 cursor-pointer" 
+                      onClick={() => openImagePreview(member.image)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <img
                         className="img-fluid w-100"
                         src={member.image}
                         alt={`Team Member ${index + 1}`}
+                        style={{ borderRadius: '8px' }}
                       />
                     </div>
                   )}
@@ -168,6 +183,32 @@ export default function Team1({ previewData }: { previewData?: any }) {
           </>
         )}
       </section>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div 
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+          style={{ 
+            backgroundColor: 'rgba(0, 0, 0, 0.8)', 
+            zIndex: 9999 
+          }}
+          onClick={closeImagePreview}
+        >
+          <div className="position-relative" style={{ maxWidth: '90%', maxHeight: '90%' }}>
+            <img 
+              src={previewImage} 
+              alt="Preview" 
+              className="img-fluid" 
+              style={{ 
+                maxHeight: '90vh', 
+                objectFit: 'contain',
+                transform: 'scale(1.5)',
+                borderRadius: '12px'
+              }}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

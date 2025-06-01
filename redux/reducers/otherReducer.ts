@@ -250,7 +250,8 @@ const initialState: OtherState = {
       ],
       buttonColor: "#6342EC",
       buttonTextColor: "#FFFFFF",
-      badgeColor: "rgba(99, 66, 236, 0.1)"
+      badgeColor: "rgba(99, 66, 236, 0.1)",
+      badgeTextColor: "#6342EC"
     },
     services5: {
       title: "Explore Our Projects",

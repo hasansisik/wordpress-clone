@@ -728,6 +728,11 @@ function Contact1ContentForm({ data }: { data: any }) {
           value={data?.badgeColor || "rgba(99, 66, 236, 0.1)"}
           path="contact1.badgeColor"
         />
+        <ColorField
+          label="Badge Text Color"
+          value={data?.badgeTextColor || "#6342EC"}
+          path="contact1.badgeTextColor"
+        />
       </FormGroup>
 
       <FormGroup title="Title & Description">

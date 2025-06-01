@@ -105,6 +105,11 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 		color: data.buttonTextColor || "#ffffff"
 	};
 
+	// Add badge text color style
+	const badgeTextStyle = {
+		color: data.badgeTextColor || "#6342EC"
+	};
+
 	return (
 		<>
 			<style jsx global>{`
@@ -168,7 +173,7 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 					<div className="text-center">
 						{data.badgeVisible !== false && (
 							<div className="d-flex align-items-center justify-content-center border border-2 border-white d-inline-flex rounded-pill px-4 py-2" style={badgeStyle}>
-								<span className="tag-spacing fs-7 fw-bold text-linear-2 ms-2 text-uppercase">{data.badge}</span>
+								<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase" style={badgeTextStyle}>{data.badge}</span>
 							</div>
 						)}
 						<h3 className="ds-3 mt-3 mb-3" style={titleStyle}>{data.title}</h3>

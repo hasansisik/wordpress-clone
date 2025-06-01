@@ -849,23 +849,11 @@ function Features5ContentForm({ data, updateFeaturesData }: { data: any, updateF
               path={`features5.sections.${index}.title.part2`}
               onChange={(e) => handleLocalSectionChange(section.id, 'title.part2', e.target.value)}
             />
-            <TextField
-              label="Title Part 3"
-              value={section.title?.part3 || ""}
-              path={`features5.sections.${index}.title.part3`}
-              onChange={(e) => handleLocalSectionChange(section.id, 'title.part3', e.target.value)}
-            />
             <ColorField
               label="Part 2 Color"
               value={section.title?.part2Color || ""}
               path={`features5.sections.${index}.title.part2Color`}
               onChange={(color) => handleLocalSectionChange(section.id, 'title.part2Color', color)}
-            />
-            <ColorField
-              label="Part 3 Color"
-              value={section.title?.part3Color || ""}
-              path={`features5.sections.${index}.title.part3Color`}
-              onChange={(color) => handleLocalSectionChange(section.id, 'title.part3Color', color)}
             />
             <TextAreaField
               label="Description"

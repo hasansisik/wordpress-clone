@@ -88,9 +88,6 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 										</Link>
 									</div>
 								</div>
-								<div className="position-absolute top-100 start-0 translate-middle z-0 pt-5">
-									<img className="alltuchtopdown" src={data.vector.image} alt="infinia" />
-								</div>
 							</div>
 						</div>
 						<div className="col-lg-6 mt-lg-0 mt-8">

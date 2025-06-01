@@ -196,6 +196,19 @@ export const EditorProvider = ({
     return () => clearTimeout(updateTimer);
   }, [sectionData, savedData, initialData]);
 
+  // Add an auto-save effect
+  useEffect(() => {
+    if (!sectionData) return;
+    
+    // Use a debounce to avoid too frequent API calls
+    const saveTimer = setTimeout(() => {
+      // Call the API with the current section data
+      saveChangesToAPI(sectionData);
+    }, 3000); // 3 second debounce for API saving
+    
+    return () => clearTimeout(saveTimer);
+  }, [sectionData]);
+
   // Function to update iframe content
   const updateIframeContent = () => {
     if (!iframeRef.current || !iframeRef.current.contentWindow) return;
@@ -253,7 +266,16 @@ export const EditorProvider = ({
       parsedValue = false;
     }
     
-    setSectionData((prevData) => updateDataInObject(prevData, path, parsedValue));
+    const updatedData = updateDataInObject(sectionData, path, parsedValue);
+    setSectionData(updatedData);
+    
+    // Add debounced auto-save functionality
+    setSavedData(updatedData);
+    
+    // Schedule a preview update
+    setTimeout(() => {
+      updateIframeContent();
+    }, 100);
   };
 
   // Handle image upload
@@ -322,7 +344,7 @@ export const EditorProvider = ({
 
       // Default behavior using API endpoint
       const response = await fetch(apiEndpoint, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -385,13 +407,13 @@ export const EditorProvider = ({
 
       setSectionData(updatedData);
       
-      // If this is a change to the slides array, immediately update the preview
-      if (pathArray.length >= 3 && pathArray[0] === 'hero2' && pathArray[1] === 'slides') {
-        setSavedData({...updatedData});
-        setTimeout(() => {
-          updateIframeContent();
-        }, 100);
-      }
+      // Always update saved data to refresh preview
+      setSavedData({...updatedData});
+      
+      // Always schedule a preview update
+      setTimeout(() => {
+        updateIframeContent();
+      }, 100);
     } catch (error) {
       console.error('Error updating data:', error);
     }
