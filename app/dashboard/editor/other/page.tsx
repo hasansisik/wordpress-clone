@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { EditorProvider } from "@/components/editor/EditorProvider";
+import { EditorProvider, useEditor } from "@/components/editor/EditorProvider";
 import EditorLayout from "@/components/editor/EditorLayout";
 import EditorSidebar from "@/components/editor/EditorSidebar";
 import SectionPreview from "@/components/editor/SectionPreview";
@@ -300,6 +300,7 @@ export default function OtherEditor() {
       sectionType="other"
       uploadHandler={uploadImageToCloudinary}
       initialData={otherData}
+      disableAutoSave={true}
       saveHandler={async (data) => {
         try {
           // Use Redux to update other data
@@ -1217,7 +1218,7 @@ function Project2MediaForm({ data }: { data: any }) {
 function Services3ContentForm({ data }: { data: any }) {
   const [slideServices, setSlideServices] = useState<any[]>([]);
   const [localData, setLocalData] = useState<any>(data);
-  const dispatch = useDispatch<AppDispatch>();
+  const { updateData } = useEditor();
   
   useEffect(() => {
     // When data changes, update our local state
@@ -1268,18 +1269,6 @@ function Services3ContentForm({ data }: { data: any }) {
     return closestColor ? colorMap[closestColor] : null;
   };
   
-  // Save changes to Redux/backend
-  const saveChanges = () => {
-    dispatch(
-      updateOther({
-        services3: {
-          ...localData,
-          slideServices: slideServices
-        }
-      })
-    );
-  };
-  
   const handleAddService = () => {
     // Create a new service with default values
     const newService = {
@@ -1292,7 +1281,13 @@ function Services3ContentForm({ data }: { data: any }) {
     
     const updatedServices = [...slideServices, newService];
     setSlideServices(updatedServices);
-    // Don't dispatch Redux action here, wait for saveChanges
+    
+    // Update the services3 section with the new services array
+    const updatedServices3 = {
+      ...localData,
+      slideServices: updatedServices
+    };
+    updateData('services3', updatedServices3);
   };
   
   const handleRemoveService = (index: number) => {
@@ -1306,17 +1301,14 @@ function Services3ContentForm({ data }: { data: any }) {
       const updatedServices = [...slideServices];
       updatedServices.splice(index, 1);
       setSlideServices(updatedServices);
-      // Don't dispatch Redux action here, wait for saveChanges
+      
+      // Update the services3 section with the new services array
+      const updatedServices3 = {
+        ...localData,
+        slideServices: updatedServices
+      };
+      updateData('services3', updatedServices3);
     }
-  };
-  
-  const handleUpdateService = (index: number, field: string, value: any) => {
-    const updatedServices = [...slideServices];
-    updatedServices[index] = {
-      ...updatedServices[index],
-      [field]: value
-    };
-    setSlideServices(updatedServices);
   };
   
   return (
@@ -1381,16 +1373,6 @@ function Services3ContentForm({ data }: { data: any }) {
           value={localData?.navButtonColor || "#ffffff"}
           path="services3.navButtonColor"
         />
-        
-        <div className="mt-4 flex justify-between">
-          <button 
-            type="button"
-            onClick={saveChanges}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none"
-          >
-            Save Changes
-          </button>
-        </div>
       </FormGroup>
 
       <FormGroup title="Service Cards">
@@ -1468,7 +1450,7 @@ function Services3ContentForm({ data }: { data: any }) {
 function Team1ContentForm({ data }: { data: any }) {
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [localData, setLocalData] = useState<any>(data);
-  const dispatch = useDispatch<AppDispatch>();
+  const { updateData } = useEditor();
   
   useEffect(() => {
     // When data changes, update our local state
@@ -1485,18 +1467,6 @@ function Team1ContentForm({ data }: { data: any }) {
     });
   };
   
-  // Save changes to Redux/backend
-  const saveChanges = () => {
-    dispatch(
-      updateOther({
-        team1: {
-          ...localData,
-          teamMembers: teamMembers
-        }
-      })
-    );
-  };
-  
   const handleAddTeamMember = () => {
     // Create a new team member with default values
     const newMember = {
@@ -1507,14 +1477,12 @@ function Team1ContentForm({ data }: { data: any }) {
     const updatedMembers = [...teamMembers, newMember];
     setTeamMembers(updatedMembers);
     
-    // Dispatch the add team member action
-    dispatch(
-      updateOther({
-        team1: {
-          teamMembers: updatedMembers
-        }
-      })
-    );
+    // Update the team1 section with the new members array
+    const updatedTeam1 = {
+      ...localData,
+      teamMembers: updatedMembers
+    };
+    updateData('team1', updatedTeam1);
   };
   
   const handleRemoveTeamMember = (index: number) => {
@@ -1529,14 +1497,12 @@ function Team1ContentForm({ data }: { data: any }) {
       updatedMembers.splice(index, 1);
       setTeamMembers(updatedMembers);
       
-      // Dispatch the remove team member action
-      dispatch(
-        updateOther({
-          team1: {
-            teamMembers: updatedMembers
-          }
-        })
-      );
+      // Update the team1 section with the new members array
+      const updatedTeam1 = {
+        ...localData,
+        teamMembers: updatedMembers
+      };
+      updateData('team1', updatedTeam1);
     }
   };
   
@@ -1612,16 +1578,6 @@ function Team1ContentForm({ data }: { data: any }) {
           value={localData?.showRotatingElements !== false}
           path="team1.showRotatingElements"
         />
-        
-        <div className="mt-4 flex justify-between">
-          <button 
-            type="button"
-            onClick={saveChanges}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none"
-          >
-            Save Changes
-          </button>
-        </div>
       </FormGroup>
 
       <FormGroup title="Team Members">

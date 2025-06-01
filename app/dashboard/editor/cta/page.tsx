@@ -234,6 +234,7 @@ export default function CtaEditor() {
       sectionType="cta"
       uploadHandler={uploadImageToCloudinary}
       initialData={ctaData}
+      disableAutoSave={true}
       saveHandler={async (data) => {
         try {
           // Use Redux to update CTA data

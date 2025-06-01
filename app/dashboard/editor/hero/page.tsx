@@ -229,6 +229,7 @@ export default function HeroEditor() {
       sectionType="hero"
       uploadHandler={uploadImageToCloudinary}
       initialData={heroData}
+      disableAutoSave={true}
       saveHandler={async (data) => {
         try {
           // Use Redux to update hero data

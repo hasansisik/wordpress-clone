@@ -191,6 +191,7 @@ export default function FeaturesEditor() {
       sectionType="features"
       uploadHandler={uploadImageToCloudinary}
       initialData={featuresData}
+      disableAutoSave={true}
       saveHandler={async (data) => {
         try {
           // Use Redux to update features data

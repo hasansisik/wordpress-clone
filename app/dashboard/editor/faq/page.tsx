@@ -478,6 +478,7 @@ export default function FaqEditor() {
       sectionType="faq"
       uploadHandler={uploadImageToCloudinary}
       initialData={faqData}
+      disableAutoSave={true}
     >
       <EditorLayout
         title="FAQ Editor"

@@ -4,8 +4,10 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useState, useEffect } from "react";
 import { Keyboard, Navigation, Pagination, Autoplay } from "swiper/modules";
 import ModalVideo from "react-modal-video";
-import axios from "axios";
-import { server } from "@/config";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getHero } from "@/redux/actions/heroActions";
+import { AppDispatch } from "@/redux/store";
 
 interface SlideItem {
   backgroundImage: string;
@@ -23,35 +25,29 @@ export default function Hero2({ previewData }: { previewData?: any }) {
   const [isOpen, setOpen] = useState(false);
   const [heroData, setHeroData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { hero, loading: reduxLoading } = useSelector((state: RootState) => state.hero);
 
-  // Fetch hero data from server if not provided as props
+  // Always trigger getHero() on component mount
   useEffect(() => {
-    const fetchHeroData = async () => {
-      if (previewData) {
-        setHeroData(previewData);
-        setLoading(false);
-        return;
-      }
+    dispatch(getHero());
+  }, [dispatch]);
 
-      try {
-        // Add a timestamp to prevent caching
-        const timestamp = new Date().getTime();
-        const { data } = await axios.get(`${server}/hero?t=${timestamp}`, {
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        setHeroData(data.hero);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching hero data:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchHeroData();
-  }, [previewData]);
+  // Set data based on either preview data or Redux data
+  useEffect(() => {
+    // If preview data is provided, use it
+    if (previewData) {
+      setHeroData(previewData);
+      setLoading(false);
+      return;
+    }
+    
+    // Otherwise use Redux data
+    if (hero) {
+      setHeroData(hero);
+      setLoading(false);
+    }
+  }, [previewData, hero]);
   
   // Listen for messages from parent iframe (preview updates)
   useEffect(() => {
@@ -67,7 +63,7 @@ export default function Hero2({ previewData }: { previewData?: any }) {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  if (loading) {
+  if (loading || reduxLoading) {
     return <div className="section-padding text-center">Loading hero information...</div>;
   }
   

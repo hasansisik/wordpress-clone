@@ -987,6 +987,7 @@ export default function HeaderEditor() {
         sectionType="header"
         uploadHandler={uploadImageToCloudinary}
         initialData={headerData}
+        disableAutoSave={true}
         saveHandler={headerData => {
           // Create a complete data object to save
           const completeData = {

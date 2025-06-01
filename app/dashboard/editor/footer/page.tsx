@@ -1703,7 +1703,17 @@ export default function FooterEditor() {
       sectionType="footer"
       uploadHandler={uploadImageToCloudinary}
       initialData={footerData}
-      saveHandler={saveChangesToAPI}
+      disableAutoSave={true}
+      saveHandler={async (data) => {
+        try {
+          // Save using our dedicated function
+          await saveChangesToAPI(data);
+          return { success: true };
+        } catch (error) {
+          console.error("Error saving footer data:", error);
+          return { success: false, error: "Failed to save footer data" };
+        }
+      }}
     >
       <FooterEditorContent
         footers={footers}

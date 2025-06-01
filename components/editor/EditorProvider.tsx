@@ -37,7 +37,7 @@ export interface EditorContextType {
   saveCurrentData: () => void;
   data: any;
   uploadFile: (file: File, path: string) => Promise<string>;
-  updateData: (path: string, value: string | boolean | number) => void;
+  updateData: (path: string, value: string | boolean | number | object) => void;
   handleSubmit: () => Promise<{ success: boolean; error?: string }>;
   isSaving: boolean;
   saved: boolean;
@@ -97,6 +97,7 @@ interface EditorProviderProps {
   uploadHandler?: (file: File) => Promise<string>;
   initialData?: any;
   saveHandler?: (data: any) => Promise<{success: boolean, error?: string}>;
+  disableAutoSave?: boolean;
 }
 
 export const EditorProvider = ({ 
@@ -106,7 +107,8 @@ export const EditorProvider = ({
   defaultSection = null,
   uploadHandler,
   initialData = null,
-  saveHandler
+  saveHandler,
+  disableAutoSave = false
 }: EditorProviderProps) => {
   const [sectionData, setSectionData] = useState<any>(initialData);
   const [savedData, setSavedData] = useState<any>(initialData);
@@ -198,7 +200,7 @@ export const EditorProvider = ({
 
   // Add an auto-save effect
   useEffect(() => {
-    if (!sectionData) return;
+    if (!sectionData || disableAutoSave) return;
     
     // Use a debounce to avoid too frequent API calls
     const saveTimer = setTimeout(() => {
@@ -207,7 +209,7 @@ export const EditorProvider = ({
     }, 3000); // 3 second debounce for API saving
     
     return () => clearTimeout(saveTimer);
-  }, [sectionData]);
+  }, [sectionData, disableAutoSave]);
 
   // Function to update iframe content
   const updateIframeContent = () => {
@@ -266,16 +268,8 @@ export const EditorProvider = ({
       parsedValue = false;
     }
     
-    const updatedData = updateDataInObject(sectionData, path, parsedValue);
-    setSectionData(updatedData);
-    
-    // Add debounced auto-save functionality
-    setSavedData(updatedData);
-    
-    // Schedule a preview update
-    setTimeout(() => {
-      updateIframeContent();
-    }, 100);
+    // Use our updateData method that properly clones objects
+    updateData(path, parsedValue);
   };
 
   // Handle image upload
@@ -288,26 +282,8 @@ export const EditorProvider = ({
       // Upload image using the provided handler
       const uploadedUrl = await uploadHandler(file);
 
-      // Update the correct path in the data
-      const newData = JSON.parse(JSON.stringify(sectionData)); // Deep clone to ensure we're not modifying read-only props
-      
-      // Split the path by dots and use it to navigate and update the object
-      const parts = imagePath.split('.');
-      let current: any = newData;
-      
-      // Navigate to the second-to-last part
-      for (let i = 0; i < parts.length - 1; i++) {
-        if (!current[parts[i]]) {
-          current[parts[i]] = {};
-        }
-        current = current[parts[i]];
-      }
-      
-      // Update the value
-      current[parts[parts.length - 1]] = uploadedUrl;
-      
-      // Update state with new data
-      setSectionData(newData);
+      // Use our improved updateData method to update the image path
+      updateData(imagePath, uploadedUrl);
       
       // Success message
       showSuccessAlert("Image uploaded successfully");
@@ -373,11 +349,12 @@ export const EditorProvider = ({
   };
 
   // Inside the EditorProvider component, update the updateData method
-  const updateData = (path: string, value: string | boolean | number) => {
+  const updateData = (path: string, value: string | boolean | number | object) => {
     if (!path) return;
 
     try {
-      const updatedData = { ...sectionData };
+      // Create a deep clone of the entire object to avoid modifying read-only properties
+      const updatedData = JSON.parse(JSON.stringify(sectionData));
       const pathArray = path.split('.');
 
       // Handle array paths like 'hero2.slides.0.title'
@@ -405,6 +382,7 @@ export const EditorProvider = ({
       const lastKey = pathArray[pathArray.length - 1];
       current[lastKey] = value;
 
+      // Update state with the new cloned object
       setSectionData(updatedData);
       
       // Always update saved data to refresh preview

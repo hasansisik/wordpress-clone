@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useEditor } from "./EditorProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -399,13 +399,24 @@ export const ToggleField = ({ label, value, path, className }: {
   className?: string;
 }) => {
   const { updateData } = useEditor();
+  const [isChecked, setIsChecked] = useState(value);
+  
+  // Update local state when props change
+  useEffect(() => {
+    setIsChecked(value);
+  }, [value]);
   
   const handleChange = (checked: boolean) => {
-    // Use updateData which can accept boolean values directly
+    // Update local state first
+    setIsChecked(checked);
+    
+    // Then update the data using updateData
     try {
       updateData(path, checked);
     } catch (error) {
       console.error("Error updating toggle field:", error);
+      // Revert local state if update fails
+      setIsChecked(value);
     }
   };
 
@@ -414,7 +425,7 @@ export const ToggleField = ({ label, value, path, className }: {
       <Label htmlFor={path} className="text-xs cursor-pointer">{label}</Label>
       <Switch
         id={path}
-        checked={value}
+        checked={isChecked}
         onCheckedChange={handleChange}
       />
     </div>
