@@ -10,289 +10,22 @@ interface OtherState {
 }
 
 const initialState: OtherState = {
-  other: {
-    activeOther: "blog1",
-    blog1: {
-      badge: "From Blog",
-      badgeVisible: true,
-      badgeBackgroundColor: "#f1f0fe",
-      badgeTextColor: "#6342EC",
-      title: "Our Latest Articles",
-      titleColor: "#111827",
-      subtitle: "Explore the insights and trends shaping our industry",
-      subtitleColor: "#6E6E6E",
-      seeAllLink: "#",
-      backgroundColor: "#ffffff"
-    },
-    blog2: {
-      badge: "From Blog",
-      badgeVisible: true,
-      badgeBackgroundColor: "#f1f0fe",
-      badgeTextColor: "#6342EC",
-      title: "Our Latest News and Articles",
-      titleColor: "#111827",
-      subtitle: "Explore the insights and trends shaping our industry. 🔥",
-      subtitleColor: "#6E6E6E",
-      seeAllLink: "#",
-      seeAllLinkText: "See all articles",
-      seeAllButtonVisible: true,
-      seeAllButtonColor: "#111827",
-      backgroundColor: "#ffffff",
-      bgLine: "/assets/imgs/blog-2/img-bg-line.png"
-    },
-    blog3: {
-      title: "Related Posts",
-      titleColor: "#111827",
-      backgroundColor: "#ffffff",
-      bgLine: "/assets/imgs/team-1/bg-line.png"
-    },
-    blog5: {
-      title: "Trending News",
-      titleColor: "#111827",
-      subtitle: "Explore the insights and trends shaping our industry",
-      subtitleColor: "#6E6E6E",
-      backgroundColor: "#ffffff"
-    },
-    services2: {
-      heading: {
-        tag: "What we offer",
-        tagVisible: true,
-        tagBackgroundColor: "#f1f0fe",
-        tagTextColor: "#6342EC",
-        title: "Let's Discover Our Service <span class=\"fw-bold\">Our Service <br class=\"d-none d-lg-inline\" /> Features</span> Charter",
-        titleColor: "#111827"
-      },
-      tagImage: "/assets/imgs/features-1/dots.png",
-      services: [
-        {
-          icon: "/assets/imgs/service-2/icon-1.svg",
-          title: "Business Analytics",
-          description: "A business consultant provides expert advice and guidance to businesses on various aspects to improve their performance, efficiency, and profitability.",
-          iconBgColor: "bg-primary-soft"
-        },
-        {
-          icon: "/assets/imgs/service-2/icon-2.svg",
-          title: "Investment",
-          description: "A business consultant provides expert advice and guidance to businesses on various aspects to improve their performance, efficiency, and profitability.",
-          iconBgColor: "bg-success-soft"
-        },
-        {
-          icon: "/assets/imgs/service-2/icon-3.svg",
-          title: "Tax Advisory",
-          description: "A business consultant provides expert advice and guidance to businesses on various aspects to improve their performance, efficiency, and profitability.",
-          iconBgColor: "bg-warning-soft"
-        },
-        {
-          icon: "/assets/imgs/service-2/icon-4.svg",
-          title: "Automated reports",
-          description: "A business consultant provides expert advice and guidance to businesses on various aspects to improve their performance, efficiency, and profitability.",
-          iconBgColor: "bg-info-soft"
-        },
-        {
-          icon: "/assets/imgs/service-2/icon-5.svg",
-          title: "Funnel optimization",
-          description: "A business consultant provides expert advice and guidance to businesses on various aspects to improve their performance, efficiency, and profitability.",
-          iconBgColor: "bg-danger-soft"
-        },
-        {
-          icon: "/assets/imgs/service-2/icon-6.svg",
-          title: "Integrations",
-          description: "A business consultant provides expert advice and guidance to businesses on various aspects to improve their performance, efficiency, and profitability.",
-          iconBgColor: "bg-secondary-soft"
-        }
-      ],
-      backgroundColor: "#ffffff",
-      backgroundImage: "/assets/imgs/service-2/bg-line.png",
-      buttons: {
-        primary: {
-          text: "Explore Now",
-          link: "/page-services-1",
-          btnClass: "btn-gradient",
-          iconClass: "stroke-white",
-          visible: true,
-          backgroundColor: "#6342EC",
-          textColor: "#FFFFFF"
-        },
-        secondary: {
-          text: "Contact Us",
-          link: "/page-contact-1",
-          btnClass: "btn-outline-secondary",
-          iconClass: "stroke-dark",
-          visible: true,
-          backgroundColor: "transparent",
-          textColor: "#111827"
-        }
-      }
-    },
-    services3: {
-      badge: "What we offers",
-      badgeVisible: true,
-      badgeBackgroundColor: "#f1f0fe",
-      badgeTextColor: "#6342EC",
-      title: "The Leading <span class=\"fw-bold\">IT Solutions <br class=\"d-lg-block d-none\" /> Company</span> For You",
-      titleColor: "#111827",
-      backgroundColor: "#ffffff",
-      slideDelay: 4000,
-      slideServices: [
-        {
-          icon: "/assets/imgs/service-3/icon-1.svg",
-          title: "IT Consulting",
-          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
-          iconBgColor: "bg-primary-soft",
-          link: "#"
-        },
-        {
-          icon: "/assets/imgs/service-3/icon-2.svg",
-          title: "Network Design",
-          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
-          iconBgColor: "bg-primary-soft",
-          link: "#"
-        },
-        {
-          icon: "/assets/imgs/service-3/icon-3.svg",
-          title: "Software Dev",
-          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
-          iconBgColor: "bg-primary-soft",
-          link: "#"
-        },
-        {
-          icon: "/assets/imgs/service-3/icon-4.svg",
-          title: "IT Training",
-          description: "Beauis utter enim amet lacus ornare ullamcorper Praesent neque purus rhoncus.",
-          iconBgColor: "bg-primary-soft",
-          link: "#"
-        }
-      ],
-      showNavigation: true,
-      navButtonColor: "#ffffff"
-    },
-    team1: {
-      badge: "OUR TEAM MEMBERS",
-      badgeVisible: true,
-      badgeBackgroundColor: "#f1f0fe",
-      badgeTextColor: "#6342EC",
-      title: "Meet Our Team",
-      titleColor: "#111827",
-      description: "Meet the talented and passionate team members who drive our company forward every day. <br class=\"d-none d-lg-block\" /> company forward every day.",
-      descriptionColor: "#6E6E6E",
-      backgroundColor: "#ffffff",
-      bgLine: "/assets/imgs/team-1/bg-line.png",
-      showBgLine: true,
-      teamMembers: [
-        {
-          image: "/assets/imgs/team-1/avatar-1.png",
-          link: "#"
-        },
-        {
-          image: "/assets/imgs/team-1/avatar-2.png",
-          link: "#"
-        },
-        {
-          image: "/assets/imgs/team-1/avatar-3.png",
-          link: "#"
-        },
-        {
-          image: "/assets/imgs/team-1/avatar-4.png",
-          link: "#"
-        },
-        {
-          image: "/assets/imgs/team-1/avatar-5.png",
-          link: "#"
-        },
-        {
-          image: "/assets/imgs/team-1/avatar-6.png",
-          link: "#"
-        },
-        {
-          image: "/assets/imgs/team-1/avatar-7.png",
-          link: "#"
-        },
-        {
-          image: "/assets/imgs/team-1/avatar-8.png",
-          link: "#"
-        }
-      ],
-      showRotatingElements: true
-    },
-    contact1: {
-      badge: "İletişime Geçin",
-      badgeVisible: true,
-      title: "Ekibimiz İle İletişime Geçin",
-      titleColor: "#111827",
-      description: "Yardıma hazır uzmanlarımızla kapsamlı bir hizmet ajansıyız. <br />24 saat içinde sizinle iletişime geçeceğiz.",
-      descriptionColor: "#6E6E6E",
-      backgroundColor: "#ffffff",
-      formTitle: "Mesaj Bırakın",
-      chatTitle: "Bizimle sohbet edin",
-      chatDescription: "Destek ekibimiz 7/24 hizmetinizdedir",
-      whatsappLink: "#",
-      viberLink: "#",
-      messengerLink: "#",
-      emailTitle: "Bize e-posta gönderin",
-      emailDescription: "Ekibimiz sorularınıza hızlı bir şekilde yanıt verecektir",
-      supportEmail: "destek@infinia.com",
-      showEmail: true,
-      inquiryTitle: "Daha fazla bilgi için",
-      inquiryDescription: "Anında yardım için bize ulaşın",
-      phoneNumber: "+01 (24) 568 900",
-      showPhone: true,
-      addressTitle: "Adresimiz",
-      addressDescription: "Bizi ziyaret edin",
-      address: "Atatürk Cad. No:123, 34000 İstanbul, Türkiye",
-      showAddress: true,
-      services: [
-        "Araştırma planlaması",
-        "Finans Danışmanlığı",
-        "İş promosyonu",
-        "İş Danışmanlığı",
-        "Finans Danışmanlığı",
-        "İş promosyonu"
-      ],
-      buttonColor: "#6342EC",
-      buttonTextColor: "#FFFFFF",
-      badgeColor: "rgba(99, 66, 236, 0.1)",
-      badgeTextColor: "#6342EC"
-    },
-    services5: {
-      title: "Explore Our Projects",
-      titleColor: "#333333",
-      subtitle: "What we offers",
-      subtitleVisible: true,
-      subtitleBackgroundColor: "#f1f0fe",
-      subtitleTextColor: "#6342EC",
-      description: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
-      descriptionColor: "#6E6E6E",
-      buttonText: "Get Free Quote",
-      buttonVisible: true,
-      buttonLink: "#",
-      linkText: "How We Work",
-      linkVisible: true,
-      linkUrl: "#",
-      backgroundColor: "#ffffff",
-      buttonColor: "#6342EC",
-      buttonTextColor: "#FFFFFF",
-      filterAllText: "Hepsi",
-      filterButtonColor: "#6342EC",
-      filterButtonTextColor: "#FFFFFF"
-    },
-    project2: {
-      title: "Our featured projects",
-      titleColor: "#333333",
-      subtitle: "Recent work",
-      subtitleVisible: true,
-      subtitleBackgroundColor: "rgba(99, 66, 236, 0.1)",
-      subtitleTextColor: "#6342EC",
-      description: "⚡Don't miss any contact. Stay connected.",
-      descriptionColor: "#6E6E6E",
-      backgroundColor: "#f8f9fa"
-    }
-  },
+  other: null,
   loading: false,
   error: null,
 };
 
 export const otherReducer = createReducer(initialState, (builder) => {
   builder
+    // Hydration action for SSR
+    .addCase('other/hydrate', (state, action) => {
+      return {
+        ...state,
+        other: action.payload,
+        loading: false,
+        error: null
+      };
+    })
     // Get Other
     .addCase(getOther.pending, (state) => {
       state.loading = true;
@@ -317,7 +50,7 @@ export const otherReducer = createReducer(initialState, (builder) => {
       state.loading = false;
       state.other = action.payload;
       state.success = true;
-      state.message = "Diğer bileşenler başarıyla güncellendi";
+      state.message = "Diğer ayarlar başarıyla güncellendi";
       state.error = null;
     })
     .addCase(updateOther.rejected, (state, action) => {

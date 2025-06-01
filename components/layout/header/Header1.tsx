@@ -13,19 +13,43 @@ import { User } from 'lucide-react'
 
 export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobileMenu, isSearch, handleSearch, isOffCanvas, handleOffCanvas }: any) {
 	const dispatch = useDispatch();
-	const { header, loading } = useSelector((state: RootState) => state.header);
+	const { header } = useSelector((state: RootState) => state.header);
 	const { user } = useSelector((state: RootState) => state.user);
 
-	// Always fetch header data when component mounts
+	// Only fetch data if not already available
 	useEffect(() => {
-		dispatch(getHeader() as any);
-		dispatch(getMyProfile() );
-	}, [dispatch]) // Dependency on dispatch ensures this runs only when dispatch changes (effectively once)
+		if (!header) {
+			dispatch(getHeader() as any);
+		}
+		if (!user?._id) {
+			dispatch(getMyProfile() as any);
+		}
+	}, [dispatch, header, user])
 
-	// Display loading state while header data is being fetched
-	if (loading || !header) {
-		return 
-	}
+	// Default header data when loading
+	const defaultHeader = {
+		logo: {
+			src: "/assets/imgs/logo/logo.svg",
+			alt: "Logo",
+			text: ""
+		},
+		mainMenu: [],
+		showDarkModeToggle: false,
+		showActionButton: false,
+		links: {
+			freeTrialLink: {
+				href: "#",
+				text: "Get Started"
+			}
+		},
+		buttonColor: "#3b71fe",
+		buttonTextColor: "#ffffff",
+		mobileMenuButtonColor: "transparent",
+		socialLinks: []
+	};
+
+	// Use header data if available, otherwise use default
+	const headerData = header || defaultHeader;
 
 	return (
 		<>
@@ -41,8 +65,8 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 					<div className="container">
 						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
 							<img 
-								src={header?.logo?.src || "/assets/imgs/logo/logo.svg"} 
-								alt={header?.logo?.alt || "Logo"} 
+								src={headerData.logo.src} 
+								alt={headerData.logo.alt} 
 								style={{ 
 									maxWidth: '40px', 
 									maxHeight: '40px', 
@@ -51,11 +75,11 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 									objectFit: 'contain' 
 								}} 
 							/>
-							<span>{header?.logo?.text || ""}</span>
+							<span>{headerData.logo.text}</span>
 						</Link>
-						<Menu menuItems={header?.mainMenu || []} />
+						<Menu menuItems={headerData.mainMenu} />
 						<div className="d-flex align-items-center pe-5 pe-lg-0 me-5 me-lg-0">
-							{header?.showDarkModeToggle && <ThemeSwitch />}
+							{headerData.showDarkModeToggle && <ThemeSwitch />}
 							
 							{/* Profil Butonu - Kullanıcı giriş yapmışsa göster */}
 							{user?._id && (
@@ -72,22 +96,22 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 								</Link>
 							)}
 							
-							{header?.showActionButton && (
+							{headerData.showActionButton && (
 								<Link 
-									href={header?.links?.freeTrialLink?.href || "#"} 
+									href={headerData.links.freeTrialLink.href} 
 									className="btn d-none d-md-block ms-2"
 									style={{
-										backgroundColor: header?.buttonColor || "#3b71fe",
-										color: header?.buttonTextColor || "#ffffff"
+										backgroundColor: headerData.buttonColor,
+										color: headerData.buttonTextColor
 									}}
 								>
-									{header?.links?.freeTrialLink?.text || "Get Started"}
+									{headerData.links.freeTrialLink.text}
 								</Link>
 							)}
 							<div 
 								className="burger-icon burger-icon-white border rounded-3" 
 								onClick={handleMobileMenu}
-								style={{ backgroundColor: header?.mobileMenuButtonColor || 'transparent' }}
+								style={{ backgroundColor: headerData.mobileMenuButtonColor }}
 							>
 								<span className="burger-icon-top" />
 								<span className="burger-icon-mid" />
@@ -101,8 +125,8 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 				<MobileMenu 
 					handleMobileMenu={handleMobileMenu} 
 					isMobileMenu={isMobileMenu} 
-					menuItems={header?.mainMenu || []}
-					socialLinks={header?.socialLinks || []} 
+					menuItems={headerData.mainMenu}
+					socialLinks={headerData.socialLinks} 
 				/>
 			</header>
 		</>

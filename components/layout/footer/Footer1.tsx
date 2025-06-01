@@ -35,12 +35,12 @@ export default function Footer1(props: FooterProps = {}) {
 	const { footer } = useSelector((state: RootState) => state.footer);
 	const [data, setData] = useState<any>(null);
 
-	// Fetch footer data only once when component mounts if not provided via props
+	// Fetch footer data only if it's not already available
 	useEffect(() => {
-		if (Object.keys(props).length === 0) {
+		if (Object.keys(props).length === 0 && !footer) {
 			dispatch(getFooter() as any);
 		}
-	}, []);
+	}, [dispatch, footer, props]);
 
 	// Update local state when props or footer data from Redux change
 	useEffect(() => {
@@ -54,20 +54,18 @@ export default function Footer1(props: FooterProps = {}) {
 		}
 	}, [props, footer]);
 
-	// Wait for data to be loaded
-	if (!data) {
-		return <footer className="loading">Loading footer...</footer>;
-	}
-
-	// Ensure data has all required properties with fallbacks
-	const safeData = {
-		logo: data?.logo || { src: "/assets/imgs/logo/logo-white.svg", alt: "logo", text: "Logo" },
-		copyright: data?.copyright || "Copyright © 2024. All Rights Reserved",
-		description: data?.description || "",
-		socialLinks: Array.isArray(data?.socialLinks) ? data.socialLinks : [],
-		columns: Array.isArray(data?.columns) ? data.columns : [],
-		showSocialLinks: data?.showSocialLinks !== false
+	// Default minimal footer data for when loading
+	const defaultFooter = {
+		logo: { src: "/assets/imgs/logo/logo-white.svg", alt: "logo", text: "Logo" },
+		copyright: "Copyright © 2024. All Rights Reserved",
+		description: "",
+		socialLinks: [],
+		columns: [],
+		showSocialLinks: false
 	};
+
+	// Use available data or default placeholder
+	const footerData = data || defaultFooter;
 
 	return (
 		<>
@@ -79,8 +77,8 @@ export default function Footer1(props: FooterProps = {}) {
 								<div className="col-lg-4 pe-10" data-aos="fade-zoom-in" data-aos-delay={100}>
 									<Link href="/">
 										<img 
-											src={safeData.logo.src} 
-											alt={safeData.logo.alt} 
+											src={footerData.logo.src} 
+											alt={footerData.logo.alt} 
 											style={{ 
 												width: '120px', 
 												height: '40px', 
@@ -88,10 +86,10 @@ export default function Footer1(props: FooterProps = {}) {
 											}} 
 										/>
 									</Link>
-									<p className="text-white fw-medium mt-3 mb-6 opacity-50">{safeData.description}</p>
-									{safeData.showSocialLinks && safeData.socialLinks.length > 0 && (
+									<p className="text-white fw-medium mt-3 mb-6 opacity-50">{footerData.description}</p>
+									{footerData.showSocialLinks && footerData.socialLinks.length > 0 && (
 										<div className="d-flex social-icons">
-											{safeData.socialLinks.map((social: any, index: number) => (
+											{footerData.socialLinks.map((social: any, index: number) => (
 												<Link key={social._id || index} href={social.link || "#"} className="text-white border border-end-0 border-light border-opacity-10 icon-shape icon-md">
 													{social.name === "Facebook" && (
 														<svg xmlns="http://www.w3.org/2000/svg" width={10} height={17} viewBox="0 0 10 17" fill="none">
@@ -110,8 +108,8 @@ export default function Footer1(props: FooterProps = {}) {
 								</div>
 								<div className="col-lg-8">
 									<div className="row">
-										{safeData.columns.length > 0 ? (
-											safeData.columns.map((column: any, colIndex: number) => (
+										{footerData.columns.length > 0 ? (
+											footerData.columns.map((column: any, colIndex: number) => (
 												<div key={column._id || `column-${colIndex}`} className="col-lg-3 col-md-4 col-6" data-aos="fade-zoom-in" data-aos-delay={200 + (colIndex * 100)}>
 													<h3 className="text-white opacity-50 fs-6 fw-black text-uppercase pb-3 pt-5">{column.title}</h3>
 													<div className="d-flex flex-column align-items-start">
@@ -128,15 +126,16 @@ export default function Footer1(props: FooterProps = {}) {
 												</div>
 											))
 										) : (
-											<div className="col-12 text-center text-white opacity-50">
-												No menu columns found
+											<div className="col-12 opacity-0">
+												{/* Empty space instead of "No menu columns found" text */}
+												&nbsp;
 											</div>
 										)}
 									</div>
 								</div>
 							</div>
 							<div className="row text-center py-4 border-top border-white border-opacity-10">
-								<span className="text-white opacity-50" data-aos="fade-zoom-in" data-aos-delay={200}>{safeData.copyright}</span>
+								<span className="text-white opacity-50" data-aos="fade-zoom-in" data-aos-delay={200}>{footerData.copyright}</span>
 							</div>
 						</div>
 					</div>

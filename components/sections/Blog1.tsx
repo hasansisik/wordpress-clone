@@ -6,7 +6,7 @@ import { getAllBlogs } from "@/redux/actions/blogActions"
 import { getOther } from "@/redux/actions/otherActions"
 import { getMyProfile } from "@/redux/actions/userActions"
 import { AppDispatch, RootState } from "@/redux/store"
-import { Loader2, Video } from "lucide-react"
+import { Video } from "lucide-react"
 import { useRouter } from "next/navigation"
 import PremiumContentDialog from "@/components/PremiumContentDialog"
 
@@ -50,8 +50,8 @@ const truncateText = (text: string, maxLength: number = 120) => {
 export default function Blog1({ previewData }: Blog1Props) {
 	const [data, setData] = useState<any>(null)
 	const dispatch = useDispatch<AppDispatch>()
-	const { blogs, loading: blogLoading, error } = useSelector((state: RootState) => state.blog)
-	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other)
+	const { blogs } = useSelector((state: RootState) => state.blog)
+	const { other } = useSelector((state: RootState) => state.other)
 	const { user, isAuthenticated } = useSelector((state: RootState) => state.user);
 	const router = useRouter()
 	const [showPremiumDialog, setShowPremiumDialog] = useState(false)
@@ -60,18 +60,20 @@ export default function Blog1({ previewData }: Blog1Props) {
 	// Premium kontrolü - === true ile kesin kontrol
 	const isPremiumUser = isAuthenticated && user?.isPremium === true;
 
-	// Kullanıcı profil bilgilerini güncelle
+	// Only dispatch actions if data is missing
 	useEffect(() => {
-		dispatch(getMyProfile());
-	}, [dispatch]);
-	
-	useEffect(() => {
-		dispatch(getAllBlogs())
-		// Also fetch other data if not provided in preview
-		if (!previewData) {
-			dispatch(getOther())
+		if (!user?._id) {
+			dispatch(getMyProfile());
 		}
-	}, [dispatch, previewData])
+		
+		if (!blogs || blogs.length === 0) {
+			dispatch(getAllBlogs());
+		}
+		
+		if (!other?.blog1 && !previewData) {
+			dispatch(getOther());
+		}
+	}, [dispatch, blogs, other, user, previewData]);
 
 	useEffect(() => {
 		// If preview data is provided, use it
@@ -100,24 +102,24 @@ export default function Blog1({ previewData }: Blog1Props) {
 		setCurrentPremiumPost(null);
 	}
 
-	if (blogLoading || otherLoading) {
-		return (
-			<div className="flex justify-center items-center min-h-[200px]">
-				<Loader2 className="h-8 w-8 animate-spin text-primary" />
-			</div>
-		)
-	}
-
-	if (error) {
-		return (
-			<div className="flex justify-center items-center min-h-[200px]">
-				<p className="text-red-500">Error: {error}</p>
-			</div>
-		)
-	}
-
+	// Return placeholder during data loading (minimal and without text)
 	if (!data || !blogs || blogs.length === 0) {
-		return null
+		return (
+			<section className="section-blog-1 py-4" style={{ backgroundColor: '#ffffff' }}>
+				<div className="container">
+					<div className="row align-items-end">
+						<div className="col-12 col-md-6 me-auto" style={{ minHeight: "100px" }}></div>
+					</div>
+					<div className="row">
+						{[1, 2, 3].map((index) => (
+							<div key={index} className="col-lg-4 text-start">
+								<div className="card border-0 rounded-3 mt-8 position-relative w-100 bg-gray-50" style={{ minHeight: "300px" }}></div>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+		);
 	}
 
 	const blogPosts = blogs.slice(0, 3)

@@ -13,12 +13,14 @@ interface Cta1Props {
 export default function Cta1({ previewData }: Cta1Props = {}) {
 	const [data, setData] = useState<any>(null)
 	const dispatch = useDispatch<AppDispatch>()
-	const { cta, loading } = useSelector((state: RootState) => state.cta)
+	const { cta } = useSelector((state: RootState) => state.cta)
 
 	useEffect(() => {
-		// Always trigger getCta() on component mount
-		dispatch(getCta())
-	}, [dispatch])
+		// Only fetch if we don't already have data
+		if (!cta?.cta1) {
+			dispatch(getCta())
+		}
+	}, [dispatch, cta])
 
 	useEffect(() => {
 		// If preview data is provided, use it
@@ -31,14 +33,17 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 		}
 	}, [previewData, cta])
 
-	// If data is still loading, show a loading indicator
+	// Return invisible placeholder during data loading (minimal and without text)
 	if (!data) {
 		return (
-			<section className="section-padding">
-				<div className="container text-center">
-					<div className="spinner-border" role="status">
-						<span className="visually-hidden">Loading...</span>
+			<section className="section-testimonial-13 position-relative pt-120 pb-80 fix" aria-hidden="true">
+				<div className="container position-relative z-1">
+					<div className="row pb-9">
+						<div className="col-lg-10 mx-lg-auto" style={{ minHeight: "200px" }}></div>
 					</div>
+				</div>
+				<div className="container-fluid">
+					<div className="d-flex align-items-center justify-content-center position-relative" style={{ minHeight: "100px" }}></div>
 				</div>
 			</section>
 		)

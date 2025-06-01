@@ -13,12 +13,14 @@ interface Hero1Props {
 export default function Hero1({ previewData }: Hero1Props = {}) {
 	const [data, setData] = useState<any>(null)
 	const dispatch = useDispatch<AppDispatch>()
-	const { hero, loading } = useSelector((state: RootState) => state.hero)
+	const { hero } = useSelector((state: RootState) => state.hero)
 
 	useEffect(() => {
-		// Always trigger getHero() on component mount
-		dispatch(getHero())
-	}, [dispatch])
+		// Only fetch if we don't already have data
+		if (!hero?.hero1) {
+			dispatch(getHero())
+		}
+	}, [dispatch, hero])
 
 	useEffect(() => {
 		// If preview data is provided, use it
@@ -31,9 +33,20 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 		}
 	}, [previewData, hero])
 
-	// If data is still loading, show a loading indicator
+	// Return placeholder during data loading (minimal and without text)
 	if (!data) {
-		return 
+		return (
+			<section className="position-relative overflow-hidden section-padding">
+				<div className="container">
+					<div className="row content align-items-center">
+						<div className="col-lg-6 col-md-12 mb-lg-0 mb-5">
+							<div className="pe-2" style={{ minHeight: "300px" }}></div>
+						</div>
+						<div className="col-lg-6 position-relative justify-content-center" style={{ minHeight: "300px" }}></div>
+					</div>
+				</div>
+			</section>
+		)
 	}
 
 	return (

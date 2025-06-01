@@ -24,6 +24,7 @@ import Features4 from "@/components/sections/Features4";
 import Features5 from "@/components/sections/Features5";
 import Features8 from "@/components/sections/Features8";
 import Features10 from "@/components/sections/Features10";
+import { ReduxProvider } from "@/components/ui/ReduxProvider";
 
 // Define section type
 interface Section {
@@ -61,69 +62,96 @@ const sectionComponents = {
   Features10,
 };
 
-// Fallback component
-function LoadingFallback() {
+// Minimal placeholder component
+function PlaceholderSection() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-    </div>
+    <section className="py-5">
+      <div className="container">
+        <div className="row">
+          <div className="col-12 d-flex justify-content-center align-items-center" style={{ minHeight: "200px" }}>
+            {/* No visible loading indicator */}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
-// Component to render dynamic sections
-async function PageSections() {
+// Async function to fetch page data and all required API data in parallel
+async function fetchAllData() {
   try {
-    // Fetch page data from API with no cache to ensure fresh data
-    const response = await fetch(`${server}/page/home`, {
-      cache: "no-store", // Ensure fresh data on each request
-    });
+    // Fetch multiple data sources in parallel
+    const [pageResponse, heroResponse, ctaResponse, faqResponse, otherResponse, blogResponse, headerResponse, footerResponse] = await Promise.all([
+      fetch(`${server}/page/home`, { cache: "no-store" }),
+      fetch(`${server}/hero`, { cache: "no-store" }),
+      fetch(`${server}/cta`, { cache: "no-store" }),
+      fetch(`${server}/faq`, { cache: "no-store" }),
+      fetch(`${server}/other`, { cache: "no-store" }),
+      fetch(`${server}/blog`, { cache: "no-store" }),
+      fetch(`${server}/header`, { cache: "no-store" }),
+      fetch(`${server}/footer`, { cache: "no-store" })
+    ]);
     
-    if (!response.ok) {
-      throw new Error(`Failed to fetch page data: ${response.status}`);
-    }
+    // Parse all responses in parallel
+    const [pageData, heroData, ctaData, faqData, otherData, blogData, headerData, footerData] = await Promise.all([
+      pageResponse.ok ? pageResponse.json() : { page: { sections: [] } },
+      heroResponse.ok ? heroResponse.json() : { hero: null },
+      ctaResponse.ok ? ctaResponse.json() : { cta: null },
+      faqResponse.ok ? faqResponse.json() : { faq: null },
+      otherResponse.ok ? otherResponse.json() : { other: null },
+      blogResponse.ok ? blogResponse.json() : { blogs: [] },
+      headerResponse.ok ? headerResponse.json() : { header: null },
+      footerResponse.ok ? footerResponse.json() : { footer: null }
+    ]);
     
-    const data = await response.json();
-
-    if (!data || !data.page || !data.page.sections) {
-      // Fallback to default sections if no data
-      return (
-        <>
-          <Hero1 />
-          <Cta4 />
-          <Services2 />
-          <Faqs2 />
-        </>
-      );
-    }
-
-    // Render sections from database
-    return (
-      <>
-        {data.page.sections.map((section: Section) => {
-          const SectionComponent =
-            sectionComponents[section.type as keyof typeof sectionComponents];
-          return SectionComponent ? <SectionComponent key={section.id} /> : null;
-        })}
-      </>
-    );
+    return {
+      page: pageData.page,
+      preloadedState: {
+        hero: heroData.hero,
+        cta: ctaData.cta,
+        faq: faqData.faq,
+        other: otherData.other,
+        blog: { 
+          blogs: blogData.blogs || [],
+          loading: false,
+          error: null
+        },
+        header: headerData.header,
+        footer: footerData.footer
+      }
+    };
   } catch (error) {
-    console.error("Error loading page data:", error);
-    // Fallback to default sections if error
-    return (
-      <>
-        <Hero1 />
-        <Cta4 />
-        <Services2 />
-        <Faqs2 />
-      </>
-    );
+    console.error("Error loading data:", error);
+    return {
+      page: { sections: [] },
+      preloadedState: {}
+    };
   }
 }
 
-export default function Home() {
+// Component to render dynamic sections
+export default async function Home() {
+  // Fetch all data at once
+  const { page, preloadedState } = await fetchAllData();
+  
+  // If no sections defined, use default sections
+  const sections = page?.sections?.length > 0 
+    ? page.sections 
+    : [
+        { id: '1', name: 'Hero', type: 'Hero1' },
+        { id: '2', name: 'CTA', type: 'Cta4' },
+        { id: '3', name: 'Services', type: 'Services2' },
+        { id: '4', name: 'FAQs', type: 'Faqs2' }
+      ];
+  
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <PageSections />
-    </Suspense>
+    <ReduxProvider preloadedState={preloadedState}>
+      <Suspense fallback={<PlaceholderSection />}>
+        {sections.map((section: Section) => {
+          const SectionComponent = sectionComponents[section.type];
+          return SectionComponent ? <SectionComponent key={section.id} /> : null;
+        })}
+      </Suspense>
+    </ReduxProvider>
   );
 }
