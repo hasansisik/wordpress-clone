@@ -16,14 +16,35 @@ interface Blog1Props {
 
 // Function to convert title to slug
 const slugify = (text: string) => {
-	return text
-		.toString()
+	// Turkish character mapping
+	const turkishMap: {[key: string]: string} = {
+		'ç': 'c', 'Ç': 'C',
+		'ğ': 'g', 'Ğ': 'G',
+		'ı': 'i', 'İ': 'I',
+		'ö': 'o', 'Ö': 'O',
+		'ş': 's', 'Ş': 'S',
+		'ü': 'u', 'Ü': 'U'
+	};
+	
+	// Replace Turkish characters
+	let result = text.toString();
+	for (const [turkishChar, latinChar] of Object.entries(turkishMap)) {
+		result = result.replace(new RegExp(turkishChar, 'g'), latinChar);
+	}
+	
+	return result
 		.toLowerCase()
 		.replace(/\s+/g, '-')        // Replace spaces with -
 		.replace(/[^\w\-]+/g, '')    // Remove all non-word chars
 		.replace(/\-\-+/g, '-')      // Replace multiple - with single -
 		.replace(/^-+/, '')          // Trim - from start of text
 		.replace(/-+$/, '');         // Trim - from end of text
+};
+
+// Function to truncate text
+const truncateText = (text: string, maxLength: number = 120) => {
+	if (text.length <= maxLength) return text;
+	return text.substring(0, maxLength) + '...';
 };
 
 export default function Blog1({ previewData }: Blog1Props) {
@@ -186,7 +207,7 @@ export default function Blog1({ previewData }: Blog1Props) {
 											<span className="tag-spacing fs-7 fw-bold text-uppercase">{post.category[0]}</span>
 										</Link>
 										<h6 className={`my-3 ${post.premium ? 'text-orange-700' : 'text-gray-800'}`}>{post.title}</h6>
-										<p className="text-gray-700">{post.description}</p>
+										<p className="text-gray-700">{truncateText(post.description)}</p>
 									</div>
 									<Link 
 										href={`/${slugify(post.title)}`} 

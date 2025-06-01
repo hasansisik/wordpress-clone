@@ -60,8 +60,23 @@ interface Project {
 
 // Function to convert title to slug
 const slugify = (text: string) => {
-  return text
-    .toString()
+  // Turkish character mapping
+  const turkishMap: {[key: string]: string} = {
+    'ç': 'c', 'Ç': 'C',
+    'ğ': 'g', 'Ğ': 'G',
+    'ı': 'i', 'İ': 'I',
+    'ö': 'o', 'Ö': 'O',
+    'ş': 's', 'Ş': 'S',
+    'ü': 'u', 'Ü': 'U'
+  };
+  
+  // Replace Turkish characters
+  let result = text.toString();
+  for (const [turkishChar, latinChar] of Object.entries(turkishMap)) {
+    result = result.replace(new RegExp(turkishChar, 'g'), latinChar);
+  }
+  
+  return result
     .toLowerCase()
     .replace(/\s+/g, '-')        // Replace spaces with -
     .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
@@ -246,7 +261,11 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                       <Link
                         key={index}
                         href={`/blog/kategori?category=${encodeURIComponent(cat)}`}
-                        className="bg-primary-soft rounded-pill px-3 fw-bold py-2 text-primary text-uppercase fs-7"
+                        className="rounded-pill px-3 fw-bold py-2  tag-spacing fs-7 fw-bold text-uppercase"
+                        style={{
+                          backgroundColor: blogPost.premium ? "#FFEDD5" : "#f5f5f5",
+                          color: blogPost.premium ? "#C2410C" : "#333333"
+                        }}
                       >
                         {cat}
                       </Link>
