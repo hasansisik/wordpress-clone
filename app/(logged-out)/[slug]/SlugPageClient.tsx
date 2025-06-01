@@ -246,12 +246,13 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               </div>
             </div>
           )}
-          <img 
-            className="w-100"
-            src={blogPost.image} 
-            alt={blogPost.title}
-            style={{ maxWidth: '1920px', maxHeight: '400px', objectFit: 'cover', width: '100%' }}
-          />
+          <div className="w-100 d-flex justify-content-center align-items-center overflow-hidden" style={{ maxHeight: '400px' }}>
+            <img 
+              src={blogPost.image} 
+              alt={blogPost.title}
+              style={{ maxWidth: '100%', width: '100%', height: '400px', objectFit: 'cover', objectPosition: 'center' }}
+            />
+          </div>
           <div className="container mt-10 mb-10">
             <div className="row">
               <div className="col-md-8 mx-auto">
@@ -336,11 +337,14 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                 </div>
               </div>
               <div className="col-md-10 mx-auto my-7">
-                <img
-                  className={`rounded-4 ${blogPost.premium ? "shadow-lg" : ""}`}
-                  src={blogPost.content.mainImage}
-                  alt={blogPost.title}
-                />
+                <div className="d-flex justify-content-center align-items-center overflow-hidden rounded-4" style={{ maxHeight: '450px' }}>
+                  <img
+                    className={`rounded-4 ${blogPost.premium ? "shadow-lg" : ""}`}
+                    src={blogPost.content.mainImage}
+                    alt={blogPost.title}
+                    style={{ width: '100%', objectFit: 'cover', objectPosition: 'center' }}
+                  />
+                </div>
               </div>
               <div className="col-md-8 mx-auto">
                 <div className={`blog-content tw-prose tw-prose-lg tw-max-w-none ${
@@ -434,11 +438,14 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             </div>
             
             {/* Main image */}
-            <img 
-              src={project.content?.mainImage} 
-              alt={project.title} 
-              className="w-full h-auto rounded-lg mb-8" 
-            />
+            <div className="w-full d-flex justify-content-center align-items-center overflow-hidden mb-8" style={{ maxHeight: '500px' }}>
+              <img 
+                src={project.content?.mainImage} 
+                alt={project.title} 
+                className="rounded-lg" 
+                style={{ width: '100%', height: '500px', objectFit: 'cover', objectPosition: 'center' }}
+              />
+            </div>
             
             {/* Content */}
             <div className="prose max-w-none">

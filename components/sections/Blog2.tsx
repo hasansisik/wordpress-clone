@@ -9,6 +9,7 @@ import { getOther } from "@/redux/actions/otherActions"
 import { getMyProfile } from "@/redux/actions/userActions"
 import { AppDispatch, RootState } from "@/redux/store"
 import PremiumContentDialog from "@/components/PremiumContentDialog"
+import { Video } from "lucide-react"
 
 interface Blog2Props {
 	previewData?: any;
@@ -194,7 +195,10 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 													/>
 													{post.premium && (
 														<>
-															<div className="position-absolute top-0 end-0 m-2">
+															<div className="position-absolute top-0 end-0 m-2 d-flex gap-2">
+																<div className="bg-blue-500 text-white px-2 py-1 rounded-pill fs-8 fw-bold d-flex align-items-center">
+																	<Video size={14} className="me-1" /> Video
+																</div>
 																<div className="bg-amber-500 text-white px-2 py-1 rounded-pill fs-8 fw-bold">
 																	Premium
 																</div>
