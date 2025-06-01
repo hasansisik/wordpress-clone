@@ -2,12 +2,19 @@
 
 import { useEffect, useState } from 'react'
 import { Cookie } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getGeneral } from '@/redux/actions/generalActions'
 
 const CookieConsent = () => {
+  const dispatch = useDispatch()
   const [showConsent, setShowConsent] = useState(false)
   const [showCustomize, setShowCustomize] = useState(false)
   const [showMoreInfo, setShowMoreInfo] = useState(false)
-  
+
+  // Get general settings from Redux store
+  const { general, loading } = useSelector((state: RootState) => state.general)
+
   // Cookie preferences state
   const [preferences, setPreferences] = useState({
     necessary: true, // Always true and cannot be changed
@@ -15,6 +22,39 @@ const CookieConsent = () => {
     analytics: false,
     performance: false
   })
+
+  // Cookie settings with defaults
+  const cookieSettings = {
+    enabled: general?.cookieConsent?.enabled !== undefined ? general.cookieConsent.enabled : true,
+    title: general?.cookieConsent?.title || 'Gizliliğinize değer veriyoruz',
+    description: general?.cookieConsent?.description || 'Çerezler ile deneyiminizi iyileştiriyoruz. "Tümünü Kabul Et" seçeneğine tıklayarak, çerezlerin kullanımına izin vermiş olursunuz.',
+    modalTitle: general?.cookieConsent?.modalTitle || 'Çerez Tercihlerini Özelleştir',
+    modalDescription: general?.cookieConsent?.modalDescription || 'Gezinmenize yardımcı olmak ve belirli işlevleri gerçekleştirmek için çerezleri kullanıyoruz.',
+    necessaryTitle: general?.cookieConsent?.necessaryTitle || 'Gerekli',
+    necessaryDescription: general?.cookieConsent?.necessaryDescription || 'Gerekli çerezler, güvenli giriş yapma veya tercih ayarlarınızı düzenleme gibi bu sitenin temel özelliklerini etkinleştirmek için gereklidir.',
+    functionalTitle: general?.cookieConsent?.functionalTitle || 'İşlevsel',
+    functionalDescription: general?.cookieConsent?.functionalDescription || 'İşlevsel çerezler, web sitesi içeriğini sosyal medya platformlarında paylaşma ve diğer üçüncü taraf özellikleri sağlar.',
+    analyticsTitle: general?.cookieConsent?.analyticsTitle || 'Analitik',
+    analyticsDescription: general?.cookieConsent?.analyticsDescription || 'Analitik çerezler, ziyaretçilerin nasıl gezindiğini anlamamıza yardımcı olur ve site performansı hakkında bilgi sağlar.',
+    performanceTitle: general?.cookieConsent?.performanceTitle || 'Performans',
+    performanceDescription: general?.cookieConsent?.performanceDescription || 'Performans çerezleri, web sitesinin performans ölçümlerini anlayarak kullanıcı deneyimini iyileştirmemize yardımcı olur.',
+    moreInfoText: general?.cookieConsent?.moreInfoText || 'Daha fazla göster',
+    acceptAllText: general?.cookieConsent?.acceptAllText || 'Tümünü Kabul Et',
+    rejectAllText: general?.cookieConsent?.rejectAllText || 'Tümünü Reddet',
+    customizeText: general?.cookieConsent?.customizeText || 'Özelleştir',
+    savePreferencesText: general?.cookieConsent?.savePreferencesText || 'Tercihlerimi Kaydet',
+    alwaysActiveText: general?.cookieConsent?.alwaysActiveText || 'Aktif',
+    iconColor: general?.cookieConsent?.iconColor || '#000000',
+    buttonBgColor: general?.cookieConsent?.buttonBgColor || '#cccccc',
+    position: general?.cookieConsent?.position || 'bottom-left'
+  }
+
+  // Fetch general settings if not already loaded
+  useEffect(() => {
+    if (!general && !loading) {
+      dispatch(getGeneral() as any)
+    }
+  }, [dispatch, general, loading])
 
   useEffect(() => {
     // Check if consent was already given
@@ -25,6 +65,9 @@ const CookieConsent = () => {
       setShowConsent(true)
     }
   }, [])
+
+  // If cookie consent is disabled in admin settings, don't show anything
+  if (!cookieSettings.enabled) return null
 
   const handleAcceptAll = () => {
     // Set all cookies to true
@@ -79,14 +122,20 @@ const CookieConsent = () => {
     }))
   }
 
+  // Get position class based on settings
+  const getPositionClass = () => {
+    return cookieSettings.position === 'bottom-right' ? 'right-6' : 'left-6'
+  }
+
   // Don't render anything if user already gave consent
   if (!showConsent && !showCustomize) return (
     <button
       onClick={() => setShowCustomize(true)}
-      className="fixed bottom-25 left-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors shadow-lg"
+      className={`fixed bottom-25 ${getPositionClass()} z-50 flex items-center justify-center w-14 h-14 rounded-full transition-colors shadow-lg`}
+      style={{ backgroundColor: cookieSettings.buttonBgColor }}
       aria-label="Cookie Settings"
     >
-      <Cookie className="w-7 h-7 text-black" />
+      <Cookie className="w-7 h-7" style={{ color: cookieSettings.iconColor }} />
     </button>
   )
 
@@ -98,29 +147,29 @@ const CookieConsent = () => {
           <div className="container mx-auto flex flex-col items-center text-center">
             <div className="flex items-center gap-3 mb-3">
               <Cookie className="w-7 h-7 text-blue-600" />
-              <h4 className="text-sm font-medium">Gizliliğinize değer veriyoruz</h4>
+              <h4 className="text-sm font-medium">{cookieSettings.title}</h4>
             </div>
             <p className="text-sm text-gray-600 max-w-3xl mb-4">
-              Çerezler ile deneyiminizi iyileştiriyoruz. "Tümünü Kabul Et" seçeneğine tıklayarak, çerezlerin kullanımına izin vermiş olursunuz.
+              {cookieSettings.description}
             </p>
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowCustomize(true)}
                 className="px-6 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
               >
-                Özelleştir
+                {cookieSettings.customizeText}
               </button>
               <button 
                 onClick={handleRejectAll}
                 className="px-6 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-100"
               >
-                Tümünü Reddet
+                {cookieSettings.rejectAllText}
               </button>
               <button 
                 onClick={handleAcceptAll}
                 className="px-6 py-2 text-sm text-white bg-blue-600 border border-blue-600 rounded hover:bg-blue-700"
               >
-                Tümünü Kabul Et
+                {cookieSettings.acceptAllText}
               </button>
             </div>
           </div>
@@ -134,8 +183,8 @@ const CookieConsent = () => {
             <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setShowCustomize(false)}></div>
             
             <div className="relative bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
-              <div className="flex justify-between items-center p-5 border-b">
-                <h3 className="text-xl font-medium">Çerez Tercihlerini Özelleştir</h3>
+              <div className="flex justify-between items-center px-4 py-3 border-b">
+                <h4 className="text-md font-medium">{cookieSettings.modalTitle}</h4>
                 <button 
                   onClick={() => setShowCustomize(false)}
                   className="text-gray-400 hover:text-gray-500"
@@ -147,20 +196,20 @@ const CookieConsent = () => {
                 </button>
               </div>
               
-              <div className="p-5 overflow-y-auto" style={{ maxHeight: "calc(80vh - 160px)" }}>
+              <div className="px-5 py-3 overflow-y-auto" style={{ maxHeight: "calc(80vh - 160px)" }}>
                 <p className="mb-4">
-                  Gezinmenize yardımcı olmak ve belirli işlevleri gerçekleştirmek için çerezleri kullanıyoruz.
+                  {cookieSettings.modalDescription}
                 </p>
                 
                 <div className="mb-4">
                   <p className="mb-2">
-                    "Gerekli" olarak kategorize edilen çerezler, sitenin temel işlevlerini etkinleştirmek için tarayıcınıza depolanır. 
+                    "{cookieSettings.necessaryTitle}" olarak kategorize edilen çerezler, sitenin temel işlevlerini etkinleştirmek için tarayıcınıza depolanır. 
                     {!showMoreInfo && (
                       <button 
                         onClick={() => setShowMoreInfo(true)} 
                         className="text-blue-600 hover:text-blue-700 ml-1 font-medium"
                       >
-                        Daha fazla göster
+                        {cookieSettings.moreInfoText}
                       </button>
                     )}
                   </p>
@@ -183,22 +232,22 @@ const CookieConsent = () => {
                   {/* Necessary cookies - always on and cannot be changed */}
                   <div className="flex items-center justify-between p-4 border rounded ">
                     <div>
-                      <h5 className="font-medium">Gerekli</h5>
+                      <h5 className="font-medium">{cookieSettings.necessaryTitle}</h5>
                       <p className="text-gray-600 mt-1 text-sm">
-                        Gerekli çerezler, güvenli giriş yapma veya tercih ayarlarınızı düzenleme gibi bu sitenin temel özelliklerini etkinleştirmek için gereklidir.
+                        {cookieSettings.necessaryDescription}
                       </p>
                     </div>
                     <div className="flex items-center">
-                      <span className="mr-2 text-sm text-green-600 font-medium">Aktif</span>
+                      <span className="mr-2 text-sm text-green-600 font-medium">{cookieSettings.alwaysActiveText}</span>
                     </div>
                   </div>
 
                   {/* Functional cookies */}
                   <div className="flex items-center justify-between p-4 border rounded">
                     <div>
-                      <h4 className="font-medium">İşlevsel</h4>
+                      <h4 className="font-medium">{cookieSettings.functionalTitle}</h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        İşlevsel çerezler, web sitesi içeriğini sosyal medya platformlarında paylaşma ve diğer üçüncü taraf özellikleri sağlar.
+                        {cookieSettings.functionalDescription}
                       </p>
                     </div>
                     <div className="flex items-center">
@@ -217,9 +266,9 @@ const CookieConsent = () => {
                   {/* Analytics cookies */}
                   <div className="flex items-center justify-between p-4 border rounded">
                     <div>
-                      <h4 className="font-medium">Analitik</h4>
+                      <h4 className="font-medium">{cookieSettings.analyticsTitle}</h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        Analitik çerezler, ziyaretçilerin nasıl gezindiğini anlamamıza yardımcı olur ve site performansı hakkında bilgi sağlar.
+                        {cookieSettings.analyticsDescription}
                       </p>
                     </div>
                     <div className="flex items-center">
@@ -238,9 +287,9 @@ const CookieConsent = () => {
                   {/* Performance cookies */}
                   <div className="flex items-center justify-between p-4 border rounded">
                     <div>
-                      <h4 className="font-medium">Performans</h4>
+                      <h4 className="font-medium">{cookieSettings.performanceTitle}</h4>
                       <p className="text-sm text-gray-600 mt-1">
-                        Performans çerezleri, web sitesinin performans ölçümlerini anlayarak kullanıcı deneyimini iyileştirmemize yardımcı olur.
+                        {cookieSettings.performanceDescription}
                       </p>
                     </div>
                     <div className="flex items-center">
@@ -263,19 +312,19 @@ const CookieConsent = () => {
                   onClick={handleRejectAll}
                   className="px-6 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-100"
                 >
-                  Tümünü Reddet
+                  {cookieSettings.rejectAllText}
                 </button>
                 <button 
                   onClick={handleSavePreferences}
                   className="px-6 py-3 text-xs font-medium text-white bg-blue-600 border border-blue-600 rounded shadow-sm hover:bg-blue-700"
                 >
-                  Tercihlerimi Kaydet
+                  {cookieSettings.savePreferencesText}
                 </button>
                 <button 
                   onClick={handleAcceptAll}
                   className="px-6 py-3 text-xs font-medium text-white bg-blue-600 border border-blue-600 rounded shadow-sm hover:bg-blue-700"
                 >
-                  Tümünü Kabul Et
+                  {cookieSettings.acceptAllText}
                 </button>
               </div>
               
@@ -291,10 +340,11 @@ const CookieConsent = () => {
       {!showConsent && (
         <button
           onClick={() => setShowCustomize(true)}
-          className="fixed bottom-25 left-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-gray-300 hover:bg-gray-300 transition-colors shadow-lg"
+          className={`fixed bottom-25 ${getPositionClass()} z-50 flex items-center justify-center w-14 h-14 rounded-full transition-colors shadow-lg`}
+          style={{ backgroundColor: cookieSettings.buttonBgColor }}
           aria-label="Cookie Settings"
         >
-          <Cookie className="w-7 h-7 text-black" />
+          <Cookie className="w-7 h-7" style={{ color: cookieSettings.iconColor }} />
         </button>
       )}
     </>

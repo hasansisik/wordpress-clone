@@ -26,7 +26,8 @@ import {
   Moon,
   Sun,
   MessageCircle,
-  CreditCard
+  CreditCard,
+  Cookie
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -85,6 +86,30 @@ export default function SiteSettingsPage() {
       enabled: false,
       phoneNumber: "",
       message: ""
+    },
+    cookieConsent: {
+      enabled: true,
+      title: "Gizliliğinize değer veriyoruz",
+      description: "Çerezler ile deneyiminizi iyileştiriyoruz. \"Tümünü Kabul Et\" seçeneğine tıklayarak, çerezlerin kullanımına izin vermiş olursunuz.",
+      modalTitle: "Çerez Tercihlerini Özelleştir",
+      modalDescription: "Gezinmenize yardımcı olmak ve belirli işlevleri gerçekleştirmek için çerezleri kullanıyoruz.",
+      necessaryTitle: "Gerekli",
+      necessaryDescription: "Gerekli çerezler, güvenli giriş yapma veya tercih ayarlarınızı düzenleme gibi bu sitenin temel özelliklerini etkinleştirmek için gereklidir.",
+      functionalTitle: "İşlevsel",
+      functionalDescription: "İşlevsel çerezler, web sitesi içeriğini sosyal medya platformlarında paylaşma ve diğer üçüncü taraf özellikleri sağlar.",
+      analyticsTitle: "Analitik",
+      analyticsDescription: "Analitik çerezler, ziyaretçilerin nasıl gezindiğini anlamamıza yardımcı olur ve site performansı hakkında bilgi sağlar.",
+      performanceTitle: "Performans",
+      performanceDescription: "Performans çerezleri, web sitesinin performans ölçümlerini anlayarak kullanıcı deneyimini iyileştirmemize yardımcı olur.",
+      moreInfoText: "Daha fazla göster",
+      acceptAllText: "Tümünü Kabul Et",
+      rejectAllText: "Tümünü Reddet",
+      customizeText: "Özelleştir",
+      savePreferencesText: "Tercihlerimi Kaydet",
+      alwaysActiveText: "Aktif",
+      iconColor: "#000000",
+      buttonBgColor: "#cccccc",
+      position: "bottom-left"
     }
   });
 
@@ -126,6 +151,30 @@ export default function SiteSettingsPage() {
           enabled: general.whatsapp?.enabled !== undefined ? general.whatsapp.enabled : siteSettings.whatsapp.enabled,
           phoneNumber: general.whatsapp?.phoneNumber || siteSettings.whatsapp.phoneNumber,
           message: general.whatsapp?.message || siteSettings.whatsapp.message
+        },
+        cookieConsent: {
+          enabled: general.cookieConsent?.enabled !== undefined ? general.cookieConsent.enabled : siteSettings.cookieConsent.enabled,
+          title: general.cookieConsent?.title || siteSettings.cookieConsent.title,
+          description: general.cookieConsent?.description || siteSettings.cookieConsent.description,
+          modalTitle: general.cookieConsent?.modalTitle || siteSettings.cookieConsent.modalTitle,
+          modalDescription: general.cookieConsent?.modalDescription || siteSettings.cookieConsent.modalDescription,
+          necessaryTitle: general.cookieConsent?.necessaryTitle || siteSettings.cookieConsent.necessaryTitle,
+          necessaryDescription: general.cookieConsent?.necessaryDescription || siteSettings.cookieConsent.necessaryDescription,
+          functionalTitle: general.cookieConsent?.functionalTitle || siteSettings.cookieConsent.functionalTitle,
+          functionalDescription: general.cookieConsent?.functionalDescription || siteSettings.cookieConsent.functionalDescription,
+          analyticsTitle: general.cookieConsent?.analyticsTitle || siteSettings.cookieConsent.analyticsTitle,
+          analyticsDescription: general.cookieConsent?.analyticsDescription || siteSettings.cookieConsent.analyticsDescription,
+          performanceTitle: general.cookieConsent?.performanceTitle || siteSettings.cookieConsent.performanceTitle,
+          performanceDescription: general.cookieConsent?.performanceDescription || siteSettings.cookieConsent.performanceDescription,
+          moreInfoText: general.cookieConsent?.moreInfoText || siteSettings.cookieConsent.moreInfoText,
+          acceptAllText: general.cookieConsent?.acceptAllText || siteSettings.cookieConsent.acceptAllText,
+          rejectAllText: general.cookieConsent?.rejectAllText || siteSettings.cookieConsent.rejectAllText,
+          customizeText: general.cookieConsent?.customizeText || siteSettings.cookieConsent.customizeText,
+          savePreferencesText: general.cookieConsent?.savePreferencesText || siteSettings.cookieConsent.savePreferencesText,
+          alwaysActiveText: general.cookieConsent?.alwaysActiveText || siteSettings.cookieConsent.alwaysActiveText,
+          iconColor: general.cookieConsent?.iconColor || siteSettings.cookieConsent.iconColor,
+          buttonBgColor: general.cookieConsent?.buttonBgColor || siteSettings.cookieConsent.buttonBgColor,
+          position: general.cookieConsent?.position || siteSettings.cookieConsent.position
         }
       });
 
@@ -139,7 +188,7 @@ export default function SiteSettingsPage() {
     }
   }, [general]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     if (name.startsWith("cloudinary.")) {
@@ -167,6 +216,15 @@ export default function SiteSettingsPage() {
         whatsapp: {
           ...siteSettings.whatsapp,
           [whatsappField]: value
+        }
+      });
+    } else if (name.startsWith("cookieConsent.")) {
+      const cookieField = name.split(".")[1];
+      setSiteSettings({
+        ...siteSettings,
+        cookieConsent: {
+          ...siteSettings.cookieConsent,
+          [cookieField]: value
         }
       });
     } else {
@@ -208,6 +266,26 @@ export default function SiteSettingsPage() {
     });
   };
 
+  const handleCookieConsentToggle = (enabled: boolean) => {
+    setSiteSettings({
+      ...siteSettings,
+      cookieConsent: {
+        ...siteSettings.cookieConsent,
+        enabled
+      }
+    });
+  };
+
+  const handleCookiePositionChange = (position: 'bottom-left' | 'bottom-right') => {
+    setSiteSettings({
+      ...siteSettings,
+      cookieConsent: {
+        ...siteSettings.cookieConsent,
+        position
+      }
+    });
+  };
+
   const handleSaveSettings = async () => {
     setIsLoading(true);
     
@@ -245,6 +323,30 @@ export default function SiteSettingsPage() {
           darkSecondaryColor: siteSettings.darkSecondaryColor,
           darkAccentColor: siteSettings.darkAccentColor,
           darkTextColor: siteSettings.darkTextColor
+        },
+        cookieConsent: {
+          enabled: siteSettings.cookieConsent.enabled,
+          title: siteSettings.cookieConsent.title,
+          description: siteSettings.cookieConsent.description,
+          modalTitle: siteSettings.cookieConsent.modalTitle,
+          modalDescription: siteSettings.cookieConsent.modalDescription,
+          necessaryTitle: siteSettings.cookieConsent.necessaryTitle,
+          necessaryDescription: siteSettings.cookieConsent.necessaryDescription,
+          functionalTitle: siteSettings.cookieConsent.functionalTitle,
+          functionalDescription: siteSettings.cookieConsent.functionalDescription,
+          analyticsTitle: siteSettings.cookieConsent.analyticsTitle,
+          analyticsDescription: siteSettings.cookieConsent.analyticsDescription,
+          performanceTitle: siteSettings.cookieConsent.performanceTitle,
+          performanceDescription: siteSettings.cookieConsent.performanceDescription,
+          moreInfoText: siteSettings.cookieConsent.moreInfoText,
+          acceptAllText: siteSettings.cookieConsent.acceptAllText,
+          rejectAllText: siteSettings.cookieConsent.rejectAllText,
+          customizeText: siteSettings.cookieConsent.customizeText,
+          savePreferencesText: siteSettings.cookieConsent.savePreferencesText,
+          alwaysActiveText: siteSettings.cookieConsent.alwaysActiveText,
+          iconColor: siteSettings.cookieConsent.iconColor,
+          buttonBgColor: siteSettings.cookieConsent.buttonBgColor,
+          position: siteSettings.cookieConsent.position as 'bottom-left' | 'bottom-right'
         }
       };
 
@@ -356,7 +458,7 @@ export default function SiteSettingsPage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid grid-cols-6 mb-8">
+              <TabsList className="grid grid-cols-7 mb-8">
                 <TabsTrigger value="general" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   <span className="hidden sm:inline">General</span>
@@ -380,6 +482,10 @@ export default function SiteSettingsPage() {
                 <TabsTrigger value="whatsapp" className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" />
                   <span className="hidden sm:inline">WhatsApp</span>
+                </TabsTrigger>
+                <TabsTrigger value="cookies" className="flex items-center gap-2">
+                  <Cookie className="h-4 w-4" />
+                  <span className="hidden sm:inline">Çerezler</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -852,6 +958,322 @@ export default function SiteSettingsPage() {
                       
                       <div className="bg-white p-3 rounded-md mt-3 text-sm border">
                         {siteSettings.whatsapp.message}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Cookie Consent Settings */}
+              <TabsContent value="cookies" className="space-y-6">
+                <div className="border rounded-md p-4">
+                  <h3 className="text-lg font-medium mb-4">Çerez İzni Ayarları</h3>
+                  <p className="text-sm mb-4">
+                    Web sitenizde görünen çerez izni bildirimi ve ayarlarını yapılandırın
+                  </p>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="cookie-enabled" className="text-base">Çerez İzin Bildirimini Etkinleştir</Label>
+                        <p className="text-sm text-muted-foreground">Web sitenizde çerez izni bildirimini göster</p>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="cookie-enabled"
+                          checked={siteSettings.cookieConsent.enabled}
+                          onChange={(e) => handleCookieConsentToggle(e.target.checked)}
+                          className="mr-2 h-4 w-4"
+                        />
+                        <Label htmlFor="cookie-enabled" className="cursor-pointer">
+                          {siteSettings.cookieConsent.enabled ? "Etkin" : "Devre Dışı"}
+                        </Label>
+                      </div>
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="cookiePosition">İkon Konumu</Label>
+                        <select
+                          id="cookiePosition"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          value={siteSettings.cookieConsent.position}
+                          onChange={(e) => handleCookiePositionChange(e.target.value as 'bottom-left' | 'bottom-right')}
+                        >
+                          <option value="bottom-left">Sol Alt</option>
+                          <option value="bottom-right">Sağ Alt</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieIconColor">İkon Rengi</Label>
+                        <div className="flex gap-2">
+                          <div
+                            className="h-10 w-10 rounded-md border"
+                            style={{ backgroundColor: siteSettings.cookieConsent.iconColor }}
+                          />
+                          <Input
+                            id="cookieIconColor"
+                            name="cookieConsent.iconColor"
+                            type="text"
+                            value={siteSettings.cookieConsent.iconColor}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieButtonBgColor">İkon Arka Plan Rengi</Label>
+                      <div className="flex gap-2">
+                        <div
+                          className="h-10 w-10 rounded-md border"
+                          style={{ backgroundColor: siteSettings.cookieConsent.buttonBgColor }}
+                        />
+                        <Input
+                          id="cookieButtonBgColor"
+                          name="cookieConsent.buttonBgColor"
+                          type="text"
+                          value={siteSettings.cookieConsent.buttonBgColor}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieTitle">Başlık</Label>
+                      <Input
+                        id="cookieTitle"
+                        name="cookieConsent.title"
+                        placeholder="Çerez izni başlığı"
+                        value={siteSettings.cookieConsent.title}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieDescription">Açıklama</Label>
+                      <Textarea
+                        id="cookieDescription"
+                        name="cookieConsent.description"
+                        placeholder="Çerez izni açıklaması"
+                        rows={3}
+                        value={siteSettings.cookieConsent.description}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieAcceptAllText">Tümünü Kabul Et Metni</Label>
+                        <Input
+                          id="cookieAcceptAllText"
+                          name="cookieConsent.acceptAllText"
+                          value={siteSettings.cookieConsent.acceptAllText}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieRejectAllText">Tümünü Reddet Metni</Label>
+                        <Input
+                          id="cookieRejectAllText"
+                          name="cookieConsent.rejectAllText"
+                          value={siteSettings.cookieConsent.rejectAllText}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieCustomizeText">Özelleştir Metni</Label>
+                        <Input
+                          id="cookieCustomizeText"
+                          name="cookieConsent.customizeText"
+                          value={siteSettings.cookieConsent.customizeText}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieModalTitle">Modal Başlığı</Label>
+                      <Input
+                        id="cookieModalTitle"
+                        name="cookieConsent.modalTitle"
+                        value={siteSettings.cookieConsent.modalTitle}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieModalDescription">Modal Açıklaması</Label>
+                      <Textarea
+                        id="cookieModalDescription"
+                        name="cookieConsent.modalDescription"
+                        rows={2}
+                        value={siteSettings.cookieConsent.modalDescription}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieSavePreferencesText">Tercihleri Kaydet Metni</Label>
+                        <Input
+                          id="cookieSavePreferencesText"
+                          name="cookieConsent.savePreferencesText"
+                          value={siteSettings.cookieConsent.savePreferencesText}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieMoreInfoText">Daha Fazla Göster Metni</Label>
+                        <Input
+                          id="cookieMoreInfoText"
+                          name="cookieConsent.moreInfoText"
+                          value={siteSettings.cookieConsent.moreInfoText}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    <h4 className="font-medium">Çerez Kategorileri</h4>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieNecessaryTitle">Gerekli Başlık</Label>
+                        <Input
+                          id="cookieNecessaryTitle"
+                          name="cookieConsent.necessaryTitle"
+                          value={siteSettings.cookieConsent.necessaryTitle}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="cookieAlwaysActiveText">Her Zaman Aktif Metni</Label>
+                        <Input
+                          id="cookieAlwaysActiveText"
+                          name="cookieConsent.alwaysActiveText"
+                          value={siteSettings.cookieConsent.alwaysActiveText}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieNecessaryDescription">Gerekli Açıklama</Label>
+                      <Textarea
+                        id="cookieNecessaryDescription"
+                        name="cookieConsent.necessaryDescription"
+                        rows={2}
+                        value={siteSettings.cookieConsent.necessaryDescription}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieFunctionalTitle">İşlevsel Başlık</Label>
+                      <Input
+                        id="cookieFunctionalTitle"
+                        name="cookieConsent.functionalTitle"
+                        value={siteSettings.cookieConsent.functionalTitle}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieFunctionalDescription">İşlevsel Açıklama</Label>
+                      <Textarea
+                        id="cookieFunctionalDescription"
+                        name="cookieConsent.functionalDescription"
+                        rows={2}
+                        value={siteSettings.cookieConsent.functionalDescription}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieAnalyticsTitle">Analitik Başlık</Label>
+                      <Input
+                        id="cookieAnalyticsTitle"
+                        name="cookieConsent.analyticsTitle"
+                        value={siteSettings.cookieConsent.analyticsTitle}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookieAnalyticsDescription">Analitik Açıklama</Label>
+                      <Textarea
+                        id="cookieAnalyticsDescription"
+                        name="cookieConsent.analyticsDescription"
+                        rows={2}
+                        value={siteSettings.cookieConsent.analyticsDescription}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookiePerformanceTitle">Performans Başlık</Label>
+                      <Input
+                        id="cookiePerformanceTitle"
+                        name="cookieConsent.performanceTitle"
+                        value={siteSettings.cookieConsent.performanceTitle}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cookiePerformanceDescription">Performans Açıklama</Label>
+                      <Textarea
+                        id="cookiePerformanceDescription"
+                        name="cookieConsent.performanceDescription"
+                        rows={2}
+                        value={siteSettings.cookieConsent.performanceDescription}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="bg-blue-50 border-blue-200 border p-4 rounded-md mt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Cookie className="h-5 w-5 text-blue-600" />
+                        <h4 className="font-medium text-blue-700">Önizleme</h4>
+                      </div>
+                      
+                      <div className="flex flex-col gap-3 mt-2">
+                        <div className="bg-white p-4 rounded-md border shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Cookie className="h-4 w-4 text-blue-600" />
+                            <p className="font-medium">{siteSettings.cookieConsent.title}</p>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3">{siteSettings.cookieConsent.description}</p>
+                          <div className="flex gap-2">
+                            <div className="px-3 py-1 text-xs border rounded">{siteSettings.cookieConsent.customizeText}</div>
+                            <div className="px-3 py-1 text-xs border rounded">{siteSettings.cookieConsent.rejectAllText}</div>
+                            <div className="px-3 py-1 text-xs text-white bg-blue-600 rounded">{siteSettings.cookieConsent.acceptAllText}</div>
+                          </div>
+                        </div>
+                        
+                        <div 
+                          className="w-10 h-10 rounded-full flex items-center justify-center mt-2"
+                          style={{ 
+                            backgroundColor: siteSettings.cookieConsent.buttonBgColor,
+                            alignSelf: siteSettings.cookieConsent.position === 'bottom-right' ? 'flex-end' : 'flex-start'
+                          }}
+                        >
+                          <Cookie className="w-6 h-6" style={{ color: siteSettings.cookieConsent.iconColor }} />
+                        </div>
                       </div>
                     </div>
                   </div>

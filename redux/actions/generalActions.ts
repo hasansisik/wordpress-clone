@@ -34,6 +34,30 @@ export interface GeneralPayload {
     phoneNumber?: string;
     message?: string;
   };
+  cookieConsent?: {
+    enabled?: boolean;
+    title?: string;
+    description?: string;
+    modalTitle?: string;
+    modalDescription?: string;
+    necessaryTitle?: string;
+    necessaryDescription?: string;
+    functionalTitle?: string;
+    functionalDescription?: string;
+    analyticsTitle?: string;
+    analyticsDescription?: string;
+    performanceTitle?: string;
+    performanceDescription?: string;
+    moreInfoText?: string;
+    acceptAllText?: string;
+    rejectAllText?: string;
+    customizeText?: string;
+    savePreferencesText?: string;
+    alwaysActiveText?: string;
+    iconColor?: string;
+    buttonBgColor?: string;
+    position?: 'bottom-left' | 'bottom-right';
+  };
   theme?: {
     headerStyle?: number;
     footerStyle?: number;
