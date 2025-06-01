@@ -34,16 +34,16 @@ export default function Menu({ menuItems = [] }: MenuProps) {
     return (
       <div className="d-none d-lg-flex">
         <ul className="navbar-nav mx-auto gap-4 align-items-lg-center">
-          {data?.map((item: MenuItem) => (
-            <li key={item._id} className="nav-item">
+          {(data?.map((item: MenuItem) => (
+            <li key={item._id || `menu-item-${item.name}`} className="nav-item">
               <Link
                 className="nav-link fw-bold d-flex align-items-center"
-                href={item.link}
+                href={item.link || "#"}
               >
                 {item.name}
               </Link>
             </li>
-          )) || []}
+          ))) || []}
         </ul>
       </div>
     );
@@ -56,7 +56,7 @@ export default function Menu({ menuItems = [] }: MenuProps) {
         <ul className="navbar-nav mx-auto gap-4 align-items-lg-center">
           {data?.map((item: any, index: number) => (
             <li
-              key={index}
+              key={`menu-item-${item?.title || index}`}
               className={`nav-item ${
                 item?.dropdown ? `dropdown ${item?.dropdownType}` : ""
               }`}
@@ -78,7 +78,7 @@ export default function Menu({ menuItems = [] }: MenuProps) {
                       {item?.dropdownItems?.map(
                         (dropdownItem: any, i: number) => (
                           <li
-                            key={i}
+                            key={`dropdown-item-${i}-${dropdownItem?.title || i}`}
                             className="position-relative z-1 border-bottom"
                           >
                             <Link
@@ -116,7 +116,7 @@ export default function Menu({ menuItems = [] }: MenuProps) {
                           <div className="row">
                             {item?.megaMenuSections?.map(
                               (section: any, sectionIndex: number) => (
-                                <div key={sectionIndex} className="col-2">
+                                <div key={`mega-section-${sectionIndex}-${section?.title || sectionIndex}`} className="col-2">
                                   <div className="mega-menu-list">
                                     <p className="text-primary fw-bold mb-1 fs-7">
                                       {section?.title || ""}
@@ -124,7 +124,7 @@ export default function Menu({ menuItems = [] }: MenuProps) {
                                     <ul className="list-unstyled">
                                       {section?.links?.map(
                                         (link: any, linkIndex: number) => (
-                                          <li key={linkIndex}>
+                                          <li key={`mega-link-${sectionIndex}-${linkIndex}-${link?.title || linkIndex}`}>
                                             <Link
                                               className="dropdown-item position-relative z-1"
                                               href={link?.href || "#"}
@@ -157,7 +157,7 @@ export default function Menu({ menuItems = [] }: MenuProps) {
                   <div className="d-flex flex-wrap gap-2 position-relative z-1">
                     {item?.sections?.map((section: any, i: number) => (
                       <Link
-                        key={i}
+                        key={`section-${i}-${section?.title || i}`}
                         href={section?.href || "#"}
                         className="btn btn-md btn-filter mb-2 me-2 rounded-pill py-2 d-inline-flex"
                       >
