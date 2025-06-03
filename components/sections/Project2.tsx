@@ -183,8 +183,6 @@ export default function Project2({ previewData }: Project2Props) {
 													/>
 												</div>
 												<Link href={`/${slugify(project.title)}`} className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-4 hover-up">
-													<p className="fs-7 text-primary mb-1">{project.company}</p>
-													<h6>{project.subtitle || ''}</h6>
 													<p className="text-900">{project.fullDescription || project.description}</p>
 												</Link>
 												<Link href={`/${slugify(project.title)}`} className="badge text-primary bg-white px-3 py-2 rounded-pill m-4 fs-7 position-absolute top-0 end-0 z-1">{project.tag || 'Hizmetler'}</Link>
