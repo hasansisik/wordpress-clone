@@ -1,14 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBlogs } from "@/redux/actions/blogActions";
 import { getAllServices } from "@/redux/actions/serviceActions";
+import { getAllHizmetler } from "@/redux/actions/hizmetActions";
 import { AppDispatch, RootState } from "@/redux/store";
 import Link from "next/link";
 import parse from "html-react-parser";
 import { notFound } from "next/navigation";
-import { Award } from "lucide-react";
+import { Award, Eye } from "lucide-react";
 
 // Import the types and slugify function
 interface BlogPost {
@@ -55,6 +56,57 @@ interface Project {
     };
     mainImage: string;
     fullContent: string;
+  };
+}
+
+interface Hizmet {
+  id: number;
+  _id?: string;
+  title: string;
+  description: string;
+  image: string;
+  categories: string[];
+  company: string;
+  subtitle: string;
+  fullDescription: string;
+  tag: string;
+  content: {
+    intro: string;
+    readTime: string;
+    author: {
+      name: string;
+      avatar: string;
+      date: string;
+    };
+    mainImage: string;
+    fullContent: string;
+    bannerSectionTitle?: string;
+    bannerSectionDescription?: string;
+    bannerSectionImage?: string;
+    beforeAfterSectionTitle?: string;
+    beforeAfterSectionDescription?: string;
+    beforeAfterItems?: {
+      title?: string;
+      description?: string;
+      beforeImage: string;
+      afterImage: string;
+      order?: number;
+    }[];
+    leftRightSectionTitle?: string;
+    leftRightItems?: {
+      title: string;
+      description?: string;
+      image: string;
+      isRightAligned?: boolean;
+      order?: number;
+    }[];
+    gallerySectionTitle?: string;
+    gallerySectionDescription?: string;
+    galleryImages?: {
+      title?: string;
+      image: string;
+      order?: number;
+    }[];
   };
 }
 
@@ -109,6 +161,18 @@ const getLocalProjectData = async () => {
   }
 };
 
+// Function to get local JSON hizmet data
+const getLocalHizmetData = async () => {
+  try {
+    const response = await fetch('/api/local-hizmetler');
+    const data = await response.json();
+    return data.hizmetler || [];
+  } catch (error) {
+    console.error('Failed to fetch local hizmet data:', error);
+    return [];
+  }
+};
+
 interface SlugPageClientProps {
   slug: string;
 }
@@ -119,13 +183,23 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   // Redux state
   const { blogs, loading: blogsLoading } = useSelector((state: RootState) => state.blog);
   const { services, loading: servicesLoading } = useSelector((state: RootState) => state.service);
+  const { hizmetler, loading: hizmetlerLoading } = useSelector((state: RootState) => state.hizmet);
   
   // Local state for content
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
   const [project, setProject] = useState<Project | null>(null);
-  const [contentType, setContentType] = useState<'blog' | 'project' | null>(null);
+  const [hizmet, setHizmet] = useState<Hizmet | null>(null);
+  const [contentType, setContentType] = useState<'blog' | 'project' | 'hizmet' | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [usingFallback, setUsingFallback] = useState(false);
+  
+  // For before-after sliders
+  const [sliderPositions, setSliderPositions] = useState<number[]>([]);
+  const sliderRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isDragging = useRef<number | null>(null);
+
+  // For image preview modal
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   
   // Fetch data from Redux
   useEffect(() => {
@@ -140,6 +214,10 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           await dispatch(getAllServices());
         }
         
+        if (!hizmetler || hizmetler.length === 0) {
+          await dispatch(getAllHizmetler());
+        }
+        
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -149,7 +227,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
     };
     
     fetchData();
-  }, [dispatch, blogs.length, services.length]);
+  }, [dispatch, blogs.length, services.length, hizmetler]);
   
   // Find the content by slug once data is loaded
   useEffect(() => {
@@ -159,6 +237,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         // First try to find in Redux
         const foundBlog = blogs.find(post => slugify(post.title) === slug);
         const foundProject = services.find(service => slugify(service.title) === slug);
+        const foundHizmet = hizmetler?.find(hizmet => slugify(hizmet.title) === slug);
         
         if (foundBlog) {
           setBlogPost(foundBlog);
@@ -169,6 +248,19 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         if (foundProject) {
           setProject(foundProject);
           setContentType('project');
+          return;
+        }
+        
+        if (foundHizmet) {
+          setHizmet(foundHizmet);
+          setContentType('hizmet');
+          
+          // Initialize slider positions for before-after items
+          if (foundHizmet.content?.beforeAfterItems?.length) {
+            setSliderPositions(new Array(foundHizmet.content.beforeAfterItems.length).fill(50));
+            sliderRefs.current = new Array(foundHizmet.content.beforeAfterItems.length).fill(null);
+          }
+          
           return;
         }
         
@@ -196,6 +288,23 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             return;
           }
           
+          // Try to find in local hizmet data
+          const localHizmetler = await getLocalHizmetData();
+          const localHizmet = localHizmetler.find((hizm: Hizmet) => slugify(hizm.title) === slug);
+          
+          if (localHizmet) {
+            setHizmet(localHizmet);
+            setContentType('hizmet');
+            
+            // Initialize slider positions for before-after items
+            if (localHizmet.content?.beforeAfterItems?.length) {
+              setSliderPositions(new Array(localHizmet.content.beforeAfterItems.length).fill(50));
+              sliderRefs.current = new Array(localHizmet.content.beforeAfterItems.length).fill(null);
+            }
+            
+            return;
+          }
+          
           // If still not found, show 404
           notFound();
         } catch (error) {
@@ -206,10 +315,65 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
       
       findContent();
     }
-  }, [isLoading, blogs, services, slug]);
+  }, [isLoading, blogs, services, hizmetler, slug]);
+  
+  // Before-After slider functions
+  const handleSliderChange = (index: number, value: number) => {
+    setSliderPositions((prev) => {
+      const newPositions = [...prev];
+      newPositions[index] = value;
+      return newPositions;
+    });
+  };
+
+  const startDrag = (index: number) => {
+    isDragging.current = index;
+  };
+
+  const endDrag = () => {
+    isDragging.current = null;
+  };
+
+  const onDrag = (e: MouseEvent | TouchEvent) => {
+    if (isDragging.current === null || !sliderRefs.current[isDragging.current]) return;
+
+    const container = sliderRefs.current[isDragging.current]!.getBoundingClientRect();
+    const position =
+      "touches" in e
+        ? ((e.touches[0].clientX - container.left) / container.width) * 100
+        : ((e.clientX - container.left) / container.width) * 100;
+
+    // Constrain the position between 0 and 100
+    const constrainedPosition = Math.max(0, Math.min(100, position));
+    handleSliderChange(isDragging.current, constrainedPosition);
+  };
+
+  // Image preview functions
+  const openPreview = (imageSrc: string) => {
+    setPreviewImage(imageSrc);
+  };
+
+  const closePreview = () => {
+    setPreviewImage(null);
+  };
+  
+  // Event listeners for drag
+  useEffect(() => {
+    window.addEventListener("mouseup", endDrag);
+    window.addEventListener("touchend", endDrag);
+    window.addEventListener("mousemove", onDrag);
+    window.addEventListener("touchmove", onDrag);
+
+    return () => {
+      window.removeEventListener("mouseup", endDrag);
+      window.removeEventListener("touchend", endDrag);
+      window.removeEventListener("mousemove", onDrag);
+      window.removeEventListener("touchmove", onDrag);
+    };
+  }, []);
   
   // Show loading state
-  if (isLoading || blogsLoading || servicesLoading) {
+  if (isLoading || blogsLoading || servicesLoading || hizmetlerLoading) {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-center items-center h-[60vh]">
@@ -453,6 +617,322 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                 <div dangerouslySetInnerHTML={{ __html: project.content.fullContent }} />
               )}
             </div>
+          </div>
+        </div>
+      )}
+      
+      {contentType === 'hizmet' && hizmet && (
+        <div>
+          {/* Main Banner Section */}
+          <section className="section-cta-8">
+            <div className="container-fluid position-relative section-padding">
+              <div className="container">
+                <div className="row align-items-center">
+                  <div className="col-lg-5">
+                    <h5 className="ds-5 mt-2">{hizmet.content.bannerSectionTitle }</h5>
+                    <p>{hizmet.content.bannerSectionDescription}</p>
+                  </div>
+                  <div className="col-lg-6 offset-lg-1 text-center mt-lg-0 mt-8">
+                    <div className="position-relative z-1 d-inline-block mb-lg-0 mb-8">
+                      <img
+                        className="rounded-4 position-relative z-1"
+                        src={hizmet.content.bannerSectionImage || hizmet.content.mainImage || hizmet.image}
+                        alt={hizmet.content.bannerSectionTitle || hizmet.title}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Before-After Section */}
+          {hizmet.content.beforeAfterItems && hizmet.content.beforeAfterItems.length > 0 && (
+            <section className="section-before-after section-padding position-relative">
+              <div className="container">
+                <div className="row position-relative z-1">
+                  <div className="text-center mb-5">
+                    <h3
+                      className="ds-3 my-3"
+                      data-aos="fade-zoom-in"
+                      data-aos-delay={200}
+                    >
+                      {hizmet.content.beforeAfterSectionTitle || "Before-After Comparison"}
+                    </h3>
+                    {hizmet.content.beforeAfterSectionDescription && (
+                      <p className="fs-5" data-aos="fade-zoom-in" data-aos-delay={300}>
+                        {hizmet.content.beforeAfterSectionDescription}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="row">
+                  {hizmet.content.beforeAfterItems.map((item, index) => (
+                    <div className="col-lg-4 mb-4" key={index}>
+                      <div
+                        className="before-after-container position-relative rounded-4 overflow-hidden"
+                        ref={(el) => {
+                          if (sliderRefs.current.length <= index) {
+                            sliderRefs.current = [...sliderRefs.current, ...Array(index - sliderRefs.current.length + 1).fill(null)];
+                          }
+                          sliderRefs.current[index] = el;
+                        }}
+                        style={{ height: "400px" }}
+                        onMouseDown={() => startDrag(index)}
+                        onTouchStart={() => startDrag(index)}
+                      >
+                        {/* Title and description if provided */}
+                        {(item.title || item.description) && (
+                          <div className="position-absolute top-0 start-0 w-100 p-3 z-10 text-white bg-gradient-to-b from-black/70 to-transparent">
+                            {item.title && <h5 className="mb-1">{item.title}</h5>}
+                            {item.description && <p className="mb-0 small">{item.description}</p>}
+                          </div>
+                        )}
+                        
+                        {/* Before image (full width) */}
+                        <div className="before-image position-absolute top-0 start-0 w-100 h-100">
+                          <img
+                            src={item.beforeImage}
+                            alt="Before"
+                            className="w-100 h-100"
+                            style={{ objectFit: "cover" }}
+                          />
+                        </div>
+
+                        {/* After image (partial width controlled by slider) */}
+                        <div
+                          className="after-image position-absolute top-0 start-0 h-100 overflow-hidden"
+                          style={{ width: `${sliderPositions[index] || 50}%` }}
+                        >
+                          <img
+                            src={item.afterImage}
+                            alt="After"
+                            className="w-100 h-100"
+                            style={{ objectFit: "cover" }}
+                          />
+                        </div>
+
+                        {/* Divider line */}
+                        <div
+                          className="divider-line position-absolute top-0 h-100"
+                          style={{
+                            left: `${sliderPositions[index] || 50}%`,
+                            width: "4px",
+                            backgroundColor: "white",
+                            boxShadow: "0 0 8px rgba(0,0,0,0.5)",
+                            zIndex: 20,
+                            transform: "translateX(-50%)",
+                          }}
+                        ></div>
+
+                        {/* Circular handle */}
+                        <div
+                          className="handle-circle position-absolute rounded-circle bg-white"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            top: "50%",
+                            left: `${sliderPositions[index] || 50}%`,
+                            transform: "translate(-50%, -50%)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+                            border: "2px solid #fff",
+                            zIndex: 30,
+                            cursor: "ew-resize",
+                          }}
+                        >
+                          <Eye size={20} color="#333" />
+                        </div>
+
+                        {/* Slider input (hidden but used for functionality) */}
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={sliderPositions[index] || 50}
+                          onChange={(e) =>
+                            handleSliderChange(index, Number(e.target.value))
+                          }
+                          className="position-absolute opacity-0 w-100"
+                          style={{ height: "100%", cursor: "ew-resize", zIndex: 40 }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Left-Right Section */}
+          {hizmet.content.leftRightItems && hizmet.content.leftRightItems.length > 0 && (
+            <section className="section-feature-5">
+              <div className="container-fluid position-relative section-padding">
+                <div className="container">
+                  {hizmet.content.leftRightSectionTitle && (
+                    <div className="row text-center mb-5">
+                      <div className="col-12">
+                        <h3 className="ds-3">{hizmet.content.leftRightSectionTitle}</h3>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {hizmet.content.leftRightItems.map((item, index) => (
+                    <div 
+                      key={index}
+                      className={`row align-items-center text-center ${index > 0 ? 'mt-5' : ''}`}
+                    >
+                      <div className={`col-lg-5 ${item.isRightAligned ? 'order-lg-2' : ''}`}>
+                        <div className="position-relative rounded-4 mx-auto">
+                          <img
+                            className="rounded-4 border border-2 border-white position-relative z-1 img-fluid"
+                            src={item.image}
+                            alt={item.title}
+                          />
+                          <div className="box-gradient-1 position-absolute bottom-0 start-50 translate-middle-x bg-linear-1 rounded-4 z-0" />
+                        </div>
+                      </div>
+                      <div className={`col-lg-5 ${item.isRightAligned ? 'order-lg-1' : ''} mt-lg-0 mt-5 ${item.isRightAligned ? '' : 'ms-auto'}`}>
+                        <h4 className="ds-4 fw-regular">
+                          <span
+                            className="fw-bold"
+                            data-aos="fade-zoom-in"
+                            data-aos-delay={200}
+                          >
+                            {item.title}
+                          </span>
+                        </h4>
+                        {item.description && (
+                          <p className="fs-5">{item.description}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Image Gallery Section */}
+          {hizmet.content.galleryImages && hizmet.content.galleryImages.length > 0 && (
+            <section className="section-team-1 section-padding position-relative overflow-hidden">
+              <div className="container">
+                <div className="row position-relative z-1">
+                  <div className="text-center">
+                    <h3
+                      className="ds-3 my-3"
+                      data-aos="fade-zoom-in"
+                      data-aos-delay={200}
+                    >
+                      {hizmet.content.gallerySectionTitle || "Gallery"}
+                    </h3>
+                    {hizmet.content.gallerySectionDescription && (
+                      <p className="fs-5" data-aos="fade-zoom-in" data-aos-delay={300}>
+                        {hizmet.content.gallerySectionDescription}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="row mt-6">
+                  {hizmet.content.galleryImages.map((image, index) => (
+                    <div
+                      key={index}
+                      className="col-lg-3 col-md-6 mb-lg-4 mb-7 text-center"
+                      data-aos="fade-zoom-in"
+                      data-aos-delay={100 + index * 100}
+                    >
+                      <div className="position-relative d-inline-block z-1">
+                        <div
+                          className="zoom-img rounded-3 cursor-pointer"
+                          onClick={() => openPreview(image.image)}
+                        >
+                          <img
+                            className="img-fluid w-100"
+                            src={image.image}
+                            alt={image.title || `Gallery image ${index + 1}`}
+                          />
+                          {image.title && (
+                            <div className="image-caption position-absolute bottom-0 left-0 w-100 p-2 bg-black bg-opacity-50 text-white">
+                              <p className="mb-0">{image.title}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Content Section */}
+          {hizmet.content.fullContent && (
+            <div className="container my-7">
+              <div className="row">
+                <div className="col-md-8 mx-auto">
+                  <div className="blog-content tw-prose tw-prose-lg tw-max-w-none">
+                    {parse(hizmet.content.fullContent)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div
+          className="image-preview-modal position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ backgroundColor: "rgba(0,0,0,0.8)", zIndex: 9999 }}
+          onClick={closePreview}
+        >
+          <div
+            className="position-relative"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "95vw",
+              height: "95vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="img-fluid"
+              style={{
+                maxHeight: "100%",
+                maxWidth: "100%",
+                objectFit: "contain",
+                transform: "scale(1.5)",
+                transformOrigin: "center",
+              }}
+            />
+            <button
+              className="btn btn-light position-absolute"
+              onClick={closePreview}
+              style={{
+                borderRadius: "50%",
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                top: "10px",
+                right: "10px",
+                fontSize: "30px",
+                fontWeight: "bold",
+                padding: "0",
+                zIndex: 10000,
+              }}
+            >
+              ×
+            </button>
           </div>
         </div>
       )}

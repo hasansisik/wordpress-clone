@@ -2,14 +2,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllServices } from '@/redux/actions/serviceActions';
+import { getAllHizmetler } from '@/redux/actions/hizmetActions';
 import { getOther } from '@/redux/actions/otherActions';
 import { AppDispatch, RootState } from '@/redux/store';
 import { Loader2 } from 'lucide-react';
 
 interface Services5Props {
 	previewData?: any;
-	services?: any[];
+	hizmetler?: any[];
 	categories?: { id: string; name: string }[];
 }
 
@@ -40,6 +40,13 @@ const slugify = (text: string) => {
 		.replace(/-+$/, '');         // Trim - from end of text
 };
 
+// Function to truncate text
+const truncateText = (text: string, maxLength: number = 120) => {
+	if (!text) return '';
+	if (text.length <= maxLength) return text;
+	return text.substring(0, maxLength) + '...';
+};
+
 export default function Services5({ previewData }: Services5Props) {
 	const isotope = useRef<any>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -47,12 +54,12 @@ export default function Services5({ previewData }: Services5Props) {
 	const [data, setData] = useState<any>(null);
 	const [isotopeReady, setIsotopeReady] = useState(false);
 	const dispatch = useDispatch<AppDispatch>();
-	const { services, loading: servicesLoading, error } = useSelector((state: RootState) => state.service);
+	const { hizmetler, loading: hizmetlerLoading, error } = useSelector((state: RootState) => state.hizmet);
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
 
-	// Extract unique categories from services and standardize their IDs
-	const categories = services ? 
-		[...new Set(services.flatMap(service => service.categories || []))]
+	// Extract unique categories from hizmetler and standardize their IDs
+	const categories = hizmetler ? 
+		[...new Set(hizmetler.flatMap(hizmet => hizmet.categories || []))]
 			.filter(category => category)
 			.map(category => ({ 
 				id: typeof category === 'string' ? slugify(category) : '', 
@@ -61,8 +68,8 @@ export default function Services5({ previewData }: Services5Props) {
 		: [];
 
 	useEffect(() => {
-		// Fetch services if not provided
-		dispatch(getAllServices());
+		// Fetch hizmetler if not provided
+		dispatch(getAllHizmetler());
 		
 		// Also fetch other data if not provided in preview
 		if (!previewData) {
@@ -82,8 +89,8 @@ export default function Services5({ previewData }: Services5Props) {
 	}, [previewData, other]);
 
 	const initializeIsotope = useCallback(async () => {
-		// Check if we have services data and the container is rendered
-		if (!services || services.length === 0 || !containerRef.current) {
+		// Check if we have hizmetler data and the container is rendered
+		if (!hizmetler || hizmetler.length === 0 || !containerRef.current) {
 			return;
 		}
 
@@ -116,9 +123,9 @@ export default function Services5({ previewData }: Services5Props) {
 		} catch (error) {
 			console.error('Error initializing Isotope:', error);
 		}
-	}, [services, filterKey]);
+	}, [hizmetler, filterKey]);
 
-	// Initialize Isotope when services and container are ready
+	// Initialize Isotope when hizmetler and container are ready
 	useEffect(() => {
 		// Only run on client-side
 		if (typeof window === 'undefined') return;
@@ -135,7 +142,7 @@ export default function Services5({ previewData }: Services5Props) {
 				isotope.current.destroy();
 			}
 		};
-	}, [services, initializeIsotope]);
+	}, [hizmetler, initializeIsotope]);
 
 	// Apply filter when filterKey changes and isotope is ready
 	useEffect(() => {
@@ -170,7 +177,7 @@ export default function Services5({ previewData }: Services5Props) {
 		return "btn btn-md btn-filter mb-2 me-2";
 	};
 
-	if (servicesLoading || otherLoading || !data) {
+	if (hizmetlerLoading || otherLoading || !data) {
 		return (
 			<div className="flex justify-center items-center min-h-[400px]">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -269,42 +276,51 @@ export default function Services5({ previewData }: Services5Props) {
 				</div>
 				<div className="container mt-6">
 					<div ref={containerRef} className="row">
-						{services && services.map((service) => {
+						{hizmetler && hizmetler.map((hizmet, index) => {
 							// Process categories to ensure consistent slugification
-							const categoryClasses = Array.isArray(service.categories) 
-								? service.categories.map((cat: string) => 
+							const categoryClasses = Array.isArray(hizmet.categories) 
+								? hizmet.categories.map((cat: string) => 
 									typeof cat === 'string' ? slugify(cat) : ''
 								).filter(Boolean).join(' ') 
 								: '';
 								
 							return (
 								<div 
-									key={service._id || service.id} 
+									key={hizmet._id || hizmet.id} 
 									className={`filter-item col-12 col-md-4 mb-4 ${categoryClasses}`}
 								>
-									<div className="project-item zoom-img rounded-2 fix position-relative h-100">
-										<div style={{ height: '300px', overflow: 'hidden' }}>
+									<div className="card border-0 rounded-3 mt-8 position-relative w-100 bg-gray-50" data-aos="fade-zoom-in" data-aos-delay={(index + 1) * 100}>
+										<div className="blog-image-container" style={{ height: '220px', width: '100%', overflow: 'hidden', position: 'relative' }}>
 											<img 
-												className="rounded-2 w-100 h-100" 
-												src={service.image} 
-												alt={service.title || "Service image"} 
-												style={{ objectFit: 'cover', objectPosition: 'center' }}
+												className="rounded-top-3" 
+												src={hizmet.image} 
+												alt={hizmet.title || "Hizmet image"} 
+												style={{ 
+													width: '100%', 
+													height: '100%', 
+													objectFit: 'cover',
+													objectPosition: 'center'
+												}} 
 											/>
+											<div className="position-absolute bottom-0 left-0 w-100" style={{
+												background: 'linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0))',
+												height: '100px'
+											}}></div>
 										</div>
-										<Link 
-											href={`/${slugify(service.title)}`} 
-											className="card-team text-start rounded-3 position-absolute bottom-0 start-0 end-0 z-1 backdrop-filter w-auto p-4 m-3 d-block" 
-											style={{ 
-												opacity: 1, 
-												visibility: 'visible', 
-												transform: 'none', 
-												transition: 'none' 
-											}}
-										>
-											<h5 className="text-700">{service.title}</h5>
-											<p className="fs-7 mb-0">{service.description}</p>
-										</Link>
-										<Link href={`/${slugify(service.title)}`} className="position-absolute w-100 h-100 top-0 start-0" aria-label={service.title} />
+										<div className="card-body p-0">
+											{hizmet.categories && hizmet.categories.length > 0 && (
+												<Link 
+													href={`/hizmetler?category=${encodeURIComponent(hizmet.categories[0])}`} 
+													className="position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
+													style={{ backgroundColor: '#f5f5f5', color: '#333333' }}
+												>
+													<span className="tag-spacing fs-7 fw-bold text-uppercase">{hizmet.categories[0]}</span>
+												</Link>
+											)}
+											<h6 className="my-3 text-gray-800">{hizmet.title}</h6>
+											<p className="text-gray-700">{truncateText(hizmet.description)}</p>
+										</div>
+										<Link href={`/${slugify(hizmet.title)}`} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" aria-label={hizmet.title} />
 									</div>
 								</div>
 							);
@@ -317,6 +333,15 @@ export default function Services5({ previewData }: Services5Props) {
 				<div className="rotate-center ellipse-rotate-success position-absolute z-1" />
 				<div className="rotate-center-rev ellipse-rotate-primary position-absolute z-1" />
 			</section>
+			<style jsx>{`
+				.card {
+					display: block;
+					width: 100%;
+				}
+				.blog-image-container {
+					width: 100%;
+				}
+			`}</style>
 		</>
 	)
 }

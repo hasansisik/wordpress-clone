@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./reducers/userReducer";
 import blogReducer from "./reducers/blogReducer";
 import serviceReducer from "./reducers/serviceReducer";
+import hizmetReducer from "./reducers/hizmetReducer";
 import headerReducer from "./reducers/headerReducer";
 import footerReducer from "./reducers/footerReducer";
 import heroReducer from "./reducers/heroReducer";
@@ -19,6 +20,7 @@ export const store = configureStore({
     user: userReducer,
     blog: blogReducer,
     service: serviceReducer,
+    hizmet: hizmetReducer,
     header: headerReducer,
     footer: footerReducer,
     hero: heroReducer,
