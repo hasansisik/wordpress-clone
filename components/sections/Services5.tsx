@@ -85,6 +85,7 @@ export default function Services5({ previewData }: Services5Props) {
 		// Otherwise use Redux data
 		else if (other && other.services5) {
 			setData(other.services5);
+			console.log("Subtitle background color:", other.services5.subtitleBackgroundColor);
 		}
 	}, [previewData, other]);
 
@@ -203,7 +204,7 @@ export default function Services5({ previewData }: Services5Props) {
 	};
 
 	const subtitleStyle = {
-		backgroundColor: data.subtitleVisible !== false ? (data.subtitleBackgroundColor || "#f1f0fe") : "transparent",
+		backgroundColor: data.subtitleVisible !== false ? (data.subtitleBackgroundColor || "rgba(99, 66, 236, 0.1)") : "transparent",
 		color: data.subtitleTextColor || "#6342EC"
 	};
 
@@ -229,7 +230,7 @@ export default function Services5({ previewData }: Services5Props) {
 				<div className="container position-relative z-2">
 					<div className="text-center">
 						{data.subtitleVisible !== false && (
-							<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={subtitleStyle}>
+							<div className="d-flex align-items-center justify-content-center border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100} style={subtitleStyle}>
 								<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.subtitle}</span>
 							</div>
 						)}
@@ -327,11 +328,7 @@ export default function Services5({ previewData }: Services5Props) {
 						})}
 					</div>
 				</div>
-				<div className="position-absolute top-0 start-50 translate-middle-x z-0">
-					<img src="/assets/imgs/service-2/bg-line.png" alt="infinia" />
-				</div>
-				<div className="rotate-center ellipse-rotate-success position-absolute z-1" />
-				<div className="rotate-center-rev ellipse-rotate-primary position-absolute z-1" />
+
 			</section>
 			<style jsx>{`
 				.card {
