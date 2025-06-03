@@ -4,7 +4,7 @@ import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { getAllServices } from "@/redux/actions/serviceActions"
+import { getAllHizmetler } from "@/redux/actions/hizmetActions"
 import { getOther } from "@/redux/actions/otherActions"
 import { AppDispatch, RootState } from "@/redux/store"
 import { Loader2 } from "lucide-react"
@@ -43,12 +43,12 @@ const slugify = (text: string) => {
 export default function Project2({ previewData }: Project2Props) {
 	const [data, setData] = useState<any>(null);
 	const dispatch = useDispatch<AppDispatch>();
-	const { services, loading: servicesLoading, error } = useSelector((state: RootState) => state.service);
+	const { hizmetler, loading: hizmetlerLoading, error } = useSelector((state: RootState) => state.hizmet);
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
 
 	useEffect(() => {
-		// Fetch services if not provided
-		dispatch(getAllServices());
+		// Fetch hizmetler if not provided
+		dispatch(getAllHizmetler());
 		
 		// Also fetch other data if not provided in preview
 		if (!previewData) {
@@ -67,7 +67,7 @@ export default function Project2({ previewData }: Project2Props) {
 		}
 	}, [previewData, other]);
 	
-	if (servicesLoading || otherLoading || !data) {
+	if (hizmetlerLoading || otherLoading || !data) {
 		return (
 			<div className="flex justify-center items-center min-h-[400px]">
 				<Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -170,7 +170,7 @@ export default function Project2({ previewData }: Project2Props) {
 							modules={[Keyboard, Autoplay, Pagination, Navigation]}
 						>
 							<div className="swiper-wrapper">
-								{services && services.map((project) => (
+								{hizmetler && hizmetler.map((project) => (
 									<SwiperSlide key={project._id || project.id} className="swiper-slide">
 										<div className="text-center">
 											<div className="zoom-img position-relative d-inline-block z-1" style={{ height: '480px', width: '100%' }}>

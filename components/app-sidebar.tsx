@@ -126,8 +126,8 @@ const data = {
           url: "/dashboard/blog",
         },
         {
-          title: "Service",
-          url: "/dashboard/project",
+          title: "Hizmet",
+          url: "/dashboard/hizmet",
         }
       ],
     },
@@ -156,8 +156,8 @@ const data = {
       roles: ["admin", "editor"],
     },
     {
-      title: "Service",
-      url: "/dashboard/project",
+      title: "Hizmet",
+      url: "/dashboard/hizmet",
       icon: FolderGit2,
       roles: ["admin", "editor"],
     },

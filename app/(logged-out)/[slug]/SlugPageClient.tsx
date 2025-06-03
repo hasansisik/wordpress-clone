@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBlogs } from "@/redux/actions/blogActions";
-import { getAllServices } from "@/redux/actions/serviceActions";
 import { getAllHizmetler } from "@/redux/actions/hizmetActions";
 import { AppDispatch, RootState } from "@/redux/store";
 import Link from "next/link";
@@ -210,9 +209,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           await dispatch(getAllBlogs());
         }
         
-        if (services.length === 0) {
-          await dispatch(getAllServices());
-        }
         
         if (!hizmetler || hizmetler.length === 0) {
           await dispatch(getAllHizmetler());
@@ -575,51 +571,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             `}</style>
           )}
         </section>
-      )}
-      
-      {contentType === 'project' && project && (
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto">
-            {/* Header section */}
-            <div className="mb-8">
-              <div className="flex mb-2">
-                {project.categories && project.categories.map((cat, index) => (
-                  <span key={index} className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">
-                    {cat}
-                  </span>
-                ))}
-              </div>
-              <h1 className="text-4xl font-bold mb-4">{project.title}</h1>
-              <p className="text-gray-600 mb-4">{project.description}</p>
-              
-              {/* Project info */}
-              <div className="flex items-center mb-6">
-                <div>
-                  <p className="font-medium">{project.company}</p>
-                  <p className="text-gray-500">{project.subtitle}</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Main image */}
-            <div className="w-full d-flex justify-content-center align-items-center overflow-hidden mb-8" style={{ maxHeight: '500px' }}>
-              <img 
-                src={project.content?.mainImage} 
-                alt={project.title} 
-                className="rounded-lg" 
-                style={{ width: '100%', height: '500px', objectFit: 'cover', objectPosition: 'center' }}
-              />
-            </div>
-            
-            {/* Content */}
-            <div className="prose max-w-none">
-              {project.content?.fullContent && (
-                <div dangerouslySetInnerHTML={{ __html: project.content.fullContent }} />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      )} 
       
       {contentType === 'hizmet' && hizmet && (
         <div>
