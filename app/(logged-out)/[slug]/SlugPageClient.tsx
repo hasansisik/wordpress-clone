@@ -196,6 +196,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   const [sliderPositions, setSliderPositions] = useState<number[]>([]);
   const sliderRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isDragging = useRef<number | null>(null);
+  const [containerWidths, setContainerWidths] = useState<number[]>([]);
 
   // For image preview modal
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -255,6 +256,13 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           if (foundHizmet.content?.beforeAfterItems?.length) {
             setSliderPositions(new Array(foundHizmet.content.beforeAfterItems.length).fill(50));
             sliderRefs.current = new Array(foundHizmet.content.beforeAfterItems.length).fill(null);
+            setContainerWidths(new Array(foundHizmet.content.beforeAfterItems.length).fill(0));
+            
+            // Set a timeout to measure container widths after rendering
+            setTimeout(() => {
+              const newWidths = sliderRefs.current.map(ref => ref?.getBoundingClientRect().width || 0);
+              setContainerWidths(newWidths);
+            }, 500);
           }
           
           return;
@@ -296,6 +304,13 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             if (localHizmet.content?.beforeAfterItems?.length) {
               setSliderPositions(new Array(localHizmet.content.beforeAfterItems.length).fill(50));
               sliderRefs.current = new Array(localHizmet.content.beforeAfterItems.length).fill(null);
+              setContainerWidths(new Array(localHizmet.content.beforeAfterItems.length).fill(0));
+              
+              // Set a timeout to measure container widths after rendering
+              setTimeout(() => {
+                const newWidths = sliderRefs.current.map(ref => ref?.getBoundingClientRect().width || 0);
+                setContainerWidths(newWidths);
+              }, 500);
             }
             
             return;
@@ -312,6 +327,17 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
       findContent();
     }
   }, [isLoading, blogs, services, hizmetler, slug]);
+  
+  // Update container widths on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const newWidths = sliderRefs.current.map(ref => ref?.getBoundingClientRect().width || 0);
+      setContainerWidths(newWidths);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Before-After slider functions
   const handleSliderChange = (index: number, value: number) => {
@@ -648,7 +674,10 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                             src={item.beforeImage}
                             alt="Before"
                             className="w-100 h-100"
-                            style={{ objectFit: "cover" }}
+                            style={{ 
+                              objectFit: "cover",
+                              objectPosition: "center"
+                            }}
                           />
                         </div>
 
@@ -657,12 +686,21 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                           className="after-image position-absolute top-0 start-0 h-100 overflow-hidden"
                           style={{ width: `${sliderPositions[index] || 50}%` }}
                         >
-                          <img
-                            src={item.afterImage}
-                            alt="After"
-                            className="w-100 h-100"
-                            style={{ objectFit: "cover" }}
-                          />
+                          <div className="position-relative h-100 w-100">
+                            <img
+                              src={item.afterImage}
+                              alt="After"
+                              className="position-absolute h-100"
+                              style={{ 
+                                objectFit: "cover",
+                                objectPosition: "center",
+                                top: "0",
+                                left: "0",
+                                width: containerWidths[index] ? `${containerWidths[index]}px` : "100%",
+                                maxWidth: "none"
+                              }}
+                            />
+                          </div>
                         </div>
 
                         {/* Divider line */}
@@ -792,7 +830,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                   {hizmet.content.galleryImages.map((image, index) => (
                     <div
                       key={index}
-                      className="col-lg-3 col-md-6 mb-lg-4 mb-7 text-center"
+                      className="col-lg-4 col-md-6 mb-lg-4 mb-7 text-center"
                       data-aos="fade-zoom-in"
                       data-aos-delay={100 + index * 100}
                     >

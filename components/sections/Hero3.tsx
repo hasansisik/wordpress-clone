@@ -105,9 +105,9 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 		<>
 			<section className="section-hero-3 position-relative fix section-padding">
 				<div className="container">
-					<div className="row align-items-center position-relative">
-						<div className="col-lg-7 position-relative z-1 mb-lg-0 pb-10 mb-">
-							<div className="text-start mb-lg-0 mb-5">
+					<div className="row position-relative">
+						<div className="col-lg-6 position-relative z-1 mb-5 mb-lg-0">
+							<div className="text-start">
 								{data?.badge?.visible !== false && (
 									<div className="border-linear-1 rounded-pill d-inline-block mb-3" style={{borderColor: data?.badge?.borderColor || ''}}>
 										<div className="rounded-pill fw-medium position-relative z-2 px-4 py-2" style={{
@@ -189,7 +189,7 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 								</div>
 							</div>
 						</div>
-						<div className="col-lg-7 position-xl-absolute mb-lg-10 top-50 end-0 translate-middle-lg-y z-0">
+						<div className="col-lg-6 mt-5 mt-lg-0">
 							<div className="row">
 								<div className="col-6 align-self-end">
 									<div className="border-5 border-white border rounded-4 mb-4 d-block d-xl-none">
