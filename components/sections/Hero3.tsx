@@ -120,9 +120,9 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 									</div>
 								)}
 								<div className="d-flex align-items-center">
-									<h1 className="ds-1 my-3 me-4 lh-1">
+									<h3 className="ds-3 my-3 me-4 lh-1">
 										{data?.title?.part1 || "Elevate your"}
-									</h1>
+									</h3>
 									<div className="mt-3 d-none d-md-flex">
 										{data?.avatarsVisible !== false && data?.avatars?.map((avatar: any, index: number) => (
 											avatar.visible !== false && (
@@ -150,9 +150,9 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 										)) || []}
 									</div>
 								</div>
-								<h1 className="ds-1 lh-1 m-0">
+								<h3 className="ds-3 lh-1 m-0">
 									{data?.title?.part2 || "brand with Infinia."}
-								</h1>
+								</h3>
 								<p className="fs-5 text-900 my-6" dangerouslySetInnerHTML={{ __html: descriptionWithBreak() }}>
 								</p>
 								<div className="d-flex flex-wrap gap-3">

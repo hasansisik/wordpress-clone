@@ -206,9 +206,9 @@ export default function Hero2({ previewData }: { previewData?: any }) {
                           >
                             <span className="tag-spacing fs-6">{slide.badge}</span>
                           </div>
-                          <h3 className="ds-3 my-3" style={titleStyle}>
+                          <h4 className="ds-4 my-3" style={titleStyle}>
                             {slide.title}
-                          </h3>
+                          </h4>
                           <p className="fs-5 text-900" style={descriptionStyle}>
                             {slide.description}
                           </p>

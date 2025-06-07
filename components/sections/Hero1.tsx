@@ -70,9 +70,9 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 										</svg>
 									</Link>
 								)}
-								<h3 className="ds-3 mt-4 mb-5" data-aos="fade-zoom-in" data-aos-delay={0}>
+								<h4 className="ds-4 mt-4 mb-5" data-aos="fade-zoom-in" data-aos-delay={0}>
 									{data?.title || ""}
-								</h3>
+								</h4>
 								<p className="pe-10 mb-5" data-aos="fade-zoom-in" data-aos-delay={200}>
 									{data?.description || ""}
 								</p>
