@@ -630,13 +630,13 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               <div className="container">
                 <div className="row position-relative z-1">
                   <div className="text-center mb-5">
-                    <h3
-                      className="ds-3 my-3"
+                    <h4
+                      className="ds-4 my-3"
                       data-aos="fade-zoom-in"
                       data-aos-delay={200}
                     >
                       {hizmet.content.beforeAfterSectionTitle || "Before-After Comparison"}
-                    </h3>
+                    </h4>
                     {hizmet.content.beforeAfterSectionDescription && (
                       <p className="fs-5" data-aos="fade-zoom-in" data-aos-delay={300}>
                         {hizmet.content.beforeAfterSectionDescription}
@@ -765,7 +765,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                   {hizmet.content.leftRightSectionTitle && (
                     <div className="row text-center mb-5">
                       <div className="col-12">
-                        <h3 className="ds-3">{hizmet.content.leftRightSectionTitle}</h3>
+                        <h4 className="ds-4">{hizmet.content.leftRightSectionTitle}</h4>
                       </div>
                     </div>
                   )}
@@ -773,7 +773,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                   {hizmet.content.leftRightItems.map((item, index) => (
                     <div 
                       key={index}
-                      className={`row align-items-center text-center ${index > 0 ? 'mt-5' : ''}`}
+                      className={`row align-items-center justify-content-between text-center ${index > 0 ? 'mt-5' : ''}`}
                     >
                       <div className={`col-lg-5 ${item.isRightAligned ? 'order-lg-2' : ''}`}>
                         <div className="position-relative rounded-4 mx-auto">
@@ -786,7 +786,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                         </div>
                       </div>
                       <div className={`col-lg-5 ${item.isRightAligned ? 'order-lg-1' : ''} mt-lg-0 mt-5 ${item.isRightAligned ? '' : 'ms-auto'}`}>
-                        <h4 className="ds-4 fw-regular">
+                        <h4 className="fw-bold">
                           <span
                             className="fw-bold"
                             data-aos="fade-zoom-in"
@@ -812,13 +812,13 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               <div className="container">
                 <div className="row position-relative z-1">
                   <div className="text-center">
-                    <h3
-                      className="ds-3 my-3"
+                    <h4
+                      className="ds-4 my-3"
                       data-aos="fade-zoom-in"
                       data-aos-delay={200}
                     >
                       {hizmet.content.gallerySectionTitle || "Gallery"}
-                    </h3>
+                    </h4>
                     {hizmet.content.gallerySectionDescription && (
                       <p className="fs-5" data-aos="fade-zoom-in" data-aos-delay={300}>
                         {hizmet.content.gallerySectionDescription}

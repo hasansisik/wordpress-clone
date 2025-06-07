@@ -251,7 +251,7 @@ export default function HeroPreview() {
   }, [searchParams, isLoaded]);
 
   if (!heroData || !isLoaded) {
-    return <div className="w-full h-full flex items-center justify-center text-lg">Loading hero preview...</div>;
+    return <div className="w-full h-full flex items-center justify-center text-lg">Yükleniyor...ro preview...</div>;
   }
 
   // Render the appropriate hero component

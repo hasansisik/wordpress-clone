@@ -51,7 +51,7 @@ export default function FeaturesEditor() {
   const [previewKey, setPreviewKey] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
   
-  // Loading state
+  // Yükleniyor...ate
   const [isLoading, setIsLoading] = useState(true);
   
   // User authentication check
@@ -182,7 +182,7 @@ export default function FeaturesEditor() {
 
   // If still loading, return loading indicator
   if (isLoading || loading) {
-    return <div>Loading...</div>;
+    return <div>Yükleniyor...</div>;
   }
 
   return (

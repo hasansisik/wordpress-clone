@@ -41,7 +41,7 @@ export default function Services3({ previewData }: { previewData?: any }) {
 	}, [previewData]);
 
 	if (loading) {
-		return <div className="section-padding text-center">Loading services information...</div>;
+		return <div className="section-padding text-center">Yükleniyor...rvices information...</div>;
 	}
 	
 	// Get services3 data with fallback to default values if not provided

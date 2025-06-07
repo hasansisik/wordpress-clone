@@ -26,7 +26,7 @@ export default function CtaSection({ ctaType }: CtaSectionProps) {
       <section className="section-padding">
         <div className="container text-center">
           <div className="spinner-border" role="status">
-            <span className="visually-hidden">Loading...</span>
+            <span className="visually-hidden">Yükleniyor...</span>
           </div>
         </div>
       </section>

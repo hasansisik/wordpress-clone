@@ -263,7 +263,7 @@ export default function FeaturesPreview() {
   }, [searchParams, isLoaded]);
 
   if (!featuresData || !isLoaded) {
-    return <div className="w-full h-full flex items-center justify-center text-lg">Loading features preview...</div>;
+    return <div className="w-full h-full flex items-center justify-center text-lg">Yükleniyor...atures preview...</div>;
   }
 
   // Render the appropriate features component

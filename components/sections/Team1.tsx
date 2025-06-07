@@ -45,7 +45,7 @@ export default function Team1({ previewData }: { previewData?: any }) {
   };
 
   if (loading) {
-    return <div className="section-padding text-center">Loading team information...</div>;
+    return <div className="section-padding text-center">Yükleniyor...am information...</div>;
   }
 
   // Get team1 data with fallback to default values if not provided

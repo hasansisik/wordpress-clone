@@ -48,11 +48,8 @@ const truncateText = (text: string, maxLength: number = 120) => {
 };
 
 export default function Services5({ previewData }: Services5Props) {
-	const isotope = useRef<any>(null);
-	const containerRef = useRef<HTMLDivElement>(null);
 	const [filterKey, setFilterKey] = useState<string>('*');
 	const [data, setData] = useState<any>(null);
-	const [isotopeReady, setIsotopeReady] = useState(false);
 	const dispatch = useDispatch<AppDispatch>();
 	const { hizmetler, loading: hizmetlerLoading, error } = useSelector((state: RootState) => state.hizmet);
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
@@ -89,93 +86,41 @@ export default function Services5({ previewData }: Services5Props) {
 		}
 	}, [previewData, other]);
 
-	const initializeIsotope = useCallback(async () => {
-		// Check if we have hizmetler data and the container is rendered
-		if (!hizmetler || hizmetler.length === 0 || !containerRef.current) {
-			return;
+	// Filter hizmetler based on selected category
+	const filteredHizmetler = hizmetler ? hizmetler.filter(hizmet => {
+		if (filterKey === '*') return true;
+		
+		if (Array.isArray(hizmet.categories)) {
+			return hizmet.categories.some((cat: string) => 
+				typeof cat === 'string' ? slugify(cat) === filterKey : false
+			);
 		}
+		return false;
+	}) : [];
 
-		try {
-			// Clean up existing instance if it exists
-			if (isotope.current) {
-				isotope.current.destroy();
-				isotope.current = null;
-			}
-
-			const { default: Isotope } = await import('isotope-layout');
-			
-			// Make sure container still exists after async import
-			if (containerRef.current) {
-				// Initialize with fitRows layout instead of masonry for more consistent alignment
-				isotope.current = new Isotope(containerRef.current, {
-					itemSelector: '.filter-item',
-					layoutMode: 'fitRows',
-					fitRows: {
-						gutter: 0
-					}
-				});
-				setIsotopeReady(true);
-				
-				// Apply the current filter immediately
-				if (filterKey !== '*') {
-					isotope.current.arrange({ filter: `.${filterKey}` });
-				}
-			}
-		} catch (error) {
-			console.error('Error initializing Isotope:', error);
-		}
-	}, [hizmetler, filterKey]);
-
-	// Initialize Isotope when hizmetler and container are ready
-	useEffect(() => {
-		// Only run on client-side
-		if (typeof window === 'undefined') return;
-
-		// Initialize with a slight delay to ensure DOM is ready
-		const timer = setTimeout(() => {
-			initializeIsotope();
-		}, 300);
-
-		return () => {
-			clearTimeout(timer);
-			// Cleanup on unmount
-			if (isotope.current) {
-				isotope.current.destroy();
-			}
-		};
-	}, [hizmetler, initializeIsotope]);
-
-	// Apply filter when filterKey changes and isotope is ready
-	useEffect(() => {
-		if (isotope.current && isotopeReady) {
-			const filterSelector = filterKey === '*' ? '*' : `.${filterKey}`;
-			isotope.current.arrange({ filter: filterSelector });
-		}
-	}, [filterKey, isotopeReady]);
-
-	// Re-layout isotope when window is resized
-	useEffect(() => {
-		if (typeof window === 'undefined') return;
-
-		const handleResize = () => {
-			if (isotope.current) {
-				isotope.current.layout();
-			}
-		};
-
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
-	}, [isotopeReady]);
-
-	const handleFilterKeyChange = useCallback((key: string) => () => {
+	const handleFilterKeyChange = (key: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
 		setFilterKey(key);
-	}, []);
+	};
 
 	const activeBtn = (value: string) => {
-		if (value === filterKey) {
-			return " btn btn-md btn-filter mb-2 me-2";
-		}
 		return "btn btn-md btn-filter mb-2 me-2";
+	};
+
+	const getButtonStyle = (value: string) => {
+		if (value === filterKey) {
+			return {
+				backgroundColor: data?.filterButtonColor || "#6342EC",
+				color: data?.filterButtonTextColor || "#FFFFFF",
+				transition: "none !important"
+			};
+		}
+		return {
+			backgroundColor: "transparent",
+			color: "#333333",
+			border: "1px solid #ddd",
+			transition: "none !important"
+		};
 	};
 
 	if (hizmetlerLoading || otherLoading || !data) {
@@ -217,11 +162,7 @@ export default function Services5({ previewData }: Services5Props) {
 		color: data.buttonTextColor || "#FFFFFF"
 	};
 
-	// Create styles for filter buttons
-	const activeFilterButtonStyle = {
-		backgroundColor: data.filterButtonColor || "#6342EC",
-		color: data.filterButtonTextColor || "#FFFFFF"
-	};
+
 
 	return (
 		<>
@@ -244,7 +185,7 @@ export default function Services5({ previewData }: Services5Props) {
 							<button 
 								className={activeBtn("*")} 
 								onClick={handleFilterKeyChange("*")}
-								style={filterKey === "*" ? activeFilterButtonStyle : undefined}
+								style={getButtonStyle("*")}
 							>
 								{data.filterAllText || "Hepsi"}
 							</button>
@@ -253,7 +194,7 @@ export default function Services5({ previewData }: Services5Props) {
 									key={category.id} 
 									className={activeBtn(category.id)} 
 									onClick={handleFilterKeyChange(category.id)}
-									style={filterKey === category.id ? activeFilterButtonStyle : undefined}
+									style={getButtonStyle(category.id)}
 								>
 									{category.name}
 								</button>
@@ -276,8 +217,8 @@ export default function Services5({ previewData }: Services5Props) {
 					)}
 				</div>
 				<div className="container mt-6">
-					<div ref={containerRef} className="row">
-						{hizmetler && hizmetler.map((hizmet, index) => {
+					<div className="row">
+						{filteredHizmetler && filteredHizmetler.map((hizmet, index) => {
 							// Process categories to ensure consistent slugification
 							const categoryClasses = Array.isArray(hizmet.categories) 
 								? hizmet.categories.map((cat: string) => 
@@ -288,7 +229,7 @@ export default function Services5({ previewData }: Services5Props) {
 							return (
 								<div 
 									key={hizmet._id || hizmet.id} 
-									className={`filter-item col-12 col-md-4 mb-4 ${categoryClasses}`}
+									className="col-12 col-md-4 mb-4"
 								>
 									<div className="card border-0 rounded-3 mt-8 position-relative w-100 bg-gray-50" data-aos="fade-zoom-in" data-aos-delay={(index + 1) * 100}>
 										<div className="blog-image-container" style={{ height: '220px', width: '100%', overflow: 'hidden', position: 'relative' }}>
@@ -337,6 +278,24 @@ export default function Services5({ previewData }: Services5Props) {
 				}
 				.blog-image-container {
 					width: 100%;
+				}
+				.btn-filter {
+					transition: none !important;
+					user-select: none;
+					-webkit-tap-highlight-color: transparent;
+					border: 1px solid #ddd !important;
+				}
+				.btn-filter:hover {
+					transform: none !important;
+					box-shadow: none !important;
+				}
+				.btn-filter:active {
+					transform: none !important;
+					box-shadow: none !important;
+				}
+				.btn-filter:focus {
+					outline: none !important;
+					box-shadow: none !important;
 				}
 			`}</style>
 		</>

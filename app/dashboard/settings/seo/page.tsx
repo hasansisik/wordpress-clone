@@ -219,7 +219,7 @@ export default function Page() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
-        <span className="ml-3">Loading SEO settings...</span>
+        <span className="ml-3">Yükleniyor...O settings...</span>
       </div>
   );
   }
@@ -313,7 +313,7 @@ export default function Page() {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={6} className="text-center py-4">
-                            {loading ? "Loading SEO pages..." : "No SEO pages configured yet."}
+                            {loading ? "Yükleniyor...O pages..." : "No SEO pages configured yet."}
                           </TableCell>
                         </TableRow>
                       )}
@@ -333,13 +333,13 @@ export default function Page() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-sm font-medium mb-2">Site Title</h3>
-                      <p className="text-sm text-muted-foreground mb-4">{seoPages.length > 0 ? seoPages[0].title : "Loading..."}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{seoPages.length > 0 ? seoPages[0].title : "Yükleniyor..."}</p>
                       
                       <h3 className="text-sm font-medium mb-2">Site Description</h3>
-                      <p className="text-sm text-muted-foreground mb-4">{seoPages.length > 0 ? seoPages[0].description : "Loading..."}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{seoPages.length > 0 ? seoPages[0].description : "Yükleniyor..."}</p>
                       
                       <h3 className="text-sm font-medium mb-2">Global Keywords</h3>
-                      <p className="text-sm text-muted-foreground">{seoPages.length > 0 ? seoPages[0].keywords : "Loading..."}</p>
+                      <p className="text-sm text-muted-foreground">{seoPages.length > 0 ? seoPages[0].keywords : "Yükleniyor..."}</p>
                     </div>
                     
                     <div className="flex flex-col items-center justify-center">

@@ -64,7 +64,7 @@ export default function Hero2({ previewData }: { previewData?: any }) {
   }, []);
 
   if (loading || reduxLoading) {
-    return <div className="section-padding text-center">Loading hero information...</div>;
+    return <div className="section-padding text-center">Yükleniyor...ro information...</div>;
   }
   
   // Get hero2 data with fallback to default values if not provided

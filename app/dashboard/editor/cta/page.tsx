@@ -225,7 +225,7 @@ export default function CtaEditor() {
 
   // If still loading, return empty div
   if (isLoading || loading) {
-    return <div>Loading...</div>;
+    return <div>Yükleniyor...</div>;
   }
 
   return (

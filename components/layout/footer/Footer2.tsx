@@ -56,7 +56,7 @@ export default function Footer2(props: FooterProps = {}) {
 
 	// Wait for data to be loaded
 	if (!data) {
-		return <footer className="loading">Loading footer...</footer>;
+		return <footer className="loading">Yükleniyor...oter...</footer>;
 	}
 
 	// Ensure data has all required properties with fallbacks
