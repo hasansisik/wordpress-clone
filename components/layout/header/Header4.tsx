@@ -40,7 +40,7 @@ export default function Header4({ scroll, hideHeader, isMobileMenu, handleMobile
 					}}
 				>
 					<div className="container">
-						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
+						<Link className="navbar-brand d-flex main-logo align-items-center  gap-3" href="/">
 							<img 
 								src={header.logo.src} 
 								alt={header.logo.alt} 

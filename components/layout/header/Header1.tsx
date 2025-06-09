@@ -63,7 +63,7 @@ export default function Header1({ scroll, hideHeader, isMobileMenu, handleMobile
 					}}
 				>
 					<div className="container">
-						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
+						<Link className="navbar-brand d-flex main-logo align-items-center  gap-3" href="/">
 							<img 
 								src={headerData.logo.src} 
 								alt={headerData.logo.alt} 

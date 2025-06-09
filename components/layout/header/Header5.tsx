@@ -123,7 +123,7 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 					}}
 				>
 					<div className="container-fluid px-lg-8">
-						<Link className="navbar-brand d-flex main-logo align-items-center" href="/">
+						<Link className="navbar-brand d-flex main-logo align-items-center gap-3" href="/">
 							<img 
 								src={header.logo.src} 
 								alt={header.logo.alt} 
@@ -132,7 +132,7 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 									maxHeight: '40px', 
 									width: 'auto', 
 									height: 'auto', 
-									objectFit: 'contain' 
+									objectFit: 'contain',
 								}} 
 							/>
 							<span>{header.logo.text}</span>
