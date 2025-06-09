@@ -68,18 +68,18 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 
 	// Image style constraints
 	const videoImageStyle = {
-		width: '100%',
+		width: '500px',
 		height: 'auto',
-		maxWidth: '508px',
+		maxWidth: '500px',
 		maxHeight: '550px',
 		objectFit: 'cover' as 'cover'
 	};
 
 	return (
 		<>
-			<section className="section-cta-4 pb-110 @@classList">
+			<section className="section-cta-4 my-5">
 				<div className="container">
-					<div className="row">
+					<div className="row justify-content-center align-items-center">
 						<div className="col-lg-6 text-center">
 							<div className="text-center rounded-4 position-relative d-inline-flex">
 								<div className="zoom-img rounded-4 position-relative z-1">

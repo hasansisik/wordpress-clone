@@ -51,7 +51,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 
 	return (
 		<>
-			<section className="position-relative overflow-hidden section-padding">
+			<section className="position-relative overflow-hidden section-padding mb-32">
 				<div className="container">
 					<div className="row content align-items-center">
 						<div className="col-lg-6 col-md-12 mb-lg-0 mb-5">
@@ -138,7 +138,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 									alt="infinia" 
 									data-aos="zoom-in" 
 									data-aos-delay={500}
-									style={{ maxWidth: "371px", height: "auto" }}
+									style={{ maxWidth: "371px", height: "auto", borderRadius: "15px" }}
 								/>
 							</div>
 							<div className="shape-2 position-absolute d-none d-md-block">
@@ -147,7 +147,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 									alt="infinia" 
 									data-aos="zoom-in" 
 									data-aos-delay={200}
-									style={{ maxWidth: "264px", height: "auto" }}
+									style={{ maxWidth: "264px", height: "auto", borderRadius: "15px" }}
 								/>
 							</div>
 							<div className="shape-3 position-absolute d-none d-md-block">
@@ -156,7 +156,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 									alt="infinia" 
 									data-aos="zoom-in" 
 									data-aos-delay={300}
-									style={{ maxWidth: "278px", height: "auto" }}
+									style={{ maxWidth: "278px", height: "auto" ,borderRadius: "15px"}}
 								/>
 							</div>
 							{data?.card?.visible !== false && (
@@ -165,7 +165,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 										className="rounded-3" 
 										src={data?.card?.image || ""} 
 										alt="infinia"
-										style={{ maxWidth: "100%", height: "auto", maxHeight: "200px" }}
+										style={{ maxWidth: "100%", height: "auto", maxHeight: "200px", borderRadius: "15px" }}
 									/>
 									<h6 className="mt-3" style={{color: data?.card?.titleColor || ''}}>
 										{data?.card?.title || ""}

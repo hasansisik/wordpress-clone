@@ -286,7 +286,7 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 															</clipPath>
 														</defs>
 													</svg>
-													<Link className="ms-2 text-decoration-underline text-900 fs-7" href="#">{data.phoneNumber}</Link>
+													<Link className="ms-2 text-decoration-underline text-900 fs-5 " href={`tel:${data.phoneNumber}`}>{data.phoneNumber}</Link>
 												</div>
 											</>
 										)}
