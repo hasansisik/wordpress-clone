@@ -178,6 +178,51 @@ const getLocalHizmetData = async () => {
   }
 };
 
+// Function to check if slug is a category
+const findContentByCategory = (
+  blogs: BlogPost[],
+  services: Project[],
+  hizmetler: Hizmet[],
+  slug: string
+) => {
+  const categoryContent: {
+    blogs: BlogPost[];
+    projects: Project[];
+    hizmetler: Hizmet[];
+  } = {
+    blogs: [],
+    projects: [],
+    hizmetler: [],
+  };
+
+  // Find blogs with this category
+  categoryContent.blogs = blogs.filter((blog) => {
+    if (Array.isArray(blog.category)) {
+      return blog.category.some((cat) => slugify(cat) === slug);
+    } else {
+      return slugify(blog.category as string) === slug;
+    }
+  });
+
+  // Find projects with this category
+  categoryContent.projects = services.filter((project) => {
+    if (Array.isArray(project.categories)) {
+      return project.categories.some((cat) => slugify(cat) === slug);
+    }
+    return false;
+  });
+
+  // Find hizmetler with this category
+  categoryContent.hizmetler = hizmetler.filter((hizmet) => {
+    if (Array.isArray(hizmet.categories)) {
+      return hizmet.categories.some((cat) => slugify(cat) === slug);
+    }
+    return false;
+  });
+
+  return categoryContent;
+};
+
 interface SlugPageClientProps {
   slug: string;
 }
@@ -200,8 +245,14 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [hizmet, setHizmet] = useState<Hizmet | null>(null);
+  const [categoryContent, setCategoryContent] = useState<{
+    blogs: BlogPost[];
+    projects: Project[];
+    hizmetler: Hizmet[];
+    categoryName: string;
+  } | null>(null);
   const [contentType, setContentType] = useState<
-    "blog" | "project" | "hizmet" | null
+    "blog" | "project" | "hizmet" | "category" | null
   >(null);
   const [isLoading, setIsLoading] = useState(true);
   const [usingFallback, setUsingFallback] = useState(false);
@@ -292,6 +343,37 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           return;
         }
 
+        // If no individual content found, check if it's a category
+        const categoryData = findContentByCategory(blogs, services, hizmetler || [], slug);
+        const totalCategoryItems = categoryData.blogs.length + categoryData.projects.length + categoryData.hizmetler.length;
+        
+        if (totalCategoryItems > 0) {
+          // Find the original category name from the first item
+          let categoryName = slug;
+          if (categoryData.blogs.length > 0) {
+            const firstBlog = categoryData.blogs[0];
+            const matchingCategory = Array.isArray(firstBlog.category)
+              ? firstBlog.category.find((cat) => slugify(cat) === slug)
+              : firstBlog.category;
+            if (matchingCategory) categoryName = matchingCategory;
+          } else if (categoryData.projects.length > 0) {
+            const firstProject = categoryData.projects[0];
+            const matchingCategory = firstProject.categories.find((cat) => slugify(cat) === slug);
+            if (matchingCategory) categoryName = matchingCategory;
+          } else if (categoryData.hizmetler.length > 0) {
+            const firstHizmet = categoryData.hizmetler[0];
+            const matchingCategory = firstHizmet.categories.find((cat) => slugify(cat) === slug);
+            if (matchingCategory) categoryName = matchingCategory;
+          }
+
+          setCategoryContent({
+            ...categoryData,
+            categoryName,
+          });
+          setContentType("category");
+          return;
+        }
+
         // If not found in Redux, try local JSON as fallback
         setUsingFallback(true);
 
@@ -351,6 +433,37 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               }, 500);
             }
 
+            return;
+          }
+
+          // If no individual content found in fallback, check if it's a category
+          const fallbackCategoryData = findContentByCategory(localBlogs, localProjects, localHizmetler, slug);
+          const totalFallbackCategoryItems = fallbackCategoryData.blogs.length + fallbackCategoryData.projects.length + fallbackCategoryData.hizmetler.length;
+          
+          if (totalFallbackCategoryItems > 0) {
+            // Find the original category name from the first item
+            let categoryName = slug;
+            if (fallbackCategoryData.blogs.length > 0) {
+              const firstBlog = fallbackCategoryData.blogs[0];
+              const matchingCategory = Array.isArray(firstBlog.category)
+                ? firstBlog.category.find((cat) => slugify(cat) === slug)
+                : firstBlog.category;
+              if (matchingCategory) categoryName = matchingCategory;
+            } else if (fallbackCategoryData.projects.length > 0) {
+              const firstProject = fallbackCategoryData.projects[0];
+              const matchingCategory = firstProject.categories.find((cat) => slugify(cat) === slug);
+              if (matchingCategory) categoryName = matchingCategory;
+            } else if (fallbackCategoryData.hizmetler.length > 0) {
+              const firstHizmet = fallbackCategoryData.hizmetler[0];
+              const matchingCategory = firstHizmet.categories.find((cat) => slugify(cat) === slug);
+              if (matchingCategory) categoryName = matchingCategory;
+            }
+
+            setCategoryContent({
+              ...fallbackCategoryData,
+              categoryName,
+            });
+            setContentType("category");
             return;
           }
 
@@ -1032,6 +1145,226 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         </div>
       )}
 
+      {contentType === "category" && categoryContent && (
+        <div className="container mt-5 mb-5">
+          <div className="row">
+            <div className="col-12">
+              <div className="text-center mb-5">
+                <h2 className="ds-4 mb-3">Kategori: {categoryContent.categoryName}</h2>
+                <p className="fs-5 text-muted">
+                  Bu kategoriye ait toplam {
+                    categoryContent.blogs.length + 
+                    categoryContent.projects.length + 
+                    categoryContent.hizmetler.length
+                  } içerik bulundu
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Blog Posts */}
+          {categoryContent.blogs.length > 0 && (
+            <div className="row mb-5">
+              <div className="col-12">
+                <h4 className="mb-4">Blog Yazıları ({categoryContent.blogs.length})</h4>
+              </div>
+              {categoryContent.blogs.map((blog, index) => (
+                <div key={index} className="col-lg-4 col-md-6 mb-4">
+                  <div className="card border-0 rounded-3 position-relative bg-gray-50">
+                    <div
+                      className="blog-image-container"
+                      style={{
+                        height: "220px",
+                        width: "100%",
+                        overflow: "hidden",
+                        position: "relative",
+                      }}
+                    >
+                      <img
+                        className="rounded-top-3"
+                        src={blog.image}
+                        alt={blog.title}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          objectPosition: "center",
+                        }}
+                      />
+                      {blog.premium && (
+                        <>
+                          <div className="position-absolute top-0 end-0 m-2">
+                            <div className="bg-amber-500 text-white px-2 py-1 rounded-pill fs-8 fw-bold">
+                              Premium
+                            </div>
+                          </div>
+                          <div
+                            className="position-absolute bottom-0 left-0 w-100"
+                            style={{
+                              background:
+                                "linear-gradient(to top, rgba(245, 158, 11, 1), rgba(245, 158, 11, 0))",
+                              height: "100px",
+                            }}
+                          ></div>
+                        </>
+                      )}
+                    </div>
+                    <div className="card-body p-3">
+                      <div className="d-flex flex-wrap gap-1 mb-3">
+                        {Array.isArray(blog.category) ? (
+                          blog.category.map((cat, idx) => (
+                            <Link
+                              key={idx}
+                              href={`/icerikler/${encodeURIComponent(slugify(cat))}`}
+                              className="rounded-pill px-3 py-1 fs-8 fw-bold text-uppercase"
+                              style={{
+                                backgroundColor: blog.premium ? "#FFEDD5" : "#f5f5f5",
+                                color: blog.premium ? "#C2410C" : "#333333",
+                              }}
+                            >
+                              {cat}
+                            </Link>
+                          ))
+                        ) : (
+                          <Link
+                            href={`/icerikler/${encodeURIComponent(slugify(blog.category))}`}
+                            className="rounded-pill px-3 py-1 fs-8 fw-bold text-uppercase"
+                            style={{
+                              backgroundColor: blog.premium ? "#FFEDD5" : "#f5f5f5",
+                              color: blog.premium ? "#C2410C" : "#333333",
+                            }}
+                          >
+                            {blog.category}
+                          </Link>
+                        )}
+                      </div>
+                      <h6 className={`mb-3 ${blog.premium ? "text-orange-700" : "text-gray-800"}`}>
+                        {blog.title}
+                      </h6>
+                      <p className="text-gray-700 fs-7">{blog.description}</p>
+                    </div>
+                    <Link
+                      href={`/icerikler/${encodeURIComponent(slugify(blog.title))}`}
+                      className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Projects */}
+          {categoryContent.projects.length > 0 && (
+            <div className="row mb-5">
+              <div className="col-12">
+                <h4 className="mb-4">Projeler ({categoryContent.projects.length})</h4>
+              </div>
+              {categoryContent.projects.map((project, index) => (
+                <div key={index} className="col-lg-4 col-md-6 mb-4">
+                  <div className="card border-0 rounded-3 position-relative bg-gray-50">
+                    <div
+                      className="project-image-container"
+                      style={{
+                        height: "220px",
+                        width: "100%",
+                        overflow: "hidden",
+                        position: "relative",
+                      }}
+                    >
+                      <img
+                        className="rounded-top-3"
+                        src={project.image}
+                        alt={project.title}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </div>
+                    <div className="card-body p-3">
+                      <div className="d-flex flex-wrap gap-1 mb-3">
+                        {project.categories.map((cat, idx) => (
+                          <Link
+                            key={idx}
+                            href={`/icerikler/${encodeURIComponent(slugify(cat))}`}
+                            className="rounded-pill px-3 py-1 fs-8 fw-bold text-uppercase bg-primary-soft text-primary"
+                          >
+                            {cat}
+                          </Link>
+                        ))}
+                      </div>
+                      <h6 className="mb-3 text-gray-800">{project.title}</h6>
+                      <p className="text-gray-700 fs-7">{project.description}</p>
+                    </div>
+                    <Link
+                      href={`/icerikler/${encodeURIComponent(slugify(project.title))}`}
+                      className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Hizmetler */}
+          {categoryContent.hizmetler.length > 0 && (
+            <div className="row mb-5">
+              <div className="col-12">
+                <h4 className="mb-4">Hizmetler ({categoryContent.hizmetler.length})</h4>
+              </div>
+              {categoryContent.hizmetler.map((hizmet, index) => (
+                <div key={index} className="col-lg-4 col-md-6 mb-4">
+                  <div className="card border-0 rounded-3 position-relative bg-gray-50">
+                    <div
+                      className="hizmet-image-container"
+                      style={{
+                        height: "220px",
+                        width: "100%",
+                        overflow: "hidden",
+                        position: "relative",
+                      }}
+                    >
+                      <img
+                        className="rounded-top-3"
+                        src={hizmet.image}
+                        alt={hizmet.title}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </div>
+                    <div className="card-body p-3">
+                      <div className="d-flex flex-wrap gap-1 mb-3">
+                        {hizmet.categories.map((cat, idx) => (
+                          <Link
+                            key={idx}
+                            href={`/icerikler/${encodeURIComponent(slugify(cat))}`}
+                            className="rounded-pill px-3 py-1 fs-8 fw-bold text-uppercase bg-secondary-soft text-secondary"
+                          >
+                            {cat}
+                          </Link>
+                        ))}
+                      </div>
+                      <h6 className="mb-3 text-gray-800">{hizmet.title}</h6>
+                      <p className="text-gray-700 fs-7">{hizmet.description}</p>
+                    </div>
+                    <Link
+                      href={`/icerikler/${encodeURIComponent(slugify(hizmet.title))}`}
+                      className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Image Preview Modal */}
       {previewImage && (
         <div
@@ -1087,4 +1420,4 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
       )}
     </>
   );
-}
+} 

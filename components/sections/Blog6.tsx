@@ -117,7 +117,7 @@ export default function Blog6({ previewData, selectedCategory }: Blog6Props) {
 
   // Handle category click
   const handleCategoryClick = (category: string) => {
-    router.push(`/blog/kategori?category=${encodeURIComponent(category)}`);
+    router.push(`/icerikler/${encodeURIComponent(slugify(category))}`);
   };
 
   const handleDialogClose = () => {
