@@ -47,6 +47,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import RichTextEditor from "@/components/RichTextEditor";
 
 // Define types for footer items
 interface LinkItem {
@@ -620,16 +621,34 @@ function FooterEditorContent({
               <Label htmlFor="copyright" className="text-sm">
                 Copyright Text
               </Label>
-              <Input
-                id="copyright"
-                value={data.copyright}
-                onChange={(e) => setFooterData({
-                  ...data,
-                  copyright: e.target.value
-                })}
-                placeholder="Copyright © 2024 Your Company. All Rights Reserved"
-                className="h-9 text-sm"
-              />
+              <div className="border rounded-md">
+                <RichTextEditor
+                  content={data.copyright}
+                  onChange={(html) => {
+                    const updatedData = {
+                      ...data,
+                      copyright: html
+                    };
+                    setFooterData(updatedData);
+                    
+                    // Update preview immediately
+                    setTimeout(() => {
+                      const iframe = document.querySelector('iframe');
+                      if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage({
+                          type: "UPDATE_FOOTER_DATA",
+                          footerData: updatedData
+                        }, "*");
+                      }
+                    }, 100);
+                  }}
+                  className="min-h-[100px]"
+                  placeholder="Copyright © 2024 Your Company. All Rights Reserved"
+                />
+              </div>
+              <p className="text-xs text-gray-500">
+                Use the editor to format your copyright text. You can add links, bold text, etc.
+              </p>
             </div>
             
             <div className="space-y-2">

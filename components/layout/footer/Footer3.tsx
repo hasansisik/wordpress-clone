@@ -181,7 +181,14 @@ export default function Footer3(props: FooterProps = {}) {
 							)}
 							<div className="row">
 								<div className="d-flex flex-md-row flex-column align-items-center justify-content-between bg-transparent py-4 border-top border-opacity-10">
-									<span className="text-white opacity-50 mb-3 mb-md-0">{safeData.copyright}</span>
+									<div 
+										className="text-white opacity-50 mb-3 mb-md-0 copyright-content"
+										dangerouslySetInnerHTML={{ __html: safeData.copyright }}
+										style={{
+											'--copyright-link-color': '#ffffff',
+											'--copyright-link-opacity': '0.8'
+										} as React.CSSProperties}
+									/>
 									{safeData.showPrivacyLinks && (
 										<div className="d-flex">
 											{safeData.privacyLinks.length > 0 ? (
@@ -201,6 +208,53 @@ export default function Footer3(props: FooterProps = {}) {
 					</div>
 				</div>
 			</footer>
+			{/* Copyright content styling */}
+			<style jsx global>{`
+				.copyright-content {
+					position: relative;
+					z-index: 10;
+				}
+				
+				.copyright-content a {
+					color: var(--copyright-link-color, #ffffff) !important;
+					opacity: var(--copyright-link-opacity, 0.8);
+					text-decoration: underline;
+					transition: opacity 0.3s ease;
+					cursor: pointer;
+					pointer-events: auto;
+					position: relative;
+					z-index: 11;
+					display: inline;
+				}
+				
+				.copyright-content a:hover {
+					opacity: 1 !important;
+					text-decoration: underline;
+				}
+				
+				.copyright-content a:active {
+					opacity: 0.9 !important;
+				}
+				
+				.copyright-content strong {
+					font-weight: 600;
+					color: inherit;
+				}
+				
+				.copyright-content em {
+					font-style: italic;
+					color: inherit;
+				}
+				
+				.copyright-content p {
+					margin: 0;
+					color: inherit;
+				}
+				
+				.copyright-content * {
+					color: inherit !important;
+				}
+			`}</style>
 		</>
 	)
 }
