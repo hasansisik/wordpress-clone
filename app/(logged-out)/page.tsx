@@ -25,6 +25,9 @@ import Features5 from "@/components/sections/Features5";
 import Features8 from "@/components/sections/Features8";
 import Features10 from "@/components/sections/Features10";
 import { ReduxProvider } from "@/components/ui/ReduxProvider";
+import Content1 from "@/components/sections/Content1";
+import Content2 from "@/components/sections/Content2";
+import Content3 from "@/components/sections/Content3";
 
 // Define section type
 interface Section {
@@ -60,6 +63,9 @@ const sectionComponents = {
   Features5,
   Features8,
   Features10,
+  Content1,
+  Content2,
+  Content3,
 };
 
 // Minimal placeholder component

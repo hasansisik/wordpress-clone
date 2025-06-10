@@ -17,6 +17,7 @@ import {
   SectionTypeSelector,
   ToggleField,
   ColorField,
+  RichTextField,
 } from "@/components/editor/FormFields";
 import { Layout, Type, Settings, Image } from "lucide-react";
 import Blog1 from "@/components/sections/Blog1";
@@ -27,6 +28,9 @@ import Contact1 from "@/components/sections/Contact1";
 import Services2 from "@/components/sections/Services2";
 import Services5 from "@/components/sections/Services5";
 import Project2 from "@/components/sections/Project2";
+import Content1 from "@/components/sections/Content1";
+import Content2 from "@/components/sections/Content2";
+import Content3 from "@/components/sections/Content3";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { getOther, updateOther } from "@/redux/actions/otherActions";
@@ -63,6 +67,9 @@ const otherTypes = [
   { value: "team1", label: "Team 1" },
   { value: "project2", label: "Project 2" },
   { value: "contact1", label: "Contact 1" },
+  { value: "content1", label: "Content 1" },
+  { value: "content2", label: "Content 2" },
+  { value: "content3", label: "Content 3" },
 ];
 
 // Fallback preview component that renders directly in the editor
@@ -112,6 +119,12 @@ const DirectPreview = ({ data }: { data: any }) => {
         <Services5 previewData={data} />
       ) : activeComponent === "project2" ? (
         <Project2 previewData={data} />
+      ) : activeComponent === "content1" ? (
+        <Content1 previewData={data} />
+      ) : activeComponent === "content2" ? (
+        <Content2 previewData={data} />
+      ) : activeComponent === "content3" ? (
+        <Content3 previewData={data} />
       ) : (
         <Contact1 previewData={data} />
       )}
@@ -249,6 +262,12 @@ export default function OtherEditor() {
             <Project2ContentForm data={data.project2 || {}} />
           ) : activeOther === "team1" ? (
             <Team1ContentForm data={data.team1 || {}} />
+          ) : activeOther === "content1" ? (
+            <Content1ContentForm data={data.content1 || {}} />
+          ) : activeOther === "content2" ? (
+            <Content2ContentForm data={data.content2 || {}} />
+          ) : activeOther === "content3" ? (
+            <Content3ContentForm data={data.content3 || {}} />
           ) : (
             <Contact1ContentForm data={data.contact1 || {}} />
           )}
@@ -281,6 +300,12 @@ export default function OtherEditor() {
             <Project2MediaForm data={data.project2 || {}} />
           ) : activeOther === "team1" ? (
             <Team1MediaForm data={data.team1 || {}} />
+          ) : activeOther === "content1" ? (
+            <Content1MediaForm data={data.content1 || {}} />
+          ) : activeOther === "content2" ? (
+            <Content2MediaForm data={data.content2 || {}} />
+          ) : activeOther === "content3" ? (
+            <Content3MediaForm data={data.content3 || {}} />
           ) : (
             <Contact1MediaForm data={data.contact1 || {}} />
           )}
@@ -1677,6 +1702,153 @@ function Team1MediaForm({ data }: { data: any }) {
           </div>
         ))}
       </FormGroup>
+    </div>
+  );
+}
+
+// Content 1 Content Form
+function Content1ContentForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Section Title">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="content1.title"
+          placeholder="Enter section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="content1.titleColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Content">
+        <RichTextField
+          label="HTML Content"
+          value={data?.content || ""}
+          path="content1.content"
+          placeholder="Enter your content here..."
+        />
+      </FormGroup>
+
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="content1.backgroundColor"
+        />
+      </FormGroup>
+    </div>
+  );
+}
+
+// Content 1 Media Form
+function Content1MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <div className="text-xs text-gray-500 mb-2">
+        Images can be added directly in the content editor using the rich text editor.
+      </div>
+    </div>
+  );
+}
+
+// Content 2 Content Form
+function Content2ContentForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Section Title">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="content2.title"
+          placeholder="Enter section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="content2.titleColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Content">
+        <RichTextField
+          label="HTML Content"
+          value={data?.content || ""}
+          path="content2.content"
+          placeholder="Enter your content here..."
+        />
+      </FormGroup>
+
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#f8f9fa"}
+          path="content2.backgroundColor"
+        />
+      </FormGroup>
+    </div>
+  );
+}
+
+// Content 2 Media Form
+function Content2MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <div className="text-xs text-gray-500 mb-2">
+        Images can be added directly in the content editor using the rich text editor.
+      </div>
+    </div>
+  );
+}
+
+// Content 3 Content Form
+function Content3ContentForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <FormGroup title="Section Title">
+        <TextField
+          label="Title"
+          value={data?.title || ""}
+          path="content3.title"
+          placeholder="Enter section title"
+        />
+        <ColorField
+          label="Title Color"
+          value={data?.titleColor || "#111827"}
+          path="content3.titleColor"
+        />
+      </FormGroup>
+
+      <FormGroup title="Content">
+        <RichTextField
+          label="HTML Content"
+          value={data?.content || ""}
+          path="content3.content"
+          placeholder="Enter your content here..."
+        />
+      </FormGroup>
+
+      <FormGroup title="Background">
+        <ColorField
+          label="Background Color"
+          value={data?.backgroundColor || "#ffffff"}
+          path="content3.backgroundColor"
+        />
+      </FormGroup>
+    </div>
+  );
+}
+
+// Content 3 Media Form
+function Content3MediaForm({ data }: { data: any }) {
+  return (
+    <div className="space-y-4">
+      <div className="text-xs text-gray-500 mb-2">
+        Images can be added directly in the content editor using the rich text editor.
+      </div>
     </div>
   );
 }

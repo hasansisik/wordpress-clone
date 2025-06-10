@@ -12,6 +12,9 @@ import Services5 from "@/components/sections/Services5";
 import Project2 from "@/components/sections/Project2";
 import Script from "next/script";
 import Team1 from "@/components/sections/Team1";
+import Content1 from "@/components/sections/Content1";
+import Content2 from "@/components/sections/Content2";
+import Content3 from "@/components/sections/Content3";
 
 // Common Styles
 const CommonStyles = () => (
@@ -1128,6 +1131,12 @@ export default function OtherPreview() {
         return <Team1 previewData={otherData} />;
       case "contact1":
         return <Contact1 previewData={otherData} />;
+      case "content1":
+        return <Content1 previewData={otherData} />;
+      case "content2":
+        return <Content2 previewData={otherData} />;
+      case "content3":
+        return <Content3 previewData={otherData} />;
       default:
         return <div>Unknown component type: {activeComponent}</div>;
     }

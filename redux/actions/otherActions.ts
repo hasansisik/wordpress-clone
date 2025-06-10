@@ -186,6 +186,24 @@ export interface OtherPayload {
     descriptionColor?: string;
     backgroundColor?: string;
   };
+  content1?: {
+    title?: string;
+    titleColor?: string;
+    content?: string;
+    backgroundColor?: string;
+  };
+  content2?: {
+    title?: string;
+    titleColor?: string;
+    content?: string;
+    backgroundColor?: string;
+  };
+  content3?: {
+    title?: string;
+    titleColor?: string;
+    content?: string;
+    backgroundColor?: string;
+  };
 }
 
 // Get other data

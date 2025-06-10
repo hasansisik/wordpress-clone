@@ -12,6 +12,7 @@ import { HexColorPicker } from "react-colorful";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import RichTextEditor from "@/components/RichTextEditor";
 
 // Base field props
 interface BaseFieldProps {
@@ -324,6 +325,36 @@ export const CheckboxField = ({
       <Label htmlFor={`checkbox-${path}`} className="text-xs text-gray-600 font-normal">
         {label}
       </Label>
+    </div>
+  );
+};
+
+// Rich Text Field
+export const RichTextField = ({ 
+  label, 
+  value, 
+  path, 
+  placeholder = "Enter content here...", 
+  className = "space-y-2 mb-4",
+  disabled = false
+}: BaseFieldProps) => {
+  const { handleTextChange } = useEditor();
+  
+  const handleRichTextChange = (html: string) => {
+    handleTextChange(html, path);
+  };
+  
+  return (
+    <div className={className}>
+      <Label className="text-xs text-gray-500">{label}</Label>
+      <div className="border border-input rounded-md overflow-hidden">
+        <RichTextEditor
+          content={value}
+          onChange={handleRichTextChange}
+          placeholder={placeholder}
+          className="min-h-[300px]"
+        />
+      </div>
     </div>
   );
 };
