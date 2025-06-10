@@ -131,11 +131,11 @@ const CookieConsent = () => {
   if (!showConsent && !showCustomize) return (
     <button
       onClick={() => setShowCustomize(true)}
-      className={`fixed bottom-25 ${getPositionClass()} z-50 flex items-center justify-center w-10 h-10 rounded-full transition-colors shadow-lg`}
+      className={`fixed bottom-25 ${getPositionClass()} z-50 flex items-center justify-center w-14 h-14 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105`}
       style={{ backgroundColor: cookieSettings.buttonBgColor }}
       aria-label="Cookie Settings"
     >
-      <Cookie className="w-5 h-5" style={{ color: cookieSettings.iconColor }} />
+      <Cookie className="w-7 h-7" style={{ color: cookieSettings.iconColor }} />
     </button>
   )
 
@@ -143,10 +143,10 @@ const CookieConsent = () => {
     <>
       {/* Main cookie banner */}
       {showConsent && !showCustomize && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t border-gray-200 p-2 md:p-3">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t border-gray-100 p-2 md:p-3">
           <div className="container mx-auto flex flex-col items-center text-center px-2">
             <div className="flex items-center gap-2 justify-center mb-1">
-              <Cookie className="w-6 h-6 text-blue-600" />
+              <Cookie className="w-7 h-7 text-blue-600" />
               <h5 className="text-xs font-medium">{cookieSettings.title}</h5>
             </div>
             <p className="text-xs text-gray-600 max-w-4xl mb-2">
@@ -155,13 +155,13 @@ const CookieConsent = () => {
             <div className="flex justify-center items-center gap-1 w-full flex-nowrap mt-2">
               <button 
                 onClick={() => setShowCustomize(true)}
-                className="px-3 py-1.5 text-xs text-gray-600 border border-gray-300 rounded hover:bg-gray-100 flex-shrink-0 min-w-0 whitespace-nowrap"
+                className="px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded hover:bg-gray-100 flex-shrink-0 min-w-0 whitespace-nowrap"
               >
                 {cookieSettings.customizeText}
               </button>
               <button 
                 onClick={handleRejectAll}
-                className="px-3 py-1.5 text-xs text-gray-600 border border-gray-300 rounded hover:bg-gray-100 flex-shrink-0 min-w-0 whitespace-nowrap"
+                className="px-3 py-1.5 text-xs text-gray-600 border border-gray-200 rounded hover:bg-gray-100 flex-shrink-0 min-w-0 whitespace-nowrap"
               >
                 {cookieSettings.rejectAllText}
               </button>
@@ -258,7 +258,7 @@ const CookieConsent = () => {
                           checked={preferences.functional}
                           onChange={() => togglePreference('functional')}
                         />
-                        <div className="relative w-8 h-4 bg-gray-200 peer-focus:outline-none rounded peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 shadow-inner"></div>
+                        <div className="relative w-8 h-4 bg-gray-200 peer-focus:outline-none rounded peer dark:bg-gray-300 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 shadow-inner"></div>
                       </label>
                     </div>
                   </div>
@@ -340,11 +340,11 @@ const CookieConsent = () => {
       {!showConsent && (
         <button
           onClick={() => setShowCustomize(true)}
-          className={`fixed bottom-25 ${getPositionClass()} z-50 flex items-center justify-center w-14 h-14 rounded-full transition-colors shadow-lg`}
+          className={`fixed bottom-6 ${getPositionClass()} z-50 flex items-center justify-center w-16 h-16 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105`}
           style={{ backgroundColor: cookieSettings.buttonBgColor }}
           aria-label="Cookie Settings"
         >
-          <Cookie className="w-7 h-7" style={{ color: cookieSettings.iconColor }} />
+          <Cookie className="w-8 h-8" style={{ color: cookieSettings.iconColor }} />
         </button>
       )}
     </>
