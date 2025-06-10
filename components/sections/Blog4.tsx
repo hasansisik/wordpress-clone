@@ -79,7 +79,7 @@ export default function Blog4() {
 											<div className="d-flex align-items-center justify-content-between mt-5 pt-5 border-top ">
 												<div className="d-flex align-items-center">
 													<div className="icon-shape rounded-circle border border-2 border-white">
-														<img className="rounded-circle" src="/assets/imgs/blog-4/avatar-1.png" alt="infinia" />
+														<img className="rounded-circle" src="/assets/imgs/blog-4/avatar.png" alt="infinia" />
 													</div>
 													<div className="ms-3">
 														<h6 className="fs-7 m-0 mb-1">Evara Rose</h6>
@@ -169,7 +169,7 @@ export default function Blog4() {
 											<div className="d-flex align-items-center justify-content-between mt-5 pt-5 border-top ">
 												<div className="d-flex align-items-center">
 													<div className="icon-shape rounded-circle border border-2 border-white">
-														<img className="rounded-circle" src="/assets/imgs/blog-4/avatar-1.png" alt="infinia" />
+														<img className="rounded-circle" src="/assets/imgs/blog-4/avatar.png" alt="infinia" />
 													</div>
 													<div className="ms-3">
 														<h6 className="fs-7 m-0 mb-1">Evara Rose</h6>

@@ -58,7 +58,11 @@ import {
   deleteBlog,
   getAllCategories,
   createGlobalCategory,
-  deleteGlobalCategory
+  deleteGlobalCategory,
+  getAllAuthors,
+  createGlobalAuthor,
+  updateGlobalAuthor,
+  deleteGlobalAuthor
 } from "@/redux/actions/blogActions";
 import {
   Loader2,
@@ -127,7 +131,7 @@ const slugify = (text: string) => {
 
 export default function BlogEditor() {
   const dispatch = useDispatch<AppDispatch>();
-  const { blogs, categories, loading, categoryLoading, error, success, message } = useSelector(
+  const { blogs, categories, authors, loading, categoryLoading, authorLoading, error, success, message } = useSelector(
     (state: RootState) => state.blog
   );
 
@@ -159,7 +163,7 @@ export default function BlogEditor() {
     category: "",
     categories: [] as string[],
     author: "",
-    authorAvatar: "/assets/imgs/blog-4/avatar-1.png",
+    authorAvatar: "/assets/imgs/blog-4/avatar.png",
     readTime: "3 dakika",
     intro: "",
     fullContent: "",
@@ -174,6 +178,9 @@ export default function BlogEditor() {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+  const [authorDialogOpen, setAuthorDialogOpen] = useState(false);
+  const [newAuthorData, setNewAuthorData] = useState({ name: "", avatar: "", bio: "" });
+  const [editingAuthor, setEditingAuthor] = useState<any>(null);
 
   // Load blogs from Redux store
   useEffect(() => {
@@ -183,6 +190,11 @@ export default function BlogEditor() {
   // Load categories from Redux store
   useEffect(() => {
     dispatch(getAllCategories());
+  }, [dispatch]);
+
+  // Load authors from Redux store
+  useEffect(() => {
+    dispatch(getAllAuthors());
   }, [dispatch]);
 
   // Update filtered posts when blogs or search term changes
@@ -319,7 +331,7 @@ export default function BlogEditor() {
     ) {
       setNotification({
         type: "error",
-        message: "Please fill all required fields.",
+        message: "Please fill all required fields and select an author.",
       });
       return;
     }
@@ -503,7 +515,7 @@ export default function BlogEditor() {
         ? postToEdit.category
         : [postToEdit.category],
       author: postToEdit.author,
-      authorAvatar: postToEdit.content.author.avatar,
+      authorAvatar: postToEdit.content.author.avatar || "/assets/imgs/blog-4/avatar.png",
       readTime: postToEdit.content.readTime,
       intro: postToEdit.content.intro,
       fullContent: postToEdit.content.fullContent || "",
@@ -693,6 +705,78 @@ export default function BlogEditor() {
     }
   };
 
+  // Handle adding a global author
+  const handleAddGlobalAuthor = async () => {
+    if (!newAuthorData.name.trim()) {
+      setNotification({
+        type: "error",
+        message: "Yazar adı boş olamaz.",
+      });
+      return;
+    }
+    
+    try {
+      if (editingAuthor) {
+        // Update existing author
+        await dispatch(updateGlobalAuthor({
+          id: editingAuthor._id,
+          ...newAuthorData
+        })).unwrap();
+        setEditingAuthor(null);
+      } else {
+        // Create new author
+        await dispatch(createGlobalAuthor(newAuthorData)).unwrap();
+      }
+      
+      setNewAuthorData({ name: "", avatar: "", bio: "" });
+      
+      setNotification({
+        type: "success",
+        message: editingAuthor ? "Yazar başarıyla güncellendi." : "Yazar başarıyla eklendi.",
+      });
+    } catch (error: any) {
+      setNotification({
+        type: "error",
+        message: error.message || "Yazar işlemi sırasında bir hata oluştu.",
+      });
+    }
+  };
+  
+  // Handle editing a global author
+  const handleEditGlobalAuthor = (author: any) => {
+    setEditingAuthor(author);
+    setNewAuthorData({
+      name: author.name,
+      avatar: author.avatar || "",
+      bio: author.bio || ""
+    });
+    setAuthorDialogOpen(true);
+  };
+  
+  // Handle deleting a global author
+  const handleDeleteGlobalAuthor = async (authorId: string) => {
+    try {
+      await dispatch(deleteGlobalAuthor(authorId)).unwrap();
+      
+      setNotification({
+        type: "success",
+        message: "Yazar başarıyla silindi.",
+      });
+    } catch (error: any) {
+      setNotification({
+        type: "error",
+        message: error.message || "Yazar silinirken bir hata oluştu.",
+      });
+    }
+  };
+
+  // Reset author dialog
+  const resetAuthorDialog = () => {
+    setNewAuthorData({ name: "", avatar: "", bio: "" });
+    setEditingAuthor(null);
+    setAuthorDialogOpen(false);
+  };
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -804,6 +888,19 @@ export default function BlogEditor() {
                     <path d="M10 14h4"></path>
                   </svg>
                   Categories
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setAuthorDialogOpen(true)}
+                  title="Manage authors"
+                  size="sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  Authors
                 </Button>
 
                 <Button
@@ -956,6 +1053,18 @@ export default function BlogEditor() {
                 </Button>
                 <Button
                   variant="outline"
+                  onClick={() => setAuthorDialogOpen(true)}
+                  title="Manage authors"
+                  size="sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  Authors
+                </Button>
+                <Button
+                  variant="outline"
                   onClick={() => {
                     // Reset form first
                     resetForm();
@@ -1025,48 +1134,25 @@ export default function BlogEditor() {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label
-                            htmlFor="author"
-                            className="text-sm font-medium"
-                          >
-                            Author
-                          </Label>
-                          <Input
-                            id="author"
-                            placeholder="Author name"
-                            value={formData.author}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                author: e.target.value,
-                              })
-                            }
-                            className="h-9"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <Label
-                            htmlFor="readTime"
-                            className="text-sm font-medium"
-                          >
-                            Read Time
-                          </Label>
-                          <Input
-                            id="readTime"
-                            placeholder="3 dakika"
-                            value={formData.readTime}
-                            onChange={(e) =>
-                              setFormData({
-                                ...formData,
-                                readTime: e.target.value,
-                              })
-                            }
-                            className="h-9"
-                          />
-                        </div>
+                      <div className="space-y-1">
+                        <Label
+                          htmlFor="readTime"
+                          className="text-sm font-medium"
+                        >
+                          Read Time
+                        </Label>
+                        <Input
+                          id="readTime"
+                          placeholder="3 dakika"
+                          value={formData.readTime}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              readTime: e.target.value,
+                            })
+                          }
+                          className="h-9"
+                        />
                       </div>
                     </CardContent>
                   </Card>
@@ -1354,6 +1440,90 @@ export default function BlogEditor() {
                   <Card className="shadow-sm">
                     <CardHeader className="">
                       <CardTitle className="text-base font-medium">
+                        Author
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-1 min-h-[36px]">
+                          {formData.author && (
+                            <Badge
+                              variant="secondary"
+                              className="px-2 py-1 text-xs"
+                            >
+                              {formData.author}
+                              <button
+                                type="button"
+                                className="ml-1 text-xs hover:text-destructive"
+                                onClick={() => setFormData({ ...formData, author: "" })}
+                              >
+                                ✕
+                              </button>
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <div className="mt-4">
+                          <p className="text-sm font-medium mb-2">Available Authors</p>
+                          <div className="flex flex-wrap gap-1">
+                            {authorLoading ? (
+                              <div className="flex items-center justify-center w-full py-2">
+                                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                              </div>
+                            ) : (
+                              authors.map((author: any, index: number) => (
+                                <Badge
+                                  key={index}
+                                  variant={formData.author === author.name ? "default" : "outline"}
+                                  className="px-3 py-2 text-xs cursor-pointer hover:bg-primary-50"
+                                  onClick={() => {
+                                    setFormData({
+                                      ...formData,
+                                      author: author.name,
+                                      authorAvatar: author.avatar,
+                                    });
+                                  }}
+                                >
+                                  <div className="flex items-center gap-1">
+                                    {author.avatar && (
+                                      <img 
+                                        src={author.avatar} 
+                                        alt={author.name}
+                                        className="w-4 h-4 rounded-full"
+                                      />
+                                    )}
+                                    {author.name}
+                                    {formData.author === author.name && (
+                                      <span className="ml-1 text-xs">✓</span>
+                                    )}
+                                  </div>
+                                </Badge>
+                              ))
+                            )}
+                            
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setAuthorDialogOpen(true)}
+                              className="h-6 text-xs mt-2"
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add New
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <p className="text-xs text-muted-foreground">
+                          Click an author to select or add a new author
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="shadow-sm">
+                    <CardHeader className="">
+                      <CardTitle className="text-base font-medium">
                         Premium Content
                       </CardTitle>
                     </CardHeader>
@@ -1501,6 +1671,148 @@ export default function BlogEditor() {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setCategoryDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Authors Management Dialog */}
+      <Dialog open={authorDialogOpen} onOpenChange={setAuthorDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Manage Authors</DialogTitle>
+            <DialogDescription>
+              Add, edit, or delete authors for your blog posts.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col gap-4 my-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Author Name</label>
+                <Input
+                  placeholder="Author name"
+                  value={newAuthorData.name}
+                  onChange={(e) => setNewAuthorData({ ...newAuthorData, name: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newAuthorData.name.trim()) {
+                      e.preventDefault();
+                      handleAddGlobalAuthor();
+                    }
+                  }}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Avatar URL</label>
+                <Input
+                  placeholder="https://example.com/avatar.jpg"
+                  value={newAuthorData.avatar}
+                  onChange={(e) => setNewAuthorData({ ...newAuthorData, avatar: e.target.value })}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Bio (Optional)</label>
+              <Textarea
+                placeholder="Author bio or description"
+                value={newAuthorData.bio}
+                onChange={(e) => setNewAuthorData({ ...newAuthorData, bio: e.target.value })}
+                className="min-h-[80px]"
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                type="button" 
+                onClick={handleAddGlobalAuthor}
+                disabled={authorLoading || !newAuthorData.name.trim()}
+                className="flex-1"
+              >
+                {authorLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : editingAuthor ? (
+                  'Update Author'
+                ) : (
+                  'Add Author'
+                )}
+              </Button>
+              
+              {editingAuthor && (
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={resetAuthorDialog}
+                >
+                  Cancel Edit
+                </Button>
+              )}
+            </div>
+            
+            <div className="border rounded-md">
+              {authorLoading ? (
+                <div className="flex justify-center items-center py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                </div>
+              ) : authors.length === 0 ? (
+                <div className="py-3 px-4 text-center text-muted-foreground">
+                  No authors found. Add your first author above.
+                </div>
+              ) : (
+                <div className="max-h-[250px] overflow-y-auto">
+                  {authors.map((author: any, index: number) => (
+                    <div 
+                      key={index}
+                      className="py-3 px-4 border-b last:border-b-0 flex justify-between items-center"
+                    >
+                      <div className="flex items-center gap-3">
+                        {author.avatar && (
+                          <img 
+                            src={author.avatar} 
+                            alt={author.name}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        )}
+                        <div>
+                          <p className="font-medium">{author.name}</p>
+                          {author.bio && (
+                            <p className="text-sm text-muted-foreground line-clamp-1">
+                              {author.bio}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditGlobalAuthor(author)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Pencil className="h-4 w-4 text-blue-500" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteGlobalAuthor(author._id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={resetAuthorDialog}>
               Close
             </Button>
           </DialogFooter>

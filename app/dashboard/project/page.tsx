@@ -141,7 +141,7 @@ export default function ProjectEditor() {
     fullContent: "",
     mainImage: "",
     author: "",
-    authorAvatar: "/assets/imgs/blog-4/avatar-1.png",
+    authorAvatar: "/assets/imgs/blog-4/avatar.png",
     readTime: "3 dakika",
   };
 
@@ -345,7 +345,7 @@ export default function ProjectEditor() {
         readTime: formData.readTime || "5 mins",
         author: {
           name: formData.author || "Admin",
-          avatar: formData.authorAvatar || "/assets/imgs/blog-4/avatar-1.png",
+          avatar: formData.authorAvatar || "/assets/imgs/blog-4/avatar.png",
           date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
         },
         mainImage: formData.mainImage || formData.image,
@@ -559,7 +559,7 @@ export default function ProjectEditor() {
       fullContent: projectToEdit.content?.fullContent || "",
       mainImage: projectToEdit.content?.mainImage || "",
       author: projectToEdit.content?.author?.name || "",
-      authorAvatar: projectToEdit.content?.author?.avatar || "/assets/imgs/blog-4/avatar-1.png",
+      authorAvatar: projectToEdit.content?.author?.avatar || "/assets/imgs/blog-4/avatar.png",
       readTime: projectToEdit.content?.readTime || "3 dakika",
     });
     

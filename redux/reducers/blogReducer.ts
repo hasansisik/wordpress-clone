@@ -9,15 +9,21 @@ import {
   createGlobalCategory,
   deleteGlobalCategory,
   addCategory,
-  deleteCategory
+  deleteCategory,
+  getAllAuthors,
+  createGlobalAuthor,
+  updateGlobalAuthor,
+  deleteGlobalAuthor
 } from "../actions/blogActions";
 
 interface BlogState {
   blogs: any[];
   blog: any;
   categories: string[];
+  authors: any[];
   loading: boolean;
   categoryLoading: boolean;
+  authorLoading: boolean;
   error: string | null;
   success: boolean;
   message: string | null;
@@ -27,8 +33,10 @@ const initialState: BlogState = {
   blogs: [],
   blog: {},
   categories: [],
+  authors: [],
   loading: false,
   categoryLoading: false,
+  authorLoading: false,
   error: null,
   success: false,
   message: null
@@ -66,6 +74,21 @@ export const blogReducer = createReducer(initialState, (builder) => {
       state.error = action.payload as string;
     })
     
+    // Get All Authors
+    .addCase(getAllAuthors.pending, (state) => {
+      state.authorLoading = true;
+      state.error = null;
+    })
+    .addCase(getAllAuthors.fulfilled, (state, action) => {
+      state.authorLoading = false;
+      state.authors = action.payload;
+      state.error = null;
+    })
+    .addCase(getAllAuthors.rejected, (state, action) => {
+      state.authorLoading = false;
+      state.error = action.payload as string;
+    })
+    
     // Create Global Category
     .addCase(createGlobalCategory.pending, (state) => {
       state.categoryLoading = true;
@@ -84,6 +107,44 @@ export const blogReducer = createReducer(initialState, (builder) => {
       state.success = false;
     })
     
+    // Create Global Author
+    .addCase(createGlobalAuthor.pending, (state) => {
+      state.authorLoading = true;
+      state.error = null;
+    })
+    .addCase(createGlobalAuthor.fulfilled, (state, action) => {
+      state.authorLoading = false;
+      state.authors = [...state.authors, action.payload];
+      state.success = true;
+      state.message = "Yazar başarıyla oluşturuldu";
+      state.error = null;
+    })
+    .addCase(createGlobalAuthor.rejected, (state, action) => {
+      state.authorLoading = false;
+      state.error = action.payload as string;
+      state.success = false;
+    })
+    
+    // Update Global Author
+    .addCase(updateGlobalAuthor.pending, (state) => {
+      state.authorLoading = true;
+      state.error = null;
+    })
+    .addCase(updateGlobalAuthor.fulfilled, (state, action) => {
+      state.authorLoading = false;
+      state.authors = state.authors.map(author => 
+        author._id === action.payload._id ? action.payload : author
+      );
+      state.success = true;
+      state.message = "Yazar başarıyla güncellendi";
+      state.error = null;
+    })
+    .addCase(updateGlobalAuthor.rejected, (state, action) => {
+      state.authorLoading = false;
+      state.error = action.payload as string;
+      state.success = false;
+    })
+    
     // Delete Global Category
     .addCase(deleteGlobalCategory.pending, (state) => {
       state.categoryLoading = true;
@@ -98,6 +159,24 @@ export const blogReducer = createReducer(initialState, (builder) => {
     })
     .addCase(deleteGlobalCategory.rejected, (state, action) => {
       state.categoryLoading = false;
+      state.error = action.payload as string;
+      state.success = false;
+    })
+    
+    // Delete Global Author
+    .addCase(deleteGlobalAuthor.pending, (state) => {
+      state.authorLoading = true;
+      state.error = null;
+    })
+    .addCase(deleteGlobalAuthor.fulfilled, (state, action) => {
+      state.authorLoading = false;
+      state.authors = state.authors.filter(author => author._id !== action.payload);
+      state.success = true;
+      state.message = "Yazar başarıyla silindi";
+      state.error = null;
+    })
+    .addCase(deleteGlobalAuthor.rejected, (state, action) => {
+      state.authorLoading = false;
       state.error = action.payload as string;
       state.success = false;
     })
