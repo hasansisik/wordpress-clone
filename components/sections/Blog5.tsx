@@ -9,11 +9,14 @@ import { AppDispatch, RootState } from "@/redux/store"
 import { Loader2, Video } from "lucide-react"
 import Image from "next/image"
 import PremiumContentDialog from "@/components/PremiumContentDialog"
+import { useRouter } from "next/navigation"
 
 interface Blog5Props {
 	previewData?: any;
 	selectedCategory?: string;
 	selectedAuthor?: string;
+	title?: string;
+	subtitle?: string;
 }
 
 // Function to convert title to slug
@@ -49,37 +52,41 @@ const truncateText = (text: string, maxLength: number = 120) => {
 	return text.substring(0, maxLength) + '...';
 };
 
-export default function Blog5({ previewData, selectedCategory, selectedAuthor }: Blog5Props) {
+export default function Blog5({ previewData, selectedCategory, selectedAuthor, title, subtitle }: Blog5Props = {}) {
 	const [data, setData] = useState<any>(null)
+	const [posts, setPosts] = useState<any[]>([])
 	const [currentPage, setCurrentPage] = useState(1)
 	const [postsPerPage] = useState(12) // 3 columns × 4 rows = 12 posts per page
 	const dispatch = useDispatch<AppDispatch>()
 	const { blogs, loading: blogLoading, error } = useSelector((state: RootState) => state.blog)
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other)
 	const { user, isAuthenticated } = useSelector((state: RootState) => state.user);
+	const router = useRouter()
 	const [showPremiumDialog, setShowPremiumDialog] = useState(false)
 	const [currentPremiumPost, setCurrentPremiumPost] = useState<any>(null)
 	
 	// Premium kontrolü - === true ile kesin kontrol
 	const isPremiumUser = isAuthenticated && user?.isPremium === true;
-	
-	// Kullanıcı profil bilgilerini güncelle
-	useEffect(() => {
-		dispatch(getMyProfile());
-	}, [dispatch]);
 
+	// Only dispatch actions if data is missing
 	useEffect(() => {
-		// Apply filters when fetching blogs
+		if (!user?._id) {
+			dispatch(getMyProfile());
+		}
+		
+		if (!other?.blog5 && !previewData) {
+			dispatch(getOther());
+		}
+	}, [dispatch, other, user, previewData]);
+
+	// Separate effect for blog fetching with filters
+	useEffect(() => {
 		const filterParams: any = {};
 		if (selectedCategory) filterParams.category = selectedCategory;
 		if (selectedAuthor) filterParams.author = selectedAuthor;
 		
-		dispatch(getAllBlogs(filterParams))
-		// Also fetch other data if not provided in preview
-		if (!previewData) {
-			dispatch(getOther())
-		}
-	}, [dispatch, previewData, selectedCategory, selectedAuthor])
+		dispatch(getAllBlogs(filterParams));
+	}, [dispatch, selectedCategory, selectedAuthor]);
 
 	useEffect(() => {
 		// If preview data is provided, use it
@@ -88,9 +95,25 @@ export default function Blog5({ previewData, selectedCategory, selectedAuthor }:
 		} 
 		// Otherwise use Redux data
 		else if (other && other.blog5) {
-			setData(other.blog5);
+			// If title/subtitle props are provided, override them
+			if (title || subtitle) {
+				setData({
+					...other.blog5,
+					title: title || other.blog5.title,
+					subtitle: subtitle || other.blog5.subtitle
+				});
+			} else {
+				setData(other.blog5);
+			}
 		}
-	}, [previewData, other])
+	}, [previewData, other, title, subtitle])
+
+	// Update posts when blogs change
+	useEffect(() => {
+		if (blogs.length > 0) {
+			setPosts(blogs);
+		}
+	}, [blogs]);
 	
 	// Handle blog post click with premium check
 	const handlePostClick = (e: React.MouseEvent, post: any) => {
@@ -129,17 +152,17 @@ export default function Blog5({ previewData, selectedCategory, selectedAuthor }:
 		)
 	}
 
-	if (!data || !blogs || blogs.length === 0) {
+	if (!data) {
 		return null
 	}
 
 	// Get current posts
 	const indexOfLastPost = currentPage * postsPerPage
 	const indexOfFirstPost = indexOfLastPost - postsPerPage
-	const currentPosts = blogs.slice(indexOfFirstPost, indexOfLastPost)
+	const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost)
 	
 	// Calculate total pages
-	const totalPages = Math.ceil(blogs.length / postsPerPage)
+	const totalPages = Math.ceil(posts.length / postsPerPage)
 
 	// Create page numbers array
 	const pageNumbers = []

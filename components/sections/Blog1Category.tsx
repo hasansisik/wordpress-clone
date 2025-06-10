@@ -2,15 +2,11 @@
 import Blog1 from "./Blog1"
 
 interface Blog1CategoryProps {
-  previewData?: any;
   selectedCategory?: string;
+  title?: string;
+  subtitle?: string;
 }
 
-export default function Blog1Category({ previewData, selectedCategory }: Blog1CategoryProps) {
-  return (
-    <Blog1 
-      previewData={previewData} 
-      selectedCategory={selectedCategory}
-    />
-  )
+export default function Blog1Category({ selectedCategory, title, subtitle }: Blog1CategoryProps) {
+  return <Blog1 selectedCategory={selectedCategory} title={title} subtitle={subtitle} />;
 } 

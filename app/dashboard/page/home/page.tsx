@@ -21,6 +21,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -88,6 +90,8 @@ interface Section {
   config?: {
     selectedCategory?: string;
     selectedAuthor?: string;
+    title?: string;
+    subtitle?: string;
   };
 }
 
@@ -443,7 +447,32 @@ function SortableSectionItem({
           <div className="text-xs text-muted-foreground">
             {sectionInfo.description || `${section.type} Component`}
           </div>
-          {(section.type.includes('Category') || section.type.includes('Author')) && (
+          {section.type.includes('Blog') && (
+            <div className="text-xs mt-1 space-y-1">
+              {/* Title and Subtitle */}
+              <div>
+                <span className="inline-block bg-purple-100 text-purple-700 px-2 py-1 rounded mr-2">
+                  Başlık: {section.config?.title || 'Varsayılan başlık'}
+                </span>
+                <span className="inline-block bg-pink-100 text-pink-700 px-2 py-1 rounded">
+                  Alt başlık: {section.config?.subtitle || 'Varsayılan alt başlık'}
+                </span>
+              </div>
+              
+              {/* Category and Author filters */}
+              {section.type.includes('Category') && (
+                <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded mr-2">
+                  Kategori: {section.config?.selectedCategory || 'Genel (Genel hariç tüm kategoriler)'}
+                </span>
+              )}
+              {section.type.includes('Author') && (
+                <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded">
+                  Yazar: {section.config?.selectedAuthor || 'Tüm yazarlar'}
+                </span>
+              )}
+            </div>
+          )}
+          {(section.type.includes('Category') || section.type.includes('Author')) && !section.type.includes('Blog') && (
             <div className="text-xs mt-1">
               {section.type.includes('Category') && (
                 <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded mr-2">
@@ -460,7 +489,7 @@ function SortableSectionItem({
         </div>
 
         <div className="flex items-center gap-2">
-          {(section.type.includes('Category') || section.type.includes('Author')) && onEditConfig && (
+          {section.type.includes('Blog') && onEditConfig && (
             <Button
               variant="ghost"
               size="icon"
@@ -502,6 +531,8 @@ export default function HomePageEditor() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedAuthor, setSelectedAuthor] = useState<string>("");
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [sectionTitle, setSectionTitle] = useState<string>("");
+  const [sectionSubtitle, setSectionSubtitle] = useState<string>("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -541,13 +572,15 @@ export default function HomePageEditor() {
     const section = availableSections.find((s) => s.id === sectionType);
     if (!section) return;
 
-    // Check if this section type requires configuration
-    const requiresConfig = sectionType.includes('-category') || sectionType.includes('-author');
+    // Check if this is a blog section (requires configuration)
+    const isBlogSection = sectionType.includes('blog');
     
-    if (requiresConfig) {
+    if (isBlogSection) {
       setCurrentSectionType(sectionType);
       setSelectedCategory("");
       setSelectedAuthor("");
+      setSectionTitle("");
+      setSectionSubtitle("");
       setShowConfigModal(true);
     } else {
       // Add section without configuration
@@ -576,6 +609,8 @@ export default function HomePageEditor() {
       config: {
         selectedCategory: selectedCategory.trim() !== "" ? selectedCategory : undefined,
         selectedAuthor: selectedAuthor.trim() !== "" ? selectedAuthor : undefined,
+        title: sectionTitle.trim() !== "" ? sectionTitle : undefined,
+        subtitle: sectionSubtitle.trim() !== "" ? sectionSubtitle : undefined,
       }
     };
 
@@ -585,6 +620,8 @@ export default function HomePageEditor() {
     setCurrentSectionType("");
     setSelectedCategory("");
     setSelectedAuthor("");
+    setSectionTitle("");
+    setSectionSubtitle("");
   };
 
   // Remove a section from the page
@@ -607,6 +644,8 @@ export default function HomePageEditor() {
       setCurrentSectionType(originalSectionId);
       setSelectedCategory(section.config?.selectedCategory || "");
       setSelectedAuthor(section.config?.selectedAuthor || "");
+      setSectionTitle(section.config?.title || "");
+      setSectionSubtitle(section.config?.subtitle || "");
       setShowConfigModal(true);
       
       // Store the section ID for updating
@@ -625,6 +664,8 @@ export default function HomePageEditor() {
           config: {
             selectedCategory: selectedCategory.trim() !== "" ? selectedCategory : undefined,
             selectedAuthor: selectedAuthor.trim() !== "" ? selectedAuthor : undefined,
+            title: sectionTitle.trim() !== "" ? sectionTitle : undefined,
+            subtitle: sectionSubtitle.trim() !== "" ? sectionSubtitle : undefined,
           }
         };
       }
@@ -636,6 +677,8 @@ export default function HomePageEditor() {
     setCurrentSectionType("");
     setSelectedCategory("");
     setSelectedAuthor("");
+    setSectionTitle("");
+    setSectionSubtitle("");
     setEditingSectionId(null);
   };
 
@@ -705,6 +748,12 @@ export default function HomePageEditor() {
           }
           if (section.config.selectedAuthor && section.config.selectedAuthor.trim() !== "") {
             configProps.push(`selectedAuthor="${section.config.selectedAuthor}"`);
+          }
+          if (section.config.title && section.config.title.trim() !== "") {
+            configProps.push(`title="${section.config.title}"`);
+          }
+          if (section.config.subtitle && section.config.subtitle.trim() !== "") {
+            configProps.push(`subtitle="${section.config.subtitle}"`);
           }
           if (configProps.length > 0) {
             props = ` ${configProps.join(" ")}`;
@@ -1005,13 +1054,49 @@ ${sectionsJSX}
       {/* Configuration Modal */}
       <Dialog open={showConfigModal} onOpenChange={setShowConfigModal}>
         <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Section Konfigürasyonu</DialogTitle>
-            <DialogDescription>
-              Bu section için kategori veya yazar seçin. Seçim yapmazsanız genel kategorideki bloglar gösterilir.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
+                     <DialogHeader>
+             <DialogTitle>Blog Section Konfigürasyonu</DialogTitle>
+             <DialogDescription>
+               Bu blog section için başlık, alt başlık ve filtreleme seçeneklerini belirleyin.
+             </DialogDescription>
+           </DialogHeader>
+           <div className="grid gap-4 py-4">
+             {/* Title and Subtitle fields for all blog sections */}
+             <div className="grid grid-cols-4 items-center gap-4">
+               <Label htmlFor="title" className="text-right font-medium">
+                 Başlık
+               </Label>
+               <div className="col-span-3">
+                 <Input
+                   id="title"
+                   value={sectionTitle}
+                   onChange={(e) => setSectionTitle(e.target.value)}
+                   placeholder="Blog section başlığı (opsiyonel)"
+                   className="w-full"
+                 />
+                 <p className="text-xs text-muted-foreground mt-1">
+                   Boş bırakırsanız varsayılan başlık kullanılır
+                 </p>
+               </div>
+             </div>
+             
+             <div className="grid grid-cols-4 items-center gap-4">
+               <Label htmlFor="subtitle" className="text-right font-medium">
+                 Alt Başlık
+               </Label>
+               <div className="col-span-3">
+                 <Input
+                   id="subtitle"
+                   value={sectionSubtitle}
+                   onChange={(e) => setSectionSubtitle(e.target.value)}
+                   placeholder="Blog section alt başlığı (opsiyonel)"
+                   className="w-full"
+                 />
+                 <p className="text-xs text-muted-foreground mt-1">
+                   Boş bırakırsanız varsayılan alt başlık kullanılır
+                 </p>
+               </div>
+             </div>
             {currentSectionType.includes('-category') && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="category" className="text-right font-medium">

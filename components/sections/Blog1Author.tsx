@@ -2,15 +2,11 @@
 import Blog1 from "./Blog1"
 
 interface Blog1AuthorProps {
-  previewData?: any;
   selectedAuthor?: string;
+  title?: string;
+  subtitle?: string;
 }
 
-export default function Blog1Author({ previewData, selectedAuthor }: Blog1AuthorProps) {
-  return (
-    <Blog1 
-      previewData={previewData} 
-      selectedAuthor={selectedAuthor}
-    />
-  )
+export default function Blog1Author({ selectedAuthor, title, subtitle }: Blog1AuthorProps) {
+  return <Blog1 selectedAuthor={selectedAuthor} title={title} subtitle={subtitle} />;
 } 

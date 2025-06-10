@@ -45,6 +45,12 @@ interface Section {
   name: string;
   type: keyof typeof sectionComponents;
   description?: string;
+  config?: {
+    selectedCategory?: string;
+    selectedAuthor?: string;
+    title?: string;
+    subtitle?: string;
+  };
 }
 
 // Map section types to components
@@ -174,7 +180,28 @@ export default async function Home() {
       <Suspense fallback={<PlaceholderSection />}>
         {sections.map((section: Section) => {
           const SectionComponent = sectionComponents[section.type];
-          return SectionComponent ? <SectionComponent key={section.id} /> : null;
+          if (!SectionComponent) return null;
+          
+          // Pass config props if they exist
+          const configProps: any = {};
+          if (section.config) {
+            if (section.config.selectedCategory) {
+              configProps.selectedCategory = section.config.selectedCategory;
+            }
+            if (section.config.selectedAuthor) {
+              configProps.selectedAuthor = section.config.selectedAuthor;
+            }
+            if (section.config.title) {
+              configProps.title = section.config.title;
+            }
+            if (section.config.subtitle) {
+              configProps.subtitle = section.config.subtitle;
+            }
+            // Debug log for section config
+            console.log(`Rendering ${section.type} with config:`, section.config);
+          }
+          
+          return <SectionComponent key={section.id} {...configProps} />;
         })}
       </Suspense>
     </ReduxProvider>

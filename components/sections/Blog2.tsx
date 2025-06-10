@@ -15,6 +15,8 @@ interface Blog2Props {
 	previewData?: any;
 	selectedCategory?: string;
 	selectedAuthor?: string;
+	title?: string;
+	subtitle?: string;
 }
 
 // Function to convert title to slug
@@ -50,7 +52,7 @@ const truncateText = (text: string, maxLength: number = 120) => {
 	return text.substring(0, maxLength) + '...';
 };
 
-export default function Blog2({ previewData, selectedCategory, selectedAuthor }: Blog2Props = {}) {
+export default function Blog2({ previewData, selectedCategory, selectedAuthor, title, subtitle }: Blog2Props = {}) {
 	const dispatch = useDispatch<AppDispatch>();
 	const { blogs, loading: blogLoading } = useSelector((state: RootState) => state.blog);
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
@@ -76,9 +78,18 @@ export default function Blog2({ previewData, selectedCategory, selectedAuthor }:
 		} 
 		// Otherwise use Redux data
 		else if (other && other.blog2) {
-			setData(other.blog2);
+			// If title/subtitle props are provided, override them
+			if (title || subtitle) {
+				setData({
+					...other.blog2,
+					title: title || other.blog2.title,
+					subtitle: subtitle || other.blog2.subtitle
+				});
+			} else {
+				setData(other.blog2);
+			}
 		}
-	}, [previewData, other])
+	}, [previewData, other, title, subtitle])
 
 	// Fetch blogs and other data from Redux
 	useEffect(() => {
