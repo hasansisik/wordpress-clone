@@ -34,6 +34,10 @@ export interface GeneralPayload {
     phoneNumber?: string;
     message?: string;
   };
+  phone?: {
+    enabled?: boolean;
+    phoneNumber?: string;
+  };
   cookieConsent?: {
     enabled?: boolean;
     title?: string;

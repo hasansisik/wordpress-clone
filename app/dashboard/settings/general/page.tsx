@@ -27,7 +27,8 @@ import {
   Sun,
   MessageCircle,
   CreditCard,
-  Cookie
+  Cookie,
+  Phone
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -82,11 +83,15 @@ export default function SiteSettingsPage() {
       secretKey: "",
       uri: ""
     },
-    whatsapp: {
-      enabled: false,
-      phoneNumber: "",
-      message: ""
-    },
+          whatsapp: {
+        enabled: false,
+        phoneNumber: "",
+        message: ""
+      },
+      phone: {
+        enabled: true,
+        phoneNumber: "+905555555555"
+      },
     cookieConsent: {
       enabled: true,
       title: "Gizliliğinize değer veriyoruz",
@@ -151,6 +156,10 @@ export default function SiteSettingsPage() {
           enabled: general.whatsapp?.enabled !== undefined ? general.whatsapp.enabled : siteSettings.whatsapp.enabled,
           phoneNumber: general.whatsapp?.phoneNumber || siteSettings.whatsapp.phoneNumber,
           message: general.whatsapp?.message || siteSettings.whatsapp.message
+        },
+        phone: {
+          enabled: general.phone?.enabled !== undefined ? general.phone.enabled : siteSettings.phone.enabled,
+          phoneNumber: general.phone?.phoneNumber || siteSettings.phone.phoneNumber
         },
         cookieConsent: {
           enabled: general.cookieConsent?.enabled !== undefined ? general.cookieConsent.enabled : siteSettings.cookieConsent.enabled,
@@ -218,6 +227,15 @@ export default function SiteSettingsPage() {
           [whatsappField]: value
         }
       });
+    } else if (name.startsWith("phone.")) {
+      const phoneField = name.split(".")[1];
+      setSiteSettings({
+        ...siteSettings,
+        phone: {
+          ...siteSettings.phone,
+          [phoneField]: value
+        }
+      });
     } else if (name.startsWith("cookieConsent.")) {
       const cookieField = name.split(".")[1];
       setSiteSettings({
@@ -266,6 +284,16 @@ export default function SiteSettingsPage() {
     });
   };
 
+  const handlePhoneToggle = (enabled: boolean) => {
+    setSiteSettings({
+      ...siteSettings,
+      phone: {
+        ...siteSettings.phone,
+        enabled
+      }
+    });
+  };
+
   const handleCookieConsentToggle = (enabled: boolean) => {
     setSiteSettings({
       ...siteSettings,
@@ -309,6 +337,10 @@ export default function SiteSettingsPage() {
           enabled: siteSettings.whatsapp.enabled,
           phoneNumber: siteSettings.whatsapp.phoneNumber,
           message: siteSettings.whatsapp.message
+        },
+        phone: {
+          enabled: siteSettings.phone.enabled,
+          phoneNumber: siteSettings.phone.phoneNumber
         },
         theme: {
           headerStyle: siteSettings.theme.headerStyle,
@@ -458,7 +490,7 @@ export default function SiteSettingsPage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid grid-cols-7 mb-8">
+              <TabsList className="grid grid-cols-8 mb-8">
                 <TabsTrigger value="general" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   <span className="hidden sm:inline">General</span>
@@ -482,6 +514,10 @@ export default function SiteSettingsPage() {
                 <TabsTrigger value="whatsapp" className="flex items-center gap-2">
                   <MessageCircle className="h-4 w-4" />
                   <span className="hidden sm:inline">WhatsApp</span>
+                </TabsTrigger>
+                <TabsTrigger value="phone" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  <span className="hidden sm:inline">Telefon</span>
                 </TabsTrigger>
                 <TabsTrigger value="cookies" className="flex items-center gap-2">
                   <Cookie className="h-4 w-4" />
@@ -958,6 +994,66 @@ export default function SiteSettingsPage() {
                       
                       <div className="bg-white p-3 rounded-md mt-3 text-sm border">
                         {siteSettings.whatsapp.message}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Phone Settings */}
+              <TabsContent value="phone" className="space-y-6">
+                <div className="border rounded-md p-4">
+                  <h3 className="text-lg font-medium mb-4">Telefon Arama Butonu</h3>
+                  <p className="text-sm mb-4">
+                    Web sitenizde görünen telefon arama butonunu yapılandırın
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="phone-enabled" className="text-base">Telefon Butonunu Etkinleştir</Label>
+                        <p className="text-sm text-muted-foreground">Web sitenizde telefon arama butonu göster</p>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="phone-enabled"
+                          checked={siteSettings.phone.enabled}
+                          onChange={(e) => handlePhoneToggle(e.target.checked)}
+                          className="mr-2 h-4 w-4"
+                        />
+                        <Label htmlFor="phone-enabled" className="cursor-pointer">
+                          {siteSettings.phone.enabled ? "Etkin" : "Devre Dışı"}
+                        </Label>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="phoneNumber">Telefon Numarası</Label>
+                      <Input
+                        id="phoneNumber"
+                        name="phone.phoneNumber"
+                        placeholder="Telefon numarasını giriniz (örn: +905555555555)"
+                        value={siteSettings.phone.phoneNumber}
+                        onChange={handleInputChange}
+                      />
+                      <p className="text-xs text-muted-foreground">Ülke kodu ile birlikte + işareti ile başlayın</p>
+                    </div>
+                    
+                    <div className="bg-green-50 border-green-200 border p-4 rounded-md mt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Phone className="h-5 w-5 text-green-600" />
+                        <h4 className="font-medium text-green-700">Önizleme</h4>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                          <Phone className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Telefon Arama</p>
+                          <p className="text-sm text-muted-foreground">{siteSettings.phone.phoneNumber}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
