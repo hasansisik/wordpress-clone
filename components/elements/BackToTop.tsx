@@ -1,40 +1,60 @@
 'use client'
 import { useEffect, useState } from "react"
+import { Phone } from 'lucide-react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+import { getGeneral } from '@/redux/actions/generalActions'
 
-interface BackToTopProps {
-	target: string // should be a valid CSS selector
-}
+const PhoneButton = () => {
+	const dispatch = useDispatch()
+	const [phoneConfig, setPhoneConfig] = useState({
+		enabled: true, // Varsayılan olarak aktif
+		phoneNumber: '+90 532 123 45 67' // Örnek telefon numarası
+	})
 
-export default function BackToTop({ target }: BackToTopProps) {
-	const [hasScrolled, setHasScrolled] = useState(false)
+	// Get general settings from Redux store
+	const { general, loading } = useSelector((state: RootState) => state.general)
+
+	// Fetch general settings if not already loaded
+	useEffect(() => {
+		if (!general && !loading) {
+			dispatch(getGeneral() as any)
+		}
+	}, [dispatch, general, loading])
 
 	useEffect(() => {
-		const onScroll = () => {
-			setHasScrolled(window.scrollY > 100)
-		}
-
-		window.addEventListener("scroll", onScroll)
-		return () => window.removeEventListener("scroll", onScroll)
-	}, [])
-
-	const handleClick = () => {
-		const targetElement = document.querySelector(target) as HTMLElement | null
-		if (targetElement) {
-			window.scrollTo({
-				top: targetElement.offsetTop,
-				behavior: 'smooth',
+		if (general && general.phone) {
+			setPhoneConfig({
+				enabled: general.phone.enabled !== undefined ? general.phone.enabled : true,
+				phoneNumber: general.phone.phoneNumber || '+90 532 123 45 67'
 			})
-		} else {
-			console.error(`Element with target '${target}' not found`)
 		}
+	}, [general])
+
+	// Don't render anything if disabled or no phone number
+	if (!phoneConfig.enabled || !phoneConfig.phoneNumber) return null
+
+	const handlePhoneClick = () => {
+		// Close mobile menu if open
+		const mobileMenu = document.querySelector('.mobile-header-active')
+		if (mobileMenu && mobileMenu.classList.contains('sidebar-visible')) {
+			mobileMenu.classList.remove('sidebar-visible')
+		}
+
+		// Clean phone number and create tel: link
+		const cleanPhoneNumber = phoneConfig.phoneNumber.replace(/[^\d+]/g, '')
+		window.open(`tel:${cleanPhoneNumber}`, '_self')
 	}
 
 	return (
-		<>
-			{hasScrolled && (
-				<div className="btn-scroll-top active-progress" onClick={handleClick}>		
-				</div>
-			)}
-		</>
+		<button
+			onClick={handlePhoneClick}
+			className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors shadow-lg"
+			aria-label="Telefon ile Ara"
+		>
+			<Phone className="w-7 h-7 text-white" />
+		</button>
 	)
 }
+
+export default PhoneButton

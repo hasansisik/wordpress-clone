@@ -2,7 +2,7 @@
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { useEffect, useState } from "react"
-import BackToTop from '../elements/BackToTop'
+import PhoneButton from '../elements/BackToTop'
 import Breadcrumb from './Breadcrumb'
 import Footer1 from './footer/Footer1'
 import Footer2 from './footer/Footer2'
@@ -148,7 +148,7 @@ export default function Layout({ headerStyle: propHeaderStyle, footerStyle: prop
 			{finalFooterStyle == 3 ? < Footer3 /> : null}
 			{finalFooterStyle == 4 ? < Footer4 /> : null}
 
-			<BackToTop target="#top" />
+			<PhoneButton />
 		</>
 	)
 }
