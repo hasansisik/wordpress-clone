@@ -68,10 +68,10 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 
 	// Image style constraints
 	const videoImageStyle = {
-		width: '500px',
+		width: '620px',
 		height: 'auto',
-		maxWidth: '500px',
-		maxHeight: '550px',
+		maxWidth: '620px',
+		maxHeight: '600px',
 		objectFit: 'cover' as 'cover'
 	};
 

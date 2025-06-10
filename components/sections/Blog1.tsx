@@ -153,7 +153,7 @@ export default function Blog1({ previewData }: Blog1Props) {
 				title={currentPremiumPost?.title ? `Premium İçerik: ${currentPremiumPost.title}` : 'Premium İçerik'}
 			/>
 
-			<section className="section-blog-1 @@padding py-4" style={sectionStyle}>
+			<section className="section-blog-1 py-4" style={sectionStyle}>
 				<div className="container">
 					<div className="row align-items-end">
 						<div className="col-12 col-md-6 me-auto">

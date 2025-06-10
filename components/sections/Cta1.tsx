@@ -36,7 +36,7 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 	// Return invisible placeholder during data loading (minimal and without text)
 	if (!data) {
 		return (
-			<section className="section-testimonial-13 position-relative pt-120 pb-80 fix" aria-hidden="true">
+			<section className="section-testimonial-13 position-relative pt-5 pb-80 fix" aria-hidden="true">
 				<div className="container position-relative z-1">
 					<div className="row pb-9">
 						<div className="col-lg-12" style={{ minHeight: "200px" }}></div>
@@ -109,7 +109,7 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 
 	return (
 		<>
-			<section className="section-testimonial-13 position-relative pt-120 pb-80 fix">
+			<section className="section-testimonial-13 position-relative py-10 fix">
 				<div className="container position-relative z-1">
 					<div className="row pb-9">
 						<div className="col-lg-12">
