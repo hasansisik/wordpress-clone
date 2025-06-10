@@ -12,6 +12,8 @@ import PremiumContentDialog from "@/components/PremiumContentDialog"
 
 interface Blog1Props {
 	previewData?: any;
+	selectedCategory?: string;
+	selectedAuthor?: string;
 }
 
 // Function to convert title to slug
@@ -47,7 +49,7 @@ const truncateText = (text: string, maxLength: number = 120) => {
 	return text.substring(0, maxLength) + '...';
 };
 
-export default function Blog1({ previewData }: Blog1Props) {
+export default function Blog1({ previewData, selectedCategory, selectedAuthor }: Blog1Props) {
 	const [data, setData] = useState<any>(null)
 	const dispatch = useDispatch<AppDispatch>()
 	const { blogs } = useSelector((state: RootState) => state.blog)
@@ -66,14 +68,19 @@ export default function Blog1({ previewData }: Blog1Props) {
 			dispatch(getMyProfile());
 		}
 		
-		if (!blogs || blogs.length === 0) {
-			dispatch(getAllBlogs());
-		}
-		
 		if (!other?.blog1 && !previewData) {
 			dispatch(getOther());
 		}
-	}, [dispatch, blogs, other, user, previewData]);
+	}, [dispatch, other, user, previewData]);
+
+	// Separate effect for blog fetching with filters
+	useEffect(() => {
+		const filterParams: any = {};
+		if (selectedCategory) filterParams.category = selectedCategory;
+		if (selectedAuthor) filterParams.author = selectedAuthor;
+		
+		dispatch(getAllBlogs(filterParams));
+	}, [dispatch, selectedCategory, selectedAuthor]);
 
 	useEffect(() => {
 		// If preview data is provided, use it

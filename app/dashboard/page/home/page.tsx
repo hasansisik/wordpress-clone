@@ -22,6 +22,21 @@ import { CSS } from "@dnd-kit/utilities";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   GripVertical,
   Plus,
   Trash2,
@@ -60,6 +75,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { getPage, updatePage } from "@/redux/actions/pageActions";
+import { getAllCategories, getAllAuthors } from "@/redux/actions/blogActions";
 import { RootState } from "@/redux/store";
 import { AppDispatch } from "@/redux/store";
 
@@ -69,6 +85,10 @@ interface Section {
   name: string;
   type: string;
   description?: string;
+  config?: {
+    selectedCategory?: string;
+    selectedAuthor?: string;
+  };
 }
 
 // Component selector for the available sections with icons
@@ -179,10 +199,38 @@ const availableSections = [
     icon: Layout,
   },
   {
+    id: "blog1-category",
+    name: "Blog 1 (Category)",
+    type: "Blog1Category",
+    description: "Blog grid filtered by category",
+    icon: Layout,
+  },
+  {
+    id: "blog1-author",
+    name: "Blog 1 (Author)",
+    type: "Blog1Author",
+    description: "Blog grid filtered by author",
+    icon: Layout,
+  },
+  {
     id: "blog2",
     name: "Blog 2",
     type: "Blog2",
     description: "Blog grid with images",
+    icon: Layout,
+  },
+  {
+    id: "blog2-category",
+    name: "Blog 2 (Category)",
+    type: "Blog2Category",
+    description: "Blog grid filtered by category",
+    icon: Layout,
+  },
+  {
+    id: "blog2-author",
+    name: "Blog 2 (Author)",
+    type: "Blog2Author",
+    description: "Blog grid filtered by author",
     icon: Layout,
   },
   {
@@ -193,10 +241,38 @@ const availableSections = [
     icon: Layout,
   },
   {
+    id: "blog3-category",
+    name: "Blog 3 (Category)",
+    type: "Blog3Category",
+    description: "Blog grid filtered by category",
+    icon: Layout,
+  },
+  {
+    id: "blog3-author",
+    name: "Blog 3 (Author)",
+    type: "Blog3Author",
+    description: "Blog grid filtered by author",
+    icon: Layout,
+  },
+  {
     id: "blog5",
     name: "Blog 5",
     type: "Blog5",
     description: "Blog grid with images",
+    icon: Layout,
+  },
+  {
+    id: "blog5-category",
+    name: "Blog 5 (Category)",
+    type: "Blog5Category",
+    description: "Blog grid filtered by category",
+    icon: Layout,
+  },
+  {
+    id: "blog5-author",
+    name: "Blog 5 (Author)",
+    type: "Blog5Author",
+    description: "Blog grid filtered by author",
     icon: Layout,
   },
   {
@@ -307,10 +383,12 @@ function SortableSectionItem({
   id,
   section,
   handleRemove,
+  onEditConfig,
 }: {
   id: string;
   section: Section;
   handleRemove: () => void;
+  onEditConfig?: () => void;
 }) {
   const {
     attributes,
@@ -365,16 +443,33 @@ function SortableSectionItem({
           <div className="text-xs text-muted-foreground">
             {sectionInfo.description || `${section.type} Component`}
           </div>
+          {(section.type.includes('Category') || section.type.includes('Author')) && (
+            <div className="text-xs mt-1">
+              {section.type.includes('Category') && (
+                <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded mr-2">
+                  Kategori: {section.config?.selectedCategory || 'Genel (Genel hariç tüm kategoriler)'}
+                </span>
+              )}
+              {section.type.includes('Author') && (
+                <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded">
+                  Yazar: {section.config?.selectedAuthor || 'Tüm yazarlar'}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted"
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
+          {(section.type.includes('Category') || section.type.includes('Author')) && onEditConfig && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              onClick={onEditConfig}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -393,12 +488,20 @@ export default function HomePageEditor() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { pages, loading } = useSelector((state: RootState) => state.page);
+  const { categories, authors, categoryLoading, authorLoading } = useSelector((state: RootState) => state.blog);
 
   const [sections, setSections] = useState<Section[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [activeTab, setActiveTab] = useState("layout");
+  
+  // Configuration modal states
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [currentSectionType, setCurrentSectionType] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedAuthor, setSelectedAuthor] = useState<string>("");
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -419,6 +522,9 @@ export default function HomePageEditor() {
         setIsLoading(true);
         // Use Redux to fetch page data
         await dispatch(getPage("home"));
+        // Fetch categories and authors for configuration
+        await dispatch(getAllCategories());
+        await dispatch(getAllAuthors());
       } catch (error) {
         console.error("Error fetching home page data:", error);
         toast.error("Failed to load page data");
@@ -435,21 +541,102 @@ export default function HomePageEditor() {
     const section = availableSections.find((s) => s.id === sectionType);
     if (!section) return;
 
+    // Check if this section type requires configuration
+    const requiresConfig = sectionType.includes('-category') || sectionType.includes('-author');
+    
+    if (requiresConfig) {
+      setCurrentSectionType(sectionType);
+      setSelectedCategory("");
+      setSelectedAuthor("");
+      setShowConfigModal(true);
+    } else {
+      // Add section without configuration
+      const newSection: Section = {
+        id: `${sectionType}-${Date.now()}`,
+        name: section.name,
+        type: section.type,
+        description: section.description,
+      };
+
+      setSections([...sections, newSection]);
+      setIsSaved(false);
+    }
+  };
+
+  // Add section with configuration
+  const addSectionWithConfig = () => {
+    const section = availableSections.find((s) => s.id === currentSectionType);
+    if (!section) return;
+
     const newSection: Section = {
-      id: `${sectionType}-${Date.now()}`,
+      id: `${currentSectionType}-${Date.now()}`,
       name: section.name,
       type: section.type,
       description: section.description,
+      config: {
+        selectedCategory: selectedCategory.trim() !== "" ? selectedCategory : undefined,
+        selectedAuthor: selectedAuthor.trim() !== "" ? selectedAuthor : undefined,
+      }
     };
 
     setSections([...sections, newSection]);
     setIsSaved(false);
+    setShowConfigModal(false);
+    setCurrentSectionType("");
+    setSelectedCategory("");
+    setSelectedAuthor("");
   };
 
   // Remove a section from the page
   const removeSection = (sectionId: string) => {
     setSections(sections.filter((section) => section.id !== sectionId));
     setIsSaved(false);
+  };
+
+  // Edit section configuration
+  const editSectionConfig = (sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    // Find the original section type
+    const originalSectionId = Object.keys(availableSections).find(key => 
+      availableSections.find(s => s.type === section.type)?.id
+    );
+
+    if (originalSectionId) {
+      setCurrentSectionType(originalSectionId);
+      setSelectedCategory(section.config?.selectedCategory || "");
+      setSelectedAuthor(section.config?.selectedAuthor || "");
+      setShowConfigModal(true);
+      
+      // Store the section ID for updating
+      setEditingSectionId(sectionId);
+    }
+  };
+
+  // Update section configuration
+  const updateSectionConfig = () => {
+    if (!editingSectionId) return;
+
+    setSections(sections.map(section => {
+      if (section.id === editingSectionId) {
+        return {
+          ...section,
+          config: {
+            selectedCategory: selectedCategory.trim() !== "" ? selectedCategory : undefined,
+            selectedAuthor: selectedAuthor.trim() !== "" ? selectedAuthor : undefined,
+          }
+        };
+      }
+      return section;
+    }));
+
+    setIsSaved(false);
+    setShowConfigModal(false);
+    setCurrentSectionType("");
+    setSelectedCategory("");
+    setSelectedAuthor("");
+    setEditingSectionId(null);
   };
 
   // Handle the drag end event for sorting sections
@@ -510,7 +697,20 @@ export default function HomePageEditor() {
 
     let sectionsJSX = sections
       .map((section: any) => {
-        return `\t\t<${section.type} />`;
+        let props = "";
+        if (section.config) {
+          const configProps = [];
+          if (section.config.selectedCategory && section.config.selectedCategory.trim() !== "") {
+            configProps.push(`selectedCategory="${section.config.selectedCategory}"`);
+          }
+          if (section.config.selectedAuthor && section.config.selectedAuthor.trim() !== "") {
+            configProps.push(`selectedAuthor="${section.config.selectedAuthor}"`);
+          }
+          if (configProps.length > 0) {
+            props = ` ${configProps.join(" ")}`;
+          }
+        }
+        return `\t\t<${section.type}${props} />`;
       })
       .join("\n");
 
@@ -740,6 +940,7 @@ ${sectionsJSX}
                             id={section.id}
                             section={section}
                             handleRemove={() => removeSection(section.id)}
+                            onEditConfig={() => editSectionConfig(section.id)}
                           />
                         ))}
                       </SortableContext>
@@ -800,6 +1001,107 @@ ${sectionsJSX}
       </header>
       <Toaster richColors position="top-right" />
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{PageContent}</div>
+      
+      {/* Configuration Modal */}
+      <Dialog open={showConfigModal} onOpenChange={setShowConfigModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Section Konfigürasyonu</DialogTitle>
+            <DialogDescription>
+              Bu section için kategori veya yazar seçin. Seçim yapmazsanız genel kategorideki bloglar gösterilir.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {currentSectionType.includes('-category') && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="category" className="text-right font-medium">
+                  Kategori
+                </label>
+                <div className="col-span-3">
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Kategori seçin (opsiyonel)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category: string) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedCategory && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-1 h-6 text-xs"
+                      onClick={() => setSelectedCategory("")}
+                    >
+                      Seçimi Temizle
+                    </Button>
+                  )}
+                  {categoryLoading && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Kategoriler yükleniyor...
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Seçim yapmazsanız "Genel" kategorisi hariç tüm bloglar gösterilir
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {currentSectionType.includes('-author') && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="author" className="text-right font-medium">
+                  Yazar
+                </label>
+                <div className="col-span-3">
+                  <Select value={selectedAuthor} onValueChange={setSelectedAuthor}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Yazar seçin (opsiyonel)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {authors.map((author: any) => (
+                        <SelectItem key={author._id} value={author.name}>
+                          {author.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedAuthor && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-1 h-6 text-xs"
+                      onClick={() => setSelectedAuthor("")}
+                    >
+                      Seçimi Temizle
+                    </Button>
+                  )}
+                  {authorLoading && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Yazarlar yükleniyor...
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Seçim yapmazsanız tüm yazarların blogları gösterilir
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfigModal(false)}>
+              İptal
+            </Button>
+            <Button onClick={editingSectionId ? updateSectionConfig : addSectionWithConfig}>
+              {editingSectionId ? 'Güncelle' : 'Ekle'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

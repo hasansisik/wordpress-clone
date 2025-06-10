@@ -33,6 +33,7 @@ export interface UpdateBlogPayload extends Partial<BlogPayload> {
 
 export interface BlogFilterParams {
   category?: string;
+  author?: string;
   companyId?: string;
 }
 
@@ -68,6 +69,7 @@ export const getAllBlogs = createAsyncThunk(
       if (params) {
         const queryParams = new URLSearchParams();
         if (params.category) queryParams.append('category', params.category);
+        if (params.author) queryParams.append('author', params.author);
         if (params.companyId) queryParams.append('companyId', params.companyId);
         
         queryString = queryParams.toString();

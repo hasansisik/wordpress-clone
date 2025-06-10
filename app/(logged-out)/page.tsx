@@ -28,6 +28,16 @@ import { ReduxProvider } from "@/components/ui/ReduxProvider";
 import Content1 from "@/components/sections/Content1";
 import Content2 from "@/components/sections/Content2";
 import Content3 from "@/components/sections/Content3";
+import Blog1Category from "@/components/sections/Blog1Category";  
+import Blog2Category from "@/components/sections/Blog2Category";
+import Blog3Category from "@/components/sections/Blog3Category";
+import Blog5Category from "@/components/sections/Blog5Category";  
+import Blog1Author from "@/components/sections/Blog1Author";  
+import Blog2Author from "@/components/sections/Blog2Author";
+import Blog3Author from "@/components/sections/Blog3Author";
+import Blog5Author from "@/components/sections/Blog5Author";
+
+
 
 // Define section type
 interface Section {
@@ -66,6 +76,15 @@ const sectionComponents = {
   Content1,
   Content2,
   Content3,
+  Blog1Category,
+  Blog2Category,
+  Blog3Category,
+  Blog5Category,
+  Blog1Author,
+  Blog2Author,
+  Blog3Author,
+  Blog5Author
+
 };
 
 // Minimal placeholder component

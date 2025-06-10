@@ -12,6 +12,8 @@ import PremiumContentDialog from "@/components/PremiumContentDialog"
 
 interface Blog5Props {
 	previewData?: any;
+	selectedCategory?: string;
+	selectedAuthor?: string;
 }
 
 // Function to convert title to slug
@@ -47,7 +49,7 @@ const truncateText = (text: string, maxLength: number = 120) => {
 	return text.substring(0, maxLength) + '...';
 };
 
-export default function Blog5({ previewData }: Blog5Props) {
+export default function Blog5({ previewData, selectedCategory, selectedAuthor }: Blog5Props) {
 	const [data, setData] = useState<any>(null)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [postsPerPage] = useState(12) // 3 columns × 4 rows = 12 posts per page
@@ -67,12 +69,17 @@ export default function Blog5({ previewData }: Blog5Props) {
 	}, [dispatch]);
 
 	useEffect(() => {
-		dispatch(getAllBlogs())
+		// Apply filters when fetching blogs
+		const filterParams: any = {};
+		if (selectedCategory) filterParams.category = selectedCategory;
+		if (selectedAuthor) filterParams.author = selectedAuthor;
+		
+		dispatch(getAllBlogs(filterParams))
 		// Also fetch other data if not provided in preview
 		if (!previewData) {
 			dispatch(getOther())
 		}
-	}, [dispatch, previewData])
+	}, [dispatch, previewData, selectedCategory, selectedAuthor])
 
 	useEffect(() => {
 		// If preview data is provided, use it
