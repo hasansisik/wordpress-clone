@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllBlogs } from "@/redux/actions/blogActions";
 import { getAllHizmetler } from "@/redux/actions/hizmetActions";
@@ -8,7 +8,7 @@ import { AppDispatch, RootState } from "@/redux/store";
 import Link from "next/link";
 import parse from "html-react-parser";
 import { notFound } from "next/navigation";
-import { Award, Eye } from "lucide-react";
+import { Award, Eye, List, Hash, Minus, Circle, Square, Triangle, Star } from "lucide-react";
 
 // Import the types and slugify function
 interface BlogPost {
@@ -214,6 +214,12 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
 
   // For image preview modal
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // For Table of Contents
+  const [tocItems, setTocItems] = useState<{id: string, text: string, level: number}[]>([]);
+  const [activeHeading, setActiveHeading] = useState<string>("");
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Fetch data from Redux
   useEffect(() => {
@@ -421,6 +427,93 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
     setPreviewImage(null);
   };
 
+  // Table of Contents functions
+  const generateTOC = useCallback(() => {
+    if (!contentRef.current) return;
+
+    const headings = contentRef.current.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    const items: {id: string, text: string, level: number}[] = [];
+
+    headings.forEach((heading, index) => {
+      const text = heading.textContent || '';
+      const level = parseInt(heading.tagName.charAt(1));
+      const id = `heading-${index}`;
+      
+      // Add ID to heading if it doesn't have one
+      if (!heading.id) {
+        heading.id = id;
+      }
+
+      items.push({
+        id: heading.id,
+        text,
+        level
+      });
+    });
+
+    setTocItems(items);
+  }, []);
+
+  const scrollToHeading = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offsetTop = element.getBoundingClientRect().top + window.pageYOffset - 100;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleScroll = useCallback(() => {
+    if (!contentRef.current) return;
+
+    const headings = contentRef.current.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    let activeId = '';
+
+    for (let i = headings.length - 1; i >= 0; i--) {
+      const heading = headings[i] as HTMLElement;
+      const rect = heading.getBoundingClientRect();
+      
+      if (rect.top <= 150) {
+        activeId = heading.id;
+        break;
+      }
+    }
+
+    setActiveHeading(activeId);
+  }, []);
+
+  // Check if desktop
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 1200);
+    };
+
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  // Generate TOC when content loads
+  useEffect(() => {
+    if (contentType && (blogPost || hizmet)) {
+      // Delay to ensure content is rendered
+      setTimeout(generateTOC, 500);
+    }
+  }, [contentType, blogPost, hizmet, generateTOC]);
+
+  // Add scroll listener
+  useEffect(() => {
+    if (tocItems.length > 0 && isDesktop) {
+      window.addEventListener('scroll', handleScroll);
+      handleScroll(); // Initial check
+      
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, [tocItems, isDesktop, handleScroll]);
+
   // Event listeners for drag
   useEffect(() => {
     window.addEventListener("mouseup", endDrag);
@@ -462,7 +555,66 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   }
 
   return (
-    <>
+    <div className="position-relative">
+      {/* Table of Contents - Only for desktop */}
+      {isDesktop && tocItems.length > 0 && (
+        <div 
+          className="position-fixed bg-white rounded-3 shadow-lg p-4"
+          style={{
+            top: '20%',
+            right: '2rem',
+            width: '280px',
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            zIndex: 1000,
+            border: '1px solid #e5e7eb'
+          }}
+        >
+          <div className="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+            <h6 className="mb-0 fw-bold text-dark">İçindekiler</h6>
+          </div>
+          
+          <nav>
+            <ul className="list-unstyled mb-0">
+              {tocItems.map((item, index) => (
+                <li key={index} className="mb-1">
+                  <button
+                    onClick={() => scrollToHeading(item.id)}
+                    className={`btn btn-link text-start p-2 w-100 text-decoration-none d-block ${
+                      activeHeading === item.id
+                        ? 'bg-light text-dark fw-bold'
+                        : 'text-muted'
+                    }`}
+                                          style={{
+                        paddingLeft: `${(item.level - 1) * 12 + 8}px`,
+                        fontSize: item.level === 1 ? '14px' : '13px',
+                        lineHeight: '1.4',
+                        border: 'none',
+                        borderRadius: '6px',
+                        transition: 'all 0.2s ease'
+                      }}
+                  >
+                    <div className="d-flex align-items-center gap-2">
+                      {activeHeading === item.id && (
+                        <span className="flex-shrink-0">
+                          {item.level === 1 && <Hash size={14} className="text-dark" />}
+                          {item.level === 2 && <Minus size={14} className="text-dark" />}
+                          {item.level === 3 && <Circle size={12} className="text-dark" />}
+                          {item.level === 4 && <Square size={12} className="text-dark" />}
+                          {item.level === 5 && <Triangle size={12} className="text-dark" />}
+                          {item.level === 6 && <Star size={12} className="text-dark" />}
+                        </span>
+                      )}
+                      <span className="flex-grow-1">{item.text}</span>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
+
       {contentType === "blog" && blogPost && (
         <section className={blogPost.premium ? "premium-content" : ""}>
           {blogPost.premium && (
@@ -625,6 +777,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               </div>
               <div className="col-md-8 mx-auto">
                 <div
+                  ref={contentRef}
                   className={`blog-content tw-prose tw-prose-lg tw-max-w-none ${
                     blogPost.premium ? "premium-blog-content" : ""
                   }`}
@@ -1022,7 +1175,10 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             <div className="container my-7">
               <div className="row">
                 <div className="col-md-8 mx-auto">
-                  <div className="blog-content tw-prose tw-prose-lg tw-max-w-none">
+                  <div 
+                    ref={contentRef}
+                    className="blog-content tw-prose tw-prose-lg tw-max-w-none"
+                  >
                     {parse(hizmet.content.fullContent)}
                   </div>
                 </div>
@@ -1085,6 +1241,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

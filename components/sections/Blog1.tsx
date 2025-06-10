@@ -18,12 +18,12 @@ interface Blog1Props {
 const slugify = (text: string) => {
 	// Turkish character mapping
 	const turkishMap: {[key: string]: string} = {
-		'ç': 'c', 'Ç': 'C',
-		'ğ': 'g', 'Ğ': 'G',
-		'ı': 'i', 'İ': 'I',
-		'ö': 'o', 'Ö': 'O',
-		'ş': 's', 'Ş': 'S',
-		'ü': 'u', 'Ü': 'U'
+		'ç': 'c', 'Ç': 'c',
+		'ğ': 'g', 'Ğ': 'g',
+		'ı': 'i', 'İ': 'i',
+		'ö': 'o', 'Ö': 'o',
+		'ş': 's', 'Ş': 's',
+		'ü': 'u', 'Ü': 'u'
 	};
 	
 	// Replace Turkish characters
@@ -142,6 +142,8 @@ export default function Blog1({ previewData }: Blog1Props) {
 		color: data.badgeTextColor || "#6342EC"
 	};
 
+	console.log(blogPosts[0].category[0])
+
 	return (
 		<>
 			{/* Premium Dialog */}
@@ -201,16 +203,16 @@ export default function Blog1({ previewData }: Blog1Props) {
 										)}
 									</div>
 									<div className="card-body p-0">
-										<Link 
-											href={`/${slugify(post.title)}`} 
-											className="position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
-											style={post.premium ? 
-												{ backgroundColor: '#FFEDD5', color: '#C2410C' } : 
-												{ backgroundColor: '#f5f5f5', color: '#333333' }
-											}
-										>
-											<span className="tag-spacing fs-7 fw-bold text-uppercase">{post.category[0]}</span>
-										</Link>
+																			<Link 
+										href={`/icerikler/${encodeURIComponent(slugify(post.category[0]))}`} 
+										className="position-relative z-1 d-inline-flex rounded-pill px-3 py-2 mt-3"
+										style={post.premium ? 
+											{ backgroundColor: '#FFEDD5', color: '#C2410C' } : 
+											{ backgroundColor: '#f5f5f5', color: '#333333' }
+										}
+									>
+										<span className="tag-spacing fs-7 fw-bold">{post.category[0]}</span>
+									</Link>
 										<h6 className={`my-3 ${post.premium ? 'text-orange-700' : 'text-gray-800'}`}>{post.title}</h6>
 										<p className="text-gray-700">{truncateText(post.description)}</p>
 									</div>
