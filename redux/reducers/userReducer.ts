@@ -47,6 +47,10 @@ const initialState: userState = {
 
 export const userReducer = createReducer(initialState, (builder) => {
   builder
+    // Clear error action
+    .addCase('user/clearError', (state) => {
+      state.error = null;
+    })
     // Set Premium Status
     .addCase(setPremiumStatus.pending, (state) => {
       state.loading = true;
@@ -169,7 +173,7 @@ export const userReducer = createReducer(initialState, (builder) => {
     })
     .addCase(login.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      state.error = action.payload ? action.payload as string : null;
       state.isAuthenticated = false;
     })
     
@@ -201,7 +205,7 @@ export const userReducer = createReducer(initialState, (builder) => {
     })
     .addCase(getMyProfile.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      state.error = action.payload ? action.payload as string : null;
       state.isAuthenticated = false;
     })
     

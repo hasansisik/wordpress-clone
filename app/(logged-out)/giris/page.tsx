@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "@/redux/actions/userActions";
+import { login, clearError } from "@/redux/actions/userActions";
 import { AppDispatch, RootState } from "@/redux/store";
 
 export default function PageLogin() {
@@ -27,6 +27,11 @@ export default function PageLogin() {
     }
   }, [isAuthenticated, router]);
 
+  // Clear error when component mounts
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -38,6 +43,10 @@ export default function PageLogin() {
       ...formErrors,
       [name]: "",
     });
+    // Clear Redux error when user starts typing
+    if (error) {
+      dispatch(clearError());
+    }
   };
 
   const validateForm = () => {
@@ -82,7 +91,10 @@ export default function PageLogin() {
               </p>
               {error && (
                 <div className="alert alert-danger" role="alert">
-                  {error}
+                  {error === 'Unauthorized' || error === 'Invalid credentials' ? 
+                    'E-posta adresiniz veya şifreniz hatalı. Lütfen tekrar deneyin.' : 
+                    error
+                  }
                 </div>
               )}
               <form onSubmit={handleSubmit}>

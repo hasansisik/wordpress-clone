@@ -88,12 +88,17 @@ export default function Blog1({ previewData }: Blog1Props) {
 
 	// Handle blog post click with premium check
 	const handlePostClick = (e: React.MouseEvent, post: any) => {
-		if (post.premium && !isPremiumUser) {
+		if (post.premium) {
 			e.preventDefault();
-			setCurrentPremiumPost(post);
-			setShowPremiumDialog(true);
-		} else if (post.premium && isPremiumUser) {
-			// Premium içerik ve kullanıcı premium, normal link davranışı devam eder
+			if (!isAuthenticated) {
+				// Kullanıcı giriş yapmamış, giriş sayfasına yönlendir
+				router.push('/giris');
+			} else if (!isPremiumUser) {
+				// Kullanıcı giriş yapmış ama premium değil, ödeme sayfasına yönlendir
+				setCurrentPremiumPost(post);
+				setShowPremiumDialog(true);
+			}
+			// Premium kullanıcı için normal davranış devam eder
 		}
 	}
 

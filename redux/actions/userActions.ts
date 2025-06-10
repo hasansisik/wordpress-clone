@@ -1,6 +1,9 @@
 import axios from "axios";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import { server } from "@/config";
+
+// Clear error action
+export const clearError = createAction('user/clearError');
 
 export interface LoginPayload {
   email: string;
@@ -165,7 +168,13 @@ export const login = createAsyncThunk(
       document.cookie = `token=${token}; path=/; max-age=86400`; // 24 hours
       return data.user;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Giriş yapılamadı';
+      let message = error.response?.data?.message || 'Giriş yapılamadı';
+      
+      // Convert technical error messages to user-friendly ones
+      if (message === 'Unauthorized' || message === 'Invalid credentials' || error.response?.status === 401) {
+        message = 'E-posta adresiniz veya şifreniz hatalı. Lütfen tekrar deneyin.';
+      }
+      
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -221,7 +230,14 @@ export const getMyProfile = createAsyncThunk(
       });
       return data.user;
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Profil bilgileri alınamadı';
+      let message = error.response?.data?.message || 'Profil bilgileri alınamadı';
+      
+      // Don't show technical errors for profile fetch failures
+      if (message === 'Unauthorized' || error.response?.status === 401) {
+        // Silently fail for unauthorized profile requests
+        return thunkAPI.rejectWithValue(null);
+      }
+      
       return thunkAPI.rejectWithValue(message);
     }
   }
