@@ -6,7 +6,7 @@ export default function Features9() {
 	return (
 		<>
 			<section className="section-features-9 position-relative">
-				<div className="container-fluid position-relative fix section-padding">
+				<div className="container-fluid position-relative fix py-5">
 					<div className="container">
 						<div className="row align-items-center">
 							<div className="col-lg-4 col-md-6 mb-lg-0 mb-8 position-relative z-1">

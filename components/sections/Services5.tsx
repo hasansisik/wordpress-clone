@@ -50,6 +50,7 @@ const truncateText = (text: string, maxLength: number = 120) => {
 export default function Services5({ previewData }: Services5Props) {
 	const [filterKey, setFilterKey] = useState<string>('*');
 	const [data, setData] = useState<any>(null);
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const dispatch = useDispatch<AppDispatch>();
 	const { hizmetler, loading: hizmetlerLoading, error } = useSelector((state: RootState) => state.hizmet);
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
@@ -86,6 +87,24 @@ export default function Services5({ previewData }: Services5Props) {
 		}
 	}, [previewData, other]);
 
+	// Close dropdown when clicking outside
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			const dropdown = document.querySelector('.dropdown');
+			if (dropdown && !dropdown.contains(event.target as Node)) {
+				setIsDropdownOpen(false);
+			}
+		};
+
+		if (isDropdownOpen) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isDropdownOpen]);
+
 	// Filter hizmetler based on selected category
 	const filteredHizmetler = hizmetler ? hizmetler.filter(hizmet => {
 		if (filterKey === '*') return true;
@@ -101,6 +120,18 @@ export default function Services5({ previewData }: Services5Props) {
 	const handleFilterKeyChange = (key: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		setFilterKey(key);
+		setIsDropdownOpen(false); // Close dropdown when category is selected
+	};
+
+	const toggleDropdown = () => {
+		setIsDropdownOpen(!isDropdownOpen);
+	};
+
+	// Get current filter display name
+	const getCurrentFilterName = () => {
+		if (filterKey === '*') return data?.filterAllText || "Hepsi";
+		const currentCategory = categories.find(cat => cat.id === filterKey);
+		return currentCategory ? currentCategory.name : data?.filterAllText || "Hepsi";
 	};
 
 	const activeBtn = (value: string) => {
@@ -167,7 +198,7 @@ export default function Services5({ previewData }: Services5Props) {
 	return (
 		<>
 			{/* Services 5 */}
-			<section className="section-team-1 position-relative fix section-padding" style={sectionStyle}>
+			<section className="section-team-1 position-relative fix py-5" style={sectionStyle}>
 				<div className="container position-relative z-2">
 					<div className="text-center">
 						{data.subtitleVisible !== false && (
@@ -181,25 +212,7 @@ export default function Services5({ previewData }: Services5Props) {
 						</p>
 					</div>
 					<div className="text-center mt-6">
-						<div className="button-group filter-button-group filter-menu-active">
-							<button 
-								className={activeBtn("*")} 
-								onClick={handleFilterKeyChange("*")}
-								style={getButtonStyle("*")}
-							>
-								{data.filterAllText || "Hepsi"}
-							</button>
-							{Array.isArray(categories) && categories.length > 0 && categories.map((category) => (
-								<button 
-									key={category.id} 
-									className={activeBtn(category.id)} 
-									onClick={handleFilterKeyChange(category.id)}
-									style={getButtonStyle(category.id)}
-								>
-									{category.name}
-								</button>
-							))}
-						</div>
+						
 					</div>
 					{data.buttonVisible !== false && (
 						<div className="text-center mt-4">
@@ -279,23 +292,36 @@ export default function Services5({ previewData }: Services5Props) {
 				.blog-image-container {
 					width: 100%;
 				}
-				.btn-filter {
-					transition: none !important;
+				.dropdown {
+					position: relative;
+				}
+				.dropdown-toggle {
 					user-select: none;
 					-webkit-tap-highlight-color: transparent;
-					border: 1px solid #ddd !important;
 				}
-				.btn-filter:hover {
-					transform: none !important;
-					box-shadow: none !important;
-				}
-				.btn-filter:active {
-					transform: none !important;
-					box-shadow: none !important;
-				}
-				.btn-filter:focus {
+				.dropdown-toggle:focus {
 					outline: none !important;
 					box-shadow: none !important;
+				}
+				.dropdown-menu {
+					display: block !important;
+					animation: fadeIn 0.2s ease-in-out;
+				}
+				.dropdown-item {
+					transition: background-color 0.2s ease;
+				}
+				.dropdown-item:hover {
+					background-color: #f8f9fa !important;
+				}
+				@keyframes fadeIn {
+					from {
+						opacity: 0;
+						transform: translateX(-50%) translateY(-10px);
+					}
+					to {
+						opacity: 1;
+						transform: translateX(-50%) translateY(0);
+					}
 				}
 			`}</style>
 		</>

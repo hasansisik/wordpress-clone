@@ -36,7 +36,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 	// Return placeholder during data loading (minimal and without text)
 	if (!data) {
 		return (
-			<section className="position-relative overflow-hidden section-padding">
+			<section className="position-relative overflow-hidden py-5">
 				<div className="container">
 					<div className="row content align-items-center">
 						<div className="col-lg-6 col-md-12 mb-lg-0 mb-5">
@@ -51,7 +51,7 @@ export default function Hero1({ previewData }: Hero1Props = {}) {
 
 	return (
 		<>
-			<section className="position-relative overflow-hidden section-padding mb-32">
+			<section className="position-relative overflow-hidden py-5 mb-32">
 				<div className="container">
 					<div className="row content align-items-center">
 						<div className="col-lg-6 col-md-12 mb-lg-0 mb-5">

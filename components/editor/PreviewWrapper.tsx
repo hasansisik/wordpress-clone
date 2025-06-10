@@ -19,7 +19,7 @@ import "@/public/assets/css/main.css";
 // Fix common styling issues
 const fixCommonStyles = `
 /* Force section padding for content */
-.section-padding {
+.py-5 {
   padding: 80px 0;
 }
 

@@ -52,9 +52,9 @@ export default function Features5({ previewData }: Features5Props = {}) {
 		
 	return (
 		<>
-			<section className="section-feature-5">
+			<section className="section-feature-5 py-5">
 				<div 
-					className="container-fluid position-relative section-padding " 
+					className="container-fluid position-relative" 
 					style={{ backgroundColor: data.backgroundColor || 'transparent' }}
 				>
 					<div className="container">

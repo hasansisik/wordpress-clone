@@ -6,7 +6,7 @@ export default function Team4() {
 		<>
 
 
-			<section className="section-team-4 section-padding position-relative overflow-hidden">
+			<section className="section-team-4 py-5 position-relative overflow-hidden">
 				<div className="container">
 					<div className="text-center">
 						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>

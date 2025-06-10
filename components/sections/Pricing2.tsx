@@ -4,7 +4,7 @@ export default function Pricing2() {
 	return (
 		<>
 
-			<section className="section-pricing-2 position-relative section-padding">
+			<section className="section-pricing-2 position-relative py-5">
 				<div className="container">
 					<div className="row">
 						<div className="col-lg-6 position-relative pe-8">

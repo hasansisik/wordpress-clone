@@ -4,7 +4,7 @@ import Link from "next/link"
 export default function Team2() {
 	return (
 		<>
-			<section className="section-team-2 section-padding">
+			<section className="section-team-2 py-5">
 				<div className="container">
 					<div className="row">
 						<div className="col-lg-6">

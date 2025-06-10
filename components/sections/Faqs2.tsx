@@ -48,7 +48,7 @@ export default function Faqs2({ previewData }: Faqs2Props = {}) {
 	// If data is still loading or not available, show a loading indicator
 	if (!data) {
 		return (
-			<section className="section-padding">
+			<section className="py-5">
 				<div className="container text-center">
 					<div className="spinner-border" role="status">
 						<span className="visually-hidden">Yükleniyor...</span>
@@ -67,7 +67,7 @@ export default function Faqs2({ previewData }: Faqs2Props = {}) {
 
 	return (
 		<>
-			<section className="section-faqs-2 section-padding bg-4 position-relative" key={key}>
+			<section className="section-faqs-2 py-5 bg-4 position-relative" key={key}>
 				<div className="container position-relative z-2">
 					<div className="text-center mb-8">
 						{data.tagVisible !== false && (

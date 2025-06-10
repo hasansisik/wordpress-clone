@@ -41,7 +41,7 @@ export default function Services3({ previewData }: { previewData?: any }) {
 	}, [previewData]);
 
 	if (loading) {
-		return <div className="section-padding text-center">Yükleniyor...rvices information...</div>;
+		return <div className="py-5 text-center">Yükleniyor...rvices information...</div>;
 	}
 	
 	// Get services3 data with fallback to default values if not provided
@@ -152,7 +152,7 @@ export default function Services3({ previewData }: { previewData?: any }) {
 
 	return (
 		<>
-			<section className="section-services-3 section-padding" style={sectionStyle}>
+			<section className="section-services-3 py-5" style={sectionStyle}>
 				<div className="container position-relative z-2">
 					<div className="text-center">
 						{badgeVisible && (

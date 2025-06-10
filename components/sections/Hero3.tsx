@@ -54,7 +54,7 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 	// If data is still loading, show a loading indicator
 	if (!data) {
 		return (
-			<section className="section-padding">
+			<section className="py-5">
 				<div className="container text-center">
 					<div className="spinner-border" role="status">
 						<span className="visually-hidden">Yükleniyor...</span>
@@ -103,7 +103,7 @@ export default function Hero3({ previewData }: Hero3Props = {}) {
 
 	return (
 		<>
-			<section className="section-hero-3 position-relative fix section-padding">
+			<section className="section-hero-3 position-relative fix pt-5">
 				<div className="container">
 					<div className="row position-relative">
 						<div className="col-lg-6 position-relative z-1 mb-5 mb-lg-0">

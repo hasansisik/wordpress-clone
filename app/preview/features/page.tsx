@@ -37,7 +37,7 @@ body > div {
 }
 
 /* Force section padding for feature content */
-.section-padding {
+.py-5 {
   padding: 80px 0;
 }
 

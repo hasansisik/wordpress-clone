@@ -4,7 +4,7 @@ import CountUp from 'react-countup'
 export default function Static2() {
 	return (
 		<>
-			<section className="section-static-1 position-relative fix z-0 section-padding">
+			<section className="section-static-1 position-relative fix z-0 py-5">
 				<div className="container">
 					<div className="inner">
 						<div className="row justify-content-between">

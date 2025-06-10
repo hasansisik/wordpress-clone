@@ -9,7 +9,7 @@ export default function HowItWork1() {
 
 	return (
 		<>
-			<section className="howitwork-1 section-padding position-relative fix">
+			<section className="howitwork-1 py-5 position-relative fix">
 				<div className="container position-relative z-1">
 					<div className="text-center mb-8">
 						<div className="d-flex align-items-center position-relative z-2 justify-content-center bg-primary-soft d-inline-flex rounded-pill border border-2 border-white px-3 py-1" data-aos="zoom-in" data-aos-delay={200}>

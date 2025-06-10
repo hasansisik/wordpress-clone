@@ -52,7 +52,7 @@ export default function Services2({ previewData }: Services2Props = {}) {
 
 	return (
 		<>
-			<section className="section-team-1 position-relative fix section-padding" style={sectionStyle}>
+			<section className="section-team-1 position-relative fix py-5" style={sectionStyle}>
 				<div className="container position-relative z-2">
 					<div className="text-center">
 						{data.heading?.tagVisible !== false && (

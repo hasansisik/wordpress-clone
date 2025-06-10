@@ -45,7 +45,7 @@ export default function Team1({ previewData }: { previewData?: any }) {
   };
 
   if (loading) {
-    return <div className="section-padding text-center">Yükleniyor...am information...</div>;
+    return <div className="py-5 text-center">Yükleniyor...am information...</div>;
   }
 
   // Get team1 data with fallback to default values if not provided
@@ -96,7 +96,7 @@ export default function Team1({ previewData }: { previewData?: any }) {
   
   return (
     <>
-      <section className="section-team-1 section-padding position-relative overflow-hidden" style={sectionStyle}>
+      <section className="section-team-1 py-5 position-relative overflow-hidden" style={sectionStyle}>
         <div className="container">
           <div className="row position-relative z-1">
             <div className="text-center">

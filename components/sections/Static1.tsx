@@ -6,7 +6,7 @@ export default function Static1() {
 	return (
 		<>
 
-			<section className="section-static-1 position-relative bg-primary fix z-0 section-padding">
+			<section className="section-static-1 position-relative bg-primary fix z-0 py-5">
 				<div className="container position-relative z-3">
 					<div className="row border-bottom border-primary-light pb-8">
 						<div className="col-lg-6 me-lg-auto">

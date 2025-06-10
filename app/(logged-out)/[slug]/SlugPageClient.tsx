@@ -713,7 +713,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         <div>
           {/* Main Banner Section */}
           <section className="section-cta-8">
-            <div className="container-fluid position-relative section-padding">
+            <div className="container-fluid position-relative py-5">
               <div className="container">
                 <div className="row align-items-center">
                   <div className="col-lg-5">
@@ -743,7 +743,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           {/* Before-After Section */}
           {hizmet.content.beforeAfterItems &&
             hizmet.content.beforeAfterItems.length > 0 && (
-              <section className="section-before-after section-padding position-relative">
+              <section className="section-before-after py-5 position-relative">
                 <div className="container">
                   <div className="row position-relative z-1">
                     <div className="text-center mb-5">
@@ -900,7 +900,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           {hizmet.content.leftRightItems &&
             hizmet.content.leftRightItems.length > 0 && (
               <section className="section-feature-5">
-                <div className="container-fluid position-relative section-padding">
+                <div className="container-fluid position-relative py-5">
                   <div className="container">
                     {hizmet.content.leftRightSectionTitle && (
                       <div className="row text-center mb-5">
@@ -963,7 +963,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           {/* Image Gallery Section */}
           {hizmet.content.galleryImages &&
             hizmet.content.galleryImages.length > 0 && (
-              <section className="section-team-1 section-padding position-relative overflow-hidden">
+              <section className="section-team-1 py-5 position-relative overflow-hidden">
                 <div className="container">
                   <div className="row position-relative z-1">
                     <div className="text-center">

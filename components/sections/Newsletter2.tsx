@@ -4,7 +4,7 @@ import Link from "next/link"
 export default function Newsletter2() {
 	return (
 		<>
-			<section className="section-newsletter-2 section-padding bg-primary position-relative">
+			<section className="section-newsletter-2 py-5 bg-primary position-relative">
 				<div className="container position-relative fix">
 					<div className="row align-items-center text-center position-relative z-1">
 						<div className="col-lg-6 mx-auto">

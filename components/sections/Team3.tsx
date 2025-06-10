@@ -41,7 +41,7 @@ export default function Team3() {
 		<>
 
 
-			<section className="section-team-3 section-padding overflow-hidden">
+			<section className="section-team-3 py-5 overflow-hidden">
 				<div className="container">
 					<div className="row position-relative z-1">
 						<div className="text-center">

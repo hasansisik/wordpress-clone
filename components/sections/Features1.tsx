@@ -105,7 +105,7 @@ export default function Features1({ previewData }: Features1Props = {}) {
 
 	return (
 		<>
-			<section className="features-1 section-padding">
+			<section className="features-1 py-5">
 				<div className="container">
 					<div className="row">
 						<div className="col-lg-4">

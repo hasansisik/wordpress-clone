@@ -44,7 +44,7 @@ export default function Features7() {
 		<>
 
 
-			<section className="section-features-7 bg-neutral-100 section-padding">
+			<section className="section-features-7 bg-neutral-100 py-5">
 				<div className="container">
 					<div className="row mb-8 mb-lg-6">
 						<div className="col-lg-6">

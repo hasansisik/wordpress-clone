@@ -39,7 +39,7 @@ export default function Pricing3() {
 	return (
 		<>
 
-			<section className="section-pricing-2 position-relative fix section-padding">
+			<section className="section-pricing-2 position-relative fix py-5">
 				<div className="container position-relative z-2">
 					<div className="text-center mb-8">
 						<div className="d-flex align-items-center position-relative z-2 justify-content-center bg-primary-soft d-inline-flex rounded-pill border border-2 border-white px-3 py-1">

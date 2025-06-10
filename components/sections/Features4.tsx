@@ -40,7 +40,7 @@ export default function Features4({ previewData }: Features4Props = {}) {
 		<>
 			<section>
 				<div 
-					className="container-fluid position-relative section-padding" 
+					className="container-fluid position-relative py-5" 
 					style={{ 
 						backgroundColor: data.backgroundColor || 'var(--bs-gradient-3, linear-gradient(96deg, #FFF3E5 5.75%, #EDFFFA 52.86%, #FFEDF8 100%))' 
 					}}

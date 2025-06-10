@@ -157,7 +157,7 @@ export default function Blog5({ previewData }: Blog5Props) {
 				title={currentPremiumPost?.title ? `Premium İçerik: ${currentPremiumPost.title}` : 'Premium İçerik'}
 			/>
 			
-			<section className="section-blog-6 section-padding border-bottom" style={sectionStyle}>
+			<section className="section-blog-6 py-5 border-bottom" style={sectionStyle}>
 				<div className="container">
 					<div className="row align-items-end">
 						<div className="col">

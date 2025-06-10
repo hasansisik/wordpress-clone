@@ -45,7 +45,7 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 	// If data is still loading or not available, show a loading indicator
 	if (!data) {
 		return (
-			<section className="section-padding">
+			<section className="py-5">
 				<div className="container text-center">
 					<div className="spinner-border" role="status">
 						<span className="visually-hidden">Yükleniyor...</span>
@@ -72,7 +72,7 @@ export default function Faqs3({ previewData }: Faqs3Props = {}) {
 
 	return (
 		<>
-			<section className="section-faqs-1 section-padding position-relative" key={key}>
+			<section className="section-faqs-1 py-5 position-relative" key={key}>
 				<div className="container position-relative z-2">
 					<div className="row align-items-center">
 						<div className="col-lg-6">

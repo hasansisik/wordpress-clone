@@ -34,7 +34,7 @@ export default function Cta9({ previewData }: Cta9Props = {}) {
 	// If data is still loading, show a loading indicator
 	if (!data) {
 		return (
-			<section className="section-padding">
+			<section className="py-5">
 				<div className="container text-center">
 					<div className="spinner-border" role="status">
 						<span className="visually-hidden">Yükleniyor...</span>

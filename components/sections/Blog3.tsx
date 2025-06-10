@@ -133,7 +133,7 @@ export default function Blog3({ previewData }: Blog3Props = {}) {
         title={currentPremiumPost?.title ? `Premium İçerik: ${currentPremiumPost.title}` : 'Premium İçerik'}
       />
       
-      <section className="section-blog-8 section-padding position-relative fix" style={sectionStyle}>
+      <section className="section-blog-8 py-5 position-relative fix" style={sectionStyle}>
         <div className="container position-relative z-1">
           <div className="row text-center">
             <h5 className="ds-5" style={titleStyle}>{data.title}</h5>

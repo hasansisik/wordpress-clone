@@ -22,7 +22,7 @@ import "@/public/assets/css/main.css";
 // Additional styles to properly render CTA sections
 const fixCtaStyles = `
 /* Force section padding for CTA content */
-.section-padding {
+.py-5 {
   padding: 80px 0;
 }
 

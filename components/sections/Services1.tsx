@@ -4,7 +4,7 @@ import Link from "next/link"
 export default function Services1() {
 	return (
 		<>
-			<section className="section-padding">
+			<section className="py-5">
 				<div className="container">
 					<div className="text-center">
 						<div className="d-flex align-items-center justify-content-center bg-primary-soft border border-2 border-white d-inline-flex rounded-pill px-4 py-2" data-aos="zoom-in" data-aos-delay={100}>

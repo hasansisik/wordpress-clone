@@ -32,7 +32,7 @@ export default function HeroSection({ previewData }: HeroSectionProps) {
   }, [hero, previewData]);
 
   if (loading || !data) {
-    return <div className="section-padding text-center">Yükleniyor...ro section...</div>;
+    return <div className="py-5 text-center">Yükleniyor...ro section...</div>;
   }
 
   // Render the selected hero component
@@ -45,5 +45,5 @@ export default function HeroSection({ previewData }: HeroSectionProps) {
   }
 
   // Fallback
-  return <div className="section-padding text-center">Hero section not available</div>;
+  return <div className="py-5 text-center">Hero section not available</div>;
 } 

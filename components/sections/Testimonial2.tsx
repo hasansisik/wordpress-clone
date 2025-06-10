@@ -5,7 +5,7 @@ export default function Testimonial2() {
 	return (
 		<>
 
-			<section className="section-testimonial-2 position-relative bg-white section-padding">
+			<section className="section-testimonial-2 position-relative bg-white py-5">
 				<div className="container position-relative z-1">
 					<div className="row pb-9">
 						<div className="col-lg-7 mx-lg-auto">

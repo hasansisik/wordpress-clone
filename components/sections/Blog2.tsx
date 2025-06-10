@@ -148,7 +148,7 @@ export default function Blog2({ previewData }: Blog2Props = {}) {
 				title={currentPremiumPost?.title ? `Premium İçerik: ${currentPremiumPost.title}` : 'Premium İçerik'}
 			/>
 			
-			<section className="section-blog-2 position-relative section-padding fix" style={sectionStyle}>
+			<section className="section-blog-2 position-relative py-5 fix" style={sectionStyle}>
 				<div className="container position-relative z-1">
 					<div className="row">
 						<div className="col-lg-4">

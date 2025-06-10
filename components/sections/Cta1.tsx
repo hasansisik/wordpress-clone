@@ -39,10 +39,10 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 			<section className="section-testimonial-13 position-relative pt-120 pb-80 fix" aria-hidden="true">
 				<div className="container position-relative z-1">
 					<div className="row pb-9">
-						<div className="col-lg-10 mx-lg-auto" style={{ minHeight: "200px" }}></div>
+						<div className="col-lg-12" style={{ minHeight: "200px" }}></div>
 					</div>
 				</div>
-				<div className="container-fluid">
+				<div className="container">
 					<div className="d-flex align-items-center justify-content-center position-relative" style={{ minHeight: "100px" }}></div>
 				</div>
 			</section>
@@ -112,7 +112,7 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 			<section className="section-testimonial-13 position-relative pt-120 pb-80 fix">
 				<div className="container position-relative z-1">
 					<div className="row pb-9">
-						<div className="col-lg-10 mx-lg-auto">
+						<div className="col-lg-12">
 							<div className="text-center mb-lg-0 mb-5">
 								{data.badgeVisible !== false && (
 									<div 
@@ -167,7 +167,7 @@ export default function Cta1({ previewData }: Cta1Props = {}) {
 						</div>
 					</div>
 				</div>
-				<div className="container-fluid">
+				<div className="container">
 					<div className="d-flex align-items-center justify-content-center position-relative">
 					{data.images && data.images.map((image: any, index: number) => (
 						<div key={index} className={`pe-3 position-relative z-1 ${index === 0 || index === 4 ? 'd-none d-md-block' : ''}`}>

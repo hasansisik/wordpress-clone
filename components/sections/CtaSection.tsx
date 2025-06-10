@@ -23,7 +23,7 @@ export default function CtaSection({ ctaType }: CtaSectionProps) {
 
   if (loading || !cta) {
     return (
-      <section className="section-padding">
+      <section className="py-5">
         <div className="container text-center">
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Yükleniyor...</span>

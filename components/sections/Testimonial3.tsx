@@ -43,7 +43,7 @@ export default function Testimonial3() {
 		<>
 
 
-			<section className="section-testimonial-3 position-relative section-padding fix">
+			<section className="section-testimonial-3 position-relative py-5 fix">
 				<div className="container position-relative z-1">
 					<div className="row pb-9">
 						<div className="col-lg-7 mx-lg-auto">

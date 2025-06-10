@@ -35,7 +35,7 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 
 	if (!data) {
 		return (
-			<section className="section-padding">
+			<section className="py-5">
 				<div className="container text-center">
 					<div className="spinner-border" role="status">
 						<span className="visually-hidden">Yükleniyor...</span>

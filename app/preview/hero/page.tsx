@@ -35,7 +35,7 @@ body > div {
 }
 
 /* Force section padding for hero content */
-.section-padding {
+.py-5 {
   padding: 80px 0;
 }
 

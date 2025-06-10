@@ -81,7 +81,7 @@ const DirectPreview = ({ data }: { data: any }) => {
         height: 100%;
         overflow: auto;
       }
-      .section-padding {
+      .py-5 {
         padding: 80px 0;
       }
       .editor-preview {

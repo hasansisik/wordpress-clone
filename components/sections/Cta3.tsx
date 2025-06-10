@@ -34,7 +34,7 @@ export default function Cta3({ previewData }: Cta3Props = {}) {
 	// If data is still loading, show a loading indicator
 	if (!data) {
 		return (
-			<section className="section-padding">
+			<section className="py-5">
 				<div className="container text-center">
 					<div className="spinner-border" role="status">
 						<span className="visually-hidden">Yükleniyor...</span>
@@ -61,7 +61,7 @@ export default function Cta3({ previewData }: Cta3Props = {}) {
 
 	return (
 		<>
-			<section className="section-cta-12 position-relative section-padding fix">
+			<section className="section-cta-12 position-relative py-5 fix">
 				<div className="container">
 					<div className="row">
 						<div className="col-lg-5">

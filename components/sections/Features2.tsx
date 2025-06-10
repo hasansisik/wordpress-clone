@@ -6,7 +6,7 @@ export default function Features2() {
 		<>
 
 			<section>
-				<div className="container-fluid position-relative bg-primary-light section-padding">
+				<div className="container-fluid position-relative bg-primary-light py-5">
 					<div className="container">
 						<div className="row align-items-center">
 							<div className="col-lg-4 col-md-6 mb-lg-0 mb-8 position-relative z-1">

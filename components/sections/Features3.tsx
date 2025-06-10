@@ -6,7 +6,7 @@ export default function Features3() {
 	return (
 		<>
 			<section>
-				<div className="container-fluid position-relative bg-neutral-100 section-padding bg-neutral-100">
+				<div className="container-fluid position-relative bg-neutral-100 py-5 bg-neutral-100">
 					<div className="container">
 						<div className="row align-items-center">
 							<div className="col-lg-6 text-lg-end text-center">

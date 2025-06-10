@@ -168,7 +168,7 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 					width: 100%;
 				}
 			`}</style>
-			<section className="section-contact-3 position-relative section-padding fix" style={sectionStyle}>
+			<section className="section-contact-3 position-relative py-5 fix" style={sectionStyle}>
 				<div className="container position-relative z-1">
 					<div className="text-center">
 						{data.badgeVisible !== false && (
