@@ -190,23 +190,29 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 							{header.showActionButton && (
 								<Link 
 									href={header.links.freeTrialLink.href} 
-									className="btn d-none d-md-block ms-2"
+									className="btn d-none d-md-block ms-2 "
 									style={{
 										backgroundColor: header.buttonColor || "#3b71fe",
 										color: header.buttonTextColor || "#ffffff"
 									}}
 								>
 									{header.links.freeTrialLink.text}
-									<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={19} height={18} viewBox="0 0 19 18" fill="none">
-										<g clipPath="url(#clip0_474_2370)">
-											<path className="fill-white" d="M13.5633 4.06331L12.7615 4.86512L16.3294 8.43305H0.5V9.56699H16.3294L12.7615 13.1349L13.5633 13.9367L18.5 8.99998L13.5633 4.06331Z" fill={header.buttonTextColor || "white"} />
-										</g>
-										<defs>
-											<clipPath>
-												<rect width={18} height={18} fill="white" transform="translate(0.5)" />
-											</clipPath>
-										</defs>
-									</svg>
+									
+								</Link>
+							)}
+							
+							{header.showSecondActionButton && (
+								<Link 
+									href={header.links.secondActionButton.href} 
+									className="btn d-none d-md-block ms-2 "
+									style={{
+										backgroundColor: header.secondButtonColor || "#ffffff",
+										color: header.secondButtonTextColor || "#3b71fe",
+										border: `1px solid ${header.secondButtonBorderColor || "#3b71fe"}`
+									}}
+								>
+									{header.links.secondActionButton.text}
+									
 								</Link>
 							)}
 							<div 

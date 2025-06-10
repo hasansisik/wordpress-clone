@@ -85,10 +85,16 @@ interface HeaderData {
   logoUrl: string;
   showDarkModeToggle: boolean;
   showActionButton: boolean;
+  showSecondActionButton: boolean;
   actionButtonText: string;
   actionButtonLink: string;
   buttonColor: string;
   buttonTextColor: string;
+  secondActionButtonText: string;
+  secondActionButtonLink: string;
+  secondButtonColor: string;
+  secondButtonTextColor: string;
+  secondButtonBorderColor: string;
   headerComponent: string;
   workingHours: string;
   topBarColor: string;
@@ -183,10 +189,16 @@ export default function HeaderEditor() {
     logoUrl: "/assets/imgs/template/favicon.svg",
     showDarkModeToggle: true,
     showActionButton: true,
+    showSecondActionButton: false,
     actionButtonText: "Join For Free Trial",
     actionButtonLink: "/contact",
     buttonColor: "#3b71fe",
     buttonTextColor: "#ffffff",
+    secondActionButtonText: "Kayıt Ol",
+    secondActionButtonLink: "/register",
+    secondButtonColor: "#ffffff",
+    secondButtonTextColor: "#3b71fe",
+    secondButtonBorderColor: "#3b71fe",
     headerComponent: "Header1",
     workingHours: "Mon-Fri: 10:00am - 09:00pm",
     topBarColor: "#3b71fe",
@@ -321,10 +333,16 @@ export default function HeaderEditor() {
       logoUrl: "/assets/imgs/template/favicon.svg",
       showDarkModeToggle: true,
       showActionButton: headerTemplate.buttonText !== "",
+      showSecondActionButton: false,
       actionButtonText: headerTemplate.buttonText,
       actionButtonLink: "/contact",
       buttonColor: "#3b71fe",
       buttonTextColor: "#ffffff",
+      secondActionButtonText: "Kayıt Ol",
+      secondActionButtonLink: "/register",
+      secondButtonColor: "#ffffff",
+      secondButtonTextColor: "#3b71fe",
+      secondButtonBorderColor: "#3b71fe",
       headerComponent: headerTemplate.component,
       workingHours: "Mon-Fri: 10:00am - 09:00pm",
       topBarColor: "#3b71fe",
@@ -342,10 +360,16 @@ export default function HeaderEditor() {
         logoUrl: header.logo?.src || initialData.logoUrl,
         showDarkModeToggle: header.showDarkModeToggle !== undefined ? header.showDarkModeToggle : initialData.showDarkModeToggle,
         showActionButton: header.showActionButton !== undefined ? header.showActionButton : initialData.showActionButton,
+        showSecondActionButton: header.showSecondActionButton !== undefined ? header.showSecondActionButton : initialData.showSecondActionButton,
         actionButtonText: header.actionButtonText || header.links?.freeTrialLink?.text || initialData.actionButtonText,
         actionButtonLink: header.actionButtonLink || header.links?.freeTrialLink?.href || initialData.actionButtonLink,
         buttonColor: header.buttonColor || initialData.buttonColor,
         buttonTextColor: header.buttonTextColor || initialData.buttonTextColor,
+        secondActionButtonText: header.links?.secondActionButton?.text || initialData.secondActionButtonText,
+        secondActionButtonLink: header.links?.secondActionButton?.href || initialData.secondActionButtonLink,
+        secondButtonColor: header.secondButtonColor || initialData.secondButtonColor,
+        secondButtonTextColor: header.secondButtonTextColor || initialData.secondButtonTextColor,
+        secondButtonBorderColor: header.secondButtonBorderColor || initialData.secondButtonBorderColor,
         headerComponent: header.headerComponent || initialData.headerComponent,
         workingHours: header.workingHours || initialData.workingHours,
         topBarColor: header.topBarColor || initialData.topBarColor,
@@ -751,6 +775,7 @@ export default function HeaderEditor() {
       // Settings from API
       showDarkModeToggle: header.showDarkModeToggle !== undefined ? header.showDarkModeToggle : true,
       showActionButton: header.showActionButton !== undefined ? header.showActionButton : headerTemplate.buttonText !== "",
+      showSecondActionButton: header.showSecondActionButton !== undefined ? header.showSecondActionButton : false,
           
       // Button settings - get from API if available, otherwise use defaults
       actionButtonText: header.actionButtonText || header.links?.freeTrialLink?.text || headerTemplate.buttonText,
@@ -759,6 +784,13 @@ export default function HeaderEditor() {
       // Button colors from API or defaults
       buttonColor: header.buttonColor || "#3b71fe",
       buttonTextColor: header.buttonTextColor || "#ffffff",
+      
+      // Second button settings
+      secondActionButtonText: header.links?.secondActionButton?.text || "Kayıt Ol",
+      secondActionButtonLink: header.links?.secondActionButton?.href || "/register",
+      secondButtonColor: header.secondButtonColor || "#ffffff",
+      secondButtonTextColor: header.secondButtonTextColor || "#3b71fe",
+      secondButtonBorderColor: header.secondButtonBorderColor || "#3b71fe",
           
       // Component type from API or fall back to the header's component
       headerComponent: header.headerComponent || headerTemplate.component,
@@ -805,6 +837,10 @@ export default function HeaderEditor() {
           freeTrialLink: {
             href: data.actionButtonLink || headerData.actionButtonLink || "#",
             text: data.actionButtonText || headerData.actionButtonText || "Join For Free Trial"
+          },
+          secondActionButton: {
+            href: data.secondActionButtonLink || headerData.secondActionButtonLink || "/register",
+            text: data.secondActionButtonText || headerData.secondActionButtonText || "Kayıt Ol"
           }
         },
         mainMenu: data.mainMenu || headerData.mainMenu,
@@ -812,11 +848,15 @@ export default function HeaderEditor() {
         topBarItems: data.topBarItems || headerData.topBarItems,
         showDarkModeToggle: typeof data.showDarkModeToggle === 'boolean' ? data.showDarkModeToggle : headerData.showDarkModeToggle,
         showActionButton: typeof data.showActionButton === 'boolean' ? data.showActionButton : headerData.showActionButton,
+        showSecondActionButton: typeof data.showSecondActionButton === 'boolean' ? data.showSecondActionButton : headerData.showSecondActionButton,
         // Add these properties explicitly
         actionButtonText: data.actionButtonText || headerData.actionButtonText,
         actionButtonLink: data.actionButtonLink || headerData.actionButtonLink,
         buttonColor: data.buttonColor || headerData.buttonColor || "#3b71fe",
         buttonTextColor: data.buttonTextColor || headerData.buttonTextColor || "#ffffff",
+        secondButtonColor: data.secondButtonColor || headerData.secondButtonColor || "#ffffff",
+        secondButtonTextColor: data.secondButtonTextColor || headerData.secondButtonTextColor || "#3b71fe",
+        secondButtonBorderColor: data.secondButtonBorderColor || headerData.secondButtonBorderColor || "#3b71fe",
         headerComponent: data.headerComponent || headerData.headerComponent || "Header1",
         workingHours: data.workingHours || headerData.workingHours,
         topBarColor: data.topBarColor || headerData.topBarColor || "#3b71fe",
@@ -1798,6 +1838,159 @@ function HeaderEditorContent({
                   </div>
                 </div>
               )}
+              
+              {/* Second Action Button Section */}
+              <div className="space-y-3 mt-6">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="secondActionButton" className="text-sm">
+                    Second Action Button
+                  </Label>
+                  <Switch
+                    id="secondActionButton"
+                    checked={headerData.showSecondActionButton}
+                    onCheckedChange={(checked) => {
+                      const updatedData = {
+                        ...headerData,
+                        showSecondActionButton: checked,
+                      };
+                      setHeaderData(updatedData);
+                      // Save changes immediately
+                      saveChangesToAPI(updatedData);
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500">Show a secondary action button in the header.</p>
+
+                {headerData.showSecondActionButton && (
+                  <div className="space-y-4 mt-4 pl-2 border-l-2 border-gray-100">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="secondActionButtonText"
+                        className="text-sm"
+                      >
+                        Second Button Text
+                      </Label>
+                      <Input
+                        id="secondActionButtonText"
+                        value={headerData.secondActionButtonText}
+                        onChange={(e) => {
+                          const updatedData = {
+                            ...headerData,
+                            secondActionButtonText: e.target.value,
+                          };
+                          setHeaderData(updatedData);
+                        }}
+                        onBlur={(e) => {
+                          // Save changes on blur
+                          saveChangesToAPI({
+                            ...headerData,
+                            secondActionButtonText: e.target.value
+                          });
+                        }}
+                        placeholder="Sign Up"
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="secondActionButtonLink"
+                        className="text-sm"
+                      >
+                        Second Button Link
+                      </Label>
+                      <Input
+                        id="secondActionButtonLink"
+                        value={headerData.secondActionButtonLink}
+                        onChange={(e) => {
+                          const updatedData = {
+                            ...headerData,
+                            secondActionButtonLink: e.target.value,
+                          };
+                          setHeaderData(updatedData);
+                        }}
+                        onBlur={(e) => {
+                          // Save changes on blur
+                          saveChangesToAPI({
+                            ...headerData,
+                            secondActionButtonLink: e.target.value
+                          });
+                        }}
+                        placeholder="/register"
+                        className="h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="secondButtonColor"
+                        className="text-sm"
+                      >
+                        Second Button Background Color
+                      </Label>
+                      <Input
+                        id="secondButtonColor"
+                        type="color"
+                        value={headerData.secondButtonColor || "#ffffff"}
+                        onChange={(e) => {
+                          const updatedData = {
+                            ...headerData,
+                            secondButtonColor: e.target.value,
+                          };
+                          setHeaderData(updatedData);
+                          // Save changes immediately
+                          saveChangesToAPI(updatedData);
+                        }}
+                        className="w-full h-9 p-1 cursor-pointer"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="secondButtonTextColor"
+                        className="text-sm"
+                      >
+                        Second Button Text Color
+                      </Label>
+                      <Input
+                        id="secondButtonTextColor"
+                        type="color"
+                        value={headerData.secondButtonTextColor || "#3b71fe"}
+                        onChange={(e) => {
+                          const updatedData = {
+                            ...headerData,
+                            secondButtonTextColor: e.target.value,
+                          };
+                          setHeaderData(updatedData);
+                          // Save changes immediately
+                          saveChangesToAPI(updatedData);
+                        }}
+                        className="w-full h-9 p-1 cursor-pointer"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="secondButtonBorderColor"
+                        className="text-sm"
+                      >
+                        Second Button Border Color
+                      </Label>
+                      <Input
+                        id="secondButtonBorderColor"
+                        type="color"
+                        value={headerData.secondButtonBorderColor || "#3b71fe"}
+                        onChange={(e) => {
+                          const updatedData = {
+                            ...headerData,
+                            secondButtonBorderColor: e.target.value,
+                          };
+                          setHeaderData(updatedData);
+                          // Save changes immediately
+                          saveChangesToAPI(updatedData);
+                        }}
+                        className="w-full h-9 p-1 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </TabsContent>

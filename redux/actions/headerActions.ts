@@ -13,6 +13,10 @@ export interface HeaderPayload {
       href?: string;
       text?: string;
     };
+    secondActionButton?: {
+      href?: string;
+      text?: string;
+    };
   };
   mainMenu?: Array<{
     _id: string;
@@ -24,6 +28,7 @@ export interface HeaderPayload {
   topBarItems?: Array<any>;
   showDarkModeToggle?: boolean;
   showActionButton?: boolean;
+  showSecondActionButton?: boolean;
   actionButtonText?: string;
   actionButtonLink?: string;
   headerComponent?: string;
@@ -34,6 +39,11 @@ export interface HeaderPayload {
   phoneIconBgColor?: string;
   phoneIconColor?: string;
   phoneQuestionText?: string;
+  buttonColor?: string;
+  buttonTextColor?: string;
+  secondButtonColor?: string;
+  secondButtonTextColor?: string;
+  secondButtonBorderColor?: string;
 }
 
 // Get header data
