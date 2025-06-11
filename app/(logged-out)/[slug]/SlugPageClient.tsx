@@ -1197,10 +1197,9 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         >
           <div
             className="position-relative"
-            onClick={(e) => e.stopPropagation()}
             style={{
-              width: "95vw",
-              height: "95vh",
+              width: "80%",
+              height: "80%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1210,16 +1209,15 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               src={previewImage}
               alt="Preview"
               className="img-fluid"
+              onClick={(e) => e.stopPropagation()}
               style={{
                 maxHeight: "100%",
                 maxWidth: "100%",
                 objectFit: "contain",
-                transform: "scale(1.5)",
-                transformOrigin: "center",
               }}
             />
             <button
-              className="btn btn-light position-absolute"
+              className="position-absolute"
               onClick={closePreview}
               style={{
                 borderRadius: "50%",
@@ -1234,6 +1232,16 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                 fontWeight: "bold",
                 padding: "0",
                 zIndex: 10000,
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                color: "white",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
               }}
             >
               ×
