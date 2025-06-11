@@ -58,6 +58,33 @@ export default function Features5({ previewData }: Features5Props = {}) {
 					style={{ backgroundColor: data.backgroundColor || 'transparent' }}
 				>
 					<div className="container">
+						{/* Title Section */}
+						{(data.title || data.description) && (
+							<div className="text-center mb-8">
+								{data.title && (
+									<h4 
+										className="ds-4 my-3 fw-bold"
+										style={{ 
+											color: data.titleColor || '' 
+										}}
+									>
+										{data.title}
+									</h4>
+								)}
+								{data.description && (
+									<p 
+										className="fs-5 mb-0" 
+										style={{ 
+											color: data.descriptionColor || '' 
+										}}
+									>
+										{data.description}
+									</p>
+								)}
+							</div>
+						)}
+
+						{/* Sections */}
 						{sortedSections.map((section, index) => {
 							// Skip if section is not visible
 							if (section.visible === false) return null;

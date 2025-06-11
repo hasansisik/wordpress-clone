@@ -80,6 +80,10 @@ export interface FeaturesPayload {
     backgroundColor?: string;
   };
   features5?: {
+    title?: string;
+    titleColor?: string;
+    description?: string;
+    descriptionColor?: string;
     backgroundColor?: string;
     sections?: Array<{
       id: string;

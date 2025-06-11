@@ -146,6 +146,10 @@ const initialState: FeaturesState = {
       backgroundColor: ""
     },
     features5: {
+      title: "Innovative Solutions for Modern Business",
+      titleColor: "",
+      description: "",
+      descriptionColor: "",
       backgroundColor: "",
       sections: [
         {
@@ -278,6 +282,24 @@ const handleFeatures5Update = (state: FeaturesState, payload: any) => {
   // If direct backgroundColor update
   if (payload.features5.backgroundColor !== undefined) {
     state.features.features5.backgroundColor = payload.features5.backgroundColor;
+  }
+  
+  // Handle title updates
+  if (payload.features5.title !== undefined) {
+    state.features.features5.title = payload.features5.title;
+  }
+  
+  if (payload.features5.titleColor !== undefined) {
+    state.features.features5.titleColor = payload.features5.titleColor;
+  }
+  
+  // Handle description updates
+  if (payload.features5.description !== undefined) {
+    state.features.features5.description = payload.features5.description;
+  }
+  
+  if (payload.features5.descriptionColor !== undefined) {
+    state.features.features5.descriptionColor = payload.features5.descriptionColor;
   }
   
   // Handle sections operations

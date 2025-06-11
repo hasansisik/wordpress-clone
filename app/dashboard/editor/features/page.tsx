@@ -623,11 +623,15 @@ function Features5ContentForm({ data, updateFeaturesData }: { data: any, updateF
   
   // Save changes to Redux/backend
   const saveChanges = () => {
-    // Save backgroundColor
+    // Save main features5 data
     dispatch(
       updateFeatures({
         features5: {
-          backgroundColor: localData.backgroundColor
+          backgroundColor: localData.backgroundColor,
+          title: localData.title,
+          titleColor: localData.titleColor,
+          description: localData.description,
+          descriptionColor: localData.descriptionColor
         }
       })
     );
@@ -758,6 +762,33 @@ function Features5ContentForm({ data, updateFeaturesData }: { data: any, updateF
           </button>
         </div>
       </FormGroup>
+
+      <FormGroup title="Title">
+        <TextField
+          label="Title"
+          value={localData?.title || ""}
+          path="features5.title"
+          onChange={(e) => handleLocalDataChange('title', e.target.value)}
+        />
+        <ColorField
+          label="Title Color"
+          value={localData?.titleColor || ""}
+          path="features5.titleColor"
+          onChange={(color) => handleLocalDataChange('titleColor', color)}
+        />
+        <TextAreaField
+          label="Description"
+          value={localData?.description || ""}
+          path="features5.description"
+          onChange={(e) => handleLocalDataChange('description', e.target.value)}
+        />
+        <ColorField
+          label="Description Color"
+          value={localData?.descriptionColor || ""}
+          path="features5.descriptionColor"
+          onChange={(color) => handleLocalDataChange('descriptionColor', color)}
+        />
+      </FormGroup>
       
       {sections.map((section, index) => (
         <FormGroup 
@@ -875,12 +906,12 @@ function Features5ContentForm({ data, updateFeaturesData }: { data: any, updateF
   );
 }
 
-// Features5 Media Form is no longer needed as we integrated the image upload into the content form
+// Features5 Media Form
 function Features5MediaForm({ data }: { data: any }) {
   return (
     <div className="space-y-4">
       <div className="text-sm text-gray-500">
-        Image uploads are now managed in the Content tab for each section.
+        Section images are managed in the Content tab for each individual section.
       </div>
     </div>
   );
