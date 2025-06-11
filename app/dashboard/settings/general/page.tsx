@@ -115,6 +115,17 @@ export default function SiteSettingsPage() {
       iconColor: "#000000",
       buttonBgColor: "#cccccc",
       position: "bottom-left"
+    },
+    premium: {
+      price: "",
+      currency: "TL",
+      ctaText: "HEMEN KATILIN",
+      yearlyPriceText: "Üyelik ücreti yıllık 3.600 TL olarak belirlenmiştir.",
+      description: "",
+      features: [] as string[],
+      leftTitle: "Bir defa yap, hep sat!",
+      leftSubtitle: "Türkiye'nin en yetenekli yaratıcılarının bir araya geldiği Komünite'ye katılın!",
+      rightTitle: "Komünite'ye üye olduğunuzda:"
     }
   });
 
@@ -184,6 +195,17 @@ export default function SiteSettingsPage() {
           iconColor: general.cookieConsent?.iconColor || siteSettings.cookieConsent.iconColor,
           buttonBgColor: general.cookieConsent?.buttonBgColor || siteSettings.cookieConsent.buttonBgColor,
           position: general.cookieConsent?.position || siteSettings.cookieConsent.position
+        },
+        premium: {
+          price: general.premium?.price || siteSettings.premium.price,
+          currency: general.premium?.currency || siteSettings.premium.currency,
+          ctaText: general.premium?.ctaText || siteSettings.premium.ctaText,
+          yearlyPriceText: general.premium?.yearlyPriceText || siteSettings.premium.yearlyPriceText,
+          description: general.premium?.description || siteSettings.premium.description,
+          features: general.premium?.features || siteSettings.premium.features,
+          leftTitle: general.premium?.leftTitle || siteSettings.premium.leftTitle,
+          leftSubtitle: general.premium?.leftSubtitle || siteSettings.premium.leftSubtitle,
+          rightTitle: general.premium?.rightTitle || siteSettings.premium.rightTitle
         }
       });
 
@@ -243,6 +265,26 @@ export default function SiteSettingsPage() {
         cookieConsent: {
           ...siteSettings.cookieConsent,
           [cookieField]: value
+        }
+      });
+    } else if (name.startsWith("premium.features.")) {
+      const featureIndex = parseInt(name.split(".")[2]);
+      const newFeatures = [...(siteSettings.premium?.features || [])];
+      newFeatures[featureIndex] = value;
+      setSiteSettings({
+        ...siteSettings,
+        premium: {
+          ...siteSettings.premium,
+          features: newFeatures
+        }
+      });
+    } else if (name.startsWith("premium.")) {
+      const premiumField = name.split(".")[1];
+      setSiteSettings({
+        ...siteSettings,
+        premium: {
+          ...siteSettings.premium,
+          [premiumField]: value
         }
       });
     } else {
@@ -379,6 +421,17 @@ export default function SiteSettingsPage() {
           iconColor: siteSettings.cookieConsent.iconColor,
           buttonBgColor: siteSettings.cookieConsent.buttonBgColor,
           position: siteSettings.cookieConsent.position as 'bottom-left' | 'bottom-right'
+        },
+        premium: {
+          price: parseInt(siteSettings.premium.price) || 0,
+          currency: siteSettings.premium.currency,
+          ctaText: siteSettings.premium.ctaText,
+          yearlyPriceText: siteSettings.premium.yearlyPriceText,
+          description: siteSettings.premium.description,
+          features: siteSettings.premium.features,
+          leftTitle: siteSettings.premium.leftTitle,
+          leftSubtitle: siteSettings.premium.leftSubtitle,
+          rightTitle: siteSettings.premium.rightTitle
         }
       };
 
@@ -490,7 +543,7 @@ export default function SiteSettingsPage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid grid-cols-8 mb-8">
+              <TabsList className="grid grid-cols-9 mb-8">
                 <TabsTrigger value="general" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   <span className="hidden sm:inline">General</span>
@@ -502,6 +555,10 @@ export default function SiteSettingsPage() {
                 <TabsTrigger value="media" className="flex items-center gap-2">
                   <ImageIcon className="h-4 w-4" />
                   <span className="hidden sm:inline">Media</span>
+                </TabsTrigger>
+                <TabsTrigger value="premium" className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  <span className="hidden sm:inline">Premium</span>
                 </TabsTrigger>
                 <TabsTrigger value="integrations" className="flex items-center gap-2">
                   <CloudCog className="h-4 w-4" />
@@ -803,6 +860,167 @@ export default function SiteSettingsPage() {
                           Recommended size: 32x32px or 64x64px
                         </p>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Premium Settings */}
+              <TabsContent value="premium" className="space-y-6">
+                <div className="border rounded-md p-4">
+                  <h3 className="text-lg font-medium mb-4">Premium Üyelik Ayarları</h3>
+                  <p className="text-sm mb-4">
+                    Premium üyelik fiyatı ve özelliklerini yapılandırın
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="premiumPrice">Premium Fiyatı</Label>
+                        <Input
+                          id="premiumPrice"
+                          name="premium.price"
+                          type="number"
+                          placeholder="3600"
+                          value={siteSettings.premium?.price || ""}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="premiumCurrency">Para Birimi</Label>
+                        <Input
+                          id="premiumCurrency"
+                          name="premium.currency"
+                          placeholder="TL"
+                          value={siteSettings.premium?.currency || ""}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="premiumCtaText">Buton Metni</Label>
+                      <Input
+                        id="premiumCtaText"
+                        name="premium.ctaText"
+                        placeholder="HEMEN KATILIN"
+                        value={siteSettings.premium?.ctaText || ""}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="premiumYearlyText">Yıllık Fiyat Açıklaması</Label>
+                      <Input
+                        id="premiumYearlyText"
+                        name="premium.yearlyPriceText"
+                        placeholder="Üyelik ücreti yıllık 3.600 TL olarak belirlenmiştir."
+                        value={siteSettings.premium?.yearlyPriceText || ""}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="premiumDescription">Detaylı Açıklama</Label>
+                      <Textarea
+                        id="premiumDescription"
+                        name="premium.description"
+                        placeholder="Premium üyelik hakkında detaylı açıklama"
+                        rows={3}
+                        value={siteSettings.premium?.description || ""}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="premiumLeftTitle">Sol Taraf Ana Başlık</Label>
+                      <Input
+                        id="premiumLeftTitle"
+                        name="premium.leftTitle"
+                        placeholder="Bir defa yap, hep sat!"
+                        value={siteSettings.premium?.leftTitle || ""}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="premiumLeftSubtitle">Sol Taraf Alt Başlık</Label>
+                      <Textarea
+                        id="premiumLeftSubtitle"
+                        name="premium.leftSubtitle"
+                        placeholder="Türkiye'nin en yetenekli yaratıcılarının bir araya geldiği Komünite'ye katılın!"
+                        rows={2}
+                        value={siteSettings.premium?.leftSubtitle || ""}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="premiumRightTitle">Sağ Taraf Başlık</Label>
+                      <Input
+                        id="premiumRightTitle"
+                        name="premium.rightTitle"
+                        placeholder="Komünite'ye üye olduğunuzda:"
+                        value={siteSettings.premium?.rightTitle || ""}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Premium Özellikler</Label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Her satıra bir özellik yazın. Özellik eklemek için "Özellik Ekle" butonunu kullanın.
+                      </p>
+                      
+                      {(siteSettings.premium?.features || []).map((feature: string, index: number) => (
+                        <div key={index} className="flex gap-2 items-center">
+                          <Input
+                            name={`premium.features.${index}`}
+                            value={feature}
+                            onChange={handleInputChange}
+                            placeholder={`Özellik ${index + 1}`}
+                            className="flex-1"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newFeatures = siteSettings.premium?.features?.filter((_, i) => i !== index) || [];
+                              setSiteSettings({
+                                ...siteSettings,
+                                premium: {
+                                  ...siteSettings.premium,
+                                  features: newFeatures
+                                }
+                              });
+                            }}
+                          >
+                            Kaldır
+                          </Button>
+                        </div>
+                      ))}
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newFeatures = [...(siteSettings.premium?.features || []), ""];
+                          setSiteSettings({
+                            ...siteSettings,
+                            premium: {
+                              ...siteSettings.premium,
+                              features: newFeatures
+                            }
+                          });
+                        }}
+                      >
+                        Özellik Ekle
+                      </Button>
                     </div>
                   </div>
                 </div>

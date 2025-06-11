@@ -24,6 +24,18 @@ export interface GeneralPayload {
     apiKey?: string;
     apiSecret?: string;
   };
+  premium?: {
+    price?: number;
+    currency?: string;
+    features?: string[];
+    ctaText?: string;
+    subtitle?: string;
+    yearlyPriceText?: string;
+    description?: string;
+    leftTitle?: string;
+    leftSubtitle?: string;
+    rightTitle?: string;
+  };
   iyzico?: {
     apiKey?: string;
     secretKey?: string;

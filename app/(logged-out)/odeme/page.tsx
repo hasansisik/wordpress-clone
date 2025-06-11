@@ -8,18 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getGeneral } from "@/services/generalService";
 import { useDispatch, useSelector } from "react-redux";
 import { setPremiumStatus, getMyProfile } from "@/redux/actions/userActions";
+import { getGeneral } from "@/redux/actions/generalActions";
 import { AppDispatch, RootState } from "@/redux/store";
 
 export default function IyzicoCheckout() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { user, loading: userLoading } = useSelector((state: RootState) => state.user);
-  const [pageLoading, setPageLoading] = useState(true);
+  const { general, loading: generalLoading } = useSelector((state: RootState) => state.general);
   const [error, setError] = useState<string | null>(null);
-  const [generalSettings, setGeneralSettings] = useState<any>(null);
   const [premiumUpdated, setPremiumUpdated] = useState(false);
   
   // Card details state
@@ -37,26 +36,25 @@ export default function IyzicoCheckout() {
   const expiryYearRef = useRef<HTMLInputElement>(null);
   const cvvRef = useRef<HTMLInputElement>(null);
 
-  // Get user profile
+  // Load user profile and general settings on mount
   useEffect(() => {
     dispatch(getMyProfile());
+    dispatch(getGeneral());
   }, [dispatch]);
 
-  // Fetch general settings
-  useEffect(() => {
-    const fetchGeneralSettings = async () => {
-      try {
-        const settings = await getGeneral();
-        setGeneralSettings(settings);
-        setPageLoading(false);
-      } catch (error) {
-        console.error("Error fetching general settings:", error);
-        setPageLoading(false);
-      }
-    };
-
-    fetchGeneralSettings();
-  }, []);
+  // Premium configuration with proper fallbacks
+  const premiumConfig = {
+    price: general?.premium?.price || 3600,
+    currency: general?.premium?.currency || "TL",
+    features: general?.premium?.features || [
+      "Her ay kapsamını genişlettiğimiz eğitim içeriklerine",
+      "Türkiye'nin en büyük yaratıcı topluluğuna erişime",
+      "Katma Değer Fonu'na başvurma hakkına"
+    ],
+    ctaText: general?.premium?.ctaText || "HEMEN KATILIN",
+    yearlyPriceText: general?.premium?.yearlyPriceText || "Üyelik ücreti yıllık 3.600 TL olarak belirlenmiştir.",
+    description: general?.premium?.description || "Komünite, sunduğu eğitimler, birlikte çalıştığı uzmanlar, sunduğu topluluk öğrenimi fırsatı, üyelerine sağladığı her türlü içerik ve indirimlerden dolayı sadece yıllık olarak ücretlendirilmektedir."
+  };
 
   // Format card number with spaces
   const formatCardNumber = (value: string) => {
@@ -214,6 +212,17 @@ export default function IyzicoCheckout() {
     }
   };
 
+  // Show loading spinner while general settings are loading
+  if (generalLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin h-8 w-8 border-4 border-orange-500 rounded-full border-t-transparent"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
       <Link 
@@ -247,137 +256,128 @@ export default function IyzicoCheckout() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {pageLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin h-8 w-8 border-4 border-orange-500 rounded-full border-t-transparent"></div>
+              {/* Payment form title */}
+              <div className="flex mb-6 border-b pb-3">
+                <div className="flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2 text-gray-600" />
+                  <h3 className="text-lg font-medium">Kartla Ödeme</h3>
                 </div>
-              ) : (
-                <div>
-                  {/* Payment form title */}
-                  <div className="flex mb-6 border-b pb-3">
-                    <div className="flex items-center">
-                      <CreditCard className="h-5 w-5 mr-2 text-gray-600" />
-                      <h3 className="text-lg font-medium">Kartla Ödeme</h3>
+              </div>
+              
+              {/* Card payment form */}
+              <form onSubmit={handleSubmit}>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="cardHolder" className="text-sm font-medium">
+                      Kart Üzerindeki Ad Soyad
+                    </Label>
+                    <Input
+                      id="cardHolder"
+                      ref={cardHolderRef}
+                      value={cardHolder}
+                      onChange={handleCardHolderChange}
+                      onKeyDown={(e) => e.key === "Enter" && cardNumberRef.current?.focus()}
+                      placeholder="Kart Üzerindeki Ad Soyad"
+                      className="mt-1 text-gray-800"
+                      required
+                      autoFocus
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="cardNumber" className="text-sm font-medium">
+                      Kart Numarası
+                    </Label>
+                    <Input
+                      id="cardNumber"
+                      ref={cardNumberRef}
+                      value={cardNumber}
+                      onChange={handleCardNumberChange}
+                      onKeyDown={(e) => e.key === "Enter" && expiryMonthRef.current?.focus()}
+                      placeholder="0000 0000 0000 0000"
+                      className="mt-1 text-gray-800"
+                      maxLength={19}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="expiryMonth" className="text-sm font-medium">
+                        Ay
+                      </Label>
+                      <Input
+                        id="expiryMonth"
+                        ref={expiryMonthRef}
+                        value={expiryMonth}
+                        onChange={handleMonthChange}
+                        onKeyDown={(e) => e.key === "Enter" && expiryYearRef.current?.focus()}
+                        placeholder="MM"
+                        className="mt-1 text-gray-800"
+                        maxLength={2}
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="expiryYear" className="text-sm font-medium">
+                        Yıl
+                      </Label>
+                      <Input
+                        id="expiryYear"
+                        ref={expiryYearRef}
+                        value={expiryYear}
+                        onChange={handleYearChange}
+                        onKeyDown={(e) => e.key === "Enter" && cvvRef.current?.focus()}
+                        placeholder="YY"
+                        className="mt-1 text-gray-800"
+                        maxLength={2}
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="cvv" className="text-sm font-medium">
+                        CVC
+                      </Label>
+                      <Input
+                        id="cvv"
+                        ref={cvvRef}
+                        value={cvv}
+                        onChange={handleCVVChange}
+                        onKeyDown={(e) => e.key === "Enter" && e.currentTarget.form?.requestSubmit()}
+                        placeholder="123"
+                        className="mt-1 text-gray-800"
+                        maxLength={3}
+                        required
+                      />
                     </div>
                   </div>
                   
-                  {/* Card payment form */}
-                  <form onSubmit={handleSubmit}>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="cardHolder" className="text-sm font-medium">
-                          Kart Üzerindeki Ad Soyad
-                        </Label>
-                        <Input
-                          id="cardHolder"
-                          ref={cardHolderRef}
-                          value={cardHolder}
-                          onChange={handleCardHolderChange}
-                          onKeyDown={(e) => e.key === "Enter" && cardNumberRef.current?.focus()}
-                          placeholder="Kart Üzerindeki Ad Soyad"
-                          className="mt-1 text-gray-800"
-                          required
-                          autoFocus
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="cardNumber" className="text-sm font-medium">
-                          Kart Numarası
-                        </Label>
-                        <Input
-                          id="cardNumber"
-                          ref={cardNumberRef}
-                          value={cardNumber}
-                          onChange={handleCardNumberChange}
-                          onKeyDown={(e) => e.key === "Enter" && expiryMonthRef.current?.focus()}
-                          placeholder="0000 0000 0000 0000"
-                          className="mt-1 text-gray-800"
-                          maxLength={19}
-                          required
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4">
-                        <div>
-                          <Label htmlFor="expiryMonth" className="text-sm font-medium">
-                            Ay
-                          </Label>
-                          <Input
-                            id="expiryMonth"
-                            ref={expiryMonthRef}
-                            value={expiryMonth}
-                            onChange={handleMonthChange}
-                            onKeyDown={(e) => e.key === "Enter" && expiryYearRef.current?.focus()}
-                            placeholder="MM"
-                            className="mt-1 text-gray-800"
-                            maxLength={2}
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="expiryYear" className="text-sm font-medium">
-                            Yıl
-                          </Label>
-                          <Input
-                            id="expiryYear"
-                            ref={expiryYearRef}
-                            value={expiryYear}
-                            onChange={handleYearChange}
-                            onKeyDown={(e) => e.key === "Enter" && cvvRef.current?.focus()}
-                            placeholder="YY"
-                            className="mt-1 text-gray-800"
-                            maxLength={2}
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="cvv" className="text-sm font-medium">
-                            CVC
-                          </Label>
-                          <Input
-                            id="cvv"
-                            ref={cvvRef}
-                            value={cvv}
-                            onChange={handleCVVChange}
-                            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.form?.requestSubmit()}
-                            placeholder="123"
-                            className="mt-1 text-gray-800"
-                            maxLength={3}
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="pt-4">
-                        <Button 
-                          type="submit" 
-                          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded"
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? (
-                            <span className="flex items-center justify-center">
-                              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                              İşleniyor...
-                            </span>
-                          ) : (
-                            <span>149,00 TL ÖDE</span>
-                          )}
-                        </Button>
-                      </div>
-                      
-                      <div className="text-xs text-gray-500 text-center mt-2">
-                        Ödeme işlemine devam ederek <Link href="#" className="text-blue-500">KVKK Aydınlatma Metni</Link>'ni okuduğumu ve anladığımı kabul ediyorum.
-                      </div>
-                    </div>
-                  </form>
+                  <div className="pt-4">
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center justify-center">
+                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                          İşleniyor...
+                        </span>
+                      ) : (
+                        <span>{premiumConfig.price?.toLocaleString('tr-TR')},00 {premiumConfig.currency} ÖDE</span>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs text-gray-500 text-center mt-2">
+                    Ödeme işlemine devam ederek <Link href="#" className="text-blue-500">KVKK Aydınlatma Metni</Link>'ni okuduğumu ve anladığımı kabul ediyorum.
+                  </div>
                 </div>
-              )}
+              </form>
             </CardContent>
           </Card>
-          
         </div>
         
         <div className="md:col-span">
@@ -385,7 +385,7 @@ export default function IyzicoCheckout() {
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Premium Erişim</CardTitle>
               <CardDescription className="text-sm">
-                Tek seferlik ödeme
+                {premiumConfig.yearlyPriceText && premiumConfig.yearlyPriceText.includes('tek') ? 'Tek seferlik ödeme' : 'Tek seferlik ödeme'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -396,25 +396,24 @@ export default function IyzicoCheckout() {
                     <p className="text-xs text-gray-600">Kaliteli içerik</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold">₺149</div>
+                    <div className="text-lg font-bold">₺{premiumConfig.price?.toLocaleString('tr-TR')}</div>
                     <p className="text-xs text-gray-600">tek ödeme</p>
                   </div>
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <h5 className="font-medium text-xs">Premium içerikler:</h5>
-                
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0" />
-                  <span className="text-xs">Tüm özel makalelere erişim</span>
+              {premiumConfig.features && premiumConfig.features.length > 0 && (
+                <div className="space-y-2">
+                  <h5 className="font-medium text-xs">Premium içerikler:</h5>
+                  
+                  {premiumConfig.features.map((feature: string, index: number) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Check className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0" />
+                      <span className="text-xs">{feature}</span>
+                    </div>
+                  ))}
                 </div>
-                
-                <div className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0" />
-                  <span className="text-xs">Özel içerik koleksiyonları</span>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
