@@ -298,12 +298,20 @@ function Cta4ContentForm({ data }: { data: any }) {
         />
       </FormGroup>
       
-      <TextAreaField
-        label="Description"
-        value={data?.description || ""}
-        path="cta4.description"
-        placeholder="Enter CTA description"
-      />
+      <FormGroup title="Descriptions">
+        <TextAreaField
+          label="Description 1"
+          value={data?.description || ""}
+          path="cta4.description"
+          placeholder="Enter first description"
+        />
+        <TextAreaField
+          label="Description 2 (Optional)"
+          value={data?.description2 || ""}
+          path="cta4.description2"
+          placeholder="Enter second description (optional - will appear on new line)"
+        />
+      </FormGroup>
       
       <FormGroup title="Features">
         <TextField

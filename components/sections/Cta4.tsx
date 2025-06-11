@@ -115,7 +115,12 @@ export default function Cta4({ previewData }: Cta4Props = {}) {
 									</h5>
 								</>
 							)}
-							<p className="fs-5 text-500">{data.description}</p>
+							<div className="fs-5 text-500">
+								<p className="mb-2">{data.description}</p>
+								{data.description2 && (
+									<p className="mb-0">{data.description2}</p>
+								)}
+							</div>
 							<div className="d-md-flex align-items-center mt-4 mb-5">
 								<ul className="list-unstyled phase-items mb-0">
 									{data.features.slice(0, 2).map((feature: string, index: number) => (

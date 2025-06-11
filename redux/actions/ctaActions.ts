@@ -53,6 +53,7 @@ export interface CtaPayload {
       titleColor?: string;
     };
     description?: string;
+    description2?: string;
     features?: string[];
     buttons?: {
       primary?: {

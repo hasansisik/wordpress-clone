@@ -25,7 +25,7 @@ interface PremiumContentDialogProps {
 const PremiumContentDialog = ({ 
   isOpen, 
   onClose, 
-  title = "Premium İçerik"
+  title = "Premium İçerik2"
 }: PremiumContentDialogProps) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
