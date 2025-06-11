@@ -365,8 +365,8 @@ export default function HeaderEditor() {
         actionButtonLink: header.actionButtonLink || header.links?.freeTrialLink?.href || initialData.actionButtonLink,
         buttonColor: header.buttonColor || initialData.buttonColor,
         buttonTextColor: header.buttonTextColor || initialData.buttonTextColor,
-        secondActionButtonText: header.links?.secondActionButton?.text || initialData.secondActionButtonText,
-        secondActionButtonLink: header.links?.secondActionButton?.href || initialData.secondActionButtonLink,
+        secondActionButtonText: header.secondActionButtonText || header.links?.secondActionButton?.text || initialData.secondActionButtonText,
+        secondActionButtonLink: header.secondActionButtonLink || header.links?.secondActionButton?.href || initialData.secondActionButtonLink,
         secondButtonColor: header.secondButtonColor || initialData.secondButtonColor,
         secondButtonTextColor: header.secondButtonTextColor || initialData.secondButtonTextColor,
         secondButtonBorderColor: header.secondButtonBorderColor || initialData.secondButtonBorderColor,
@@ -785,9 +785,9 @@ export default function HeaderEditor() {
       buttonColor: header.buttonColor || "#3b71fe",
       buttonTextColor: header.buttonTextColor || "#ffffff",
       
-      // Second button settings
-      secondActionButtonText: header.links?.secondActionButton?.text || "Kayıt Ol",
-      secondActionButtonLink: header.links?.secondActionButton?.href || "/register",
+      // Second button settings - prioritize individual properties over nested structure
+      secondActionButtonText: header.secondActionButtonText || header.links?.secondActionButton?.text || "Kayıt Ol",
+      secondActionButtonLink: header.secondActionButtonLink || header.links?.secondActionButton?.href || "/register",
       secondButtonColor: header.secondButtonColor || "#ffffff",
       secondButtonTextColor: header.secondButtonTextColor || "#3b71fe",
       secondButtonBorderColor: header.secondButtonBorderColor || "#3b71fe",
@@ -852,6 +852,8 @@ export default function HeaderEditor() {
         // Add these properties explicitly
         actionButtonText: data.actionButtonText || headerData.actionButtonText,
         actionButtonLink: data.actionButtonLink || headerData.actionButtonLink,
+        secondActionButtonText: data.secondActionButtonText || headerData.secondActionButtonText,
+        secondActionButtonLink: data.secondActionButtonLink || headerData.secondActionButtonLink,
         buttonColor: data.buttonColor || headerData.buttonColor || "#3b71fe",
         buttonTextColor: data.buttonTextColor || headerData.buttonTextColor || "#ffffff",
         secondButtonColor: data.secondButtonColor || headerData.secondButtonColor || "#ffffff",
@@ -901,6 +903,8 @@ export default function HeaderEditor() {
       setHeaderData(prevData => ({
         ...prevData,
         ...data,
+        secondActionButtonLink: data.secondActionButtonLink || prevData.secondActionButtonLink,
+        secondActionButtonText: data.secondActionButtonText || prevData.secondActionButtonText,
         phoneIconBgColor: data.phoneIconBgColor || prevData.phoneIconBgColor,
         phoneIconColor: data.phoneIconColor || prevData.phoneIconColor,
         phoneQuestionText: data.phoneQuestionText !== undefined ? data.phoneQuestionText : prevData.phoneQuestionText
@@ -929,6 +933,10 @@ export default function HeaderEditor() {
           freeTrialLink: {
             href: headerData.actionButtonLink || "#",
             text: headerData.actionButtonText || "Join For Free Trial"
+          },
+          secondActionButton: {
+            href: headerData.secondActionButtonLink || "/register",
+            text: headerData.secondActionButtonText || "Kayıt Ol"
           }
         },
         mainMenu: headerData.mainMenu,
@@ -936,15 +944,24 @@ export default function HeaderEditor() {
         topBarItems: headerData.topBarItems,
         showDarkModeToggle: headerData.showDarkModeToggle,
         showActionButton: headerData.showActionButton,
+        showSecondActionButton: headerData.showSecondActionButton,
         actionButtonText: headerData.actionButtonText,
         actionButtonLink: headerData.actionButtonLink,
+        secondActionButtonText: headerData.secondActionButtonText,
+        secondActionButtonLink: headerData.secondActionButtonLink,
         buttonColor: headerData.buttonColor || "#3b71fe",
         buttonTextColor: headerData.buttonTextColor || "#ffffff",
+        secondButtonColor: headerData.secondButtonColor || "#ffffff",
+        secondButtonTextColor: headerData.secondButtonTextColor || "#3b71fe",
+        secondButtonBorderColor: headerData.secondButtonBorderColor || "#3b71fe",
         headerComponent: headerData.headerComponent,
         workingHours: headerData.workingHours,
         topBarColor: headerData.topBarColor || "#3b71fe",
         topBarTextColor: headerData.topBarTextColor || "#ffffff",
-        mobileMenuButtonColor: headerData.mobileMenuButtonColor || "#3b71fe"
+        mobileMenuButtonColor: headerData.mobileMenuButtonColor || "#3b71fe",
+        phoneIconBgColor: headerData.phoneIconBgColor || "#3b71fe",
+        phoneIconColor: headerData.phoneIconColor || "#ffffff",
+        phoneQuestionText: headerData.phoneQuestionText || "Have Any Questions?"
       };
 
       // Dispatch ile Redux store'u güncelle
@@ -971,7 +988,7 @@ export default function HeaderEditor() {
       if (iframe && iframe.contentWindow) {
         iframe.contentWindow.postMessage({
           type: "UPDATE_HEADER_DATA",
-          headerData: headerData
+          headerData: dataToSave
         }, "*");
       }
       

@@ -31,6 +31,8 @@ export interface HeaderPayload {
   showSecondActionButton?: boolean;
   actionButtonText?: string;
   actionButtonLink?: string;
+  secondActionButtonText?: string;
+  secondActionButtonLink?: string;
   headerComponent?: string;
   workingHours?: string;
   topBarColor?: string;

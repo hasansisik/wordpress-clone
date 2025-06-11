@@ -172,8 +172,9 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 							</div>
 							{header.showDarkModeToggle && <ThemeSwitch />}
 							
-							{/* Profil Butonu - Kullanıcı giriş yapmışsa göster */}
-							{user?._id && (
+							{/* Kullanıcı durumuna göre button'ları göster */}
+							{user?._id ? (
+								/* Kullanıcı giriş yapmışsa profil butonu göster */
 								<Link 
 									href="/profile" 
 									className="ms-2 d-flex align-items-center justify-content-center bg-white rounded icon-shape border icon-md"
@@ -185,35 +186,38 @@ export default function Header5({ scroll, hideHeader, isMobileMenu, handleMobile
 								>
 									<User size={18} />
 								</Link>
-							)}
-							
-							{header.showActionButton && (
-								<Link 
-									href={header.links.freeTrialLink.href} 
-									className="btn d-none d-md-block ms-2 "
-									style={{
-										backgroundColor: header.buttonColor || "#3b71fe",
-										color: header.buttonTextColor || "#ffffff"
-									}}
-								>
-									{header.links.freeTrialLink.text}
+							) : (
+								/* Kullanıcı giriş yapmamışsa action button'ları göster */
+								<>
+									{header.showActionButton && (
+										<Link 
+											href={header.links.freeTrialLink.href} 
+											className="btn d-none d-md-block ms-2 "
+											style={{
+												backgroundColor: header.buttonColor || "#3b71fe",
+												color: header.buttonTextColor || "#ffffff"
+											}}
+										>
+											{header.links.freeTrialLink.text}
+											
+										</Link>
+									)}
 									
-								</Link>
-							)}
-							
-							{header.showSecondActionButton && (
-								<Link 
-									href={header.links.secondActionButton.href} 
-									className="btn d-none d-md-block ms-2 "
-									style={{
-										backgroundColor: header.secondButtonColor || "#ffffff",
-										color: header.secondButtonTextColor || "#3b71fe",
-										border: `1px solid ${header.secondButtonBorderColor || "#3b71fe"}`
-									}}
-								>
-									{header.links.secondActionButton.text}
-									
-								</Link>
+									{header.showSecondActionButton && (
+										<Link 
+											href={header.secondActionButtonLink || header.links?.secondActionButton?.href || "/register"} 
+											className="btn d-none d-md-block ms-2 "
+											style={{
+												backgroundColor: header.secondButtonColor || "#ffffff",
+												color: header.secondButtonTextColor || "#3b71fe",
+												border: `1px solid ${header.secondButtonBorderColor || "#3b71fe"}`
+											}}
+										>
+											{header.secondActionButtonText || header.links?.secondActionButton?.text || "Kayıt Ol"}
+											
+										</Link>
+									)}
+								</>
 							)}
 							<div 
 								className="burger-icon burger-icon-white border rounded-3" 
