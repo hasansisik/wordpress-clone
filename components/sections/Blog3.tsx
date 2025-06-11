@@ -159,12 +159,12 @@ export default function Blog3({ previewData, selectedCategory, selectedAuthor, t
 			<section className="section-blog-8 py-5 position-relative fix" style={sectionStyle}>
 				<div className="container position-relative z-1">
 					<div className="row text-center">
-						<h5 className="ds-5" style={titleStyle}>{data.title}</h5>
+						<h4 className="ds-4 mb-1" style={titleStyle}>{data.title}</h4>
 					</div>
-					<div className="row">
+					<div className="row mt-2">
 						{posts.map((post, index) => (
 							<div key={index} className="col-lg-4 text-start">
-								<div className="card border-0 rounded-3 mt-8 position-relative w-100 bg-gray-50">
+								<div className="card border-0 rounded-3 mt-3 position-relative w-100 bg-gray-50">
 									<div className="blog-image-container w-100" style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
 										<img 
 											className="rounded-top-3" 

@@ -189,7 +189,7 @@ export default function Blog2({ previewData, selectedCategory, selectedAuthor, t
 										<span className="tag-spacing fs-7 fw-bold ms-2 text-uppercase">{data.badge}</span>
 									</div>
 								)}
-								<h3 className="ds-3 mt-3 mb-3" style={titleStyle}>{data.title}</h3>
+								<h4 className="ds-4 mt-3 mb-1" style={titleStyle}>{data.title}</h4>
 								<span className="fs-5 fw-medium" style={subtitleStyle}>{data.subtitle}</span>
 								{data.seeAllButtonVisible !== false && (
 									<div className="d-flex align-items-center mt-8">
@@ -204,7 +204,7 @@ export default function Blog2({ previewData, selectedCategory, selectedAuthor, t
 							</div>
 						</div>
 						<div className="col-lg-8">
-							<div className="blog-slider-container mt-lg-0 mt-5">
+							<div className="blog-slider-container mt-lg-0 mt-2">
 								<div className="blog-cards-grid">
 									{posts.map((post, index) => (
 										<div key={index} className="blog-card">

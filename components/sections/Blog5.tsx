@@ -196,14 +196,14 @@ export default function Blog5({ previewData, selectedCategory, selectedAuthor, t
 				<div className="container">
 					<div className="row align-items-end">
 						<div className="col">
-							<h5 className="ds-5 mt-3 mb-3" style={titleStyle}>{data.title}</h5>
+							<h4 className="ds-4 mt-3 mb-1" style={titleStyle}>{data.title}</h4>
 							<span className="fs-5 fw-medium" style={subtitleStyle}>{data.subtitle}</span>
 						</div>
 					</div>
-					<div className="row">
+					<div className="row mt-2">
 						{currentPosts.map((post, index) => (
 							<div key={index} className="col-lg-4 col-md-6 text-start">
-								<div className="card border-0 rounded-3 mt-4 position-relative w-100 bg-gray-50">
+								<div className="card border-0 rounded-3 mt-3 position-relative w-100 bg-gray-50">
 									<div className="blog-image-container w-100" style={{ height: '220px', overflow: 'hidden', position: 'relative' }}>
 										<img 
 											className="rounded-top-3" 

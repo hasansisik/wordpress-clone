@@ -234,14 +234,14 @@ export default function Blog1({
                   </span>
                 </div>
               )}
-              <h3
-                className="ds-3 mt-3 mb-3"
+              <h4
+                className="ds-4 mt-3 mb-1"
                 data-aos="fade-zoom-in"
                 data-aos-delay={100}
                 style={titleStyle}
               >
                 {data.title}
-              </h3>
+              </h4>
               <span
                 className="fs-5 fw-medium"
                 data-aos="fade-zoom-in"
@@ -252,11 +252,11 @@ export default function Blog1({
               </span>
             </div>
           </div>
-          <div className="row">
+          <div className="row mt-2">
             {posts.map((post: any, index: number) => (
               <div key={index} className="col-lg-4 text-start">
                 <div
-                  className="card border-0 rounded-3 mt-8 position-relative w-100 bg-gray-50"
+                  className="card border-0 rounded-3 mt-3 position-relative w-100 bg-gray-50"
                   data-aos="fade-zoom-in"
                   data-aos-delay={(index + 1) * 100}
                 >
