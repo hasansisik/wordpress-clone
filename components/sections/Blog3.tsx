@@ -16,6 +16,7 @@ interface Blog3Props {
 	selectedAuthor?: string;
 	title?: string;
 	subtitle?: string;
+	isPremiumOnly?: boolean;
 }
 
 // Function to convert title to slug
@@ -51,7 +52,7 @@ const truncateText = (text: string, maxLength: number = 120) => {
 	return text.substring(0, maxLength) + '...';
 };
 
-export default function Blog3({ previewData, selectedCategory, selectedAuthor, title, subtitle }: Blog3Props = {}) {
+export default function Blog3({ previewData, selectedCategory, selectedAuthor, title, subtitle, isPremiumOnly }: Blog3Props = {}) {
 	const [data, setData] = useState<any>(null)
 	const [posts, setPosts] = useState<any[]>([])
 	const dispatch = useDispatch<AppDispatch>()
@@ -81,9 +82,10 @@ export default function Blog3({ previewData, selectedCategory, selectedAuthor, t
 		const filterParams: any = {};
 		if (selectedCategory) filterParams.category = selectedCategory;
 		if (selectedAuthor) filterParams.author = selectedAuthor;
+		if (isPremiumOnly) filterParams.premium = true;
 		
 		dispatch(getAllBlogs(filterParams));
-	}, [dispatch, selectedCategory, selectedAuthor]);
+	}, [dispatch, selectedCategory, selectedAuthor, isPremiumOnly]);
 
 	useEffect(() => {
 		// If preview data is provided, use it

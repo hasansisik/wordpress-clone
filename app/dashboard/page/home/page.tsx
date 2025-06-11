@@ -92,6 +92,7 @@ interface Section {
     selectedAuthor?: string;
     title?: string;
     subtitle?: string;
+    isPremiumOnly?: boolean;
   };
 }
 
@@ -454,9 +455,14 @@ function SortableSectionItem({
                 <span className="inline-block bg-purple-100 text-purple-700 px-2 py-1 rounded mr-2">
                   Başlık: {section.config?.title || 'Varsayılan başlık'}
                 </span>
-                <span className="inline-block bg-pink-100 text-pink-700 px-2 py-1 rounded">
+                <span className="inline-block bg-pink-100 text-pink-700 px-2 py-1 rounded mr-2">
                   Alt başlık: {section.config?.subtitle || 'Varsayılan alt başlık'}
                 </span>
+                {section.config?.isPremiumOnly && (
+                  <span className="inline-block bg-amber-100 text-amber-700 px-2 py-1 rounded">
+                    Sadece Premium
+                  </span>
+                )}
               </div>
               
               {/* Category and Author filters */}
@@ -533,6 +539,7 @@ export default function HomePageEditor() {
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [sectionTitle, setSectionTitle] = useState<string>("");
   const [sectionSubtitle, setSectionSubtitle] = useState<string>("");
+  const [isPremiumOnly, setIsPremiumOnly] = useState<boolean>(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -581,6 +588,7 @@ export default function HomePageEditor() {
       setSelectedAuthor("");
       setSectionTitle("");
       setSectionSubtitle("");
+      setIsPremiumOnly(false);
       setShowConfigModal(true);
     } else {
       // Add section without configuration
@@ -611,6 +619,7 @@ export default function HomePageEditor() {
         selectedAuthor: selectedAuthor.trim() !== "" ? selectedAuthor : undefined,
         title: sectionTitle.trim() !== "" ? sectionTitle : undefined,
         subtitle: sectionSubtitle.trim() !== "" ? sectionSubtitle : undefined,
+        isPremiumOnly: isPremiumOnly,
       }
     };
 
@@ -622,6 +631,7 @@ export default function HomePageEditor() {
     setSelectedAuthor("");
     setSectionTitle("");
     setSectionSubtitle("");
+    setIsPremiumOnly(false);
   };
 
   // Remove a section from the page
@@ -646,6 +656,7 @@ export default function HomePageEditor() {
       setSelectedAuthor(section.config?.selectedAuthor || "");
       setSectionTitle(section.config?.title || "");
       setSectionSubtitle(section.config?.subtitle || "");
+      setIsPremiumOnly(section.config?.isPremiumOnly || false);
       setShowConfigModal(true);
       
       // Store the section ID for updating
@@ -666,6 +677,7 @@ export default function HomePageEditor() {
             selectedAuthor: selectedAuthor.trim() !== "" ? selectedAuthor : undefined,
             title: sectionTitle.trim() !== "" ? sectionTitle : undefined,
             subtitle: sectionSubtitle.trim() !== "" ? sectionSubtitle : undefined,
+            isPremiumOnly: isPremiumOnly,
           }
         };
       }
@@ -679,6 +691,7 @@ export default function HomePageEditor() {
     setSelectedAuthor("");
     setSectionTitle("");
     setSectionSubtitle("");
+    setIsPremiumOnly(false);
     setEditingSectionId(null);
   };
 
@@ -754,6 +767,9 @@ export default function HomePageEditor() {
           }
           if (section.config.subtitle && section.config.subtitle.trim() !== "") {
             configProps.push(`subtitle="${section.config.subtitle}"`);
+          }
+          if (section.config.isPremiumOnly) {
+            configProps.push(`isPremiumOnly={true}`);
           }
           if (configProps.length > 0) {
             props = ` ${configProps.join(" ")}`;
@@ -1095,6 +1111,27 @@ ${sectionsJSX}
                  <p className="text-xs text-muted-foreground mt-1">
                    Boş bırakırsanız varsayılan alt başlık kullanılır
                  </p>
+               </div>
+             </div>
+             
+             <div className="grid grid-cols-4 items-center gap-4">
+               <Label htmlFor="premium" className="text-right font-medium">
+                 Premium İçerik
+               </Label>
+               <div className="col-span-3 flex items-center space-x-2">
+                 <input
+                   type="checkbox"
+                   id="premium"
+                   checked={isPremiumOnly}
+                   onChange={(e) => setIsPremiumOnly(e.target.checked)}
+                   className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                 />
+                 <label htmlFor="premium" className="text-sm">
+                   Sadece premium içerikleri göster
+                 </label>
+               </div>
+               <div className="col-span-4 text-xs text-muted-foreground ml-[25%]">
+                 Bu seçenek işaretlenirse sadece premium olarak işaretlenmiş bloglar gösterilir
                </div>
              </div>
             {currentSectionType.includes('-category') && (

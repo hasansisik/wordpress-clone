@@ -5,8 +5,9 @@ interface Blog2CategoryProps {
   selectedCategory?: string;
   title?: string;
   subtitle?: string;
+  isPremiumOnly?: boolean;
 }
 
-export default function Blog2Category({ selectedCategory, title, subtitle }: Blog2CategoryProps) {
-  return <Blog2 selectedCategory={selectedCategory} title={title} subtitle={subtitle} />;
+export default function Blog2Category({ selectedCategory, title, subtitle, isPremiumOnly }: Blog2CategoryProps) {
+  return <Blog2 selectedCategory={selectedCategory} title={title} subtitle={subtitle} isPremiumOnly={isPremiumOnly} />;
 } 

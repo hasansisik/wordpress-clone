@@ -17,6 +17,7 @@ interface Blog2Props {
 	selectedAuthor?: string;
 	title?: string;
 	subtitle?: string;
+	isPremiumOnly?: boolean;
 }
 
 // Function to convert title to slug
@@ -52,7 +53,7 @@ const truncateText = (text: string, maxLength: number = 120) => {
 	return text.substring(0, maxLength) + '...';
 };
 
-export default function Blog2({ previewData, selectedCategory, selectedAuthor, title, subtitle }: Blog2Props = {}) {
+export default function Blog2({ previewData, selectedCategory, selectedAuthor, title, subtitle, isPremiumOnly }: Blog2Props = {}) {
 	const dispatch = useDispatch<AppDispatch>();
 	const { blogs, loading: blogLoading } = useSelector((state: RootState) => state.blog);
 	const { other, loading: otherLoading } = useSelector((state: RootState) => state.other);
@@ -104,9 +105,10 @@ export default function Blog2({ previewData, selectedCategory, selectedAuthor, t
 		const filterParams: any = {};
 		if (selectedCategory) filterParams.category = selectedCategory;
 		if (selectedAuthor) filterParams.author = selectedAuthor;
+		if (isPremiumOnly) filterParams.premium = true;
 		
 		dispatch(getAllBlogs(filterParams));
-	}, [dispatch, selectedCategory, selectedAuthor]);
+	}, [dispatch, selectedCategory, selectedAuthor, isPremiumOnly]);
 
 	// Update posts when blogs change
 	useEffect(() => {
