@@ -1,1 +1,1 @@
-export const server: string ="http://localhost:3040/v1";
+export const server: string ="https://pendik-implant-e9b01a9268c0.herokuapp.com/v1";
