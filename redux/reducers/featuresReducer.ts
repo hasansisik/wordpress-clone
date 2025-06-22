@@ -397,14 +397,8 @@ export const featuresReducer = createReducer(initialState, (builder) => {
       state.error = null;
     })
     .addCase(updateFeatures.fulfilled, (state, action) => {
-      
-      // Handle features5 specific updates
-      if (action.payload?.features5) {
-        handleFeatures5Update(state, action.payload);
-      } else {
-        // For other features or complete payload replacements
-        state.features = action.payload;
-      }
+      // Always update the entire features object to ensure proper reactivity
+      state.features = { ...state.features, ...action.payload };
       
       state.loading = false;
       state.success = true;

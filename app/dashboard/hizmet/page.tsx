@@ -1194,7 +1194,7 @@ export default function HizmetEditor() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
-                              <Link href={`/${slugify(hizmet.title)}`} target="_blank">
+                              <Link href={`/hizmet-${slugify(hizmet.title)}`} target="_blank">
                                 <Button variant="outline" size="icon" title="View Hizmet">
                                   <Eye className="h-4 w-4" />
                                 </Button>

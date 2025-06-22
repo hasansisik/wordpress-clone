@@ -31,6 +31,13 @@ export default function Features5({ previewData }: Features5Props = {}) {
 		}
 	}, [previewData, features])
 
+	// Force re-render when features data changes
+	useEffect(() => {
+		if (features && features.features5 && !previewData) {
+			setData({...features.features5});
+		}
+	}, [features?.features5, previewData])
+
 	// If data is still loading, return empty component
 	if (!data) {
 		return null

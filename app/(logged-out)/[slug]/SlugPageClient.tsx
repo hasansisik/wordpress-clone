@@ -142,7 +142,7 @@ const slugify = (text: string) => {
     .replace(/-+$/, ""); // Trim - from end of text
 };
 
-// Function to get local JSON blog data
+// Function to get local JSON blog data (fallback)
 const getLocalBlogData = async () => {
   try {
     const response = await fetch("/api/local-blogs");
@@ -154,7 +154,7 @@ const getLocalBlogData = async () => {
   }
 };
 
-// Function to get local JSON project data
+// Function to get local JSON project data (fallback)
 const getLocalProjectData = async () => {
   try {
     const response = await fetch("/api/local-projects");
@@ -166,7 +166,7 @@ const getLocalProjectData = async () => {
   }
 };
 
-// Function to get local JSON hizmet data
+// Function to get local JSON hizmet data (fallback)
 const getLocalHizmetData = async () => {
   try {
     const response = await fetch("/api/local-hizmetler");
@@ -186,7 +186,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   const dispatch = useDispatch<AppDispatch>();
 
   // Redux state
-  const { blogs, loading: blogsLoading } = useSelector(
+  const { blogs, loading: blogsLoading, error: blogsError } = useSelector(
     (state: RootState) => state.blog
   );
   const { services, loading: servicesLoading } = useSelector(
@@ -221,131 +221,68 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isDesktop, setIsDesktop] = useState(false);
 
-  // Fetch data from Redux
+  // Fetch data from Redux on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Only dispatch if blogs and services are not already loaded
-        if (blogs.length === 0) {
-          await dispatch(getAllBlogs());
+        console.log("Fetching data from Redux...");
+        
+        // Always fetch fresh data
+        await dispatch(getAllBlogs()).unwrap();
+        
+        // Fetch hizmetler as well
+        try {
+          await dispatch(getAllHizmetler()).unwrap();
+          console.log("Hizmetler fetched successfully");
+        } catch (hizmetError) {
+          console.log("Hizmetler fetch failed, will use fallback:", hizmetError);
         }
 
-        if (!hizmetler || hizmetler.length === 0) {
-          await dispatch(getAllHizmetler());
-        }
-
+        console.log("Data fetching completed");
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching data from Redux:", error);
         // If Redux data fetch fails, we'll still continue but will use fallback
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [dispatch, blogs.length, services.length, hizmetler]);
+  }, [dispatch, slug]); // Added slug as dependency to refetch when slug changes
 
   // Find the content by slug once data is loaded
   useEffect(() => {
     if (!isLoading) {
       const findContent = async () => {
-        // First try to find in Redux
-        const foundBlog = blogs.find((post) => slugify(post.title) === slug);
-        const foundProject = services.find(
-          (service) => slugify(service.title) === slug
-        );
-        const foundHizmet = hizmetler?.find(
-          (hizmet) => slugify(hizmet.title) === slug
-        );
+        console.log("Looking for content with slug:", slug);
+        console.log("Available blogs:", blogs?.length || 0);
+        console.log("Available hizmetler:", hizmetler?.length || 0);
 
-        if (foundBlog) {
-          setBlogPost(foundBlog);
-          setContentType("blog");
-          return;
-        }
+        // Check if this is a hizmet slug (starts with "hizmet-")
+        const isHizmetSlug = slug.startsWith("hizmet-");
+        const cleanSlug = isHizmetSlug ? slug.replace("hizmet-", "") : slug;
 
-        if (foundProject) {
-          setProject(foundProject);
-          setContentType("project");
-          return;
-        }
-
-        if (foundHizmet) {
-          setHizmet(foundHizmet);
-          setContentType("hizmet");
-
-          // Initialize slider positions for before-after items
-          if (foundHizmet.content?.beforeAfterItems?.length) {
-            setSliderPositions(
-              new Array(foundHizmet.content.beforeAfterItems.length).fill(50)
-            );
-            sliderRefs.current = new Array(
-              foundHizmet.content.beforeAfterItems.length
-            ).fill(null);
-            setContainerWidths(
-              new Array(foundHizmet.content.beforeAfterItems.length).fill(0)
-            );
-
-            // Set a timeout to measure container widths after rendering
-            setTimeout(() => {
-              const newWidths = sliderRefs.current.map(
-                (ref) => ref?.getBoundingClientRect().width || 0
-              );
-              setContainerWidths(newWidths);
-            }, 500);
-          }
-
-          return;
-        }
-
-        // If not found in Redux, try local JSON as fallback
-        setUsingFallback(true);
-
-        try {
-          // Try to find in local blog data
-          const localBlogs = await getLocalBlogData();
-          const localBlog = localBlogs.find(
-            (post: BlogPost) => slugify(post.title) === slug
+        // If it's a hizmet slug, try to find in hizmetler first
+        if (isHizmetSlug && hizmetler && hizmetler.length > 0) {
+          const foundHizmet = hizmetler.find(
+            (hizmet: any) => slugify(hizmet.title) === cleanSlug
           );
 
-          if (localBlog) {
-            setBlogPost(localBlog);
-            setContentType("blog");
-            return;
-          }
-
-          // Try to find in local project data
-          const localProjects = await getLocalProjectData();
-          const localProject = localProjects.find(
-            (proj: Project) => slugify(proj.title) === slug
-          );
-
-          if (localProject) {
-            setProject(localProject);
-            setContentType("project");
-            return;
-          }
-
-          // Try to find in local hizmet data
-          const localHizmetler = await getLocalHizmetData();
-          const localHizmet = localHizmetler.find(
-            (hizm: Hizmet) => slugify(hizm.title) === slug
-          );
-
-          if (localHizmet) {
-            setHizmet(localHizmet);
+          if (foundHizmet) {
+            console.log("Found hizmet in Redux:", foundHizmet.title);
+            setHizmet(foundHizmet);
             setContentType("hizmet");
 
             // Initialize slider positions for before-after items
-            if (localHizmet.content?.beforeAfterItems?.length) {
+            if (foundHizmet.content?.beforeAfterItems?.length) {
               setSliderPositions(
-                new Array(localHizmet.content.beforeAfterItems.length).fill(50)
+                new Array(foundHizmet.content.beforeAfterItems.length).fill(50)
               );
               sliderRefs.current = new Array(
-                localHizmet.content.beforeAfterItems.length
+                foundHizmet.content.beforeAfterItems.length
               ).fill(null);
               setContainerWidths(
-                new Array(localHizmet.content.beforeAfterItems.length).fill(0)
+                new Array(foundHizmet.content.beforeAfterItems.length).fill(0)
               );
 
               // Set a timeout to measure container widths after rendering
@@ -359,8 +296,152 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
 
             return;
           }
+        }
+
+        // If not a hizmet slug or not found in hizmetler, try blogs
+        if (!isHizmetSlug && blogs && blogs.length > 0) {
+          const foundBlog = blogs.find((post: any) => {
+            const postSlug = slugify(post.title);
+            console.log(`Comparing "${postSlug}" with "${cleanSlug}"`);
+            return postSlug === cleanSlug;
+          });
+
+          if (foundBlog) {
+            console.log("Found blog in Redux:", foundBlog.title);
+            setBlogPost(foundBlog);
+            setContentType("blog");
+            return;
+          }
+        }
+
+        // Try to find in services (if available)
+        if (services && services.length > 0) {
+          const foundProject = services.find(
+            (service: any) => slugify(service.title) === slug
+          );
+
+          if (foundProject) {
+            console.log("Found project in Redux:", foundProject.title);
+            setProject(foundProject);
+            setContentType("project");
+            return;
+          }
+        }
+
+        // Also try to find in hizmetler without prefix (for backward compatibility)
+        if (hizmetler && hizmetler.length > 0) {
+          const foundHizmet = hizmetler.find(
+            (hizmet: any) => slugify(hizmet.title) === cleanSlug
+          );
+
+          if (foundHizmet) {
+            console.log("Found hizmet in Redux (fallback):", foundHizmet.title);
+            setHizmet(foundHizmet);
+            setContentType("hizmet");
+
+            // Initialize slider positions for before-after items
+            if (foundHizmet.content?.beforeAfterItems?.length) {
+              setSliderPositions(
+                new Array(foundHizmet.content.beforeAfterItems.length).fill(50)
+              );
+              sliderRefs.current = new Array(
+                foundHizmet.content.beforeAfterItems.length
+              ).fill(null);
+              setContainerWidths(
+                new Array(foundHizmet.content.beforeAfterItems.length).fill(0)
+              );
+
+              // Set a timeout to measure container widths after rendering
+              setTimeout(() => {
+                const newWidths = sliderRefs.current.map(
+                  (ref) => ref?.getBoundingClientRect().width || 0
+                );
+                setContainerWidths(newWidths);
+              }, 500);
+            }
+
+            return;
+          }
+        }
+
+        // If not found in Redux, try local JSON as fallback
+        console.log("Content not found in Redux, trying fallback...");
+        setUsingFallback(true);
+
+        try {
+          // Try to find in local blog data (only if not a hizmet slug)
+          if (!isHizmetSlug) {
+            const localBlogs = await getLocalBlogData();
+            if (localBlogs && localBlogs.length > 0) {
+              const localBlog = localBlogs.find(
+                (post: BlogPost) => slugify(post.title) === cleanSlug
+              );
+
+              if (localBlog) {
+                console.log("Found blog in local data:", localBlog.title);
+                setBlogPost(localBlog);
+                setContentType("blog");
+                return;
+              }
+            }
+          }
+
+          // Try to find in local project data (only if not a hizmet slug)
+          if (!isHizmetSlug) {
+            const localProjects = await getLocalProjectData();
+            if (localProjects && localProjects.length > 0) {
+              const localProject = localProjects.find(
+                (proj: Project) => slugify(proj.title) === cleanSlug
+              );
+
+              if (localProject) {
+                console.log("Found project in local data:", localProject.title);
+                setProject(localProject);
+                setContentType("project");
+                return;
+              }
+            }
+          }
+
+          // Try to find in local hizmet data
+          const localHizmetler = await getLocalHizmetData();
+          if (localHizmetler && localHizmetler.length > 0) {
+            const localHizmet = localHizmetler.find(
+              (hizm: Hizmet) => slugify(hizm.title) === cleanSlug
+            );
+
+            if (localHizmet) {
+              console.log("Found hizmet in local data:", localHizmet.title);
+              setHizmet(localHizmet);
+              setContentType("hizmet");
+
+              // Initialize slider positions for before-after items
+              if (localHizmet.content?.beforeAfterItems?.length) {
+                setSliderPositions(
+                  new Array(localHizmet.content.beforeAfterItems.length).fill(50)
+                );
+                sliderRefs.current = new Array(
+                  localHizmet.content.beforeAfterItems.length
+                ).fill(null);
+                setContainerWidths(
+                  new Array(localHizmet.content.beforeAfterItems.length).fill(0)
+                );
+
+                // Set a timeout to measure container widths after rendering
+                setTimeout(() => {
+                  const newWidths = sliderRefs.current.map(
+                    (ref) => ref?.getBoundingClientRect().width || 0
+                  );
+                  setContainerWidths(newWidths);
+                }, 500);
+              }
+
+              return;
+            }
+          }
 
           // If still not found, show 404
+          console.log("Content not found anywhere, showing 404");
           notFound();
         } catch (error) {
           console.error("Error with fallback:", error);
@@ -540,6 +621,26 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
     );
   }
 
+  // Show error if Redux failed and no fallback found
+  if (blogsError && !usingFallback) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="flex justify-center items-center flex-col h-[60vh]">
+          <h1 className="text-3xl font-bold mb-4">Error Loading Content</h1>
+          <p className="text-gray-600 mb-4">
+            Failed to load content: {blogsError}
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Show 404 if content not found
   if (!contentType) {
     return (
@@ -549,6 +650,11 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           <p className="text-gray-600">
             The requested content could not be found.
           </p>
+          {usingFallback && (
+            <p className="text-sm text-gray-500 mt-2">
+              Fallback data source was used.
+            </p>
+          )}
         </div>
       </div>
     );

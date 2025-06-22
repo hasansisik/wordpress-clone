@@ -93,6 +93,13 @@ export default function FeaturesEditor() {
     }
   };
 
+  // Send data to preview when data changes
+  useEffect(() => {
+    if (showPreview && featuresData) {
+      sendDataToPreview();
+    }
+  }, [featuresData, activeComponent, showPreview]);
+
   // Handle component selection
   const handleComponentChange = (componentName: string) => {
     setActiveComponent(componentName);

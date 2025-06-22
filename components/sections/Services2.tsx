@@ -64,16 +64,16 @@ export default function Services2({ previewData }: Services2Props = {}) {
 					</div>
 					<div className="row mt-6 position-relative">
 						{data.services.map((service: any, index: number) => (
-							<div key={index} className="col-lg-4 col-md-6">
-								<div className="p-2 rounded-4 shadow-1 bg-white position-relative z-1 hover-up mb-4">
-									<div className="card-service bg-white p-6 border rounded-4 text-center">
-										<div className="icon-flip position-relative icon-shape icon-xxl rounded-3 me-5">
+							<div key={index} className="col-lg-4 col-md-6 d-flex">
+								<div className="p-2 rounded-4 shadow-1 bg-white position-relative z-1 hover-up mb-4 w-100">
+									<div className="card-service bg-white p-6 border rounded-4 text-center d-flex flex-column h-100">
+										<div className="icon-flip position-relative icon-shape icon-xxl rounded-3 mx-auto">
 											<div className="icon">
 												<img src={service.icon} alt="infinia" />
 											</div>
 										</div>
 										<h5 className="my-3">{service.title}</h5>
-										<p className="mb-6">{service.description}</p>
+										<p className="mb-6 flex-grow-1">{service.description}</p>
 									</div>
 								</div>
 							</div>

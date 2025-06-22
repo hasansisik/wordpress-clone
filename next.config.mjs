@@ -6,8 +6,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  serverExternalPackages: ["iyzipay"],
   experimental: {
-    serverComponentsExternalPackages: ["iyzipay"],
     turbo: {
       // Turbopack için genel ayarlar
       resolveAlias: {

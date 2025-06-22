@@ -275,7 +275,7 @@ export default function Services5({ previewData }: Services5Props) {
 											<h6 className="my-3 text-gray-800">{hizmet.title}</h6>
 											<p className="text-gray-700">{truncateText(hizmet.description)}</p>
 										</div>
-										<Link href={`/${slugify(hizmet.title)}`} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" aria-label={hizmet.title} />
+										<Link href={`/hizmet-${slugify(hizmet.title)}`} className="position-absolute bottom-0 start-0 end-0 top-0 z-0" aria-label={hizmet.title} />
 									</div>
 								</div>
 							);

@@ -1354,7 +1354,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                       <p className="text-gray-700 fs-7">{hizmet.description}</p>
                     </div>
                     <Link
-                      href={`/icerikler/${encodeURIComponent(slugify(hizmet.title))}`}
+                      href={`/hizmet-${encodeURIComponent(slugify(hizmet.title))}`}
                       className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
                     />
                   </div>
