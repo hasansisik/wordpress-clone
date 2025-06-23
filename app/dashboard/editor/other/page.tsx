@@ -914,6 +914,24 @@ function Contact1ContentForm({ data }: { data: any }) {
       </FormGroup>
 
       <FormGroup title="Button">
+        <TextField
+          label="Button Text"
+          value={data?.buttonText || "Mesaj Gönder"}
+          path="contact1.buttonText"
+          placeholder="e.g. Send Message"
+        />
+        <TextField
+          label="Submitting Text"
+          value={data?.buttonSubmittingText || "Gönderiliyor..."}
+          path="contact1.buttonSubmittingText"
+          placeholder="e.g. Sending..."
+        />
+        <TextField
+          label="Submitted Text"
+          value={data?.buttonSubmittedText || "Gönderildi"}
+          path="contact1.buttonSubmittedText"
+          placeholder="e.g. Sent"
+        />
         <ColorField
           label="Button Background Color"
           value={data?.buttonColor || "#6342EC"}

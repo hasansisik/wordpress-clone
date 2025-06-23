@@ -35,6 +35,51 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 		}
 	}, [previewData, other])
 
+	// Create dynamic styles for button colors
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+		
+		const styleId = 'contact1-dynamic-styles';
+		let existingStyle = document.getElementById(styleId);
+		
+		if (existingStyle) {
+			existingStyle.remove();
+		}
+		
+		if (!data) return;
+		
+		const buttonColor = data.buttonColor || "#6342EC";
+		const buttonTextColor = data.buttonTextColor || "#FFFFFF";
+		
+		const style = document.createElement('style');
+		style.id = styleId;
+		style.innerHTML = `
+			.contact1-submit-btn {
+				background-color: ${buttonColor} !important;
+				color: ${buttonTextColor} !important;
+				border: none !important;
+			}
+			.contact1-submit-btn:hover {
+				background-color: ${buttonColor} !important;
+				color: ${buttonTextColor} !important;
+				opacity: 0.9;
+			}
+			.contact1-submit-btn:disabled {
+				background-color: ${buttonColor} !important;
+				color: ${buttonTextColor} !important;
+				opacity: 0.6;
+			}
+		`;
+		document.head.appendChild(style);
+		
+		return () => {
+			const styleToRemove = document.getElementById(styleId);
+			if (styleToRemove) {
+				styleToRemove.remove();
+			}
+		};
+	}, [data]);
+
 	if (!data || loading) {
 		return <section>Contact1 Yükleniyor...</section>
 	}
@@ -243,11 +288,18 @@ export default function Contact1({ previewData }: Contact1Props = {}) {
 											<div className="col-12 text-center text-lg-start">
 												<button 
 													type="submit" 
-													className="btn text-white hover-up mt-4 d-flex align-items-center justify-content-center mx-auto mx-lg-0" 
+													className="btn text-white hover-up mt-4 d-flex align-items-center justify-content-center mx-auto mx-lg-0 contact1-submit-btn" 
 													style={{...buttonStyle, maxWidth: '200px'}}
 													disabled={isSubmitting || isSubmitted}
 												>
-													<span>{isSubmitting ? 'Gönderiliyor...' : isSubmitted ? 'Gönderildi' : 'Mesaj Gönder'}</span>
+													<span>
+														{isSubmitting 
+															? (data.buttonSubmittingText || 'Gönderiliyor...') 
+															: isSubmitted 
+																? (data.buttonSubmittedText || 'Gönderildi') 
+																: (data.buttonText || 'Mesaj Gönder')
+														}
+													</span>
 													<svg className="ms-2" xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none">
 														<path className="stroke-white" d="M21.1059 12.2562H0.5V11.7443H21.1059H22.313L21.4594 10.8907L17.0558 6.48705L17.4177 6.12508L23.2929 12.0002L17.4177 17.8754L17.0558 17.5134L21.4594 13.1098L22.313 12.2562H21.1059Z" fill="black" stroke="white" />
 													</svg>

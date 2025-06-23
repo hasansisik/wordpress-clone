@@ -150,6 +150,9 @@ export interface OtherPayload {
     services?: string[];
     buttonColor?: string;
     buttonTextColor?: string;
+    buttonText?: string;
+    buttonSubmittingText?: string;
+    buttonSubmittedText?: string;
     badgeColor?: string;
     badgeTextColor?: string;
   };
