@@ -18,9 +18,11 @@ export default function Features1({ previewData }: Features1Props = {}) {
 	const { features, loading } = useSelector((state: RootState) => state.features)
 
 	useEffect(() => {
-		// Always trigger getFeatures() on component mount
-		dispatch(getFeatures())
-	}, [dispatch])
+		// Only fetch if we don't already have features data
+		if (!features?.features1) {
+			dispatch(getFeatures())
+		}
+	}, [dispatch, features])
 
 	useEffect(() => {
 		// If preview data is provided, use it
@@ -33,16 +35,18 @@ export default function Features1({ previewData }: Features1Props = {}) {
 		}
 	}, [previewData, features])
 
-	// Force re-render when features data changes
-	useEffect(() => {
-		if (features && features.features1 && !previewData) {
-			setData({...features.features1});
-		}
-	}, [features?.features1, previewData])
-
-	// If data is still loading, return empty component
+	// Return placeholder during data loading (minimal and without text)
 	if (!data) {
-		return null
+		return (
+			<section className="features-1 py-5">
+				<div className="container">
+					<div className="row">
+						<div className="col-lg-4" style={{ minHeight: "200px" }}></div>
+						<div className="col-lg-8" style={{ minHeight: "200px" }}></div>
+					</div>
+				</div>
+			</section>
+		)
 	}
 	
 	// Function to handle video click
@@ -108,6 +112,45 @@ export default function Features1({ previewData }: Features1Props = {}) {
 	const featureIconStyle = {
 		maxWidth: '100%',
 		height: 'auto'
+	};
+
+	// Helper function to convert color to CSS filter
+	const getColorFilter = (color: string) => {
+		// Common color mappings to CSS filters
+		const colorFilters: { [key: string]: string } = {
+			'#FFFFFF': 'invert(100%)',
+			'white': 'invert(100%)',
+			'#000000': 'invert(0%)',
+			'black': 'invert(0%)',
+			'#6342EC': 'invert(42%) sepia(93%) saturate(1352%) hue-rotate(240deg) brightness(119%) contrast(119%)',
+			'#FF0000': 'invert(13%) sepia(99%) saturate(7404%) hue-rotate(4deg) brightness(102%) contrast(118%)',
+			'red': 'invert(13%) sepia(99%) saturate(7404%) hue-rotate(4deg) brightness(102%) contrast(118%)',
+			'#00FF00': 'invert(50%) sepia(100%) saturate(2000%) hue-rotate(120deg) brightness(100%) contrast(100%)',
+			'green': 'invert(50%) sepia(100%) saturate(2000%) hue-rotate(120deg) brightness(100%) contrast(100%)',
+			'#0000FF': 'invert(20%) sepia(100%) saturate(2000%) hue-rotate(240deg) brightness(100%) contrast(100%)',
+			'blue': 'invert(20%) sepia(100%) saturate(2000%) hue-rotate(240deg) brightness(100%) contrast(100%)'
+		};
+
+		// Return specific filter if available, otherwise try to convert hex to filter
+		if (colorFilters[color]) {
+			return colorFilters[color];
+		}
+
+		// For hex colors, create a basic filter (this is a simplified approach)
+		if (color.startsWith('#')) {
+			const hex = color.replace('#', '');
+			const r = parseInt(hex.substr(0, 2), 16);
+			const g = parseInt(hex.substr(2, 2), 16);
+			const b = parseInt(hex.substr(4, 2), 16);
+			
+			// Calculate brightness and apply basic filter
+			const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+			const invert = brightness > 127 ? 0 : 100;
+			
+			return `invert(${invert}%)`;
+		}
+
+		return 'none';
 	};
 
 	return (
@@ -222,7 +265,10 @@ export default function Features1({ previewData }: Features1Props = {}) {
 											<img 
 												src={feature.icon || `/assets/imgs/features-1/icon-${index + 1}.svg`} 
 												alt="infinia" 
-												style={featureIconStyle}
+												style={{
+													...featureIconStyle,
+													filter: feature.iconColor ? `brightness(0) saturate(100%) ${getColorFilter(feature.iconColor)}` : 'none'
+												}}
 											/>
 										</div>
 									</div>

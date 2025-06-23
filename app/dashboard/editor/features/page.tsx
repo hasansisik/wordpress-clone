@@ -321,6 +321,11 @@ function Features1ContentForm({ data }: { data: any }) {
               value={feature.iconBackgroundColor || ""}
               path={`features1.features.${index}.iconBackgroundColor`}
             />
+            <ColorField
+              label="Icon Color"
+              value={feature.iconColor || ""}
+              path={`features1.features.${index}.iconColor`}
+            />
           </FormGroup>
         ))}
       </FormGroup>
@@ -1064,6 +1069,11 @@ function Features10ContentForm({ data }: { data: any }) {
               label="Icon Background Color"
               value={feature.iconBackgroundColor || ""}
               path={`features10.features.${index}.iconBackgroundColor`}
+            />
+            <ColorField
+              label="Icon Color"
+              value={feature.iconColor || ""}
+              path={`features10.features.${index}.iconColor`}
             />
           </FormGroup>
         ))}

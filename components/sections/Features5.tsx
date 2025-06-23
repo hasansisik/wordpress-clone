@@ -16,9 +16,11 @@ export default function Features5({ previewData }: Features5Props = {}) {
 	const { features, loading } = useSelector((state: RootState) => state.features)
 
 	useEffect(() => {
-		// Always trigger getFeatures() on component mount
-		dispatch(getFeatures())
-	}, [dispatch])
+		// Only fetch if we don't already have features data
+		if (!features?.features5) {
+			dispatch(getFeatures())
+		}
+	}, [dispatch, features])
 
 	useEffect(() => {
 		// If preview data is provided, use it
@@ -31,16 +33,25 @@ export default function Features5({ previewData }: Features5Props = {}) {
 		}
 	}, [previewData, features])
 
-	// Force re-render when features data changes
-	useEffect(() => {
-		if (features && features.features5 && !previewData) {
-			setData({...features.features5});
-		}
-	}, [features?.features5, previewData])
-
-	// If data is still loading, return empty component
+	// Return placeholder during data loading (minimal and without text)
 	if (!data) {
-		return null
+		return (
+			<section className="section-feature-5 py-5">
+				<div className="container-fluid position-relative">
+					<div className="container">
+						<div className="text-center mb-8" style={{ minHeight: "100px" }}></div>
+						{[1, 2].map((i) => (
+							<div key={i} className={`row align-items-center ${i > 1 ? 'mt-10' : ''}`}>
+								<div className="col-lg-5">
+									<div className="photo-description position-relative rounded-4 d-inline-block" style={{ minHeight: "300px", backgroundColor: '#f8f9fa' }}></div>
+								</div>
+								<div className="col-lg-6 offset-lg-1 mt-lg-0 mt-5" style={{ minHeight: "200px" }}></div>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+		)
 	}
 
 	// Sort the sections by position

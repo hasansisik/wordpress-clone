@@ -35,6 +35,7 @@ export interface FeaturesPayload {
       titleColor?: string;
       descriptionColor?: string;
       iconBackgroundColor?: string;
+      iconColor?: string;
     }>;
     videoId?: string;
   };
@@ -149,6 +150,7 @@ export interface FeaturesPayload {
       titleColor?: string;
       descriptionColor?: string;
       iconBackgroundColor?: string;
+      iconColor?: string;
     }>;
   };
 }

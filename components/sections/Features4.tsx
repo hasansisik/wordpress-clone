@@ -16,9 +16,11 @@ export default function Features4({ previewData }: Features4Props = {}) {
 	const { features, loading } = useSelector((state: RootState) => state.features)
 
 	useEffect(() => {
-		// Always trigger getFeatures() on component mount
-		dispatch(getFeatures())
-	}, [dispatch])
+		// Only fetch if we don't already have features data
+		if (!features?.features4) {
+			dispatch(getFeatures())
+		}
+	}, [dispatch, features])
 
 	useEffect(() => {
 		// If preview data is provided, use it
@@ -31,16 +33,24 @@ export default function Features4({ previewData }: Features4Props = {}) {
 		}
 	}, [previewData, features])
 
-	// Force re-render when features data changes
-	useEffect(() => {
-		if (features && features.features4 && !previewData) {
-			setData({...features.features4});
-		}
-	}, [features?.features4, previewData])
-
-	// If data is still loading, return empty component
+	// Return placeholder during data loading (minimal and without text)
 	if (!data) {
-		return null
+		return (
+			<section>
+				<div className="container-fluid position-relative py-5">
+					<div className="container">
+						<div className="text-center mb-8" style={{ minHeight: "100px" }}></div>
+						<div className="row">
+							{[1, 2, 3, 4].map((i) => (
+								<div key={i} className="col-lg-3 col-md-6 mt-4 mt-lg-0">
+									<div className="card-service p-5 rounded-4" style={{ minHeight: "200px", backgroundColor: '#f8f9fa' }}></div>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+			</section>
+		)
 	}
 
 	return (
