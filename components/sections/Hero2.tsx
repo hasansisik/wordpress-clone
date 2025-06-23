@@ -109,6 +109,24 @@ export default function Hero2({ previewData }: { previewData?: any }) {
       .hero2-nav-btn:hover i {
         color: #000000 !important;
       }
+      @media (max-width: 768px) {
+        .section-hero-5 .backdrop-filter {
+          max-width: 100% !important;
+          overflow: hidden !important;
+        }
+        .section-hero-5 .container {
+          padding-left: 15px !important;
+          padding-right: 15px !important;
+        }
+        .section-hero-5 h4 {
+          font-size: 1.5rem !important;
+          line-height: 1.2 !important;
+        }
+        .section-hero-5 p {
+          font-size: 0.9rem !important;
+          line-height: 1.4 !important;
+        }
+      }
     `;
     document.head.appendChild(style);
     
@@ -227,7 +245,8 @@ export default function Hero2({ previewData }: { previewData?: any }) {
   const backgroundImageStyle = {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    maxHeight: '927px'
+    maxHeight: '927px',
+    minHeight: '400px'
   };
 
   const lineImageStyle = {
@@ -248,7 +267,7 @@ export default function Hero2({ previewData }: { previewData?: any }) {
             {slides.map((slide: SlideItem, index: number) => (
               <SwiperSlide className="swiper-slide" key={index}>
                 <div 
-                  className="position-relative py-188 img-pull" 
+                  className="position-relative py-75 py-md-100 py-lg-188 img-pull" 
                   style={{ 
                     backgroundImage: `url(${slide.backgroundImage})`,
                     ...backgroundImageStyle
@@ -256,32 +275,32 @@ export default function Hero2({ previewData }: { previewData?: any }) {
                 >
                   <div className="container position-relative z-2">
                     <div className="row">
-                      <div className="col-lg-6">
-                        <div className="backdrop-filter p-8 position-relative rounded-3">
-                          <div 
-                            className="bg-opacity-50 border d-inline-flex rounded-pill px-4 py-1"
-                            style={badgeStyle}
-                          >
-                            <span className="tag-spacing fs-6">{slide.badge}</span>
-                          </div>
-                          <h4 className="ds-4 my-3" style={titleStyle}>
+                      <div className="col-lg-6 col-12">
+                        <div className="backdrop-filter p-3 p-md-4 p-lg-8 position-relative rounded-3" style={{maxWidth: '100%', wordWrap: 'break-word'}}>
+                                                      <div 
+                              className="bg-opacity-50 border d-inline-flex rounded-pill px-3 px-lg-4 py-1"
+                              style={badgeStyle}
+                            >
+                              <span className="tag-spacing fs-7 fs-lg-6">{slide.badge}</span>
+                            </div>
+                          <h4 className="ds-6 ds-md-5 ds-lg-4 my-2 my-md-3" style={{...titleStyle, lineHeight: '1.2', wordBreak: 'break-word'}}>
                             {slide.title}
                           </h4>
-                          <p className="fs-5 text-900" style={descriptionStyle}>
+                          <p className="fs-7 fs-md-6 fs-lg-5 text-900 mb-3" style={{...descriptionStyle, lineHeight: '1.4', wordBreak: 'break-word'}}>
                             {slide.description}
                           </p>
-                          <div className="d-flex flex-column flex-md-row align-items-center">
+                          <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 gap-md-0">
                             <Link 
                               href={slide.primaryButtonLink} 
-                              className="btn rounded-4 d-flex align-items-center hero2-primary-btn"
+                              className="btn btn-sm btn-lg-md rounded-4 d-flex align-items-center hero2-primary-btn"
                               style={primaryButtonStyle}
                             >
-                              {slide.primaryButtonText}
+                              <span className="fs-7 fs-lg-6">{slide.primaryButtonText}</span>
                               <svg 
                                 className="ms-2" 
                                 xmlns="http://www.w3.org/2000/svg" 
-                                width={24} 
-                                height={24} 
+                                width={20} 
+                                height={20} 
                                 viewBox="0 0 24 24" 
                                 fill="none"
                               >
@@ -310,7 +329,7 @@ export default function Hero2({ previewData }: { previewData?: any }) {
                                   setOpen(true);
                                 }} 
                                 scroll={false} 
-                                className="d-inline-flex align-items-center rounded-4 text-nowrap backdrop-filter align-self-md-stretch px-3 py-2 popup-video hover-up ms-md-3 mt-3 mt-md-0 hero2-video-btn"
+                                className="d-inline-flex align-items-center rounded-4 text-nowrap backdrop-filter px-3 py-2 popup-video hover-up ms-md-3 hero2-video-btn"
                                 style={videoButtonStyle}
                               >
                                 <span 
@@ -333,7 +352,7 @@ export default function Hero2({ previewData }: { previewData?: any }) {
                                     />
                                   </svg>
                                 </span>
-                                <span className="fw-bold fs-7">
+                                <span className="fw-bold fs-8 fs-lg-7">
                                   {slide.videoButtonText}
                                 </span>
                               </Link>
