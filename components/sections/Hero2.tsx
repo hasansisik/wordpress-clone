@@ -63,6 +63,63 @@ export default function Hero2({ previewData }: { previewData?: any }) {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
+  // Create dynamic styles for button colors
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const styleId = 'hero2-dynamic-styles';
+    let existingStyle = document.getElementById(styleId);
+    
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+    
+    const data = heroData?.hero2 || {};
+    const primaryButtonBackgroundColor = data.primaryButtonBackgroundColor || "linear-gradient(90deg, #6342EC 0%, #4731D8 100%)";
+    const primaryButtonTextColor = data.primaryButtonTextColor || "#FFFFFF";
+    const videoButtonBackgroundColor = data.videoButtonBackgroundColor || "rgba(255, 255, 255, 0.3)";
+    const videoButtonTextColor = data.videoButtonTextColor || "#111827";
+    const videoButtonIconColor = data.videoButtonIconColor || "#111827";
+    const navigationButtonColor = data.navigationButtonColor || "#ffffff";
+    
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.innerHTML = `
+      .hero2-primary-btn {
+        background: ${primaryButtonBackgroundColor} !important;
+        color: ${primaryButtonTextColor} !important;
+        border: none !important;
+      }
+      .hero2-video-btn {
+        background-color: ${videoButtonBackgroundColor} !important;
+        color: ${videoButtonTextColor} !important;
+      }
+      .hero2-video-icon {
+        color: ${videoButtonIconColor} !important;
+      }
+      .hero2-nav-btn {
+        background-color: ${navigationButtonColor} !important;
+      }
+      .hero2-nav-btn:hover {
+        background-color: ${navigationButtonColor} !important;
+      }
+      .hero2-nav-btn i {
+        color: #000000 !important;
+      }
+      .hero2-nav-btn:hover i {
+        color: #000000 !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      const styleToRemove = document.getElementById(styleId);
+      if (styleToRemove) {
+        styleToRemove.remove();
+      }
+    };
+  }, [heroData]);
+
   if (loading || reduxLoading) {
     return <div className="py-5 text-center">Yükleniyor...ro information...</div>;
   }
@@ -149,21 +206,22 @@ export default function Hero2({ previewData }: { previewData?: any }) {
 
   const primaryButtonStyle = {
     background: primaryButtonBackgroundColor,
-    color: primaryButtonTextColor
-  };
+    color: primaryButtonTextColor,
+    border: 'none'
+  } as React.CSSProperties;
 
   const videoButtonStyle = {
     backgroundColor: videoButtonBackgroundColor,
     color: videoButtonTextColor
-  };
+  } as React.CSSProperties;
 
   const videoButtonIconStyle = {
     color: videoButtonIconColor
-  };
+  } as React.CSSProperties;
 
   const navigationButtonStyle = {
     backgroundColor: navigationButtonColor
-  };
+  } as React.CSSProperties;
 
   // Image style constraints
   const backgroundImageStyle = {
@@ -215,7 +273,7 @@ export default function Hero2({ previewData }: { previewData?: any }) {
                           <div className="d-flex flex-column flex-md-row align-items-center">
                             <Link 
                               href={slide.primaryButtonLink} 
-                              className="btn rounded-4 d-flex align-items-center"
+                              className="btn rounded-4 d-flex align-items-center hero2-primary-btn"
                               style={primaryButtonStyle}
                             >
                               {slide.primaryButtonText}
@@ -252,11 +310,11 @@ export default function Hero2({ previewData }: { previewData?: any }) {
                                   setOpen(true);
                                 }} 
                                 scroll={false} 
-                                className="d-inline-flex align-items-center rounded-4 text-nowrap backdrop-filter align-self-md-stretch px-3 py-2 popup-video hover-up ms-md-3 mt-3 mt-md-0"
+                                className="d-inline-flex align-items-center rounded-4 text-nowrap backdrop-filter align-self-md-stretch px-3 py-2 popup-video hover-up ms-md-3 mt-3 mt-md-0 hero2-video-btn"
                                 style={videoButtonStyle}
                               >
                                 <span 
-                                  className="backdrop-filter me-2 icon-shape icon-md rounded-circle"
+                                  className="backdrop-filter me-2 icon-shape icon-md rounded-circle hero2-video-icon"
                                   style={videoButtonIconStyle}
                                 >
                                   <svg 
@@ -300,13 +358,13 @@ export default function Hero2({ previewData }: { previewData?: any }) {
           {showNavigation && (
             <>
               <div 
-                className="swiper-button-prev d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y ms-lg-7"
+                className="swiper-button-prev d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y ms-lg-7 hero2-nav-btn"
                 style={navigationButtonStyle}
               >
                 <i className="bi bi-arrow-left" />
               </div>
               <div 
-                className="swiper-button-next d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y me-lg-7"
+                className="swiper-button-next d-none d-lg-flex shadow-2 position-absolute top-50 translate-middle-y me-lg-7 hero2-nav-btn"
                 style={navigationButtonStyle}
               >
                 <i className="bi bi-arrow-right" />
