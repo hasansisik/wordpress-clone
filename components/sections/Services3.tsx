@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { Autoplay, Keyboard, Navigation, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -17,6 +17,8 @@ interface ServiceItem {
 export default function Services3({ previewData }: { previewData?: any }) {
 	const [servicesData, setServicesData] = useState<any>(null);
 	const [loading, setLoading] = useState(true);
+	const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+	const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
 
 	// Fetch services data from server if not provided as props
 	useEffect(() => {
@@ -39,6 +41,15 @@ export default function Services3({ previewData }: { previewData?: any }) {
 
 		fetchServicesData();
 	}, [previewData]);
+
+	useEffect(() => {
+		if (!loading && cardRefs.current.length > 0) {
+			const heights = cardRefs.current.map(ref => ref?.offsetHeight || 0);
+			const max = Math.max(...heights);
+			setMaxHeight(max);
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [loading, servicesData]);
 
 	if (loading) {
 		return <div className="py-5 text-center">Yükleniyor...rvices information...</div>;
@@ -184,7 +195,11 @@ export default function Services3({ previewData }: { previewData?: any }) {
 							<div className="swiper-wrapper">
 								{slideServices.map((service: ServiceItem, index: number) => (
 									<SwiperSlide className="swiper-slide" key={index}>
-										<div className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2">
+										<div
+											className="card-service-4 position-relative bg-white p-6 border rounded-3 text-center shadow-1 hover-up mt-2"
+											style={maxHeight ? { height: maxHeight } : {}}
+											ref={el => { cardRefs.current[index] = el; }}
+										>
 											<div 
 												className="icon-flip position-relative icon-shape icon-xxl rounded-3 me-5"
 												style={getIconStyle(service)}
