@@ -83,7 +83,6 @@ export default function Services5({ previewData }: Services5Props) {
 		// Otherwise use Redux data
 		else if (other && other.services5) {
 			setData(other.services5);
-			console.log("Subtitle background color:", other.services5.subtitleBackgroundColor);
 		}
 	}, [previewData, other]);
 

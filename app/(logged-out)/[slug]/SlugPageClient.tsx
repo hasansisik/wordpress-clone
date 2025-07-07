@@ -224,21 +224,16 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   // Fetch data from Redux on component mount
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        console.log("Fetching data from Redux...");
-        
+      try {        
         // Always fetch fresh data
         await dispatch(getAllBlogs()).unwrap();
         
         // Fetch hizmetler as well
         try {
           await dispatch(getAllHizmetler()).unwrap();
-          console.log("Hizmetler fetched successfully");
         } catch (hizmetError) {
-          console.log("Hizmetler fetch failed, will use fallback:", hizmetError);
         }
 
-        console.log("Data fetching completed");
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data from Redux:", error);
@@ -254,9 +249,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   useEffect(() => {
     if (!isLoading) {
       const findContent = async () => {
-        console.log("Looking for content with slug:", slug);
-        console.log("Available blogs:", blogs?.length || 0);
-        console.log("Available hizmetler:", hizmetler?.length || 0);
 
         // Check if this is a hizmet slug (starts with "hizmet-")
         const isHizmetSlug = slug.startsWith("hizmet-");
@@ -269,7 +261,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           );
 
           if (foundHizmet) {
-            console.log("Found hizmet in Redux:", foundHizmet.title);
             setHizmet(foundHizmet);
             setContentType("hizmet");
 
@@ -302,12 +293,10 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         if (!isHizmetSlug && blogs && blogs.length > 0) {
           const foundBlog = blogs.find((post: any) => {
             const postSlug = slugify(post.title);
-            console.log(`Comparing "${postSlug}" with "${cleanSlug}"`);
             return postSlug === cleanSlug;
           });
 
           if (foundBlog) {
-            console.log("Found blog in Redux:", foundBlog.title);
             setBlogPost(foundBlog);
             setContentType("blog");
             return;
@@ -321,7 +310,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           );
 
           if (foundProject) {
-            console.log("Found project in Redux:", foundProject.title);
             setProject(foundProject);
             setContentType("project");
             return;
@@ -335,7 +323,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           );
 
           if (foundHizmet) {
-            console.log("Found hizmet in Redux (fallback):", foundHizmet.title);
             setHizmet(foundHizmet);
             setContentType("hizmet");
 
@@ -364,8 +351,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           }
         }
 
-        // If not found in Redux, try local JSON as fallback
-        console.log("Content not found in Redux, trying fallback...");
         setUsingFallback(true);
 
         try {
@@ -378,7 +363,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               );
 
               if (localBlog) {
-                console.log("Found blog in local data:", localBlog.title);
                 setBlogPost(localBlog);
                 setContentType("blog");
                 return;
@@ -395,7 +379,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               );
 
               if (localProject) {
-                console.log("Found project in local data:", localProject.title);
                 setProject(localProject);
                 setContentType("project");
                 return;
@@ -411,7 +394,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             );
 
             if (localHizmet) {
-              console.log("Found hizmet in local data:", localHizmet.title);
               setHizmet(localHizmet);
               setContentType("hizmet");
 
@@ -440,8 +422,6 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             }
           }
 
-          // If still not found, show 404
-          console.log("Content not found anywhere, showing 404");
           notFound();
         } catch (error) {
           console.error("Error with fallback:", error);

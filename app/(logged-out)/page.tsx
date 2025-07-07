@@ -197,8 +197,6 @@ export default async function Home() {
             if (section.config.subtitle) {
               configProps.subtitle = section.config.subtitle;
             }
-            // Debug log for section config
-            console.log(`Rendering ${section.type} with config:`, section.config);
           }
           
           return <SectionComponent key={section.id} {...configProps} />;

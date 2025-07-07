@@ -77,9 +77,6 @@ export default function Blog1({
   const router = useRouter();
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [currentPremiumPost, setCurrentPremiumPost] = useState<any>(null);
-  
-  // Debug log to check props
-  console.log('Blog1 received props:', { title, subtitle, selectedCategory, selectedAuthor });
 
   // Premium kontrolü - === true ile kesin kontrol
   const isPremiumUser = isAuthenticated && user?.isPremium === true;
@@ -203,7 +200,6 @@ export default function Blog1({
     color: data.badgeTextColor || "#6342EC",
   };
 
-  console.log(posts[0]?.category[0]);
 
   return (
     <>
