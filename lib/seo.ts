@@ -9,6 +9,45 @@ export interface SeoData {
   ogDescription?: string;
   ogImage?: string;
   canonicalUrl?: string;
+  schema?: {
+    organization?: {
+      socialLinks?: string[];
+      logo?: string;
+      address?: {
+        streetAddress?: string;
+        addressLocality?: string;
+        addressRegion?: string;
+        postalCode?: string;
+        addressCountry?: string;
+      };
+    };
+    enableWebPageSchema?: boolean;
+    enableBlogPostingSchema?: boolean;
+    enableItemListSchema?: boolean;
+  };
+  robotsTxt?: {
+    customRules?: string;
+    enableDefaultRules?: boolean;
+  };
+  sitemap?: {
+    excludeUrls?: string[];
+    additionalUrls?: {
+      url: string;
+      lastmod?: string;
+      changefreq?: string;
+      priority?: number;
+    }[];
+    changeFrequencies?: {
+      homepage?: string;
+      pages?: string;
+      posts?: string;
+    };
+    priorities?: {
+      homepage?: number;
+      pages?: number;
+      posts?: number;
+    };
+  };
 }
 
 export interface SeoPageConfig {

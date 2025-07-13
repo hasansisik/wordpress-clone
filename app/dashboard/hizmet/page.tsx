@@ -82,22 +82,10 @@ interface Author {
   date: string;
 }
 
-interface Content {
-  intro?: string;
-  readTime?: string;
-  author?: Author;
-  mainImage?: string; // Keep for backward compatibility
-  bannerSectionTitle?: string;
-  bannerSectionDescription?: string;
-  bannerSectionImage?: string;
-  beforeAfterSectionTitle?: string;
-  beforeAfterSectionDescription?: string;
-  beforeAfterItems?: BeforeAfterItem[];
-  leftRightSectionTitle?: string;
-  leftRightItems?: LeftRightItem[];
-  gallerySectionTitle?: string;
-  gallerySectionDescription?: string;
-  galleryImages?: GalleryImage[];
+interface VideoItem {
+  title?: string;
+  url: string;
+  order?: number;
 }
 
 interface BeforeAfterItem {
@@ -134,6 +122,25 @@ interface Hizmet {
   fullDescription: string;
   tag: string;
   content?: Content;
+}
+
+interface Content {
+  intro?: string;
+  readTime?: string;
+  author?: Author;
+  mainImage?: string; // Keep for backward compatibility
+  videos?: VideoItem[];
+  bannerSectionTitle?: string;
+  bannerSectionDescription?: string;
+  bannerSectionImage?: string;
+  beforeAfterSectionTitle?: string;
+  beforeAfterSectionDescription?: string;
+  beforeAfterItems?: BeforeAfterItem[];
+  leftRightSectionTitle?: string;
+  leftRightItems?: LeftRightItem[];
+  gallerySectionTitle?: string;
+  gallerySectionDescription?: string;
+  galleryImages?: GalleryImage[];
 }
 
 export default function HizmetEditor() {
@@ -180,6 +187,7 @@ export default function HizmetEditor() {
     image: "",
     categories: [] as string[],
     category: "",
+    videos: [] as VideoItem[],
     bannerSectionTitle: "",
     bannerSectionDescription: "",
     bannerSectionImage: "",
@@ -198,15 +206,11 @@ export default function HizmetEditor() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [hizmetToDelete, setHizmetToDelete] = useState<string | null>(null);
   
-  // Current index for editing sub-items
-  const [currentBeforeAfterIndex, setCurrentBeforeAfterIndex] = useState<number | null>(null);
-  const [currentLeftRightIndex, setCurrentLeftRightIndex] = useState<number | null>(null);
-  const [currentGalleryIndex, setCurrentGalleryIndex] = useState<number | null>(null);
-
   // Additional states for modal dialogs
   const [beforeAfterDialogOpen, setBeforeAfterDialogOpen] = useState(false);
   const [leftRightDialogOpen, setLeftRightDialogOpen] = useState(false);
   const [galleryDialogOpen, setGalleryDialogOpen] = useState(false);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   
   // Temporary state for editing items in modals
   const [beforeAfterItem, setBeforeAfterItem] = useState<BeforeAfterItem>({
@@ -230,6 +234,18 @@ export default function HizmetEditor() {
     image: '',
     order: 0
   });
+
+  const [videoItem, setVideoItem] = useState<VideoItem>({
+    title: '',
+    url: '',
+    order: 0
+  });
+
+  // Current index for editing sub-items
+  const [currentBeforeAfterIndex, setCurrentBeforeAfterIndex] = useState<number | null>(null);
+  const [currentLeftRightIndex, setCurrentLeftRightIndex] = useState<number | null>(null);
+  const [currentGalleryIndex, setCurrentGalleryIndex] = useState<number | null>(null);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState<number | null>(null);
 
   // Load hizmetler from Redux store
   useEffect(() => {
@@ -553,6 +569,7 @@ export default function HizmetEditor() {
     setCurrentBeforeAfterIndex(null);
     setCurrentLeftRightIndex(null);
     setCurrentGalleryIndex(null);
+    setCurrentVideoIndex(null);
   };
 
   // Handle form submit
@@ -577,6 +594,7 @@ export default function HizmetEditor() {
       // Prepare content object
       const contentObject = {
         mainImage: formData.bannerSectionImage || formData.image,
+        videos: formData.videos,
         bannerSectionTitle: formData.bannerSectionTitle || formData.title,
         bannerSectionDescription: formData.bannerSectionDescription || formData.description,
         bannerSectionImage: formData.bannerSectionImage || formData.image,
@@ -783,6 +801,7 @@ export default function HizmetEditor() {
       image: hizmetToEdit.image || "",
       categories: Array.isArray(hizmetToEdit.categories) ? hizmetToEdit.categories : [],
       category: "",
+      videos: hizmetToEdit.content?.videos || [],
       bannerSectionTitle: hizmetToEdit.content?.bannerSectionTitle || "",
       bannerSectionDescription: hizmetToEdit.content?.bannerSectionDescription || "",
       bannerSectionImage: hizmetToEdit.content?.bannerSectionImage || hizmetToEdit.content?.mainImage || "",
@@ -1066,6 +1085,61 @@ export default function HizmetEditor() {
     setFormData(prev => ({ ...prev, galleryImages: reorderedItems }));
   };
 
+  // Modal functions for video items
+  const openVideoDialog = (index?: number) => {
+    if (index !== undefined) {
+      setCurrentVideoIndex(index);
+      setVideoItem(formData.videos[index]);
+    } else {
+      setCurrentVideoIndex(null);
+      setVideoItem({
+        title: '',
+        url: '',
+        order: formData.videos.length
+      });
+    }
+    setVideoDialogOpen(true);
+  };
+
+  const saveVideoItem = () => {
+    // Validate required fields
+    if (!videoItem.url) {
+      setNotification({
+        type: "error",
+        message: "Video URL is required."
+      });
+      return;
+    }
+    
+    if (currentVideoIndex !== null) {
+      // Update existing item
+      const updatedItems = [...formData.videos];
+      updatedItems[currentVideoIndex] = videoItem;
+      setFormData(prev => ({ ...prev, videos: updatedItems }));
+    } else {
+      // Add new item
+      setFormData(prev => ({
+        ...prev,
+        videos: [...prev.videos, videoItem]
+      }));
+    }
+    
+    setVideoDialogOpen(false);
+  };
+
+  const deleteVideoItem = (index: number) => {
+    const updatedItems = [...formData.videos];
+    updatedItems.splice(index, 1);
+    
+    // Update order values
+    const reorderedItems = updatedItems.map((item, idx) => ({
+      ...item,
+      order: idx
+    }));
+    
+    setFormData(prev => ({ ...prev, videos: reorderedItems }));
+  };
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -1331,6 +1405,70 @@ export default function HizmetEditor() {
                               alt="Thumbnail preview" 
                               className="object-cover w-full h-full"
                             />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-sm font-medium">YouTube Videos</Label>
+                          <Button 
+                            type="button" 
+                            size="sm" 
+                            onClick={() => openVideoDialog()}
+                            variant="outline"
+                          >
+                            <Plus className="h-4 w-4 mr-1" /> Add Video
+                          </Button>
+                        </div>
+                        
+                        {formData.videos.length === 0 ? (
+                          <div className="text-center p-4 border border-dashed rounded-md text-muted-foreground">
+                            No videos added yet. Click "Add Video" to embed YouTube videos.
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {formData.videos.map((video, index) => (
+                              <div 
+                                key={index} 
+                                className="flex items-center justify-between p-3 border rounded-md"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-16 h-12 bg-gray-100 rounded-sm overflow-hidden">
+                                    <iframe
+                                      width="100%"
+                                      height="100%"
+                                      src={`https://www.youtube.com/embed/${video.url.includes('watch?v=') ? video.url.split('watch?v=')[1]?.split('&')[0] : video.url.includes('youtu.be/') ? video.url.split('youtu.be/')[1]?.split('?')[0] : video.url}`}
+                                      title="Video preview"
+                                      frameBorder="0"
+                                      className="pointer-events-none"
+                                    />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">{video.title || `Video ${index + 1}`}</p>
+                                    <p className="text-sm text-muted-foreground line-clamp-1">{video.url}</p>
+                                  </div>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button 
+                                    type="button" 
+                                    size="icon" 
+                                    variant="ghost" 
+                                    onClick={() => openVideoDialog(index)}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    type="button" 
+                                    size="icon" 
+                                    variant="ghost" 
+                                    onClick={() => deleteVideoItem(index)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -2195,6 +2333,73 @@ export default function HizmetEditor() {
               disabled={!galleryItem.image || isUploading.galleryImage}
             >
               {currentGalleryIndex !== null ? "Update Image" : "Add Image"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Video */}
+      <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {currentVideoIndex !== null ? "Edit Video" : "Add Video"}
+            </DialogTitle>
+            <DialogDescription>
+              Add a YouTube video with an optional title.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-1 gap-2">
+              <Label htmlFor="videoTitle">Title (Optional)</Label>
+              <Input
+                id="videoTitle"
+                value={videoItem.title || ""}
+                onChange={(e) => setVideoItem({...videoItem, title: e.target.value})}
+                placeholder="e.g. Product Demo"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 gap-2">
+              <Label htmlFor="videoUrl">YouTube Video URL</Label>
+              <Input
+                id="videoUrl"
+                value={videoItem.url || ""}
+                onChange={(e) => setVideoItem({...videoItem, url: e.target.value})}
+                placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
+              />
+              <p className="text-xs text-muted-foreground">
+                Paste a YouTube video URL (supports various formats)
+              </p>
+              {videoItem.url && (
+                <div className="aspect-video border rounded overflow-hidden">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${videoItem.url.includes('watch?v=') ? videoItem.url.split('watch?v=')[1]?.split('&')[0] : videoItem.url.includes('youtu.be/') ? videoItem.url.split('youtu.be/')[1]?.split('?')[0] : videoItem.url}`}
+                    title="Video preview"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setVideoDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={saveVideoItem}
+              disabled={!videoItem.url}
+            >
+              {currentVideoIndex !== null ? "Update Video" : "Add Video"}
             </Button>
           </DialogFooter>
         </DialogContent>

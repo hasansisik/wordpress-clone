@@ -33,6 +33,14 @@ import { AppDispatch } from "@/redux/store"
 import { getGeneral, updateGeneral, updateSeoPage } from "@/redux/actions/generalActions"
 import { Toaster, toast } from "sonner"
 import { uploadImageToCloudinary } from "@/utils/cloudinary";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -76,6 +84,83 @@ export default function Page() {
       // Reset state if no data is available
       setSeoPages([]);
       setSeoScore(0);
+    }
+  }, [general]);
+
+  const initializeSeoSettings = () => {
+    if (!general) return;
+    
+    // Initialize robotsTxt if it doesn't exist
+    if (!general.seo?.robotsTxt) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general.seo,
+          robotsTxt: {
+            customRules: "",
+            enableDefaultRules: true
+          }
+        }
+      }));
+    }
+    
+    // Initialize sitemap if it doesn't exist
+    if (!general.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general.seo,
+          sitemap: {
+            excludeUrls: [],
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: "daily",
+              pages: "weekly",
+              posts: "monthly"
+            },
+            priorities: {
+              homepage: 1.0,
+              pages: 0.8,
+              posts: 0.7
+            }
+          }
+        }
+      }));
+    }
+    
+    // Initialize schema if it doesn't exist
+    if (!general.seo?.schema) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general.seo,
+          schema: {
+            organization: {
+              socialLinks: [
+                "https://facebook.com/wordpressclone",
+                "https://twitter.com/wordpressclone",
+                "https://instagram.com/wordpressclone",
+                "https://linkedin.com/company/wordpressclone"
+              ],
+              logo: "/logo.png",
+              address: {
+                streetAddress: "",
+                addressLocality: "",
+                addressRegion: "",
+                postalCode: "",
+                addressCountry: "TR"
+              }
+            },
+            enableWebPageSchema: true,
+            enableBlogPostingSchema: true,
+            enableItemListSchema: true
+          }
+        }
+      }));
+    }
+  };
+
+  // Call the initialization function when the component mounts and general data is loaded
+  useEffect(() => {
+    if (general) {
+      initializeSeoSettings();
     }
   }, [general]);
 
@@ -224,6 +309,334 @@ export default function Page() {
   );
   }
   
+  // Ensure sitemap is initialized before using it
+  const handleExcludeUrlsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const urls = e.target.value.split('\n').filter(url => url.trim() !== '');
+    
+    // If sitemap doesn't exist yet, create it with default values
+    if (!general?.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          sitemap: {
+            excludeUrls: urls,
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: "daily",
+              pages: "weekly",
+              posts: "monthly"
+            },
+            priorities: {
+              homepage: 1.0,
+              pages: 0.8,
+              posts: 0.7
+            }
+          }
+        }
+      }));
+    } else {
+      // Update existing sitemap
+      dispatch(updateGeneral({
+        seo: {
+          sitemap: {
+            ...general.seo.sitemap,
+            excludeUrls: urls
+          }
+        }
+      }));
+    }
+  };
+
+  // Helper function for robotsTxt customRules
+  const handleCustomRulesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const customRules = e.target.value;
+    
+    // If robotsTxt doesn't exist yet, create it with default values
+    if (!general?.seo?.robotsTxt) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          robotsTxt: {
+            customRules: customRules,
+            enableDefaultRules: true
+          }
+        }
+      }));
+    } else {
+      // Update existing robotsTxt
+      dispatch(updateGeneral({
+        seo: {
+          robotsTxt: {
+            ...general.seo.robotsTxt,
+            customRules: customRules
+          }
+        }
+      }));
+    }
+  };
+
+  // Helper function for robotsTxt enableDefaultRules
+  const handleEnableDefaultRulesChange = (checked: boolean) => {
+    // If robotsTxt doesn't exist yet, create it with default values
+    if (!general?.seo?.robotsTxt) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          robotsTxt: {
+            customRules: "",
+            enableDefaultRules: checked
+          }
+        }
+      }));
+    } else {
+      // Update existing robotsTxt
+      dispatch(updateGeneral({
+        seo: {
+          robotsTxt: {
+            ...general.seo.robotsTxt,
+            enableDefaultRules: checked
+          }
+        }
+      }));
+    }
+  };
+
+  // Helper functions for sitemap priorities
+  const handleHomepagePriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const priority = parseFloat(e.target.value);
+    
+    // If sitemap doesn't exist yet, create it with default values
+    if (!general?.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          sitemap: {
+            excludeUrls: [],
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: "daily",
+              pages: "weekly",
+              posts: "monthly"
+            },
+            priorities: {
+              homepage: priority,
+              pages: 0.8,
+              posts: 0.7
+            }
+          }
+        }
+      }));
+    } else {
+      // Update existing sitemap
+      dispatch(updateGeneral({
+        seo: {
+          sitemap: {
+            ...general.seo.sitemap,
+            priorities: {
+              ...general.seo.sitemap.priorities,
+              homepage: priority
+            }
+          }
+        }
+      }));
+    }
+  };
+
+  const handlePagesPriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const priority = parseFloat(e.target.value);
+    
+    // If sitemap doesn't exist yet, create it with default values
+    if (!general?.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          sitemap: {
+            excludeUrls: [],
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: "daily",
+              pages: "weekly",
+              posts: "monthly"
+            },
+            priorities: {
+              homepage: 1.0,
+              pages: priority,
+              posts: 0.7
+            }
+          }
+        }
+      }));
+    } else {
+      // Update existing sitemap
+      dispatch(updateGeneral({
+        seo: {
+          sitemap: {
+            ...general.seo.sitemap,
+            priorities: {
+              ...general.seo.sitemap.priorities,
+              pages: priority
+            }
+          }
+        }
+      }));
+    }
+  };
+
+  const handlePostsPriorityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const priority = parseFloat(e.target.value);
+    
+    // If sitemap doesn't exist yet, create it with default values
+    if (!general?.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          sitemap: {
+            excludeUrls: [],
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: "daily",
+              pages: "weekly",
+              posts: "monthly"
+            },
+            priorities: {
+              homepage: 1.0,
+              pages: 0.8,
+              posts: priority
+            }
+          }
+        }
+      }));
+    } else {
+      // Update existing sitemap
+      dispatch(updateGeneral({
+        seo: {
+          sitemap: {
+            ...general.seo.sitemap,
+            priorities: {
+              ...general.seo.sitemap.priorities,
+              posts: priority
+            }
+          }
+        }
+      }));
+    }
+  };
+
+  // Helper functions for sitemap change frequencies
+  const handleHomepageFrequencyChange = (value: string) => {
+    // If sitemap doesn't exist yet, create it with default values
+    if (!general?.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          sitemap: {
+            excludeUrls: [],
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: value,
+              pages: "weekly",
+              posts: "monthly"
+            },
+            priorities: {
+              homepage: 1.0,
+              pages: 0.8,
+              posts: 0.7
+            }
+          }
+        }
+      }));
+    } else {
+      // Update existing sitemap
+      dispatch(updateGeneral({
+        seo: {
+          sitemap: {
+            ...general.seo.sitemap,
+            changeFrequencies: {
+              ...general.seo.sitemap.changeFrequencies,
+              homepage: value
+            }
+          }
+        }
+      }));
+    }
+  };
+
+  const handlePagesFrequencyChange = (value: string) => {
+    // If sitemap doesn't exist yet, create it with default values
+    if (!general?.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          sitemap: {
+            excludeUrls: [],
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: "daily",
+              pages: value,
+              posts: "monthly"
+            },
+            priorities: {
+              homepage: 1.0,
+              pages: 0.8,
+              posts: 0.7
+            }
+          }
+        }
+      }));
+    } else {
+      // Update existing sitemap
+      dispatch(updateGeneral({
+        seo: {
+          sitemap: {
+            ...general.seo.sitemap,
+            changeFrequencies: {
+              ...general.seo.sitemap.changeFrequencies,
+              pages: value
+            }
+          }
+        }
+      }));
+    }
+  };
+
+  const handlePostsFrequencyChange = (value: string) => {
+    // If sitemap doesn't exist yet, create it with default values
+    if (!general?.seo?.sitemap) {
+      dispatch(updateGeneral({
+        seo: {
+          ...general?.seo,
+          sitemap: {
+            excludeUrls: [],
+            additionalUrls: [],
+            changeFrequencies: {
+              homepage: "daily",
+              pages: "weekly",
+              posts: value
+            },
+            priorities: {
+              homepage: 1.0,
+              pages: 0.8,
+              posts: 0.7
+            }
+          }
+        }
+      }));
+    } else {
+      // Update existing sitemap
+      dispatch(updateGeneral({
+        seo: {
+          sitemap: {
+            ...general.seo.sitemap,
+            changeFrequencies: {
+              ...general.seo.sitemap.changeFrequencies,
+              posts: value
+            }
+          }
+        }
+      }));
+    }
+  };
+
   return (
    <>
      <header className="flex h-16 shrink-0 items-center gap-2">
@@ -252,9 +665,13 @@ export default function Page() {
           <Toaster richColors position="top-right" />
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="editor">SEO Editor</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="overview">Genel Bakış</TabsTrigger>
+              <TabsTrigger value="pages">Sayfalar</TabsTrigger>
+              <TabsTrigger value="schema">Schema.org</TabsTrigger>
+              <TabsTrigger value="robots">Robots.txt</TabsTrigger>
+              <TabsTrigger value="sitemap">Sitemap</TabsTrigger>
+              <TabsTrigger value="settings">Ayarlar</TabsTrigger>
             </TabsList>
             
             <TabsContent value="overview" className="space-y-4">
@@ -451,6 +868,317 @@ export default function Page() {
                         Improve SEO
                       </Button>
                     </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="schema" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Schema.org Yapılandırılmış Veri</CardTitle>
+                  <CardDescription>
+                    Arama motorları için yapılandırılmış veri ayarlarını yönetin. Bu ayarlar, sitenizin arama sonuçlarında nasıl görüneceğini etkiler.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">Organization Schema</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Ana sayfanız için kuruluş bilgilerini ayarlayın. Bu bilgiler Google Knowledge Graph'ta görüntülenebilir.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 gap-4 mt-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="org-social-facebook">Facebook URL</Label>
+                          <Input 
+                            id="org-social-facebook" 
+                            placeholder="https://facebook.com/yourpage" 
+                            defaultValue="https://facebook.com/wordpressclone"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="org-social-twitter">Twitter URL</Label>
+                          <Input 
+                            id="org-social-twitter" 
+                            placeholder="https://twitter.com/yourhandle" 
+                            defaultValue="https://twitter.com/wordpressclone"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="org-social-instagram">Instagram URL</Label>
+                          <Input 
+                            id="org-social-instagram" 
+                            placeholder="https://instagram.com/yourhandle" 
+                            defaultValue="https://instagram.com/wordpressclone"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="org-social-linkedin">LinkedIn URL</Label>
+                          <Input 
+                            id="org-social-linkedin" 
+                            placeholder="https://linkedin.com/company/yourcompany" 
+                            defaultValue="https://linkedin.com/company/wordpressclone"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">WebPage Schema</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Her sayfanız için otomatik olarak WebPage şeması oluşturulur. Bu, arama motorlarının içeriğinizi daha iyi anlamasına yardımcı olur.
+                      </p>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">BlogPosting Schema</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Blog yazılarınız için otomatik olarak BlogPosting şeması oluşturulur. Bu, arama sonuçlarında zengin snippet'ler görüntülenmesine yardımcı olur.
+                      </p>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">İçerik Haritası</h3>
+                      <p className="text-sm text-muted-foreground">
+                        İçerik haritası, sayfalarınızdaki başlıkları otomatik olarak algılar ve bir içindekiler tablosu oluşturur. Bu, kullanıcı deneyimini iyileştirir ve SEO'ya katkıda bulunur.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="robots" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Robots.txt Ayarları</CardTitle>
+                  <CardDescription>
+                    Arama motoru robotlarının sitenize nasıl erişeceğini yapılandırın. Robots.txt dosyası, web tarayıcılarına hangi sayfaların taranmasına izin verildiğini ve hangilerinin taranmaması gerektiğini söyler.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="enable-default-rules" 
+                        checked={general?.seo?.robotsTxt?.enableDefaultRules !== false}
+                        onCheckedChange={handleEnableDefaultRulesChange}
+                      />
+                      <Label htmlFor="enable-default-rules">Varsayılan kuralları etkinleştir</Label>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="custom-rules">Özel Kurallar</Label>
+                      <Textarea 
+                        id="custom-rules" 
+                        placeholder="User-agent: *&#10;Disallow: /ornek-dizin/&#10;Allow: /ornek-dizin/izinli-sayfa.html" 
+                        className="min-h-[200px] font-mono"
+                        value={general?.seo?.robotsTxt?.customRules || ""}
+                        onChange={handleCustomRulesChange}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Özel robots.txt kurallarınızı buraya girin. Her satır yeni bir kural olmalıdır.
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">Önizleme</h3>
+                      <Card className="bg-muted">
+                        <CardContent className="p-4">
+                          <pre className="text-xs overflow-auto whitespace-pre-wrap">
+                            {`# robots.txt for ${process.env.NEXT_PUBLIC_SITE_URL || 'https://wordpress-clone.com'}
+${general?.seo?.robotsTxt?.enableDefaultRules !== false ? `User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: ${process.env.NEXT_PUBLIC_SITE_URL || 'https://wordpress-clone.com'}/sitemap.xml
+
+# Disallow admin and dashboard paths
+User-agent: *
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /giris/
+Disallow: /kayit/
+Disallow: /sifremi-unuttum/
+Disallow: /sifre-sifirla/
+Disallow: /mail-dogrulama/` : ''}
+
+${general?.seo?.robotsTxt?.customRules ? `# Custom rules
+${general.seo.robotsTxt.customRules}` : ''}`}
+                          </pre>
+                        </CardContent>
+                      </Card>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button 
+                        onClick={() => {
+                          window.open(`${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/robots.txt`, '_blank');
+                        }}
+                      >
+                        Robots.txt Görüntüle
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="sitemap" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sitemap.xml Ayarları</CardTitle>
+                  <CardDescription>
+                    Site haritanızı yapılandırın. Sitemap.xml dosyası, arama motorlarına sitenizin yapısını ve içeriğini anlamalarına yardımcı olmak için kullanılır.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">Değişim Sıklığı</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="homepage-freq">Ana Sayfa</Label>
+                          <Select
+                            value={general?.seo?.sitemap?.changeFrequencies?.homepage || "daily"}
+                            onValueChange={handleHomepageFrequencyChange}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Değişim sıklığı seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="always">Her zaman</SelectItem>
+                              <SelectItem value="hourly">Saatlik</SelectItem>
+                              <SelectItem value="daily">Günlük</SelectItem>
+                              <SelectItem value="weekly">Haftalık</SelectItem>
+                              <SelectItem value="monthly">Aylık</SelectItem>
+                              <SelectItem value="yearly">Yıllık</SelectItem>
+                              <SelectItem value="never">Asla</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="pages-freq">Sayfalar</Label>
+                          <Select
+                            value={general?.seo?.sitemap?.changeFrequencies?.pages || "weekly"}
+                            onValueChange={handlePagesFrequencyChange}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Değişim sıklığı seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="always">Her zaman</SelectItem>
+                              <SelectItem value="hourly">Saatlik</SelectItem>
+                              <SelectItem value="daily">Günlük</SelectItem>
+                              <SelectItem value="weekly">Haftalık</SelectItem>
+                              <SelectItem value="monthly">Aylık</SelectItem>
+                              <SelectItem value="yearly">Yıllık</SelectItem>
+                              <SelectItem value="never">Asla</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="posts-freq">Yazılar</Label>
+                          <Select
+                            value={general?.seo?.sitemap?.changeFrequencies?.posts || "monthly"}
+                            onValueChange={handlePostsFrequencyChange}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Değişim sıklığı seçin" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="always">Her zaman</SelectItem>
+                              <SelectItem value="hourly">Saatlik</SelectItem>
+                              <SelectItem value="daily">Günlük</SelectItem>
+                              <SelectItem value="weekly">Haftalık</SelectItem>
+                              <SelectItem value="monthly">Aylık</SelectItem>
+                              <SelectItem value="yearly">Yıllık</SelectItem>
+                              <SelectItem value="never">Asla</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">Öncelikler</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="homepage-priority">Ana Sayfa</Label>
+                          <Input
+                            id="homepage-priority"
+                            type="number"
+                            min="0.0"
+                            max="1.0"
+                            step="0.1"
+                            value={general?.seo?.sitemap?.priorities?.homepage || 1.0}
+                            onChange={handleHomepagePriorityChange}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="pages-priority">Sayfalar</Label>
+                          <Input
+                            id="pages-priority"
+                            type="number"
+                            min="0.0"
+                            max="1.0"
+                            step="0.1"
+                            value={general?.seo?.sitemap?.priorities?.pages || 0.8}
+                            onChange={handlePagesPriorityChange}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="posts-priority">Yazılar</Label>
+                          <Input
+                            id="posts-priority"
+                            type="number"
+                            min="0.0"
+                            max="1.0"
+                            step="0.1"
+                            value={general?.seo?.sitemap?.priorities?.posts || 0.7}
+                            onChange={handlePostsPriorityChange}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium">Hariç Tutulan URL'ler</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Site haritasına dahil edilmeyecek URL'leri belirtin. Her satıra bir URL girin.
+                      </p>
+                      <Textarea
+                        placeholder="/ornek-url-1&#10;/ornek-url-2"
+                        className="min-h-[100px] font-mono"
+                        value={(general?.seo?.sitemap?.excludeUrls || []).join('\n')}
+                        onChange={handleExcludeUrlsChange}
+                      />
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button 
+                        onClick={() => {
+                          window.open(`${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/sitemap.xml`, '_blank');
+                        }}
+                      >
+                        Sitemap.xml Görüntüle
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

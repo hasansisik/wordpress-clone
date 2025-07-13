@@ -79,6 +79,11 @@ interface Hizmet {
     };
     mainImage: string;
     fullContent: string;
+    videos?: {
+      title?: string;
+      url: string;
+      order?: number;
+    }[];
     bannerSectionTitle?: string;
     bannerSectionDescription?: string;
     bannerSectionImage?: string;
@@ -178,6 +183,27 @@ const getLocalHizmetData = async () => {
   }
 };
 
+// Function to extract YouTube video ID from URL
+const getYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  // Handle different YouTube URL formats
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/v\/([^&\n?#]+)/,
+    /youtube\.com\/watch\?.*v=([^&\n?#]+)/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) {
+      return match[1];
+    }
+  }
+  
+  return null;
+};
+
 interface SlugPageClientProps {
   slug: string;
 }
@@ -224,7 +250,8 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
   // Fetch data from Redux on component mount
   useEffect(() => {
     const fetchData = async () => {
-      try {        
+      try {
+        
         // Always fetch fresh data
         await dispatch(getAllBlogs()).unwrap();
         
@@ -351,6 +378,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
           }
         }
 
+        // If not found in Redux, try local JSON as fallback
         setUsingFallback(true);
 
         try {
@@ -422,6 +450,7 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
             }
           }
 
+          // If still not found, show 404
           notFound();
         } catch (error) {
           console.error("Error with fallback:", error);
@@ -626,9 +655,9 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-center items-center flex-col h-[60vh]">
-          <h1 className="text-3xl font-bold mb-4">Content Not Found</h1>
+          <h1 className="text-3xl font-bold mb-4">İçerik Bulunamadı</h1>
           <p className="text-gray-600">
-            The requested content could not be found.
+            İstediğiniz içerik bulunamadı.
           </p>
           {usingFallback && (
             <p className="text-sm text-gray-500 mt-2">
@@ -671,14 +700,14 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
                         ? 'bg-light text-dark fw-bold'
                         : 'text-muted'
                     }`}
-                                          style={{
-                        paddingLeft: `${(item.level - 1) * 12 + 8}px`,
-                        fontSize: item.level === 1 ? '14px' : '13px',
-                        lineHeight: '1.4',
-                        border: 'none',
-                        borderRadius: '6px',
-                        transition: 'all 0.2s ease'
-                      }}
+                    style={{
+                      paddingLeft: `${(item.level - 1) * 12 + 8}px`,
+                      fontSize: item.level === 1 ? '14px' : '13px',
+                      lineHeight: '1.4',
+                      border: 'none',
+                      borderRadius: '6px',
+                      transition: 'all 0.2s ease'
+                    }}
                   >
                     <div className="d-flex align-items-center gap-2">
                       {activeHeading === item.id && (
@@ -705,33 +734,31 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         <section className={blogPost.premium ? "premium-content" : ""}>
           {blogPost.premium && (
             <>
-                        <div
-              className="position-absolute left-0 w-100"
-              style={{
-                background:
-                  "linear-gradient(to bottom, rgba(245, 158, 11, 1), rgba(245, 158, 11, 0))",
-                height: "300px",
-              }}
-            >
-              <div className="container mx-auto relative z-10">
-                <div className="flex items-center justify-center gap-2 pt-5">
-                  <Award className="w-8 h-8" color="white" />
-
-                  <span className="font-bold text-white text-xl">
-                    Premium İçerik
-                  </span>
+              <div
+                className="position-absolute left-0 w-100"
+                style={{
+                  background:
+                    "linear-gradient(to bottom, rgba(245, 158, 11, 1), rgba(245, 158, 11, 0))",
+                  height: "300px",
+                }}
+              >
+                <div className="container mx-auto relative z-10">
+                  <div className="flex items-center justify-center gap-2 pt-5">
+                    <Award className="w-8 h-8" color="white" />
+                    <span className="font-bold text-white text-xl">
+                      Premium İçerik
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
               <div className="w-100 d-flex justify-content-center align-items-center overflow-hidden" style={{ maxHeight: '400px' }}>
-              <img 
-                src={blogPost.image} 
-                alt={blogPost.title}
-                style={{ maxWidth: '100%', width: '100%', height: '400px', objectFit: 'cover', objectPosition: 'center' }}
-              />
-            </div>
+                <img 
+                  src={blogPost.image} 
+                  alt={blogPost.title}
+                  style={{ maxWidth: '100%', width: '100%', height: '400px', objectFit: 'cover', objectPosition: 'center' }}
+                />
+              </div>
             </>
-
           )}
 
           <div className="container mt-10 mb-10">
@@ -948,6 +975,126 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
         </section>
       )}
 
+      {contentType === "project" && project && (
+        <section>
+          <div className="container mt-10 mb-10">
+            <div className="row">
+              <div className="col-md-8 mx-auto">
+                <div className="d-flex gap-2">
+                  {Array.isArray(project.categories) ? (
+                    project.categories.map((cat, index) => (
+                      <Link
+                        key={index}
+                        href={`/icerikler/${encodeURIComponent(
+                          slugify(cat)
+                        )}`}
+                        className="rounded-pill px-3 fw-bold py-2 tag-spacing fs-7 fw-bold text-uppercase"
+                        style={{
+                          backgroundColor: "#f5f5f5",
+                          color: "#333333",
+                        }}
+                      >
+                        {cat}
+                      </Link>
+                    ))
+                  ) : (
+                    <Link
+                      href={`/icerikler/${encodeURIComponent(
+                        slugify(project.categories)
+                      )}`}
+                      className="bg-primary-soft text-primary rounded-pill px-3 fw-bold py-2 text-uppercase fs-7"
+                    >
+                      {project.categories}
+                    </Link>
+                  )}
+                </div>
+                <h5 className="ds-5 mt-3 mb-4">
+                  {project.title}
+                </h5>
+                <p className="fs-5 text-900 mb-0">
+                  {parse(project.content.intro)}
+                </p>
+                <div className="d-flex align-items-center justify-content-between mt-7 py-3 border-top border-bottom">
+                  <div className="d-flex align-items-center position-relative z-1">
+                    <div
+                      className="icon-shape rounded-circle border border-2 border-white bg-primary d-flex justify-content-center align-items-center"
+                      style={{ width: "40px", height: "40px" }}
+                    >
+                      <span className="text-white font-weight-bold">
+                        {project.content.author.name
+                          .substring(0, 2)
+                          .toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="ms-3">
+                      <h6 className="fs-7 m-0">
+                        {project.content.author.name}
+                      </h6>
+                      <p className="mb-0 fs-8">
+                        {project.content.author.date}
+                      </p>
+                    </div>
+                    <Link
+                      href="#"
+                      className="position-absolute bottom-0 start-0 end-0 top-0 z-0"
+                    />
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={24}
+                      height={24}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M12 19.25C16.0041 19.25 19.25 16.0041 19.25 12C19.25 7.99594 16.0041 4.75 12 4.75C7.99594 4.75 4.75 7.99594 4.75 12C4.75 16.0041 7.99594 19.25 12 19.25Z"
+                        stroke="#111827"
+                        strokeWidth="1.5"
+                      />
+                      <path
+                        d="M12 8V12L14 14"
+                        stroke="#111827"
+                        strokeWidth="1.5"
+                      />
+                    </svg>
+                    <span className="ms-2 fs-7 text-900">
+                      {project.content.readTime} okuma süresi
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-10 mx-auto my-7">
+                <div
+                  className="d-flex justify-content-center align-items-center overflow-hidden rounded-4"
+                  style={{ maxHeight: "450px" }}
+                >
+                  <img
+                    className="rounded-4"
+                    src={project.content.mainImage}
+                    alt={project.title}
+                    style={{
+                      width: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="col-md-8 mx-auto">
+                <div
+                  ref={contentRef}
+                  className="blog-content tw-prose tw-prose-lg tw-max-w-none"
+                >
+                  {project.content.fullContent &&
+                    parse(project.content.fullContent)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {contentType === "hizmet" && hizmet && (
         <div>
           {/* Main Banner Section */}
@@ -978,6 +1125,40 @@ export default function SlugPageClient({ slug }: SlugPageClientProps) {
               </div>
             </div>
           </section>
+
+          {/* Video Section */}
+          {hizmet.content.videos && hizmet.content.videos.length > 0 && (
+            <section className="section-video py-5">
+              <div className="container">
+                <div className="row">
+                  {hizmet.content.videos.map((video, index) => (
+                    <div 
+                      key={index} 
+                      className={`mb-4 ${hizmet.content.videos!.length === 1 ? 'col-lg-8 mx-auto' : 'col-lg-6'}`}
+                    >
+                      <div className="position-relative">
+                        {video.title && (
+                          <h5 className="mb-3 text-center">{video.title}</h5>
+                        )}
+                        <div className="position-relative rounded-4 overflow-hidden">
+                          <iframe
+                            width="100%"
+                            height={hizmet.content.videos!.length === 1 ? "400" : "315"}
+                            src={`https://www.youtube.com/embed/${getYouTubeVideoId(video.url)}`}
+                            title={video.title || `Service Video ${index + 1}`}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="rounded-4"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Before-After Section */}
           {hizmet.content.beforeAfterItems &&

@@ -2,6 +2,12 @@ import axios from "axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { server } from "@/config";
 
+export interface VideoItem {
+  title?: string;
+  url: string;
+  order?: number;
+}
+
 export interface BeforeAfterItem {
   title?: string;
   description?: string;
@@ -34,6 +40,7 @@ export interface HizmetContent {
   };
   mainImage?: string;
   fullContent?: string;
+  videos?: VideoItem[];
   bannerSectionTitle?: string;
   bannerSectionDescription?: string;
   bannerSectionImage?: string;

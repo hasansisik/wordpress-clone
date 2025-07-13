@@ -16,6 +16,7 @@ import { store } from "@/redux/store"
 import { getGeneral } from "@/redux/actions/generalActions"
 import { generateMetadata as generateSeoMetadata } from "@/lib/seo"
 import ThemeProvider from "@/components/layout/ThemeProvider"
+import SchemaMarkup from "@/components/seo/SchemaMarkup"
 
 // This will run server-side
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,14 +27,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata("general")
 }
 
-export default function LogoutLayout({
+export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <ThemeProvider>
-      {children}
-    </ThemeProvider>
-  );
+    <html lang="tr">
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+        
+        {/* Add schema markup for the homepage */}
+        <SchemaMarkup isHomePage={true} />
+      </body>
+    </html>
+  )
 }
